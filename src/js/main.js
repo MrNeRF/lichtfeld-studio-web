@@ -1,6 +1,7 @@
 import '../scss/styles.scss'
 import * as bootstrap from 'bootstrap'
-import { Application, Asset, AssetListLoader, Entity, FILLMODE_NONE, RESOLUTION_AUTO, Color, Pose, Vec3, OrbitController } from 'playcanvas';
+import { Application, Asset, AssetListLoader, Entity, FILLMODE_NONE, RESOLUTION_AUTO, Color, Pose, Vec3, OrbitController, registerScript } from 'playcanvas';
+import { OrbitCamera } from './orbitCamera';
 
 window.addEventListener('DOMContentLoaded', async () => {
     // Create application
@@ -22,14 +23,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     window.addEventListener('resize', () => app.resizeCanvas(...resolution()));
 
-    // Load assets
-    const assets = [
-        new Asset('scene', 'gsplat', {
-            url: './assets/static/botanics/meta.json'
-        })
-    ];
-
-    const loader = new AssetListLoader(assets, app.assets);
+    const assetBontanics = new Asset('Botanics Asset', 'gsplat', { url: './assets/static/botanics/meta.json' });
+    const loader = new AssetListLoader([assetBontanics], app.assets);
     await new Promise(resolve => loader.load(resolve));
 
 
@@ -45,7 +40,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     // Create splat entity
     const splat = new Entity('Scene');
-    splat.addComponent('gsplat', { asset: assets[0] });
+    splat.addComponent('gsplat', { asset: assetBontanics });
     splat.setPosition(0, 0, 0);
     splat.setEulerAngles(0, 0, 180);
     app.root.addChild(splat);

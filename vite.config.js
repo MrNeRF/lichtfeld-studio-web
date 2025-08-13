@@ -3,6 +3,7 @@ import { resolve } from "path";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 
 export default defineConfig({
+  base: '',
   root: resolve(__dirname, "src"),
   build: {
     outDir: "../docs",

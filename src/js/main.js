@@ -25,7 +25,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     // Load assets
     const assets = [
         new Asset('scene', 'gsplat', {
-            url: '../assets/botanics/meta.json'
+            url: './assets/static/botanics/meta.json'
         })
     ];
 

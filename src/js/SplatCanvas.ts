@@ -20,8 +20,6 @@ interface SuperSplatProjectDocument {
   ]
 }
 
-const ANIMATION_TRANSITION_MILLIS = 4000;
-
 class SplatCanvas {
 
     private canvas: HTMLCanvasElement;

@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import { resolve } from "path";
 import { viteStaticCopy } from "vite-plugin-static-copy";
+import { createHtmlPlugin } from 'vite-plugin-html';
 
 export default defineConfig({
   base: '',
@@ -8,6 +9,11 @@ export default defineConfig({
   build: {
     outDir: "../docs",
     emptyOutDir: true,
+    rollupOptions: {
+      input: {
+        index: 'src/index.html'
+      }
+    }
   },
   server: {
     port: 8080,
@@ -20,6 +26,14 @@ export default defineConfig({
     },
   },
   plugins: [
+    createHtmlPlugin({
+      // Configure EJS-like includes
+      inject: {
+        ejsOptions: {
+          views: ['src/partials'] // Path for partials
+        }
+      }
+    }),
     viteStaticCopy({
       targets: [
         {

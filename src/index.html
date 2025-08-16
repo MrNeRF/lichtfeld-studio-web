@@ -1,28 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>LichtFeld Studio</title>
+    <%- include('meta.html') %>
     <script type="module" src="./js/main.js"></script>
   </head>
   <body>
     <main>
-      <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
-        <div class="container">
-          <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
-            <a href="#" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
-              <img src="./assets/lichtfeld-logo.svg" alt="LichtFeld Studio" style="height:30px" />
-            </a>
-            <ul class="nav nav-pills">
-              <li class="nav-item"><a href="#" class="nav-link active" aria-current="page">Home</a></li>
-              <li class="nav-item"><a href="#" class="nav-link">Features</a></li>
-              <li class="nav-item"><a href="#" class="nav-link">Sponsoring</a></li>
-              <li class="nav-item"><a href="#" class="nav-link">About</a></li>
-            </ul>
-          </div>
-        </div>
-      </header>
+      <%- include('header.html') %>
       <div>
         <canvas id="large-splat"></canvas>
       </div>
@@ -108,21 +92,7 @@
           </div>
         </div>
       </div>
-      <div class="container">
-        <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
-          <p class="col-md-4 mb-0 text-body-secondary">© 2025 LichtFeld</p>
-          <a href="#" class="col-md-4 d-flex align-items-center justify-content-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none" aria-label="Bootstrap">
-            
-              <img src="./assets/lichtfeld-logo.svg" alt="LichtFeld Studio" style="height:20px" />
-          </a>
-          <ul class="nav col-md-4 justify-content-end">
-            <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">Home</a></li>
-            <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">Features</a></li>
-            <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">Sponsoring</a></li>
-            <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">About</a></li>
-          </ul>
-        </footer>
-      </div>
+      <%- include('footer.html') %>
     </main>
   </body>
 </html>

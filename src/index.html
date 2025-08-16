@@ -2,13 +2,14 @@
 <html lang="en">
   <head>
     <%- include('meta.html') %>
-    <script type="module" src="./js/main.js"></script>
+    <script type="module" src="./js/main.ts"></script>
   </head>
   <body>
     <main>
       <%- include('header.html') %>
-      <div>
-        <canvas id="large-splat"></canvas>
+      <div class="splat-wrapper">
+        <div class="container"></div>
+        <canvas data-scene="botanics"></canvas>
       </div>
       <div class="container px-4 py-5">
         <div class="row flex-lg-row-reverse align-items-center g-5 py-5">

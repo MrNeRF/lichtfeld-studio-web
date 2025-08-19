@@ -20,11 +20,14 @@ interface SuperSplatProjectDocument {
   ]
 }
 
+const easeOut = (t: number) => 1 - (t - 1) * (t - 1);
+
 class SplatCanvas {
 
     private canvas: HTMLCanvasElement;
     private app!: Application;
     private camera?: Entity;
+    private camPose: Pose = new Pose();
     private poses: Pose[] = [];
     private poseIdx = 0;
     private updateCameraFn?: () => void;
@@ -120,15 +123,17 @@ class SplatCanvas {
         const endMillis = startMillis + durationMillis;
         const fromPose = new Pose(camera.getPosition(), camera.getEulerAngles());
         this.updateCameraFn = () => {
-            const now = Date.now();            
-            const alpha = (now - startMillis) / (endMillis - startMillis);
+            const now = Date.now();
+            const t = (now - startMillis) / (endMillis - startMillis);
+            const alpha = durationMillis === 0 ? 1 : easeOut(t);
 
-            const newPose = (alpha >= 1) ? toPose : fromPose.lerp(fromPose, toPose, alpha, alpha);
-            camera.setPosition(newPose.position);
-            camera.setEulerAngles(newPose.angles);
+            this.camPose = (alpha >= 1) ? toPose : this.camPose.lerp(fromPose, toPose, alpha, alpha);
+            camera.setPosition(this.camPose.position);
+            camera.setEulerAngles(this.camPose.angles);          
 
-            if(alpha >= 1)
+            if(t >= 1){
                 this.updateCameraFn = undefined;
+            }
         };
     }
 

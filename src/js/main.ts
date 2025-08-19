@@ -8,7 +8,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         const splatCanvas = new SplatCanvas(canvas);
 
         canvas.addEventListener('click', () => {
-            splatCanvas.togglePose(4000);
+            splatCanvas.togglePose(1000);
         });
     });
 });

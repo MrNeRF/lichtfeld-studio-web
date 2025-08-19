@@ -1,4 +1,4 @@
-import { Application, Asset, AssetListLoader, CameraComponent, Color, Entity, FILLMODE_NONE, Pose, RESOLUTION_AUTO, Vec3 } from "playcanvas";
+import { Application, Asset, AssetListLoader, CameraComponent, Color, Entity, FILLMODE_NONE, math, Pose, RESOLUTION_AUTO, Vec3 } from "playcanvas";
 
 interface SuperSplatProjectDocument {
   "camera": {
@@ -100,9 +100,9 @@ class SplatCanvas {
                 this.updateCameraFn();
         });
 
-        const firstPose = this.poses[0];
-
-        this.moveToPose(firstPose);
+        
+        this.camera.setPosition(this.poses[0].position);
+        this.camera.setEulerAngles(this.poses[0].angles);  
     }
 
     initSplat(splatAsset: Asset){
@@ -113,7 +113,7 @@ class SplatCanvas {
         this.app.root.addChild(splat);
     }
 
-    private moveToPose(toPose: Pose, durationMillis: number = 0){
+    private move(fromPose: Pose, toPose: Pose, durationMillis: number = 0){
         if(!this.camera){
             console.warn('no camera');
             return;
@@ -121,13 +121,13 @@ class SplatCanvas {
         const camera = this.camera;
         const startMillis = Date.now();
         const endMillis = startMillis + durationMillis;
-        const fromPose = new Pose(camera.getPosition(), camera.getEulerAngles());
         this.updateCameraFn = () => {
             const now = Date.now();
             const t = (now - startMillis) / (endMillis - startMillis);
             const alpha = durationMillis === 0 ? 1 : easeOut(t);
 
             this.camPose = (alpha >= 1) ? toPose : this.camPose.lerp(fromPose, toPose, alpha, alpha);
+
             camera.setPosition(this.camPose.position);
             camera.setEulerAngles(this.camPose.angles);          
 
@@ -138,8 +138,13 @@ class SplatCanvas {
     }
 
     public togglePose(durationMillis: number = 0){
-        this.poseIdx = (this.poseIdx + 1) % this.poses.length;
-        this.moveToPose(this.poses[this.poseIdx], durationMillis);
+        let fromPose = this.poses[this.poseIdx];
+        this.poseIdx = (this.poseIdx + 1) % this.poses.length;        
+        const toPose = this.poses[this.poseIdx];
+        const camera = this.camera;
+        if(this.updateCameraFn && camera) 
+            fromPose = new Pose(camera.getPosition(), camera.getEulerAngles());
+        this.move(fromPose, toPose, durationMillis);
     }
 }
 

@@ -1,0 +1,20 @@
+---
+import { getCollection } from 'astro:content';
+
+const bounties = await getCollection('bounty');
+bounties.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+const currentPath = Astro.url.pathname;
+---
+
+<div class="list-group">
+  {bounties.map(bounty => (
+    <a href={`/bounty/${bounty.slug}`} class={`list-group-item list-group-item-action ${currentPath === '/bounty/' + bounty.slug ? 'active' : ''}`}>
+    <div class="d-flex w-100 justify-content-between">
+      <h5 class="mb-1">{bounty.data.title}</h5>
+      <small>{bounty.data.date.toLocaleDateString()}</small>
+    </div>
+    <p class="mb-1">{bounty.data.summary}</p>
+    <small>{bounty.data.winner}</small>
+  </a>
+  ))}
+</div>

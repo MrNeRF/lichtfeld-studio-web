@@ -1,0 +1,134 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>LichtFeld Studio</title><link rel="stylesheet" href="/_astro/_slug_.D5fA57Bi.css"></head> <body> <main>  <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom"> <div class="container"> <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start"> <a href="#" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none"> <img src="/_astro/lichtfeld-logo.owD6BM0O.svg" alt="LichtFeld Studio" style="height: 30px"> </a> <ul class="nav nav-pills"> <li class="nav-item"><a href="/" class="nav-link active" aria-current="page">Home</a></li> <li class="nav-item"><a href="/bounty/bounty2" class="nav-link">Bounties</a></li> <li class="nav-item"><a href="#" class="nav-link">Sponsoring</a></li> <li class="nav-item"><a href="#" class="nav-link">About</a></li> </ul> </div> </div> </header> <div class="container px-4 py-5"> <div class="row"> <div class="col-12 col-lg-4 order-1 order-lg-2"> <div class="list-group"> <a href="/bounty/bounty2" class="list-group-item list-group-item-action "> <div class="d-flex w-100 justify-content-between"> <h5 class="mb-1">Make densification obsolete</h5> <small>10.8.2025</small> </div> <p class="mb-1">This bounty aims to improve training quality without using densification by providing a stronger initialization.</p> <small></small> </a><a href="/bounty/bounty1" class="list-group-item list-group-item-action "> <div class="d-flex w-100 justify-content-between"> <h5 class="mb-1">Speed up training</h5> <small>23.6.2025</small> </div> <p class="mb-1">This bounty challenges you to speed up training by at least 100% (halfing the runtime), without compromising results.</p> <small>(won by Florian Hahlbohm)</small> </a> </div> </div> <div class="col-12 col-lg-8 order-2 order-lg-1"> <h1>Make densification obsolete</h1>  <p>The quality of 3D Gaussian Splatting (3DGS) depends strongly on the initial point cloud. This bounty aims to improve training quality <strong>without</strong> using densification by providing a stronger initialization. Ideally, this transfers to the training with densification.</p>
+<p><strong>Goal:</strong> Provide a method to initialize training with a better point cloud that improves final quality.
+<strong>Bonus:</strong> Match or beat the <strong>densified</strong> baseline metrics using only your improved initialization.</p>
+<hr>
+<h2 id="-rules">🔧 Rules</h2>
+<ul>
+<li><strong>No densification.</strong> Use the <a href="http://storage.googleapis.com/gresearch/refraw360/360_v2.zip">MipNeRF360 dataset</a> and the original poses. The reference metrics below were generated <strong>with densification disabled</strong> for <strong>30k</strong> steps using <code>./scripts/bounty_002_disabled_densification.sh</code>.
+Your solution must reach <strong>mean PSNR ≥ 28.0</strong> without densification after 30k steps to qualify.</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>==============================================================================</span></span>
+<span class="line"><span>QUALITY METRICS SUMMARY</span></span>
+<span class="line"><span>==============================================================================</span></span>
+<span class="line"><span>scene      iteration  psnr       ssim       lpips      num_gaussians  </span></span>
+<span class="line"><span>------------------------------------------------------------------------------</span></span>
+<span class="line"><span>garden     30000      24.4267    0.698950   0.367346   138,766        </span></span>
+<span class="line"><span>------------------------------------------------------------------------------</span></span>
+<span class="line"><span>bicycle    30000      22.0596    0.584871   0.507605   54,275         </span></span>
+<span class="line"><span>------------------------------------------------------------------------------</span></span>
+<span class="line"><span>stump      30000      22.5856    0.636969   0.566039   32,049         </span></span>
+<span class="line"><span>------------------------------------------------------------------------------</span></span>
+<span class="line"><span>bonsai     30000      28.6492    0.921540   0.329062   206,613        </span></span>
+<span class="line"><span>------------------------------------------------------------------------------</span></span>
+<span class="line"><span>counter    30000      26.4455    0.891156   0.333817   155,767        </span></span>
+<span class="line"><span>------------------------------------------------------------------------------</span></span>
+<span class="line"><span>kitchen    30000      28.0873    0.901104   0.225270   241,367        </span></span>
+<span class="line"><span>------------------------------------------------------------------------------</span></span>
+<span class="line"><span>room       30000      29.2352    0.907292   0.362466   112,627        </span></span>
+<span class="line"><span>------------------------------------------------------------------------------</span></span>
+<span class="line"><span>==============================================================================</span></span>
+<span class="line"><span>mean       30000      25.9270    0.791697   0.384515   134,494        </span></span>
+<span class="line"><span>==============================================================================</span></span></code></pre>
+<ul>
+<li>
+<p>Ideally, the solution is directly mergeable into the repo. A Python-only solution is allowed if it uses deep learning or Python-only deps.</p>
+</li>
+<li>
+<p>Third-party code must be GPLv3-compatible. Allowed: MIT, Apache 2.0, BSD. Not allowed: DUSt3R, MAST3R, VGGT (including commercial licenses).</p>
+</li>
+<li>
+<p>Your contribution must be licensed as <strong>GPLv3</strong>.</p>
+</li>
+<li>
+<p>Running <code>scripts/bounty_002_full_eval</code> on standard benchmarks may not degrade metrics. The initialization should ideally improve them. An undisclosed dataset will be used to check for overfitting or dataset bias. The reference results are included here:</p>
+</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>==============================================================================</span></span>
+<span class="line"><span>QUALITY METRICS SUMMARY</span></span>
+<span class="line"><span>==============================================================================</span></span>
+<span class="line"><span>scene      iteration  psnr       ssim       lpips      num_gaussians</span></span>
+<span class="line"><span>------------------------------------------------------------------------------</span></span>
+<span class="line"><span>garden     30000      27.8539    0.862883   0.107563   4,937,304</span></span>
+<span class="line"><span>bicycle    30000      25.7642    0.785712   0.188216   5,684,053</span></span>
+<span class="line"><span>stump      30000      26.9556    0.810134   0.213571   4,647,623</span></span>
+<span class="line"><span>bonsai     30000      32.5415    0.953107   0.246894   1,120,498</span></span>
+<span class="line"><span>counter    30000      29.2535    0.929803   0.244577   886,049</span></span>
+<span class="line"><span>kitchen    30000      31.5344    0.935762   0.154214   1,129,135</span></span>
+<span class="line"><span>room       30000      32.0918    0.936561   0.272640   1,199,942</span></span>
+<span class="line"><span>------------------------------------------------------------------------------</span></span>
+<span class="line"><span>mean       30000      29.4278    0.887709   0.203954   2,800,657</span></span>
+<span class="line"><span>==============================================================================</span></span></code></pre>
+<ul>
+<li>
+<p>Random initialization does not qualify. Reusing a 3DGS trained model (a <em><strong>final splat</strong></em>) or <strong>intermediate</strong> checkpoints of the 3DGS pipeline as initial point cloud is not allowed. Build a genuine initialization and don’t try to fake it.</p>
+</li>
+<li>
+<p>The method must run on consumer hardware with <strong>≤ 24 GB VRAM</strong>. It must scale to large datasets with no hard cap on the number of images. <strong>2k–3k images</strong> or larger datasets must work. Preprocessing time must be <strong>≤ 50%</strong> of a scene’s full training time. Example: if full training with densification takes 8 minutes, your preprocessing may take at most 4 minutes.</p>
+</li>
+<li>
+<p>Avoid massive floaters. Visual results will be inspected.</p>
+</li>
+<li>
+<p>Your pull request must include a concise summary of your approach.</p>
+</li>
+<li>
+<p>Collaboration is welcome. You may work individually or form teams. Join the <a href="https://discord.gg/NqwTqVYVmj">MrNeRF &#x26; Brush Discord</a> to discuss ideas, share progress, and connect with other participants.</p>
+</li>
+</ul>
+<p><strong>Bonus goal: additional $500</strong></p>
+<ol>
+<li>Match or exceed the <strong>densified</strong> baseline metrics from <code>scripts/bounty_002_full_eval</code> <strong>without</strong> using densification. Optimize only the <strong>initial point cloud</strong>. You can run the same script with <code>--disable-densification</code> to verify.</li>
+</ol>
+<p>or</p>
+<ol start="2">
+<li>Demonstrate that your method significantly reduces floaters.</li>
+</ol>
+<hr>
+<h2 id="-deadline">⏰ Deadline</h2>
+<p><strong>September 7, 2025, 11:59 PM PST</strong></p>
+<hr>
+<h2 id="-prize">💰 Prize</h2>
+<ul>
+<li><strong>$2,600</strong> for the base challenge.</li>
+<li><strong>+ $500</strong> for the bonus goal.</li>
+</ul>
+<p><strong>Sponsors:</strong>
+<a href="https://x.com/janusch_patas">MrNeRF</a> $300 + $500 bonus goal
+<a href="https://x.com/martin_casado">Martin Casado</a> $1000
+<a href="https://x.com/broodsugar">Nils Pihl</a> $1000
+<a href="https://x.com/fhahlbohm">Florian Hahlbohm</a> $100
+<a href="https://x.com/mazy1998">Mazeyar Moeini</a> $100
+<a href="https://x.com/YeheLiu">YeheLiu</a> $100</p>
+<p><strong>Payout:</strong> 70% to the winner, 30% shared among other successful participants.</p>
+<hr>
+<h2 id="credit">Credit</h2>
+<p>Initial idea for this bounty by <a href="https://x.com/fhahlbohm">Florian Hahlbohm</a>.</p>
+<hr>
+<h2 id="discord">Discord</h2>
+<p><a href="https://t.co/lrl64WGvlD">discord.gg/NqwTqVYVmj</a></p>
+<hr>
+<h2 id="submission">Submission</h2>
+<ol>
+<li>Open a pull request with your implementation towards the <a href="https://github.com/MrNeRF/gaussian-splatting-cuda/tree/bounty_002">bounty_002</a> branch. All necessary script are there.</li>
+<li>Include a short method summary, runtime and VRAM stats, and commands to reproduce results.</li>
+<li>Cite any third-party code and licenses used.</li>
+<li>Provide metrics on MipNeRF360 with densification disabled and show that mean PSNR ≥ 28.0.</li>
+<li>If attempting the bonus, also report the full-eval comparison.</li>
+</ol>
+<hr>
+<h2 id="literature-for-inspiration">Literature for inspiration</h2>
+<ul>
+<li><a href="https://arxiv.org/abs/2504.13204v1">https://arxiv.org/abs/2504.13204v1</a></li>
+<li><a href="https://arxiv.org/abs/2403.09413">https://arxiv.org/abs/2403.09413</a></li>
+</ul>
+<p>Hint by <a href="https://x.com/KL_Div/status/1954799627867152598">Ke Li</a> “You might be interested in this: <a href="https://t.co/gTpWnRxGEk">https://zvict.github.io/papr/</a> (essentially the tails of Gaussians cause vanishing gradients, and you can get around it by learning an interpolation kernel)”</p>
+<ul>
+<li><a href="https://arxiv.org/abs/2307.11086">https://arxiv.org/abs/2307.11086</a></li>
+</ul>
+<hr>
+<h2 id="notes">Notes</h2>
+<ul>
+<li>If your method needs new dependencies, justify them and keep setup simple.</li>
+<li>Reproducibility matters. Please fix seeds where applicable and document data preprocessing.</li>
+<li>Rules can be adjusted if necessary.</li>
+</ul>  </div> </div> </div> <div class="container"> <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top"> <p class="col-md-4 mb-0 text-body-secondary">© 2025 LichtFeld</p> <a href="#" class="col-md-4 d-flex align-items-center justify-content-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none" aria-label="Bootstrap"> <img src="/_astro/lichtfeld-logo.owD6BM0O.svg" alt="LichtFeld Studio" style="height: 20px"> </a> <ul class="nav col-md-4 justify-content-end"> <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">Home</a></li> <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">Features</a></li> <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">Sponsoring</a></li> <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">About</a></li> </ul> </footer> </div>  </main> </body></html>

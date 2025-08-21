@@ -1,28 +1,20 @@
 {
-  "name": "lichtfeld-studio",
-  "version": "1.0.0",
-  "main": "index.js",
+  "name": "",
   "type": "module",
+  "version": "0.0.1",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
-  "devDependencies": {
-    "sass": "^1.90.0",
-    "typescript": "^5.9.2",
-    "vite": "^7.1.1",
-    "vite-plugin-html": "^3.2.2",
-    "vite-plugin-static-copy": "^3.1.1"
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
   },
   "dependencies": {
-    "@popperjs/core": "^2.11.8",
+    "astro": "^5.13.2",
     "bootstrap": "^5.3.7",
     "bootstrap-icons": "^1.13.1",
-    "playcanvas": "^2.10.5"
+    "playcanvas": "^2.10.6"
+  },
+  "devDependencies": {
+    "sass": "^1.90.0"
   }
 }

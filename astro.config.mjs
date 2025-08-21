@@ -3,6 +3,7 @@ import { defineConfig } from "astro/config";
 
 // https://astro.build/config
 export default defineConfig({
+  base: "/lichtfeld-studio-web",
   outDir: "./docs",
   vite: {
     css: {

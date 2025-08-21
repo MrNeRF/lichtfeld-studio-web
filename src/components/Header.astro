@@ -1,5 +1,9 @@
 ---
 import lichtFeldLogo from '../assets/lichtfeld-logo.svg';
+
+const base = import.meta.env.BASE_URL;
+const currentPath = Astro.url.pathname;
+
 ---
 
 <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
@@ -9,8 +13,8 @@ import lichtFeldLogo from '../assets/lichtfeld-logo.svg';
         <img src={lichtFeldLogo.src} alt="LichtFeld Studio" style="height: 30px" />
       </a>
       <ul class="nav nav-pills">
-        <li class="nav-item"><a href="/" class="nav-link active" aria-current="page">Home</a></li>
-        <li class="nav-item"><a href="/bounty/bounty2" class="nav-link">Bounties</a></li>
+        <li class="nav-item"><a href={base} class={`nav-link ${currentPath === base + "/" ? 'active' : ''}`}>Home</a></li>
+        <li class="nav-item"><a href={base + "/bounty/bounty2"} class={`nav-link ${currentPath === base + "/bounty/bounty2" ? 'active' : ''}`}>Bounties</a></li>
         <li class="nav-item"><a href="#" class="nav-link">Sponsoring</a></li>
         <li class="nav-item"><a href="#" class="nav-link">About</a></li>
       </ul>

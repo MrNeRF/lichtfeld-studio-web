@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>LichtFeld Studio</title>
+    <style lang="scss" is:global>
+      @use "bootstrap/scss/bootstrap" as *;
+
+      body {
+        background-color: #f8f9fa; /* Bootstrap’s light gray color */
+      }
+
+      .splat-wrapper {
+        width: 100%;
+        position: relative;
+
+        canvas {
+          position: absolute;
+          top: 0;
+          left: 0;
+        }
+
+        .container {
+          aspect-ratio: 2/1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+	    <slot/>
+	  </main>
+  </body>
+</html>

@@ -1,0 +1,102 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+import viewerDemo from '../assets/viewer_demo.gif';
+import Splat from '../components/Splat.astro';
+
+// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
+// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+---
+
+<Layout>
+	<Header/>
+	<div class="splat-wrapper">
+		<div class="container"></div>
+			<Splat scene="botanics"/>
+		</div>
+		<div class="container px-4 py-5">
+		<div class="row flex-lg-row-reverse align-items-center g-5 py-5">
+			<div class="col-10 col-sm-8 col-lg-6"><img src={viewerDemo.src} class="d-block mx-lg-auto img-fluid" alt="Bootstrap Themes" width="700" height="500" loading="lazy" /></div>
+			<div class="col-lg-6">
+			<h1 class="display-5 fw-bold text-body-emphasis lh-1 mb-3">3D Gaussian Splatting<br />with C++ and CUDA</h1>
+			<p class="lead">
+				Unleash the power of real-time 3D Gaussian Splatting with MrNeRF's high-performance C++ and CUDA implementation! Experience blazing-fast radiance field rendering, optimized for
+				cutting-edge NVIDIA GPUs. With an intuitive viewer and advanced features like SuperSplat-like editing, it’s perfect for researchers and developers pushing the boundaries of 3D
+				visualization. Join the community and transform your 3D projects today!
+			</p>
+			<div class="d-grid gap-2 d-md-flex justify-content-md-start">
+				<button type="button" class="btn btn-primary btn-lg px-4 me-md-2">Download</button> <button type="button" class="btn btn-outline-secondary btn-lg px-4">More Info</button>
+			</div>
+			</div>
+		</div>
+		</div>
+		<div class="container px-4 py-5" id="icon-grid">
+		<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 py-5">
+			<div class="col d-flex align-items-start">
+			<svg class="bi text-body-secondary flex-shrink-0 me-3" width="1.75em" height="1.75em" aria-hidden="true"><use xlink:href="./static/bootstrap-icons.svg#speedometer2"></use></svg>
+			<div>
+				<h3 class="fw-bold mb-0 fs-4 text-body-emphasis">High-Performance</h3>
+				<p>Utilizes C++ and CUDA for unmatched speed in 3D Gaussian Splatting.</p>
+			</div>
+			</div>
+
+			<div class="col d-flex align-items-start">
+			<svg class="bi text-body-secondary flex-shrink-0 me-3" width="1.75em" height="1.75em" aria-hidden="true"><use xlink:href="./static/bootstrap-icons.svg#display"></use></svg>
+			<div>
+				<h3 class="fw-bold mb-0 fs-4 text-body-emphasis">Real-Time Rendering</h3>
+				<p>Enables real-time radiance field rendering with optimized CUDA backend.</p>
+			</div>
+			</div>
+
+			<div class="col d-flex align-items-start">
+			<svg class="bi text-body-secondary flex-shrink-0 me-3" width="1.75em" height="1.75em" aria-hidden="true"><use xlink:href="./static/bootstrap-icons.svg#eye-fill"></use></svg>
+			<div>
+				<h3 class="fw-bold mb-0 fs-4 text-body-emphasis">Interactive Viewer</h3>
+				<p>Features a viewer with planned improvements for better camera controls.</p>
+			</div>
+			</div>
+
+			<div class="col d-flex align-items-start">
+			<svg class="bi text-body-secondary flex-shrink-0 me-3" width="1.75em" height="1.75em" aria-hidden="true"><use xlink:href="./static/bootstrap-icons.svg#gear-fill"></use></svg>
+			<div>
+				<h3 class="fw-bold mb-0 fs-4 text-body-emphasis">MCMC Optimization</h3>
+				<p>Supports MCMC strategy to manage Gaussian splats with a configurable cap.</p>
+			</div>
+			</div>
+
+			<div class="col d-flex align-items-start">
+			<svg class="bi text-body-secondary flex-shrink-0 me-3" width="1.75em" height="1.75em" aria-hidden="true"><use xlink:href="./static/bootstrap-icons.svg#bar-chart-fill"></use></svg>
+			<div>
+				<h3 class="fw-bold mb-0 fs-4 text-body-emphasis">Evaluation Metrics</h3>
+				<p>Computes PSNR, SSIM, and LPIPS for performance evaluation during training.</p>
+			</div>
+			</div>
+
+			<div class="col d-flex align-items-start">
+			<svg class="bi text-body-secondary flex-shrink-0 me-3" width="1.75em" height="1.75em" aria-hidden="true"><use xlink:href="./static/bootstrap-icons.svg#box-seam"></use></svg>
+			<div>
+				<h3 class="fw-bold mb-0 fs-4 text-body-emphasis">Docker Support</h3>
+				<p>Offers a Docker-based environment for simplified setup and reproducible builds.</p>
+			</div>
+			</div>
+
+			<div class="col d-flex align-items-start">
+			<svg class="bi text-body-secondary flex-shrink-0 me-3" width="1.75em" height="1.75em" aria-hidden="true"><use xlink:href="./static/bootstrap-icons.svg#cpu-fill"></use></svg>
+			<div>
+				<h3 class="fw-bold mb-0 fs-4 text-body-emphasis">LibTorch Integration</h3>
+				<p>Uses LibTorch 2.7.0 for enhanced performance and CUDA 12.8 compatibility.</p>
+			</div>
+			</div>
+			<div class="col d-flex align-items-start">
+			<svg class="bi text-body-secondary flex-shrink-0 me-3" width="1.75em" height="1.75em" aria-hidden="true"><use xlink:href="./static/bootstrap-icons.svg#people-fill"></use></svg>
+			<div>
+				<h3 class="fw-bold mb-0 fs-4 text-body-emphasis">Contributions</h3>
+				<p>Encourages contributions with clear guidelines and a supportive Discord community.</p>
+			</div>
+			</div>
+		</div>
+	</div>
+	<Footer/>
+</Layout>

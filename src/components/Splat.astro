@@ -1,0 +1,21 @@
+---
+const { scene } = Astro.props;
+---
+
+<astro-splat scene={scene} ><canvas /></astro-splat>
+<script>
+    import { SplatCanvas } from "../script/SplatCanvas";
+    
+    class AstroSplat extends HTMLElement {
+        connectedCallback(){
+            const canvas = this.querySelector('canvas') as HTMLCanvasElement;
+            const splatCanvas = new SplatCanvas(canvas, this.getAttribute('scene') as string, this.parentElement as HTMLElement);
+
+            this.addEventListener('click', () => {
+                splatCanvas.togglePose(1000);
+            });
+        }
+    }
+
+    customElements.define('astro-splat', AstroSplat);
+</script>

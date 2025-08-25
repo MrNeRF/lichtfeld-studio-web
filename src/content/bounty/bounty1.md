@@ -1,8 +1,9 @@
 ---
-title: Speed up training
+title: 'Speed up training'
 date: 2025-06-23
-summary: This bounty challenges you to speed up training by at least 100% (halfing the runtime), without compromising results.
-winner: (won by Florian Hahlbohm)
+deadline: 2025-08-02
+summary: 'This bounty challenges you to speed up training by at least 100% (halfing the runtime), without compromising results.'
+winner: 'Winner: Florian Hahlbohm'
 ---
 Help us **cut training time in half** and earn **$1500**!  
 This bounty challenges you to speed up training by at least **100%** (halfing the runtime), without compromising results.

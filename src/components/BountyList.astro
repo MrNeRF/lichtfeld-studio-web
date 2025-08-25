@@ -1,20 +1,23 @@
 ---
 import { getCollection } from 'astro:content';
 
-const bounties = await getCollection('bounty');
-bounties.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+const base = import.meta.env.BASE_URL;
 const currentPath = Astro.url.pathname;
-const bountyPath = import.meta.env.BASE_URL + "/bounty/";
+
+const bounties = (await getCollection('bounty')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+const bountyPath = `${base}/bounty/`;
 ---
 
 <div class="list-group">
   {bounties.map(bounty => (
-    <a href={bountyPath + bounty.slug} class={`list-group-item list-group-item-action ${currentPath === bountyPath + bounty.slug ? 'active' : ''}`}>
-    <div class="d-flex w-100 justify-content-between">
+    <a href={bountyPath + bounty.slug} class={`list-group-item list-group-item-action ${currentPath.startsWith(bountyPath + bounty.slug) ? 'active' : ''}`}>
+    <div class="w-100 justify-content-between">
       <h5 class="mb-1">{bounty.data.title}</h5>
-      <small>{bounty.data.date.toLocaleDateString()}</small>
+      <small>{bounty.data.date.toLocaleDateString()} - {bounty.data.deadline.toLocaleDateString()}</small>
     </div>
-    <p class="mb-1">{bounty.data.summary}</p>
+    <p class="mb-1 p-2">{bounty.data.summary}</p>
     <small>{bounty.data.winner}</small>
   </a>
   ))}

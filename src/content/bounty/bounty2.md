@@ -1,8 +1,9 @@
 ---
-title: Make densification obsolete
+title: 'Make densification obsolete'
 date: 2025-08-10
-summary: This bounty aims to improve training quality without using densification by providing a stronger initialization.
-winner: 
+deadline: 2025-09-07
+summary: 'This bounty aims to improve training quality without using densification by providing a stronger initialization.'
+winner: ''
 ---
 The quality of 3D Gaussian Splatting (3DGS) depends strongly on the initial point cloud. This bounty aims to improve training quality **without** using densification by providing a stronger initialization. Ideally, this transfers to the training with densification.
 

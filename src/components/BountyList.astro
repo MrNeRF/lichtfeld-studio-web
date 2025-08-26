@@ -10,7 +10,13 @@ const bounties = (await getCollection('bounty')).sort((a, b) => b.data.date.getT
 const bountyPath = `${base}/bounty/`;
 ---
 
-<div class="list-group">
+<style>
+  #bounty-list{
+    top:92px;
+  }
+</style>
+
+<div id="bounty-list" class="list-group sticky-top">
   {bounties.map(bounty => (
     <a href={bountyPath + bounty.slug} class={`list-group-item list-group-item-action ${currentPath.startsWith(bountyPath + bounty.slug) ? 'active' : ''}`}>
     <div class="w-100 justify-content-between">

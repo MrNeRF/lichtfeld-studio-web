@@ -1,32 +1,69 @@
 ---
-import lichtFeldLogo from '../assets/lichtfeld-logo.svg';
-import { getCollection } from 'astro:content';
+import lichtFeldLogo from "../assets/lichtfeld-logo.svg";
+import { getCollection } from "astro:content";
 
 const base = import.meta.env.BASE_URL;
 const currentPath = Astro.url.pathname;
 
-const bounties = (await getCollection('bounty')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+const bounties = (await getCollection("bounty")).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 
 const latestBounty = bounties[0];
 const latestBountyPath = latestBounty ? `${base}/bounty/${latestBounty.slug}` : `${base}/bounty/bounty2`;
 
-const homeActiveClass = currentPath === base || currentPath === base + '/' ? 'active' : '';
-const bountyActiveClass = currentPath.startsWith(`${base}/bounty/`) ? 'active' : '';
-
+const homeActiveClass = currentPath === base || currentPath === base + "/" ? "active" : "";
+const bountyActiveClass = currentPath.startsWith(`${base}/bounty/`) ? "active" : "";
 ---
 
-<header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
-  <div class="container">
-    <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
-      <a href="#" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
-        <img src={lichtFeldLogo.src} alt="LichtFeld Studio" style="height: 30px" />
-      </a>
-      <ul class="nav nav-pills">
-        <li class="nav-item"><a href={base} class={`nav-link ${homeActiveClass}`}>Home</a></li>
-        <li class="nav-item"><a href={latestBountyPath} class={`nav-link ${bountyActiveClass}`}>Bounties</a></li>
-        <li class="nav-item"><a href="#" class="nav-link">Sponsoring</a></li>
-        <li class="nav-item"><a href="#" class="nav-link">About</a></li>
-      </ul>
+<style>
+  header {
+    height: 60px;
+  }
+
+  nav {
+    background: rgba(255, 255, 255, 0.9);
+  }
+
+  nav .nav-link{
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  nav .nav-link.active{
+    background-color: #0d6efd;
+    color: #fff;
+    border-radius: 8px;
+  }
+</style>
+
+<script>
+  import 'bootstrap';
+</script>
+
+<header>
+  <nav class="navbar navbar-expand-lg fixed-top">
+    <div class="container">
+      <a href="#" class="navbar-brand">
+          <img src={lichtFeldLogo.src} alt="LichtFeld Studio" style="height: 30px" />
+        </a>
+      <button
+        class="navbar-toggler collapsed"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarsContent"
+        aria-controls="navbarsContent"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="navbar-collapse collapse" id="navbarsContent">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a href={base} class={`nav-link ${homeActiveClass}`}>Home</a></li>
+          <li class="nav-item"><a href={latestBountyPath} class={`nav-link ${bountyActiveClass}`}>Bounties</a></li>
+          <li class="nav-item"><a href="#" class="nav-link">Sponsoring</a></li>
+          <li class="nav-item"><a href="#" class="nav-link">About</a></li>
+        </ul>
+      </div>
     </div>
-  </div>
+  </nav>
 </header>

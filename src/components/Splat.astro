@@ -2,14 +2,15 @@
 const { scene } = Astro.props;
 ---
 
-<astro-splat scene={scene} ><canvas /></astro-splat>
+<astro-splat scene={scene} data-base={import.meta.env.BASE_URL}><canvas /></astro-splat>
 <script>
     import { SplatCanvas } from "../script/SplatCanvas";
     
     class AstroSplat extends HTMLElement {
         connectedCallback(){
             const canvas = this.querySelector('canvas') as HTMLCanvasElement;
-            const splatCanvas = new SplatCanvas(canvas, this.getAttribute('scene') as string, this.parentElement as HTMLElement);
+            const base = this.getAttribute('data-base') || '/';
+            const splatCanvas = new SplatCanvas(canvas, this.getAttribute('scene') as string, this.parentElement as HTMLElement, base);
 
             this.addEventListener('click', () => {
                 splatCanvas.togglePose(1000);

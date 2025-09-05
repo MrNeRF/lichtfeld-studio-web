@@ -3,6 +3,8 @@ import { defineConfig } from "astro/config";
 
 // https://astro.build/config
 export default defineConfig({
+  // Canonicals & sitemaps
+  site: "https://mrnerf.github.io/lichtfeld-studio-web/",
   output: 'static',
   base: "/lichtfeld-studio-web",
   outDir: "./docs",

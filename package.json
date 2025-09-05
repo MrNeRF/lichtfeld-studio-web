@@ -1,5 +1,6 @@
 {
-  "name": "",
+  "name": "lichtfeld-studio-web",
+  "private": true,
   "type": "module",
   "version": "0.0.1",
   "scripts": {

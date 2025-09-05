@@ -42,7 +42,7 @@ const bountyActiveClass = currentPath.startsWith(`${base}/bounty/`) ? "active" :
 <header>
   <nav class="navbar navbar-expand-lg fixed-top">
     <div class="container">
-      <a href="#" class="navbar-brand">
+      <a href={base} class="navbar-brand" aria-label="LichtFeld Studio Home">
           <img src={lichtFeldLogo.src} alt="LichtFeld Studio" style="height: 24px" />
         </a>
       <button
@@ -60,8 +60,8 @@ const bountyActiveClass = currentPath.startsWith(`${base}/bounty/`) ? "active" :
         <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
           <li class="nav-item"><a href={base} class={`nav-link ${homeActiveClass}`}>Home</a></li>
           <li class="nav-item"><a href={latestBountyPath} class={`nav-link ${bountyActiveClass}`}>Bounties</a></li>
-          <li class="nav-item"><a href="https://discord.gg/NqwTqVYVmj" target="_blank" class="nav-link">Discord</a></li>
-          <li class="nav-item"><a href="https://github.com/MrNeRF/gaussian-splatting-cuda" target="_blank" class="nav-link">GitHub</a></li>
+          <li class="nav-item"><a href="https://discord.gg/NqwTqVYVmj" target="_blank" rel="noopener noreferrer" class="nav-link">Discord</a></li>
+          <li class="nav-item"><a href="https://github.com/MrNeRF/gaussian-splatting-cuda" target="_blank" rel="noopener noreferrer" class="nav-link">GitHub</a></li>
         </ul>
       </div>
     </div>

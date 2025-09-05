@@ -32,13 +32,15 @@ class SplatCanvas {
     private poseIdx = 0;
     private scene: string;
     private updateCameraFn?: () => void;
+    private base: string;
 
-    constructor(canvas: HTMLCanvasElement, scene: string, sizeElement: HTMLElement){
+    constructor(canvas: HTMLCanvasElement, scene: string, sizeElement: HTMLElement, base: string){
         this.canvas = canvas;
         this.scene = scene;
+        this.base = base.endsWith('/') ? base : base + '/';
         this.init(sizeElement);
         void this.asyncInit();
-    }    
+    }
 
     private init(sizeElement: HTMLElement){
         const resolution = () => [sizeElement.offsetWidth, sizeElement.offsetHeight];
@@ -62,7 +64,7 @@ class SplatCanvas {
             return;
         }
 
-        const location = window.location.pathname + '/static/' + sceneName;
+        const location = this.base + '/static/' + sceneName;
         const [splat, document] = await this.loadAssets(location);
 
         const ssDocument = document.resource as SuperSplatProjectDocument;

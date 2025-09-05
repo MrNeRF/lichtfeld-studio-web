@@ -1,23 +1,20 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
 import BountyList from '../components/BountyList.astro';
 const { data } = Astro.props;
 ---
 
 <Layout>
-    <Header/>
-		<div class="container px-4 py-5">
-			<div class="row">
-				<div class="col-12 col-lg-4 order-1 order-lg-2">
-					<BountyList />
-				</div>
-				<div class="col-12 col-lg-8 order-2 order-lg-1">
-					<h1>{data.title}</h1>
-					<slot />
-				</div>
-			</div>
-	    </div>
-	<Footer/>
+  <!-- Content -->
+  <div class="container px-4 py-5">
+    <div class="row">
+      <div class="col-12 col-lg-4 order-1 order-lg-2">
+        <BountyList />
+      </div>
+      <div class="col-12 col-lg-8 order-2 order-lg-1">
+        <h1>{data.title}</h1>
+        <slot />
+      </div>
+    </div>
+  </div>
 </Layout>

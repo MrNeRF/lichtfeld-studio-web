@@ -1,3 +1,8 @@
+---
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+---
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -30,7 +35,14 @@
   </head>
   <body>
     <main>
+      <!-- Header -->
+      <Header/>
+      
+      <!-- Content -->
 	    <slot/>
+
+      <!-- Footer -->
+      <Footer/>
 	  </main>
   </body>
 </html>

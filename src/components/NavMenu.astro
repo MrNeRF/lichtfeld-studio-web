@@ -1,0 +1,390 @@
+---
+/**
+ * Centralized, reusable navigation menu.
+ *
+ * Props:
+ *  - bountiesHref: string — latest bounty page to link to.
+ *
+ * Behavior:
+ *  - Highlights active items with a custom 'is-active' class.
+ *  - Provides a split-button dropdown for "Contribute":
+ *      • Left part (text) navigates to /contribute.
+ *      • Right part (caret) toggles the submenu.
+ *  - Submenu opens on hover for desktop and on click for mobile.
+ */
+import { withBase } from "@/utils/navigation";
+
+const { bountiesHref } = Astro.props as { bountiesHref: string };
+
+/** Navigation base URL & current path. */
+const base = import.meta.env.BASE_URL;
+const currentPath = Astro.url.pathname;
+
+/** Route constants with base-aware URLs. */
+const ROUTES = {
+  contribute: withBase(base, "/contribute"),
+
+  buildOnWindows: withBase(base, "/contribute/build-on-windows"),
+
+  createNewTools: withBase(base, "/contribute/create-new-tools"),
+} as const;
+
+/** Normalize a path to avoid trailing-slash mismatches when comparing. */
+const normalize = (p: string) => (p.endsWith("/") ? p.slice(0, -1) : p);
+
+/** Active checks for top-level items. */
+const isHomeActive = normalize(currentPath) === normalize(base);
+const isBountiesActive = currentPath.startsWith(`${normalize(base)}/bounty/`);
+
+/** Any /contribute* page activates the parent "Contribute" item. */
+const isContributeActive = currentPath.startsWith(ROUTES.contribute);
+---
+
+<ul class="nav-menu">
+  <!-- Home -->
+  <li class="nav-menu__item">
+    <a href={base} class:list={["nav-menu__link", { "is-active": isHomeActive }]}>Home</a>
+  </li>
+
+  <!-- Bounties -->
+  <li class="nav-menu__item">
+    <a href={bountiesHref} class:list={["nav-menu__link", { "is-active": isBountiesActive }]}>Bounties</a>
+  </li>
+
+  <!-- Contribute Dropdown -->
+  <li class="nav-menu__item nav-menu__dropdown">
+    <div class="nav-menu__dropdown-container">
+      <a
+        href={ROUTES.contribute}
+        class:list={["nav-menu__link", { "is-active": isContributeActive }]}
+        aria-current={isContributeActive ? "page" : undefined}
+      >
+        Contribute
+      </a>
+      <button
+        type="button"
+        class="nav-menu__dropdown-toggle"
+        aria-expanded="false"
+        aria-label="Toggle Contribute submenu"
+        aria-controls="contribute-submenu"
+      >
+      </button>
+    </div>
+
+    <ul class="nav-menu__submenu" id="contribute-submenu">
+      <li class="nav-menu__submenu-item">
+        <a class="nav-menu__submenu-link" href={ROUTES.contribute}>Get Involved!</a>
+      </li>
+      <li class="nav-menu__submenu-item">
+        <a class="nav-menu__submenu-link" href={ROUTES.buildOnWindows}>How to: Build on Windows</a>
+      </li>
+      <li class="nav-menu__submenu-item">
+        <a class="nav-menu__submenu-link" href={ROUTES.createNewTools}>How to: Create new Tools</a>
+      </li>
+    </ul>
+  </li>
+
+  <!-- External links -->
+  <li class="nav-menu__item">
+    <a href="https://discord.gg/NqwTqVYVmj" target="_blank" rel="noopener noreferrer" class="nav-menu__link">Discord</a>
+  </li>
+  <li class="nav-menu__item">
+    <a
+      href="https://github.com/MrNeRF/gaussian-splatting-cuda"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="nav-menu__link"
+    >
+      GitHub
+    </a>
+  </li>
+</ul>
+
+<script type="module">
+  /**
+   * Manages desktop hover-intent and mobile click-toggle for custom dropdowns.
+   * On mobile, the entire dropdown container acts as a single toggle button.
+   */
+  const HOVER_DELAY_MS = 150; // A small delay to prevent accidental closing.
+  const DESKTOP_MEDIA_QUERY = "(min-width: 992px)";
+
+  /**
+   * Attaches interactive dropdown behavior to a single dropdown container.
+   * @param {HTMLElement} dropdownEl The parent `.nav-menu__dropdown` element.
+   */
+  function initializeDropdown(dropdownEl) {
+    const container = dropdownEl.querySelector(".nav-menu__dropdown-container");
+    const toggle = dropdownEl.querySelector(".nav-menu__dropdown-toggle");
+    const submenu = dropdownEl.querySelector(".nav-menu__submenu");
+    const link = dropdownEl.querySelector(".nav-menu__dropdown-container .nav-menu__link");
+
+    if (!container || !toggle || !submenu || !link) {
+      console.error("Dropdown is missing a container, link, toggle, or submenu.", dropdownEl);
+      return;
+    }
+
+    let hideTimer; // Timer for delayed closing on hover.
+
+    const show = () => {
+      if (hideTimer) clearTimeout(hideTimer);
+      dropdownEl.classList.add("is-open");
+      toggle.setAttribute("aria-expanded", "true");
+    };
+
+    const hide = () => {
+      dropdownEl.classList.remove("is-open");
+      toggle.setAttribute("aria-expanded", "false");
+    };
+
+    const scheduleHide = () => {
+      if (hideTimer) clearTimeout(hideTimer);
+      hideTimer = setTimeout(hide, HOVER_DELAY_MS);
+    };
+
+    // --- Desktop Hover Logic ---
+    const handleDesktopMouseEnter = () => {
+      if (window.matchMedia(DESKTOP_MEDIA_QUERY).matches) {
+        show();
+      }
+    };
+
+    const handleDesktopMouseLeave = () => {
+      if (window.matchMedia(DESKTOP_MEDIA_QUERY).matches) {
+        scheduleHide();
+      }
+    };
+
+    dropdownEl.addEventListener("mouseenter", handleDesktopMouseEnter);
+    dropdownEl.addEventListener("mouseleave", handleDesktopMouseLeave);
+
+    // --- Unified Click Logic ---
+    // A single click handler on the container manages all click interactions.
+    const handleContainerClick = (event) => {
+      // On desktop, if the click is on the link part, allow default navigation.
+      if (link.contains(event.target) && window.matchMedia(DESKTOP_MEDIA_QUERY).matches) {
+        return; // Let the browser navigate.
+      }
+
+      // In all other cases (mobile clicks, or desktop clicks on the caret/padding),
+      // prevent default behavior and toggle the menu.
+      event.preventDefault();
+      const isOpen = dropdownEl.classList.toggle("is-open");
+      toggle.setAttribute("aria-expanded", String(isOpen));
+    };
+
+    container.addEventListener("click", handleContainerClick);
+
+    // --- Accessibility & Cleanup ---
+    // Close dropdown if the user clicks anywhere outside of it.
+    document.addEventListener("click", (event) => {
+      if (!dropdownEl.contains(event.target) && dropdownEl.classList.contains("is-open")) {
+        hide();
+      }
+    });
+
+    // Close dropdown with the 'Escape' key for keyboard navigation.
+    dropdownEl.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        hide();
+        toggle.focus(); // Return focus to the toggle button.
+      }
+    });
+  }
+
+  /** Finds and initializes all dropdowns on the page. */
+  function initializeAllDropdowns() {
+    document.querySelectorAll(".nav-menu__dropdown").forEach(initializeDropdown);
+  }
+
+  // Defer script execution until the DOM is ready.
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initializeAllDropdowns, { once: true });
+  } else {
+    initializeAllDropdowns();
+  }
+</script>
+
+<style>
+  :root {
+    /* Shared design tokens are now in /src/styles/theme.css */
+  }
+
+  .nav-menu {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    align-items: center;
+  }
+
+  .nav-menu__item {
+    position: relative;
+  }
+
+  .nav-menu__link {
+    display: block;
+    padding: 0.5rem var(--nav-padding-x);
+    color: var(--color-text);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 0.15s ease-in-out;
+  }
+
+  .nav-menu__link:hover {
+    color: var(--color-text-hover);
+  }
+
+  /* Active state styling */
+  .nav-menu__link.is-active {
+    background-color: var(--color-primary);
+    color: var(--color-text-light);
+    border-radius: var(--border-radius);
+  }
+
+  /* Container for the split-button dropdown parts */
+  .nav-menu__dropdown-container {
+    display: flex;
+    align-items: stretch;
+  }
+
+  /* Adjust padding for the link part of the split button */
+  .nav-menu__dropdown-container .nav-menu__link {
+    padding-right: 0.5rem;
+  }
+  .nav-menu__dropdown-container .nav-menu__link.is-active {
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
+  }
+
+  /* The caret/toggle button part of the split button */
+  .nav-menu__dropdown-toggle {
+    display: flex;
+    align-items: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem 0.5rem 0.5rem 0.25rem;
+    margin-left: -1px; /* Overlap for a seamless background on active */
+    color: var(--color-text);
+  }
+
+  /* The caret icon, created with CSS borders */
+  .nav-menu__dropdown-toggle::after {
+    content: "";
+    display: inline-block;
+    width: 0;
+    height: 0;
+    margin-left: 0.255em;
+    vertical-align: 0.255em;
+    border-top: 0.3em solid;
+    border-right: 0.3em solid transparent;
+    border-bottom: 0;
+    border-left: 0.3em solid transparent;
+  }
+
+  /* Active state for the toggle part */
+  .nav-menu__dropdown-container .nav-menu__link.is-active + .nav-menu__dropdown-toggle {
+    background-color: var(--color-primary);
+    color: var(--color-text-light);
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+  }
+
+  /* Submenu styles */
+  .nav-menu__submenu {
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: var(--dropdown-background);
+    list-style: none;
+    margin: 0.125rem 0 0;
+    padding: 0.5rem 0;
+    min-width: 10rem;
+    border-radius: 0.375rem;
+    box-shadow: var(--dropdown-shadow);
+    z-index: 1001;
+  }
+
+  .nav-menu__item.is-open .nav-menu__submenu {
+    display: block; /* Show when parent item has 'is-open' class */
+  }
+
+  .nav-menu__submenu-link {
+    display: block;
+    padding: 0.25rem 1rem;
+    color: var(--color-text);
+    text-decoration: none;
+    white-space: nowrap;
+    background-color: transparent;
+    border: 0;
+    width: 100%;
+    text-align: left;
+  }
+
+  .nav-menu__submenu-link:hover {
+    background-color: var(--background-hover);
+  }
+
+  /* Responsive adjustments for mobile view */
+  @media (max-width: 991.98px) {
+    .nav-menu {
+      flex-direction: column;
+      align-items: stretch;
+      width: 100%;
+      gap: 0.25rem;
+    }
+
+    .nav-menu__item {
+      width: 100%;
+    }
+
+    .nav-menu__link {
+      padding: 0.75rem 1rem; /* Generous padding for easy tapping */
+      text-align: left;
+    }
+
+    /* Ensure the split dropdown container takes full width and aligns items correctly */
+    .nav-menu__dropdown-container {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1rem; /* Padding is now on the container */
+      cursor: pointer;
+      border-radius: var(--border-radius);
+    }
+
+    /* Remove padding from the link inside, as the container now has it */
+    .nav-menu__dropdown-container .nav-menu__link {
+      padding: 0;
+    }
+
+    /* When the container holds an active link, style the container itself */
+    .nav-menu__dropdown-container:has(.nav-menu__link.is-active) {
+      background-color: var(--color-primary);
+      color: var(--color-text-light); /* This applies to both text and the caret icon */
+    }
+
+    /* The link inside an active container must be transparent */
+    .nav-menu__dropdown-container .nav-menu__link.is-active {
+      background-color: transparent;
+    }
+
+    /* Remove padding from the toggle button as well */
+    .nav-menu__dropdown-toggle {
+      padding: 0;
+      color: var(--color-text);
+    }
+
+    /* Submenu appears inline on mobile */
+    .nav-menu__submenu {
+      position: static;
+      box-shadow: none;
+      border-top: 1px solid var(--border-color-light);
+      margin-top: 0.5rem;
+      padding-top: 0.5rem;
+      padding-left: 1rem; /* Indent submenu items for clarity */
+      min-width: auto;
+      width: 100%;
+    }
+  }
+</style>

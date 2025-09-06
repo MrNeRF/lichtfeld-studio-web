@@ -1,0 +1,121 @@
+---
+/**
+ * The main "Contribute" page for the website.
+ * This page dynamically fetches data from the project's GitHub repository at build time to display:
+ * 1. A grid of contribution ideas, sourced from specially-labeled GitHub issues.
+ * 2. A "face wall" of repository contributors to acknowledge their efforts.
+ *
+ * This approach ensures the content is always up-to-date with the repository's status.
+ */
+import Layout from "@/layouts/Layout.astro";
+import ContributionCard from "@/components/contribute/ContributionCard.astro";
+import { getContributionIdeas, getContributors, REPO_OWNER, CONTRIBUTION_IDEAS_REPO_NAME } from "@/services/github";
+import type { Contributor } from "@/services/github";
+
+// Fetch all required data from the GitHub API during the static build process.
+const ideas = await getContributionIdeas();
+const contributors = await getContributors();
+
+// Construct the URL to the correct GitHub issues page.
+const contributionIdeasRepoUrl = `https://github.com/${REPO_OWNER}/${CONTRIBUTION_IDEAS_REPO_NAME}/issues`;
+---
+
+<Layout>
+  <!-- Page Header / Hero Section -->
+  <div class="container px-4 py-5 text-center">
+    <h1 class="display-5 fw-bold text-body-emphasis">Get Involved</h1>
+    <div class="col-lg-8 mx-auto">
+      <p class="lead mb-4">
+        Join our community of developers and researchers! Whether you want to share a dataset, implement a new feature,
+        or fix a bug, your contributions are welcome. Here are a few ideas to get you started.
+      </p>
+    </div>
+  </div>
+
+  <!-- Contribution Ideas Grid Section -->
+  <div class="container px-4 py-5" id="contribution-ideas">
+    <h2 class="pb-2 border-bottom">How You Can Contribute</h2>
+    {
+      ideas.length > 0 ? (
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 py-5">
+          {ideas.map((idea) => (
+            <div class="col d-flex align-items-stretch">
+              <ContributionCard idea={idea} />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div class="alert alert-info mt-4" role="alert">
+          <strong>No contribution ideas found.</strong> Check the
+          <a href={contributionIdeasRepoUrl} class="alert-link" target="_blank">
+            GitHub repository
+          </a>{" "}
+          for active issues!
+        </div>
+      )
+    }
+  </div>
+
+  <!-- Contributor Wall Section -->
+  {
+    contributors.length > 0 && (
+      <div class="container px-4 py-5" id="contributors">
+        <h2 class="pb-2 border-bottom">Our Valued Contributors</h2>
+        <p class="text-center text-muted mt-3">A huge thank you to everyone who has contributed to the project.</p>
+        <div class="contributor-wall">
+          {contributors.map((contributor: Contributor) => (
+            <a
+              href={contributor.html_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="contributor-avatar"
+              title={contributor.login}
+            >
+              <img src={contributor.avatar_url} alt={`${contributor.login}'s avatar`} loading="lazy" />
+            </a>
+          ))}
+        </div>
+      </div>
+    )
+  }
+</Layout>
+
+<style>
+  /**
+   * Styles for the contributor "face wall", ensuring avatars are displayed
+   * in a clean, responsive grid.
+   */
+  .contributor-wall {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding-top: 2.5rem;
+    justify-content: center;
+  }
+
+  .contributor-avatar {
+    display: block;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  /* Provide visual feedback when hovering over a contributor's avatar. */
+  .contributor-avatar:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+    position: relative;
+  }
+
+  .contributor-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+</style>

@@ -1,69 +1,162 @@
 ---
-import lichtFeldLogo from "../assets/lichtfeld-logo.svg";
+import lichtFeldLogo from "@/assets/lichtfeld-logo.svg";
 import { getCollection } from "astro:content";
+import NavMenu from "@/components/NavMenu.astro";
 
 const base = import.meta.env.BASE_URL;
-const currentPath = Astro.url.pathname;
 
 const bounties = (await getCollection("bounty")).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 
 const latestBounty = bounties[0];
 const latestBountyPath = latestBounty ? `${base}/bounty/${latestBounty.slug}` : `${base}/bounty/bounty2`;
-
-const homeActiveClass = currentPath === base || currentPath === base + "/" ? "active" : "";
-const bountyActiveClass = currentPath.startsWith(`${base}/bounty/`) ? "active" : "";
 ---
 
-<style>
-  header {
-    height: 60px;
-  }
-
-  nav {
-    background: rgba(255, 255, 255, 0.9);
-  }
-
-  nav .nav-link{
-    padding-left: 20px;
-    padding-right: 20px;
-  }
-
-  nav .nav-link.active{
-    background-color: #0d6efd;
-    color: #fff;
-    border-radius: 8px;
-  }
-</style>
-
 <script>
-  import 'bootstrap';
+  /**
+   * Sets up the event listener to toggle the mobile navigation menu.
+   * This script is self-contained and has no external dependencies.
+   */
+  function setupMobileMenuToggle() {
+    // Select the toggle button and the navigation container by their specific classes.
+    const toggleButton = document.querySelector(".site-header__toggle");
+    const navContainer = document.querySelector(".site-header__nav-container");
+
+    // Defensive check to ensure both elements exist before adding listeners.
+    if (!toggleButton || !navContainer) {
+      return;
+    }
+
+    toggleButton.addEventListener("click", () => {
+      // Toggle the 'is-open' class to show/hide the menu via CSS.
+      const isOpen = navContainer.classList.toggle("is-open");
+
+      // Update the ARIA attribute for screen readers.
+      toggleButton.setAttribute("aria-expanded", isOpen.toString());
+    });
+  }
+
+  // Ensure the DOM is fully loaded before trying to access elements.
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", setupMobileMenuToggle, { once: true });
+  } else {
+    setupMobileMenuToggle();
+  }
 </script>
 
-<header>
-  <nav class="navbar navbar-expand-lg fixed-top">
-    <div class="container">
-      <a href={base} class="navbar-brand" aria-label="LichtFeld Studio Home">
-        <img src={lichtFeldLogo.src} alt="LichtFeld Studio" style="height: 24px" />
-      </a>
-      <button
-        class="navbar-toggler collapsed"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#navbarsContent"
-        aria-controls="navbarsContent"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="navbar-collapse collapse" id="navbarsContent">
-        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-          <li class="nav-item"><a href={base} class={`nav-link ${homeActiveClass}`}>Home</a></li>
-          <li class="nav-item"><a href={latestBountyPath} class={`nav-link ${bountyActiveClass}`}>Bounties</a></li>
-          <li class="nav-item"><a href="https://discord.gg/NqwTqVYVmj" target="_blank" rel="noopener noreferrer" class="nav-link">Discord</a></li>
-          <li class="nav-item"><a href="https://github.com/MrNeRF/gaussian-splatting-cuda" target="_blank" rel="noopener noreferrer" class="nav-link">GitHub</a></li>
-        </ul>
-      </div>
+<header class="site-header">
+  <div class="site-header__container">
+    <a href={base} class="site-header__brand" aria-label="LichtFeld Studio Home">
+      <img src={lichtFeldLogo.src} alt="LichtFeld Studio" />
+    </a>
+    <button
+      class="site-header__toggle"
+      type="button"
+      aria-controls="nav-content"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="site-header__toggle-icon"></span>
+    </button>
+    <div class="site-header__nav-container" id="nav-content">
+      <!-- The centralized navigation menu component -->
+      <NavMenu bountiesHref={latestBountyPath} />
     </div>
-  </nav>
+  </div>
 </header>
+
+<style>
+  /**
+   * Main header styling.
+   * It's fixed to the top, with a background blur for a modern look.
+   */
+  .site-header {
+    height: var(--nav-height);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: var(--color-background);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  /**
+   * Container to horizontally center content and provide padding.
+   */
+  .site-header__container {
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1140px; /* Standard container width */
+    margin: 0 auto;
+    padding: 0 var(--container-padding);
+  }
+
+  .site-header__brand img {
+    height: 24px;
+    display: block; /* Removes bottom space under the image */
+  }
+
+  /**
+   * Mobile navigation toggle ("hamburger" button).
+   * It is hidden on larger screens.
+   */
+  .site-header__toggle {
+    display: none; /* Hidden by default on desktop */
+    background: transparent;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 0.25rem;
+    padding: 0.25rem 0.75rem;
+    cursor: pointer;
+  }
+
+  /**
+   * The hamburger icon itself, created with an embedded SVG for independence.
+   */
+  .site-header__toggle-icon {
+    display: inline-block;
+    width: 1.5em;
+    height: 1.5em;
+    vertical-align: middle;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%280, 0, 0, 0.55%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100%;
+  }
+
+  .site-header__nav-container {
+    display: flex;
+    align-items: center;
+  }
+
+  /**
+   * Responsive styles for screens smaller than the large breakpoint.
+   */
+  @media (max-width: 991.98px) {
+    .site-header__toggle {
+      display: block; /* Show the hamburger on mobile */
+    }
+
+    .site-header__nav-container {
+      display: none; /* Hide the navigation menu by default */
+      position: absolute;
+      top: var(--nav-height);
+      left: 0;
+      right: 0;
+      background-color: #fff;
+      width: 100%;
+      border-top: 1px solid var(--border-color);
+      box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+      padding: 1rem;
+    }
+
+    /**
+     * When the menu is toggled open, it becomes a block-level element.
+     */
+    .site-header__nav-container.is-open {
+      display: block;
+    }
+  }
+</style>

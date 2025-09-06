@@ -1,0 +1,9 @@
+# Output & vendor
+node_modules
+docs
+dist
+build
+coverage
+
+# Editor files
+.vscode

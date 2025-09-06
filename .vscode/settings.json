@@ -1,0 +1,19 @@
+{
+  // Make Prettier the default formatter and enable format-on-save
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+
+  // Ensure VS Code knows Prettier can format .astro files
+  // (recommended in the plugin docs; also covered by Astro's editor setup)
+  "prettier.documentSelectors": ["**/*.astro"],
+  "[astro]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+
+  // Optional: if you use the ESLint extension, auto-fix on save too.
+  // (Requires dbaeumer.vscode-eslint; enable Astro in 'eslint.validate')
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "eslint.validate": ["javascript", "javascriptreact", "astro", "typescript", "typescriptreact"]
+}

@@ -1,6 +1,9 @@
 ---
 import Footer from "@/components/Footer.astro";
 import Header from "@/components/Header.astro";
+
+// Let Vite/Astro handle asset rebasing (icons’ font URLs)
+import "bootstrap-icons/font/bootstrap-icons.css";
 ---
 
 <!doctype html>
@@ -20,21 +23,6 @@ import Header from "@/components/Header.astro";
 
       main {
         padding-top: var(--nav-height); /* Offset content to account for the fixed header */
-      }
-
-      .splat-wrapper {
-        width: 100%;
-        position: relative;
-
-        canvas {
-          position: absolute;
-          top: 0;
-          left: 0;
-        }
-
-        .container {
-          aspect-ratio: 2/1;
-        }
       }
     </style>
   </head>

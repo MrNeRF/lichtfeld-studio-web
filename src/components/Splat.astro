@@ -2,21 +2,28 @@
 const { scene } = Astro.props;
 ---
 
-<astro-splat scene={scene} data-base={import.meta.env.BASE_URL}><canvas /></astro-splat>
+<astro-splat scene={scene} data-base={import.meta.env.BASE_URL}><canvas></canvas></astro-splat>
 <script>
-    import { SplatCanvas } from "../script/SplatCanvas";
-    
-    class AstroSplat extends HTMLElement {
-        connectedCallback(){
-            const canvas = this.querySelector('canvas') as HTMLCanvasElement;
-            const base = this.getAttribute('data-base') || '/';
-            const splatCanvas = new SplatCanvas(canvas, this.getAttribute('scene') as string, this.parentElement as HTMLElement, base);
+  import { SplatCanvas } from "../script/SplatCanvas";
 
-            this.addEventListener('click', () => {
-                splatCanvas.togglePose(1000);
-            });
-        }
+  class AstroSplat extends HTMLElement {
+    connectedCallback() {
+      const canvas = this.querySelector("canvas") as HTMLCanvasElement;
+      const base = this.getAttribute("data-base") || "/";
+      const splatCanvas = new SplatCanvas(
+        canvas,
+        this.getAttribute("scene") as string,
+        this.parentElement as HTMLElement,
+        base,
+      );
+
+      // Click-to-advance. The SplatCanvas also listens for
+      // pointer/wheel/keyboard to toggle Active/Idle and schedule inactivity.
+      this.addEventListener("click", () => {
+        splatCanvas.togglePose(1000);
+      });
     }
+  }
 
-    customElements.define('astro-splat', AstroSplat);
+  customElements.define("astro-splat", AstroSplat);
 </script>

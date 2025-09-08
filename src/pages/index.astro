@@ -4,161 +4,601 @@ import Layout from "@/layouts/Layout.astro";
 import viewerDemo from "@/assets/viewer_demo.gif";
 import Splat from "@/components/Splat.astro";
 
+// Centralized external links (avoid magic strings):
+import { GITHUB_REPO_URL, DISCORD_URL, GITHUB_SPONSORS_URL, PAYPAL_DONATE_URL, PATREON_URL } from "@/constants/links";
+
 const base = import.meta.env.BASE_URL + "/";
 ---
 
 <Layout>
-  <!-- Splat -->
-  <div class="splat-wrapper">
-    <div class="container"></div>
-    <Splat scene="botanics" />
-  </div>
+  <!-- Big Splat Header (Hero) -->
+  <header class="hero">
+    <div class="hero__splat">
+      <!-- The Splat canvas is the visual anchor in the header -->
+      <div class="splat-wrapper">
+        <Splat scene="botanics" />
+      </div>
+    </div>
 
-  <!-- Hero -->
-  <div class="container px-4 py-5">
-    <div class="row flex-lg-row-reverse align-items-center g-5 py-5">
-      <div class="col-10 col-sm-8 col-lg-6">
+    <!-- Value proposition and CTAs overlayed above the splat -->
+    <div class="hero__content">
+      <!-- Backdrop panel -->
+      <div class="container px-4">
+        <div class="hero__stack">
+          <h1 class="hero__title">LichtFeld Studio</h1>
+
+          <div class="hero__actions">
+            <!-- Primary CTA: “Get Started” (currently links to GitHub; future tutorial page can replace URL) -->
+            <a
+              class="btn btn-primary btn-lg"
+              href={GITHUB_REPO_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Open the LichtFeld Studio GitHub repository in a new tab"
+            >
+              <i class="bi bi-github me-2" aria-hidden="true"></i>
+              Get Started
+            </a>
+            <!-- Secondary CTA: Join Discord (icon + kept white text for contrast on dark imagery) -->
+            <a
+              class="btn btn-outline-light btn-lg hero__support-link"
+              href={DISCORD_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Open the Discord community in a new tab"
+            >
+              <i class="bi bi-discord me-2" aria-hidden="true"></i>
+              Join us on Discord
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Introduction -->
+  <section class="container px-4 py-5">
+    <div class="row align-items-center g-5">
+      <div class="col-12 col-lg-6">
+        <!-- NOTE: We keep the GIF for now to avoid build changes; video is recommended for performance. -->
+        <!-- TODO: Replace the animated GIF with MP4/WebM for significantly smaller payloads and better LCP. -->
+        <!-- See: https://web.dev/articles/replace-gifs-with-videos -->
         <img
           src={viewerDemo.src}
-          class="d-block mx-lg-auto img-fluid"
-          alt="3D Gaussian Splatting viewer demo"
+          class="d-block mx-lg-auto img-fluid rounded shadow-sm"
+          alt="Real-time Gaussian Splatting viewer demonstration"
           width="700"
           height="500"
           loading="lazy"
         />
       </div>
-      <div class="col-lg-6">
-        <h1 class="display-5 fw-bold text-body-emphasis lh-1 mb-3">3D Gaussian Splatting<br />with C++ and CUDA</h1>
+
+      <div class="col-12 col-lg-6">
+        <h2 class="fw-bold text-body-emphasis lh-1 mb-3">What is LichtFeld Studio?</h2>
         <p class="lead">
-          Unleash the power of real-time 3D Gaussian Splatting with MrNeRF's high-performance C++ and CUDA
-          implementation! Experience blazing-fast radiance field rendering, optimized for cutting-edge NVIDIA GPUs. With
-          an intuitive viewer and advanced features like SuperSplat-like editing, it’s perfect for researchers and
-          developers pushing the boundaries of 3D visualization. Join the community and transform your 3D projects
-          today!
+          Unleash the power of real-time <b>3D Gaussian Splatting</b> with MrNeRF's high-performance C++ and CUDA implementation!
+          Experience blazing-fast radiance field rendering, optimized for cutting-edge NVIDIA GPUs. With an intuitive viewer
+          and advanced features like SuperSplat-like editing, it’s perfect for researchers and developers pushing the boundaries
+          of 3D visualization. Join the <a
+            href={DISCORD_URL}
+            class="link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-100-hover"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Open the Discord community in a new tab"
+          >
+            community
+          </a> and transform your 3D projects today!
         </p>
-        <!--
-        <div class="d-grid gap-2 d-md-flex justify-content-md-start">
-          <button type="button" class="btn btn-primary btn-lg px-4 me-md-2">Download</button> <button type="button" class="btn btn-outline-secondary btn-lg px-4">More Info</button>
-        </div>
-        -->
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- Features -->
-  <div class="container px-4 py-5" id="icon-grid">
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 py-5">
-      <div class="col d-flex align-items-start">
-        <svg class="bi text-body-secondary flex-shrink-0 me-3" width="1.75em" height="1.75em" aria-hidden="true">
-          <use
-            href={`${base}static/bootstrap-icons.svg#speedometer2`}
-            xlink:href={`${base}static/bootstrap-icons.svg#speedometer2`}
-          >
-          </use>
-        </svg>
-        <div>
-          <h3 class="fw-bold mb-0 fs-4 text-body-emphasis">High-Performance</h3>
-          <p>Utilizes C++ and CUDA for unmatched speed in 3D Gaussian Splatting.</p>
-        </div>
+  <!-- Feature List -->
+  <section class="container px-4 py-5" id="features">
+    <h2 class="pb-2 border-bottom">Key Capabilities</h2>
+
+    <div class="features-grid row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 py-4">
+      <div class="col">
+        <article class="feature-card">
+          <div class="feature-card__icon" aria-hidden="true">
+            <svg class="bi" width="1.25em" height="1.25em" focusable="false">
+              <use
+                href={`${base}static/bootstrap-icons.svg#speedometer2`}
+                xlink:href={`${base}static/bootstrap-icons.svg#speedometer2`}
+              >
+              </use>
+            </svg>
+          </div>
+          <div class="feature-card__body">
+            <h3 class="fw-bold mb-1 fs-5 text-body-emphasis">High-Performance</h3>
+            <p class="mb-0">Utilizes C++ and CUDA for unmatched speed in 3D Gaussian Splatting.</p>
+          </div>
+        </article>
       </div>
 
-      <div class="col d-flex align-items-start">
-        <svg class="bi text-body-secondary flex-shrink-0 me-3" width="1.75em" height="1.75em" aria-hidden="true">
-          <use
-            href={`${base}static/bootstrap-icons.svg#display`}
-            xlink:href={`${base}static/bootstrap-icons.svg#display`}
-          >
-          </use>
-        </svg>
-        <div>
-          <h3 class="fw-bold mb-0 fs-4 text-body-emphasis">Real-Time Rendering</h3>
-          <p>Enables real-time radiance field rendering with optimized CUDA backend.</p>
-        </div>
+      <div class="col">
+        <article class="feature-card">
+          <div class="feature-card__icon" aria-hidden="true">
+            <svg class="bi" width="1.25em" height="1.25em" focusable="false">
+              <use
+                href={`${base}static/bootstrap-icons.svg#display`}
+                xlink:href={`${base}static/bootstrap-icons.svg#display`}
+              >
+              </use>
+            </svg>
+          </div>
+          <div class="feature-card__body">
+            <h3 class="fw-bold mb-1 fs-5 text-body-emphasis">Real-Time Rendering</h3>
+            <p class="mb-0">Enables real-time radiance field rendering with optimized CUDA backend.</p>
+          </div>
+        </article>
       </div>
 
-      <div class="col d-flex align-items-start">
-        <svg class="bi text-body-secondary flex-shrink-0 me-3" width="1.75em" height="1.75em" aria-hidden="true">
-          <use
-            href={`${base}static/bootstrap-icons.svg#eye-fill`}
-            xlink:href={`${base}static/bootstrap-icons.svg#eye-fill`}
-          >
-          </use>
-        </svg>
-        <div>
-          <h3 class="fw-bold mb-0 fs-4 text-body-emphasis">Interactive Viewer</h3>
-          <p>Features a viewer with planned improvements for better camera controls.</p>
-        </div>
+      <div class="col">
+        <article class="feature-card">
+          <div class="feature-card__icon" aria-hidden="true">
+            <svg class="bi" width="1.25em" height="1.25em" focusable="false">
+              <use
+                href={`${base}static/bootstrap-icons.svg#gear-fill`}
+                xlink:href={`${base}static/bootstrap-icons.svg#gear-fill`}
+              >
+              </use>
+            </svg>
+          </div>
+          <div class="feature-card__body">
+            <h3 class="fw-bold mb-1 fs-5 text-body-emphasis">MCMC Optimization</h3>
+            <p class="mb-0">Robust convergence with a configurable cap on Gaussians to manage complexity.</p>
+          </div>
+        </article>
       </div>
 
-      <div class="col d-flex align-items-start">
-        <svg class="bi text-body-secondary flex-shrink-0 me-3" width="1.75em" height="1.75em" aria-hidden="true">
-          <use
-            href={`${base}static/bootstrap-icons.svg#gear-fill`}
-            xlink:href={`${base}static/bootstrap-icons.svg#gear-fill`}
-          >
-          </use>
-        </svg>
-        <div>
-          <h3 class="fw-bold mb-0 fs-4 text-body-emphasis">MCMC Optimization</h3>
-          <p>Supports MCMC strategy to manage Gaussian splats with a configurable cap.</p>
-        </div>
+      <div class="col">
+        <article class="feature-card">
+          <div class="feature-card__icon" aria-hidden="true">
+            <svg class="bi" width="1.25em" height="1.25em" focusable="false">
+              <use
+                href={`${base}static/bootstrap-icons.svg#brightness-high`}
+                xlink:href={`${base}static/bootstrap-icons.svg#brightness-high`}
+              >
+              </use>
+            </svg>
+          </div>
+          <div class="feature-card__body">
+            <h3 class="fw-bold mb-1 fs-5 text-body-emphasis">Bilateral-Grid</h3>
+            <p class="mb-0">Handles per-image lighting/color shifts for consistent training across captures.</p>
+          </div>
+        </article>
       </div>
 
-      <div class="col d-flex align-items-start">
-        <svg class="bi text-body-secondary flex-shrink-0 me-3" width="1.75em" height="1.75em" aria-hidden="true">
-          <use
-            href={`${base}static/bootstrap-icons.svg#bar-chart-fill`}
-            xlink:href={`${base}static/bootstrap-icons.svg#bar-chart-fill`}
-          >
-          </use>
-        </svg>
-        <div>
-          <h3 class="fw-bold mb-0 fs-4 text-body-emphasis">Evaluation Metrics</h3>
-          <p>Computes PSNR, SSIM, and LPIPS for performance evaluation during training.</p>
-        </div>
+      <div class="col">
+        <article class="feature-card">
+          <div class="feature-card__icon" aria-hidden="true">
+            <svg class="bi" width="1.25em" height="1.25em" focusable="false">
+              <use
+                href={`${base}static/bootstrap-icons.svg#bar-chart-fill`}
+                xlink:href={`${base}static/bootstrap-icons.svg#bar-chart-fill`}
+              >
+              </use>
+            </svg>
+          </div>
+          <div class="feature-card__body">
+            <h3 class="fw-bold mb-1 fs-5 text-body-emphasis">Metrics Built-In</h3>
+            <p class="mb-0">PSNR, SSIM, and LPIPS monitoring to track training quality and regressions.</p>
+          </div>
+        </article>
       </div>
 
-      <div class="col d-flex align-items-start">
-        <svg class="bi text-body-secondary flex-shrink-0 me-3" width="1.75em" height="1.75em" aria-hidden="true">
-          <use
-            href={`${base}static/bootstrap-icons.svg#box-seam`}
-            xlink:href={`${base}static/bootstrap-icons.svg#box-seam`}
-          >
-          </use>
-        </svg>
-        <div>
-          <h3 class="fw-bold mb-0 fs-4 text-body-emphasis">Docker Support</h3>
-          <p>Offers a Docker-based environment for simplified setup and reproducible builds.</p>
-        </div>
+      <div class="col">
+        <article class="feature-card">
+          <div class="feature-card__icon" aria-hidden="true">
+            <svg class="bi" width="1.25em" height="1.25em" focusable="false">
+              <use
+                href={`${base}static/bootstrap-icons.svg#box-seam`}
+                xlink:href={`${base}static/bootstrap-icons.svg#box-seam`}
+              >
+              </use>
+            </svg>
+          </div>
+          <div class="feature-card__body">
+            <h3 class="fw-bold mb-1 fs-5 text-body-emphasis">Dockerized</h3>
+            <p class="mb-0">Reproducible builds for research handoff and CI environments.</p>
+          </div>
+        </article>
       </div>
 
-      <div class="col d-flex align-items-start">
-        <svg class="bi text-body-secondary flex-shrink-0 me-3" width="1.75em" height="1.75em" aria-hidden="true">
-          <use
-            href={`${base}static/bootstrap-icons.svg#cpu-fill`}
-            xlink:href={`${base}static/bootstrap-icons.svg#cpu-fill`}
-          >
-          </use>
-        </svg>
-        <div>
-          <h3 class="fw-bold mb-0 fs-4 text-body-emphasis">LibTorch Integration</h3>
-          <p>Uses LibTorch 2.7.0 for enhanced performance and CUDA 12.8 compatibility.</p>
-        </div>
+      <div class="col">
+        <article class="feature-card">
+          <div class="feature-card__icon" aria-hidden="true">
+            <svg class="bi" width="1.25em" height="1.25em" focusable="false">
+              <use
+                href={`${base}static/bootstrap-icons.svg#cpu-fill`}
+                xlink:href={`${base}static/bootstrap-icons.svg#cpu-fill`}
+              >
+              </use>
+            </svg>
+          </div>
+          <div class="feature-card__body">
+            <h3 class="fw-bold mb-1 fs-5 text-body-emphasis">LibTorch 2.7.0</h3>
+            <p class="mb-0">CUDA 12.8 compatible backend leveraging Torch ecosystem for training.</p>
+          </div>
+        </article>
       </div>
 
-      <div class="col d-flex align-items-start">
-        <svg class="bi text-body-secondary flex-shrink-0 me-3" width="1.75em" height="1.75em" aria-hidden="true">
-          <use
-            href={`${base}static/bootstrap-icons.svg#people-fill`}
-            xlink:href={`${base}static/bootstrap-icons.svg#people-fill`}
-          >
-          </use>
-        </svg>
-        <div>
-          <h3 class="fw-bold mb-0 fs-4 text-body-emphasis">Contributions</h3>
-          <p>Encourages contributions with clear guidelines and a supportive Discord community.</p>
+      <div class="col">
+        <article class="feature-card">
+          <div class="feature-card__icon" aria-hidden="true">
+            <svg class="bi" width="1.25em" height="1.25em" focusable="false">
+              <use
+                href={`${base}static/bootstrap-icons.svg#people-fill`}
+                xlink:href={`${base}static/bootstrap-icons.svg#people-fill`}
+              >
+              </use>
+            </svg>
+          </div>
+          <div class="feature-card__body">
+            <h3 class="fw-bold mb-1 fs-5 text-body-emphasis">Community-Driven</h3>
+            <p class="mb-0">Encourages contributions with clear guidelines and a supportive Discord community.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- “Jump In” Links Box (important links) -->
+  <section class="container px-4 py-5">
+    <div class="jumpin card border-0 shadow-sm">
+      <div class="card-body p-4 p-md-5">
+        <div class="row gx-4 gy-3 align-items-center">
+          <div class="col-12 col-md">
+            <h3 class="mb-2">Jump In</h3>
+            <p class="mb-0 text-body-secondary">
+              Join the community and explore the codebase. Start a conversation on Discord or star the repo on GitHub.
+            </p>
+          </div>
+          <!-- Stronger, full-color, vertically stacked CTAs for contrast on white and clear hierarchy -->
+          <div class="col-12 col-md-5">
+            <div class="jumpin__buttons d-grid gap-3">
+              <a
+                class="btn btn-primary btn-lg w-100"
+                href={DISCORD_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Open the Discord community in a new tab"
+              >
+                <i class="bi bi-discord me-2" aria-hidden="true"></i>
+                Discord
+              </a>
+              <a
+                class="btn btn-dark btn-lg w-100"
+                href={GITHUB_REPO_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Open the GitHub repository in a new tab"
+              >
+                <i class="bi bi-github me-2" aria-hidden="true"></i>
+                GitHub
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </section>
+
+  <!-- Support / Donations (deeplink target) -->
+  <section class="container px-4 py-5" id="support" aria-labelledby="support-heading">
+    <h2 id="support-heading" class="pb-2 border-bottom">Support the Project</h2>
+    <p class="text-body-primary mt-3 mb-4">
+      Fund development and maintenance through your preferred platform. Every contribution helps keep the project alive
+      and fund further research and development.
+    </p>
+
+    <div class="row g-4 row-cols-1 row-cols-md-3">
+      <div class="col">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column">
+            <h3 class="fs-5 fw-semibold mb-2">GitHub Sponsors</h3>
+            <p class="text-body-secondary">
+              Sponsor directly on GitHub to keep development momentum and roadmap velocity high.
+            </p>
+
+            <div class="mt-auto">
+              <a
+                class="btn btn-primary w-100"
+                href={GITHUB_SPONSORS_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Open the GitHub Sponsors page in a new tab"
+              >
+                Sponsor on GitHub
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column">
+            <h3 class="fs-5 fw-semibold mb-2">PayPal</h3>
+            <p class="text-body-secondary">Make a one-time donation via PayPal.</p>
+
+            <div class="mt-auto">
+              <a
+                class="btn btn-outline-primary w-100"
+                href={PAYPAL_DONATE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Open the PayPal donation link in a new tab"
+              >
+                Donate via PayPal
+              </a>
+              <!-- TODO: Replace placeholder when the PayPal Hosted Donate Button URL is available. -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column">
+            <h3 class="fs-5 fw-semibold mb-2">Patreon</h3>
+            <p class="text-body-secondary">Optional membership tiers to fund ongoing development.</p>
+
+            <div class="mt-auto">
+              <a
+                class="btn btn-outline-secondary w-100"
+                href={PATREON_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Open the Patreon creator page in a new tab"
+              >
+                Become a Patron
+              </a>
+              <!-- TODO: Replace placeholder with the Patreon creator URL when ready. -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 </Layout>
+<style>
+  /* ===========================
+    * Hero / Big Splat Header
+    * =========================== */
+
+  .splat-wrapper {
+    width: 100%;
+    position: relative;
+    height: 100%;
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
+      cursor: grab;
+      pointer-events: auto;
+    }
+  }
+
+  .hero {
+    position: relative;
+    isolation: isolate; /* Ensure overlay stacking is predictable */
+    min-height: clamp(420px, 55vh, 720px);
+    display: grid;
+    align-items: center;
+    overflow: clip; /* Contain the canvas */
+    background: #0b0c10; /* Fallback tone under the canvas */
+  }
+
+  .hero__splat {
+    position: absolute;
+    inset: 0;
+  }
+
+  .hero__content {
+    position: relative;
+    color: var(--color-text-light);
+
+    /* Let clicks reach the canvas unless the user interacts with explicit controls */
+    pointer-events: none;
+  }
+
+  /* Prevent the bootstrap .container from re-enabling hit-testing */
+  .hero__content .container {
+    pointer-events: none;
+    /* Center the inline-flex .hero__stack element within the container */
+    text-align: center;
+  }
+
+  /* Re-enable events ONLY on our interactive controls */
+  .hero__actions,
+  .hero__actions a,
+  .hero__actions button {
+    pointer-events: auto;
+  }
+
+  /* Lightweight wrapper around the textual hero content.
+     The frosted, light panel is implemented on ::before so it tracks the content’s box,
+     fixing the prior bug where the panel stayed centered on the canvas. */
+  .hero__stack {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center; /* Center content (title, buttons) horizontally */
+    gap: 0.5rem;
+    padding: 5.5rem 12rem; /* Add padding for better visual spacing */
+  }
+
+  /* Frosted, light panel with elegant radial edge fade that keeps most of the splat visible. */
+  .hero__stack::before {
+    content: "";
+    position: absolute;
+    inset: -12px -16px; /* visual halo around content */
+    background: rgba(230, 230, 230, 0.1); /* light/clean tone over dark imagery */
+    /* Use backdrop-filter when supported for tasteful glassmorphism without obscuring the splat */
+    backdrop-filter: saturate(150%) blur(5px);
+    pointer-events: none; /* never block canvas or buttons */
+    /* Elegant edge fade so the splat remains prominent around the content */
+    -webkit-mask-image: radial-gradient(ellipse farthest-side, rgba(0, 0, 0, 1) 55%, rgba(0, 0, 0, 0) 100%);
+    mask-image: radial-gradient(ellipse farthest-side, rgba(0, 0, 0, 1) 55%, rgba(0, 0, 0, 0) 100%);
+  }
+
+  /* Graceful fallback when backdrop-filter isn’t available */
+  @supports not (backdrop-filter: blur(1px)) {
+    .hero__stack::before {
+      background: rgba(255, 255, 255, 0.28);
+      /* Slightly stronger mask and shadow to compensate for lack of blur */
+      -webkit-mask-image: radial-gradient(ellipse farthest-side, rgba(0, 0, 0, 1) 68%, rgba(0, 0, 0, 0) 100%);
+      mask-image: radial-gradient(ellipse farthest-side, rgba(0, 0, 0, 1) 68%, rgba(0, 0, 0, 0) 100%);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
+    }
+  }
+
+  .hero__title {
+    font-size: clamp(2rem, 5vw, 3.25rem);
+    position: relative; /* Establish a new stacking context */
+  }
+
+  .hero__actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+    position: relative; /* Establish a new stacking context */
+  }
+
+  /* Ensure the secondary CTA is visible over dark gradients */
+  .hero__support-link {
+    border-color: rgba(255, 255, 255, 0.6);
+    color: #fff;
+  }
+
+  .hero__support-link:hover {
+    border-color: #fff;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  /* Consistent spacing for inline Bootstrap Icons in buttons/links */
+  .bi {
+    vertical-align: -0.125em;
+  }
+  .btn .bi {
+    margin-right: 0.4rem;
+  }
+
+  /* ===========================
+    * “Jump In” links card
+    * =========================== */
+  .jumpin {
+    border-radius: var(--border-radius);
+
+    /* Make it pop: subtle frosted-panel background with stronger depth */
+    background: radial-gradient(120% 140% at 20% 0%, rgba(13, 110, 253, 0.06), rgba(255, 255, 255, 0.9) 40%) #fff;
+    box-shadow:
+      0 10px 26px rgba(13, 110, 253, 0.08),
+      0 2px 6px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(13, 110, 253, 0.15);
+    position: relative;
+    overflow: hidden; /* To contain pseudo-elements */
+  }
+
+  /* Constrain button group width and center it for better layout on wide screens. */
+  .jumpin__buttons {
+    max-width: 320px;
+    margin: 0 auto;
+  }
+
+  /* Vertical, full-width CTAs for stronger emphasis and clearer hierarchy */
+  .jumpin__buttons .btn {
+    width: 100%;
+  }
+
+  .jumpin::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    /* faint inner highlight ring */
+    box-shadow: inset 0 0 0 1px rgba(13, 110, 253, 0.08);
+  }
+
+  /* A little polish */
+  #features .bi {
+    opacity: 0.8;
+  }
+
+  /* ===========================
+    * Features — modern card look
+    * =========================== */
+  .features-grid .col {
+    display: flex;
+  }
+
+  .feature-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    width: 100%;
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    transition:
+      transform 0.16s ease,
+      box-shadow 0.16s ease;
+  }
+
+  .feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+  }
+
+  .feature-card__icon {
+    flex: 0 0 auto;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(120, 80, 163, 0.08);
+    box-shadow: inset 0 0 0 1px rgba(120, 80, 163, 0.25);
+  }
+
+  /* Ensure icon inside the badge is crisp and readable */
+  #features .feature-card .bi {
+    opacity: 1;
+  }
+
+  /* Respect reduced-motion preferences for hover/focus microinteractions */
+  @media (prefers-reduced-motion: reduce) {
+    .feature-card {
+      transition: none;
+    }
+    .feature-card:hover {
+      transform: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    }
+  }
+
+  /* Responsive tweaks */
+  @media (max-width: 991.98px) {
+    .hero__lead {
+      max-width: 100%;
+    }
+    .hero__stack {
+      align-items: center;
+      text-align: center;
+    }
+    /* The .hero__stack panel scales with content; no fixed viewport panel needed anymore. */
+  }
+</style>

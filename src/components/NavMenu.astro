@@ -13,6 +13,7 @@
  *  - Submenu opens on hover for desktop and on click for mobile.
  */
 import { withBase } from "@/utils/navigation";
+import { GITHUB_REPO_URL, DISCORD_URL } from "@/constants/links";
 
 const { bountiesHref } = Astro.props as { bountiesHref: string };
 
@@ -86,15 +87,14 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
 
   <!-- External links -->
   <li class="nav-menu__item">
-    <a href="https://discord.gg/NqwTqVYVmj" target="_blank" rel="noopener noreferrer" class="nav-menu__link">Discord</a>
+    <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer" class="nav-menu__link">
+      <i class="bi bi-discord me-1" aria-hidden="true"></i>
+      Discord
+    </a>
   </li>
   <li class="nav-menu__item">
-    <a
-      href="https://github.com/MrNeRF/gaussian-splatting-cuda"
-      target="_blank"
-      rel="noopener noreferrer"
-      class="nav-menu__link"
-    >
+    <a href={GITHUB_REPO_URL} target="_blank" rel="noopener noreferrer" class="nav-menu__link">
+      <i class="bi bi-github me-1" aria-hidden="true"></i>
       GitHub
     </a>
   </li>

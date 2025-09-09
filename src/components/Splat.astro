@@ -134,7 +134,7 @@ const {
          * Update visual width and accessible value.
          * @param {number} p0to100 Percent value clamped to [0..100].
          */
-        const updateProgress = (p0to100) => {
+        const updateProgress = (p0to100: number) => {
           const clamped = Math.max(0, Math.min(100, p0to100 | 0));
 
           fill.style.width = clamped + "%";

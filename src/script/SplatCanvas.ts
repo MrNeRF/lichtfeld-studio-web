@@ -12,7 +12,7 @@ import {
 } from "playcanvas";
 import { profileDevice, applyPlayCanvasTuning } from "@/services/deviceProfiler";
 import { MIN_VIEWPORT_VISIBILITY_FOR_RENDER, IDLE_AUTO_STOP_MS } from "@/constants/splat-viewer";
-import { ProgressAggregator } from "@/services/ProgressAggregator";
+import { ProgressAggregator } from "@/services/progressAggregator";
 import { SPLAT_EVT_LOADING_PROGRESS, SPLAT_EVT_LOADED, SPLAT_EVT_FIRST_FRAME } from "@/constants/splat-events";
 
 interface SuperSplatProjectDocument {

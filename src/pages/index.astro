@@ -488,7 +488,10 @@ const base = import.meta.env.BASE_URL + "/";
     flex-direction: column;
     align-items: center; /* Center content (title, buttons) horizontally */
     gap: 0.5rem;
-    padding: 5.5rem 12rem; /* Add padding for better visual spacing */
+
+    /* Make spacing responsive so it fits phones and large screens without overflow. */
+    padding-block: clamp(2rem, 8vh, 5.5rem);
+    padding-inline: clamp(1rem, 6vw, 12rem);
   }
 
   /* animated inner wrapper for text/buttons */
@@ -682,5 +685,23 @@ const base = import.meta.env.BASE_URL + "/";
       text-align: center;
     }
     /* The .hero__stack panel scales with content; no fixed viewport panel needed anymore. */
+  }
+
+  /* Additional narrow-phone tweaks: stack CTAs and tighten padding */
+  @media (max-width: 575.98px) {
+    .hero__stack {
+      padding-block: clamp(1.25rem, 6vh, 2.5rem);
+      padding-inline: clamp(0.75rem, 5vw, 1.5rem);
+    }
+
+    .hero__actions {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.5rem;
+    }
+
+    .hero__actions .btn {
+      width: 100%;
+    }
   }
 </style>

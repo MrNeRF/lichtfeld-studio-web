@@ -12,6 +12,8 @@ import {
 } from "playcanvas";
 import { profileDevice, applyPlayCanvasTuning } from "@/services/deviceProfiler";
 import { MIN_VIEWPORT_VISIBILITY_FOR_RENDER, IDLE_AUTO_STOP_MS } from "@/constants/splat-viewer";
+import { ProgressAggregator } from "@/services/ProgressAggregator";
+import { SPLAT_EVT_LOADING_PROGRESS, SPLAT_EVT_LOADED, SPLAT_EVT_FIRST_FRAME } from "@/constants/splat-events";
 
 interface SuperSplatProjectDocument {
   camera: {
@@ -204,7 +206,44 @@ class SplatCanvas {
       new Asset("Doc Asset", "json", { url: location + "/document.json" }),
     ];
     const loader = new AssetListLoader(assetList, this.app.assets);
-    await new Promise((resolve) => loader.load(resolve));
+
+    // =========================
+    // Loading progress plumbing
+    // =========================
+    // Heavier weight for the stream-heavy GSplat (dominates perceived progress),
+    // light weight for the tiny JSON manifest.
+    const progress = new ProgressAggregator();
+    progress.register(assetList[0], 9); // gsplat
+    progress.register(assetList[1], 1); // json
+
+    // Re-dispatch normalized progress on the canvas for host UI consumption.
+    progress.onProgress = ({ percent, receivedBytes, totalBytes }) => {
+      this.canvas.dispatchEvent(
+        new CustomEvent(SPLAT_EVT_LOADING_PROGRESS, {
+          bubbles: true,
+          detail: { percent, receivedBytes, totalBytes },
+        }),
+      );
+    };
+
+    // Start loading as a single group.
+    await new Promise<void>((resolve) => loader.load(resolve));
+
+    // Mark fully loaded for UI. We send this before first-frame; see below.
+    this.canvas.dispatchEvent(new CustomEvent(SPLAT_EVT_LOADED, { bubbles: true }));
+
+    // Emit once the first frame has actually rendered so UIs can fade precisely.
+    this.app.once(
+      "postrender",
+      () => {
+        this.canvas.dispatchEvent(new CustomEvent(SPLAT_EVT_FIRST_FRAME, { bubbles: true }));
+      },
+      this,
+    );
+
+    // Best-effort cleanup (defensive).
+    progress.dispose();
+
     return assetList;
   }
 

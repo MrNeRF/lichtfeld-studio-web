@@ -5,11 +5,14 @@ const { scene } = Astro.props;
 <astro-splat scene={scene} data-base={import.meta.env.BASE_URL}><canvas></canvas></astro-splat>
 <script>
   import { SplatCanvas } from "../script/SplatCanvas";
+  import { MIN_VIEWPORT_VISIBILITY_FOR_RENDER } from "@/constants/splat-viewer";
 
   class AstroSplat extends HTMLElement {
     connectedCallback() {
       const canvas = this.querySelector("canvas") as HTMLCanvasElement;
       const base = this.getAttribute("data-base") || "/";
+
+      // Keep a reference for observers to call into.
       const splatCanvas = new SplatCanvas(
         canvas,
         this.getAttribute("scene") as string,
@@ -22,8 +25,53 @@ const { scene } = Astro.props;
       this.addEventListener("click", () => {
         splatCanvas.togglePose(1000);
       });
+
+      // ===== Event forwarding =====
+      // Event forwarding from SplatCanvas to the global document
+      // This decouples the canvas from the page layout, allowing any
+      // component on the page to react to viewer state changes.
+      canvas.addEventListener("splat:active", () => {
+        document.dispatchEvent(new CustomEvent("splatviewer:active"));
+      });
+      canvas.addEventListener("splat:idle", () => {
+        document.dispatchEvent(new CustomEvent("splatviewer:idle"));
+      });
+
+      // ===== Viewport visibility: pause when < 20% visible =====
+      // Use a low-overhead IntersectionObserver to compute intersection ratio.
+      // Threshold array includes the exact cutoff, so we get callbacks when crossing it.
+      const io = new IntersectionObserver(
+        (entries) => {
+          const entry = entries[0];
+
+          // entry.intersectionRatio ∈ [0,1]; pass to viewer to decide suspend/resume.
+          splatCanvas.setViewportVisibility(entry.intersectionRatio);
+        },
+        { root: null, threshold: [0, MIN_VIEWPORT_VISIBILITY_FOR_RENDER] },
+      );
+
+      io.observe(this);
+
+      // ===== Page Visibility: suspend when tab/page is hidden =====
+      const onVis = () => splatCanvas.notifyPageVisibility(document.hidden);
+      document.addEventListener("visibilitychange", onVis, { passive: true });
+
+      // Initialize once in case we mount hidden.
+      onVis();
+
+      // NOTE: This simple element has no disconnectedCallback today. If we
+      // ever remove/detach it dynamically, remember to io.disconnect() and
+      // removeEventListener('visibilitychange', onVis) for cleanup.
     }
   }
 
   customElements.define("astro-splat", AstroSplat);
 </script>
+
+<style>
+  astro-splat {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+</style>

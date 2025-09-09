@@ -10,6 +10,8 @@ import {
   RESOLUTION_AUTO,
   Vec3,
 } from "playcanvas";
+import { profileDevice, applyPlayCanvasTuning } from "@/services/deviceProfiler";
+import { MIN_VIEWPORT_VISIBILITY_FOR_RENDER, IDLE_AUTO_STOP_MS } from "@/constants/splat-viewer";
 
 interface SuperSplatProjectDocument {
   camera: {
@@ -46,6 +48,9 @@ class SplatCanvas {
   private readonly DEBUG = true; // Flip to true to log pose snapshots and transitions.
   private _lastGoodPose: Pose | null = null; // Stores last validated pose to fall back to.
 
+  // A flag to prevent event dispatches during the initial setup.
+  private _isInitialized = false;
+
   // =========================
   // Idle/Active state machine
   // =========================
@@ -55,6 +60,15 @@ class SplatCanvas {
   private inactivityMs = 3000; // Milliseconds to return to idle.
   private inactivityTimerId: number | null = null; // setTimeout handle for inactivity.
   private reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // NEW: hard limit for how long idle animation is allowed to run
+  private idleAutoStopMs = IDLE_AUTO_STOP_MS; // Centralized constant
+  private idleAutoStopTimerId: number | null = null; // Timer to stop idle motion after prolonged inactivity
+
+  // NEW: unified rendering suspension flags (any true => suspend)
+  private _suspendedByVisibility = false; // Suspended because element is < 20% visible
+  private _suspendedByIdleTimeout = false; // Suspended because idle exceeded max duration
+  private _suspendedByPageHidden = false; // Suspended because page/tab is hidden
 
   // =========================
   // Idle hover configuration
@@ -72,16 +86,16 @@ class SplatCanvas {
   // Idle drift/pause pattern
   // =========================
   // Configuration ranges (seconds) for drift motion and micro-pauses; tuned for subtlety.
-  private _idleDriftDurationRange: [number, number] = [1.2, 2.2];
+  private _idleDriftDurationRange: [number, number] = [2, 3];
   private _idlePauseDurationRange: [number, number] = [1.0, 2.0];
 
   // Waypoint step radius scale ∈ [min,max] of _idleHoverRadius; keeps hops short and centered.
-  private _idleStepRadiusScale: [number, number] = [0.35, 1.0];
+  private _idleStepRadiusScale: [number, number] = [2, 4.0];
 
   // Idle phase state machine
   private _idlePhase: "pause" | "drift" = "pause";
   private _idlePhaseStartMs = 0;
-  private _idlePhaseDurationMs = 800;
+  private _idlePhaseDurationMs = 1500;
 
   // Current drift endpoints in world space. We keep positions and rebuild pose via look(from,to).
   private _idleFrom = new Vec3();
@@ -111,14 +125,45 @@ class SplatCanvas {
         antialias: false,
       },
     });
+
+    // Make the canvas focusable so it can receive keyboard events for direct interaction.
+    // A tabIndex of 0 includes the element in the default tab order.
+    this.canvas.tabIndex = 0;
+
     this.app.setCanvasFillMode(FILLMODE_NONE, ...resolution());
     this.app.setCanvasResolution(RESOLUTION_AUTO);
     this.app.start();
+
+    // Profile the device and tune the viewer at startup
+    // We keep this lightweight: a short rAF-based sample and a few capability probes.
+    // If the recommendation disables idle motion, we respect it immediately to avoid extra re-renders.
+    (async () => {
+      try {
+        const profile = await profileDevice();
+
+        applyPlayCanvasTuning(this.app, profile);
+
+        if (this.DEBUG) {
+          console.debug("[PerfProfile]", profile);
+        }
+
+        // If profiler suggests disabling idle motion, enforce it.
+        if (!profile.recommended.enableIdleMotion) {
+          this.reduceMotion = true; // respect preference + profiler result
+          this.isIdle = false; // leave idle mode if we were in it
+          this.idleBlend = 0; // ensure no residual blend influences the camera
+        }
+      } catch (err) {
+        console.warn("[SplatCanvas] Device profiling failed:", err);
+      }
+    })();
 
     window.addEventListener("resize", () => this.app.resizeCanvas(...resolution()));
 
     // Attach interaction handlers to flip into "active" state and restart inactivity timer.
     this.attachInteractionHandlers();
+    // Attach global listeners to resume idle animation if it was auto-stopped.
+    this.attachGlobalActivityListeners();
   }
 
   private async asyncInit() {
@@ -147,6 +192,10 @@ class SplatCanvas {
       this.isIdle = false;
       this.idleBlend = 0;
     }
+
+    // Mark as initialized AFTER the initial state has been set. This prevents the
+    // first `enterIdle` call from dispatching a premature `splat:idle` event.
+    this._isInitialized = true;
   }
 
   private async loadAssets(location: string): Promise<[Asset, Asset]> {
@@ -177,6 +226,11 @@ class SplatCanvas {
     // The main update loop.
     // It prioritizes scripted camera movements (updateCameraFn) over idle animations.
     this.app.on("update", (dt: number) => {
+      // SHORT-CIRCUIT: if rendering is suspended for any reason, do no work this frame.
+      if (this._isRenderingSuspended()) {
+        return;
+      }
+
       // If a scripted movement is active, execute it.
       if (this.updateCameraFn) {
         this.updateCameraFn();
@@ -220,12 +274,16 @@ class SplatCanvas {
     this.isIdle = false;
     this.idleBlend = 0;
 
+    // RESUME rendering if it was suspended due to idle/visibility; user interaction implies activity.
+    this._clearIdleStopIfAny();
+    this._setSuspendedByVisibility(false);
+
     const camera = this.camera;
-    const startMillis = Date.now();
+    const startMillis = performance.now(); // use monotonic, high-resolution clock
     const endMillis = startMillis + durationMillis;
     const fromPose = this.camPose.clone();
     this.updateCameraFn = () => {
-      const now = Date.now();
+      const now = performance.now(); // keep the same timebase as idle
       const t = durationMillis > 0 ? (now - startMillis) / (endMillis - startMillis) : 1;
       const alpha = durationMillis === 0 ? 1 : easeOut(Math.min(t, 1));
 
@@ -289,14 +347,47 @@ class SplatCanvas {
     const mark = () => this.markActive();
     const passiveOpts: AddEventListenerOptions = { passive: true };
 
-    // Pointer and wheel interactions on the canvas imply user activity.
-    this.canvas.addEventListener("pointerdown", mark, passiveOpts);
-    //this.canvas.addEventListener("pointermove", mark, passiveOpts);
-    //this.canvas.addEventListener("wheel", mark, passiveOpts);
-    this.canvas.addEventListener("click", mark, passiveOpts);
+    // Mouse-only "down" using Pointer Events; filter by pointerType per spec.
+    const onPointerDown = (ev: PointerEvent) => {
+      if (ev.pointerType === "mouse" && ev.button === 0) {
+        // Only respond to left-clicks
+        mark();
+      }
+    };
 
-    // Keyboard can also be considered activity while the viewer is focused.
-    window.addEventListener("keydown", mark, passiveOpts);
+    // Mouse-only "click"; keyboard-triggered clicks report detail === 0 (per MDN).
+    const onClick = (ev: MouseEvent) => {
+      if (ev.detail > 0) {
+        mark();
+      }
+    };
+
+    this.canvas.addEventListener("pointerdown", onPointerDown, passiveOpts);
+    this.canvas.addEventListener("click", onClick, passiveOpts);
+
+    // NOTE: Do not mark active on keyboard; global keydown is used only to resume idle (see attachGlobalActivityListeners).
+  }
+
+  /**
+   * Attaches listeners to the window to detect page-wide user activity.
+   * This is used specifically to resume the idle animation if it was
+   * auto-stopped due to prolonged inactivity. It does NOT enter the "active"
+   * state, which is reserved for direct interaction with the splat viewer.
+   */
+  private attachGlobalActivityListeners(): void {
+    const resume = () => this._resumeIdleFromAutoStop();
+    const passiveOpts: AddEventListenerOptions = { passive: true };
+
+    // A wide range of user interactions across the entire page should be treated as
+    // activity to resume a suspended idle animation. We use passive listeners
+    // for high-frequency events like pointermove and scroll to avoid impacting
+    // rendering performance. Monitoring these events on `window` ensures that
+    // activity anywhere on the page, not just on the canvas, is detected. [11, 15, 17]
+    const events: (keyof WindowEventMap)[] = ["pointerdown", "pointermove", "wheel", "click", "keydown", "scroll"];
+
+    events.forEach((event) => {
+      window.addEventListener(event, resume, passiveOpts);
+    });
   }
 
   /**
@@ -313,11 +404,19 @@ class SplatCanvas {
     this.isIdle = false;
     this.idleBlend = 0; // Immediately drop any residual idle blend to avoid post-animation drift.
 
+    // Dispatch a custom event to notify the host UI that the viewer is now active.
+    this.canvas.dispatchEvent(new CustomEvent("splat:active", { bubbles: true }));
+
     // Restart inactivity timer.
     if (this.inactivityTimerId !== null) {
       clearTimeout(this.inactivityTimerId);
     }
     this.inactivityTimerId = window.setTimeout(() => this.enterIdle(), this.inactivityMs);
+
+    // If we were previously suspended due to idle timeout, clear that now and resume rendering.
+    this._clearIdleStopIfAny();
+    // Also resume if it was suspended by visibility and we are visible enough again.
+    this._applyRenderingBudget();
   }
 
   /**
@@ -325,6 +424,12 @@ class SplatCanvas {
    * to ensure a smooth transition from active interaction to idle motion.
    */
   private enterIdle(): void {
+    // Dispatch a custom event to notify the host UI that the viewer is now idle.
+    // This is guarded by `_isInitialized` to prevent it from firing on startup.
+    if (this._isInitialized) {
+      this.canvas.dispatchEvent(new CustomEvent("splat:idle", { bubbles: true }));
+    }
+
     // Set the center for the new hover motion to the camera's current position.
     // This ensures a seamless transition from user control to the idle animation.
     // Defensive: if camPose is not yet valid (e.g., first frame), fall back to last good or first pose.
@@ -341,8 +446,25 @@ class SplatCanvas {
 
     // Initialize the waypoint state: start with a brief pause at the current position, then drift.
     this._idleFrom.copy(this._idleHoverCenter);
-    this._idleTo.copy(this._pickNextIdleWaypoint());
+    this._idleTo.copy(this._idleHoverCenter); // Warm-start: hold the *current* position during the initial pause
     this._startIdlePause(this.idleStartTime);
+
+    // Schedule automatic idle stop to cap background motion and power usage.
+    if (this.idleAutoStopTimerId !== null) {
+      clearTimeout(this.idleAutoStopTimerId);
+    }
+
+    this.idleAutoStopTimerId = window.setTimeout(() => {
+      // Stop idle animation and suspend rendering until there is activity.
+      this.isIdle = false;
+      this.idleBlend = 0;
+      this._suspendedByIdleTimeout = true;
+      this._applyRenderingBudget();
+
+      if (this.DEBUG) {
+        console.debug("[SplatCanvas] Idle auto-stopped after", this.idleAutoStopMs, "ms");
+      }
+    }, this.idleAutoStopMs);
 
     if (this.DEBUG) {
       console.debug("[SplatCanvas] Enter idle", {
@@ -350,6 +472,31 @@ class SplatCanvas {
         lookTarget: this._idleLookTarget,
         camPose: this.camPose,
       });
+    }
+  }
+
+  /**
+   * Resumes the idle animation if it was previously suspended by the auto-stop timer.
+   * This is triggered by global page activity, signaling that the user is present.
+   */
+  private _resumeIdleFromAutoStop(): void {
+    // Only act if rendering was suspended specifically by the idle timeout.
+    // If the user is actively interacting with the splat, or the tab is hidden,
+    // we should not interfere.
+    if (this._suspendedByIdleTimeout) {
+      if (this.DEBUG) {
+        console.debug("[SplatCanvas] Resuming idle animation due to page activity.");
+      }
+      // We are no longer suspended by idle timeout.
+      this._suspendedByIdleTimeout = false;
+
+      // Re-enter the idle state, which will restart the drift animation
+      // and schedule a new auto-stop timer.
+      this.enterIdle();
+
+      // Apply the new rendering state. Since _suspendedByIdleTimeout is false,
+      // this will resume rendering (unless suspended for other reasons).
+      this._applyRenderingBudget();
     }
   }
 
@@ -380,19 +527,41 @@ class SplatCanvas {
     // 2) Compute the target idle pose using a drift→pause→drift waypoint pattern with smoothstep easing.
     const idlePose = this._updateIdleDriftPause(performance.now());
 
-    // 3) First-order follow toward idle pose at a controlled rate, then blend by idleBlend.
+    // 3) First-order follow toward idle pose at a controlled rate (for position) and wrap-safe for angles.
     const followK = 1 - Math.exp(-dt / this.idleFollowTimeConst);
-    const followed = new Pose().copy(this.camPose).lerp(this.camPose, idlePose, followK, followK, followK);
 
-    // 4) Interpolate between interactive pose and the followed idle pose by 'idleBlend'.
-    const finalPose = new Pose()
-      .copy(this.camPose)
-      .lerp(this.camPose, followed, this.idleBlend, this.idleBlend, this.idleBlend);
+    // --- Position follow (linear) ---
+    const followedPos = new Vec3(
+      this.camPose.position.x + (idlePose.position.x - this.camPose.position.x) * followK,
+      this.camPose.position.y + (idlePose.position.y - this.camPose.position.y) * followK,
+      this.camPose.position.z + (idlePose.position.z - this.camPose.position.z) * followK,
+    );
 
-    // 5) Apply to camera entity.
-    this.camPose = finalPose;
-    this.camera.setPosition(finalPose.position);
-    this.camera.setEulerAngles(finalPose.angles);
+    // --- Angles follow (wrap-aware shortest path in degrees) ---
+    const followedAngles = new Vec3(
+      this._lerpAngleDegrees(this.camPose.angles.x, idlePose.angles.x, followK),
+      this._lerpAngleDegrees(this.camPose.angles.y, idlePose.angles.y, followK),
+      this._lerpAngleDegrees(this.camPose.angles.z, idlePose.angles.z, followK),
+    );
+
+    // 4) Blend between interactive pose and the followed idle pose by 'idleBlend' (position + wrap-safe angles).
+    const finalPos = new Vec3(
+      this.camPose.position.x + (followedPos.x - this.camPose.position.x) * this.idleBlend,
+      this.camPose.position.y + (followedPos.y - this.camPose.position.y) * this.idleBlend,
+      this.camPose.position.z + (followedPos.z - this.camPose.position.z) * this.idleBlend,
+    );
+
+    const finalAngles = new Vec3(
+      this._lerpAngleDegrees(this.camPose.angles.x, followedAngles.x, this.idleBlend),
+      this._lerpAngleDegrees(this.camPose.angles.y, followedAngles.y, this.idleBlend),
+      this._lerpAngleDegrees(this.camPose.angles.z, followedAngles.z, this.idleBlend),
+    );
+
+    // 5) Apply to camera entity and persist in camPose.
+    this.camPose.position.copy(finalPos);
+    this.camPose.angles.copy(finalAngles);
+    this.camera.setPosition(finalPos);
+    this.camera.setEulerAngles(finalAngles);
   }
 
   /**
@@ -466,10 +635,16 @@ class SplatCanvas {
   private _updateIdleDriftPause(nowMs: number): Pose {
     if (this._idlePhase === "pause") {
       if (nowMs - this._idlePhaseStartMs >= this._idlePhaseDurationMs) {
-        // Next hop: current "to" becomes new "from"; sample a new target near the center.
-        this._idleFrom.copy(this._idleTo);
+        // Next hop: start drifting from the *current rendered camera position* for C0 continuity,
+        // not from the previous target. This avoids a small step if follow/blend hadn't fully settled.
+        this._idleFrom.copy(this.camPose.position);
+
         this._idleTo.copy(this._pickNextIdleWaypoint());
         this._startIdleDrift(nowMs);
+
+        // Return the *start-of-drift* pose in the SAME FRAME we switch states,
+        // so the output pose is continuous across the boundary (no 1-frame "tick").
+        return new Pose().look(this._idleFrom, this._idleLookTarget);
       }
 
       return new Pose().look(this._idleTo, this._idleLookTarget);
@@ -527,6 +702,71 @@ class SplatCanvas {
   /** Scalar lerp helper. */
   private _lerp(a: number, b: number, t: number): number {
     return a + (b - a) * t;
+  }
+
+  /** Wrap-safe angular lerp in degrees (shortest path across ±180). */
+  private _lerpAngleDegrees(a: number, b: number, t: number): number {
+    // Compute minimal signed delta in [-180, +180).
+    const delta = ((((b - a) % 360) + 540) % 360) - 180;
+    return a + delta * t;
+  }
+
+  // =========================
+  // Rendering budget utilities & external notifications
+  // =========================
+
+  /** True if any suspension reason is active. */
+  private _isRenderingSuspended(): boolean {
+    return this._suspendedByVisibility || this._suspendedByIdleTimeout || this._suspendedByPageHidden;
+  }
+
+  /** Apply the current suspension state to PlayCanvas (render/update on or off). */
+  private _applyRenderingBudget(): void {
+    const suspend = this._isRenderingSuspended();
+
+    // autoRender=false stops rendering the frame loop; timeScale=0 prevents systems from updating.
+    this.app.autoRender = !suspend;
+    this.app.timeScale = suspend ? 0 : 1;
+
+    // If we just resumed, ensure at least one frame renders even if nothing changes immediately.
+    if (!suspend) {
+      (this.app as any).renderNextFrame = true;
+    }
+  }
+
+  /** Clear idle auto-stop suspension and timer (typically on user activity). */
+  private _clearIdleStopIfAny(): void {
+    if (this.idleAutoStopTimerId !== null) {
+      clearTimeout(this.idleAutoStopTimerId);
+      this.idleAutoStopTimerId = null;
+    }
+    if (this._suspendedByIdleTimeout) {
+      this._suspendedByIdleTimeout = false;
+    }
+  }
+
+  /** Update the "suspended due to visibility" flag and re-apply budget. */
+  private _setSuspendedByVisibility(suspend: boolean): void {
+    this._suspendedByVisibility = suspend;
+    this._applyRenderingBudget();
+  }
+
+  /**
+   * PUBLIC: Notified by the host element when the element's viewport visibility ratio changes.
+   * Rendering is suspended when ratio < MIN_VIEWPORT_VISIBILITY_FOR_RENDER, resumed otherwise.
+   */
+  public setViewportVisibility(ratio: number): void {
+    const visibleEnough = ratio >= MIN_VIEWPORT_VISIBILITY_FOR_RENDER;
+    this._setSuspendedByVisibility(!visibleEnough);
+  }
+
+  /**
+   * PUBLIC: Notified by the host element when the page/tab becomes hidden or visible.
+   * We suspend while hidden and resume when visible.
+   */
+  public notifyPageVisibility(hidden: boolean): void {
+    this._suspendedByPageHidden = hidden;
+    this._applyRenderingBudget();
   }
 }
 

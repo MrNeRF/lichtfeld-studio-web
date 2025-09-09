@@ -25,31 +25,34 @@ const base = import.meta.env.BASE_URL + "/";
       <!-- Backdrop panel -->
       <div class="container px-4">
         <div class="hero__stack">
-          <h1 class="hero__title">LichtFeld Studio</h1>
+          <!-- inner animated wrapper to avoid multiplying parent/child opacities -->
+          <div class="hero__stack-content">
+            <h1 class="hero__title">LichtFeld Studio</h1>
 
-          <div class="hero__actions">
-            <!-- Primary CTA: “Get Started” (currently links to GitHub; future tutorial page can replace URL) -->
-            <a
-              class="btn btn-primary btn-lg"
-              href={GITHUB_REPO_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Open the LichtFeld Studio GitHub repository in a new tab"
-            >
-              <i class="bi bi-github me-2" aria-hidden="true"></i>
-              Get Started
-            </a>
-            <!-- Secondary CTA: Join Discord (icon + kept white text for contrast on dark imagery) -->
-            <a
-              class="btn btn-outline-light btn-lg hero__support-link"
-              href={DISCORD_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Open the Discord community in a new tab"
-            >
-              <i class="bi bi-discord me-2" aria-hidden="true"></i>
-              Join us on Discord
-            </a>
+            <div class="hero__actions">
+              <!-- Primary CTA: “Get Started” (currently links to GitHub; future tutorial page can replace URL) -->
+              <a
+                class="btn btn-primary btn-lg"
+                href={GITHUB_REPO_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Open the LichtFeld Studio GitHub repository in a new tab"
+              >
+                <i class="bi bi-github me-2" aria-hidden="true"></i>
+                Get Started
+              </a>
+              <!-- Secondary CTA: Join Discord (icon + kept white text for contrast on dark imagery) -->
+              <a
+                class="btn btn-outline-light btn-lg hero__support-link"
+                href={DISCORD_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Open the Discord community in a new tab"
+              >
+                <i class="bi bi-discord me-2" aria-hidden="true"></i>
+                Join us on Discord
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -363,6 +366,53 @@ const base = import.meta.env.BASE_URL + "/";
     </div>
   </section>
 </Layout>
+
+<script>
+  /**
+   * Manages the visibility of the hero content based on the Splat viewer's state.
+   * - Fades out the hero content immediately when the viewer becomes active.
+   * - Fades it back in 5 seconds after the viewer becomes idle.
+   * - Resets the fade-in timer if the user becomes active again.
+   */
+  document.addEventListener("DOMContentLoaded", () => {
+    // Find the hero content element to apply the fade effect.
+    const heroContent = document.querySelector(".hero__content");
+    if (!heroContent) {
+      console.warn("Hero content element (.hero__content) not found.");
+      return;
+    }
+
+    // A timer ID for the delayed fade-in when the viewer goes idle.
+    let fadeInTimerId: number | null = null;
+
+    // Listen for the custom event dispatched when the viewer becomes active (user interaction).
+    document.addEventListener("splatviewer:active", () => {
+      // If a fade-in was scheduled, cancel it because the user is active again.
+      if (fadeInTimerId) {
+        clearTimeout(fadeInTimerId);
+        fadeInTimerId = null;
+      }
+      // Apply the CSS class to fade out the hero content.
+      heroContent.classList.add("is-viewer-active");
+    });
+
+    // Listen for the custom event dispatched when the viewer goes idle.
+    document.addEventListener("splatviewer:idle", () => {
+      // Schedule the hero content to fade back in after a 10-second delay.
+      const FADE_IN_DELAY_MS = 10000;
+
+      console.debug(`Splat viewer went idle. Scheduling fade-in in ${FADE_IN_DELAY_MS}ms.`);
+
+      fadeInTimerId = window.setTimeout(() => {
+        heroContent.classList.remove("is-viewer-active");
+
+        console.debug("Fade-in completed. Hero content is now visible.");
+        fadeInTimerId = null; // Clear the timer ID after it has run.
+      }, FADE_IN_DELAY_MS);
+    });
+  });
+</script>
+
 <style>
   /* ===========================
     * Hero / Big Splat Header
@@ -394,6 +444,10 @@ const base = import.meta.env.BASE_URL + "/";
     align-items: center;
     overflow: clip; /* Contain the canvas */
     background: #0b0c10; /* Fallback tone under the canvas */
+    /* --- Fade timing tokens (show vs. hide) --- */
+    --hero-fade-duration: 2s; /* default fade-in duration */
+    --hero-fade-ease: ease-in-out; /* default easing */
+    --hero-visibility-delay: 0s; /* no delay when becoming visible */
   }
 
   .hero__splat {
@@ -409,6 +463,15 @@ const base = import.meta.env.BASE_URL + "/";
     pointer-events: none;
   }
 
+  /* State class toggles timing tokens; the actual fade happens on
+   .hero__stack-content and the glass (::before). */
+  .hero__content.is-viewer-active {
+    /* Override timing for the hide case only */
+    --hero-fade-duration: 0.4s;
+    /* NOTE: We do not toggle visibility here to avoid the “instant show”
+       behavior of visibility on the fade-in path. */
+  }
+
   /* Prevent the bootstrap .container from re-enabling hit-testing */
   .hero__content .container {
     pointer-events: none;
@@ -416,16 +479,8 @@ const base = import.meta.env.BASE_URL + "/";
     text-align: center;
   }
 
-  /* Re-enable events ONLY on our interactive controls */
-  .hero__actions,
-  .hero__actions a,
-  .hero__actions button {
-    pointer-events: auto;
-  }
-
   /* Lightweight wrapper around the textual hero content.
-     The frosted, light panel is implemented on ::before so it tracks the content’s box,
-     fixing the prior bug where the panel stayed centered on the canvas. */
+     The frosted, light panel is implemented on ::before so it tracks the content’s box */
   .hero__stack {
     position: relative;
     display: inline-flex;
@@ -435,18 +490,44 @@ const base = import.meta.env.BASE_URL + "/";
     padding: 5.5rem 12rem; /* Add padding for better visual spacing */
   }
 
+  /* animated inner wrapper for text/buttons */
+  .hero__stack-content {
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+      opacity var(--hero-fade-duration) var(--hero-fade-ease),
+      transform var(--hero-fade-duration) var(--hero-fade-ease);
+  }
+
+  .hero__content.is-viewer-active .hero__stack-content {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
   /* Frosted, light panel with elegant radial edge fade that keeps most of the splat visible. */
   .hero__stack::before {
     content: "";
     position: absolute;
-    inset: -12px -16px; /* visual halo around content */
+    inset: -3rem -10rem; /* visual halo around content */
     background: rgba(230, 230, 230, 0.1); /* light/clean tone over dark imagery */
     /* Use backdrop-filter when supported for tasteful glassmorphism without obscuring the splat */
     backdrop-filter: saturate(150%) blur(5px);
     pointer-events: none; /* never block canvas or buttons */
     /* Elegant edge fade so the splat remains prominent around the content */
-    -webkit-mask-image: radial-gradient(ellipse farthest-side, rgba(0, 0, 0, 1) 55%, rgba(0, 0, 0, 0) 100%);
-    mask-image: radial-gradient(ellipse farthest-side, rgba(0, 0, 0, 1) 55%, rgba(0, 0, 0, 0) 100%);
+    -webkit-mask-image: radial-gradient(ellipse farthest-side, rgba(0, 0, 0, 1) 35%, rgba(0, 0, 0, 0) 100%);
+    mask-image: radial-gradient(ellipse farthest-side, rgba(0, 0, 0, 1) 35%, rgba(0, 0, 0, 0) 100%);
+    /* Let the panel animate on both show/hide (visibility is controlled on the parent). */
+    opacity: 1;
+    transition:
+      opacity var(--hero-fade-duration) var(--hero-fade-ease),
+      backdrop-filter var(--hero-fade-duration) var(--hero-fade-ease);
+  }
+
+  /* When the viewer is active, fade out the frosted background with the faster duration. */
+  .hero__content.is-viewer-active .hero__stack::before {
+    opacity: 0;
+    /* Animate the filter back to a neutral state (no blur, normal saturation). */
+    backdrop-filter: saturate(150%) blur(0px);
   }
 
   /* Graceful fallback when backdrop-filter isn’t available */

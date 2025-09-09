@@ -16,7 +16,7 @@ const base = import.meta.env.BASE_URL + "/";
     <div class="hero__splat">
       <!-- The Splat canvas is the visual anchor in the header -->
       <div class="splat-wrapper">
-        <Splat scene="botanics" />
+        <Splat scene="botanics" style="--preview-blur-px: 7px;" progressPosition="bottom-center" progressOffsetY={50} />
       </div>
     </div>
 
@@ -62,8 +62,7 @@ const base = import.meta.env.BASE_URL + "/";
   <!-- Introduction -->
   <section class="container px-4 py-5">
     <div class="row align-items-center g-5">
-      <div class="col-12 col-lg-6">
-        <!-- NOTE: We keep the GIF for now to avoid build changes; video is recommended for performance. -->
+      <div class="col-12 col-lg-6 order-2 order-lg-1">
         <!-- TODO: Replace the animated GIF with MP4/WebM for significantly smaller payloads and better LCP. -->
         <!-- See: https://web.dev/articles/replace-gifs-with-videos -->
         <img
@@ -76,7 +75,7 @@ const base = import.meta.env.BASE_URL + "/";
         />
       </div>
 
-      <div class="col-12 col-lg-6">
+      <div class="col-12 col-lg-6 order-1 order-lg-2">
         <h2 class="fw-bold text-body-emphasis lh-1 mb-3">What is LichtFeld Studio?</h2>
         <p class="lead">
           Unleash the power of real-time <b>3D Gaussian Splatting</b> with MrNeRF's high-performance C++ and CUDA implementation!
@@ -431,6 +430,7 @@ const base = import.meta.env.BASE_URL + "/";
       bottom: 0;
       width: 100%;
       height: 100%;
+      z-index: 0;
       cursor: grab;
       pointer-events: auto;
     }
@@ -457,6 +457,7 @@ const base = import.meta.env.BASE_URL + "/";
 
   .hero__content {
     position: relative;
+    z-index: 3; /* Above the loader (z=1) so title/buttons remain visible and on top */
     color: var(--color-text-light);
 
     /* Let clicks reach the canvas unless the user interacts with explicit controls */

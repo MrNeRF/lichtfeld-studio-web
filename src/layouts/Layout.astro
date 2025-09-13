@@ -14,7 +14,15 @@ import "bootstrap-icons/font/bootstrap-icons.css";
     <link rel="icon" type="image/svg+xml" href={import.meta.env.BASE_URL + "static/favicon.svg"} />
     <title>LichtFeld Studio</title>
     <style lang="scss" is:global>
-      @use "bootstrap/scss/bootstrap" as *;
+      @use "bootstrap/scss/bootstrap" as * with (
+        $container-max-widths: (
+          sm: 540px,
+          md: 720px,
+          lg: 960px,
+          xl: 1140px,
+          // do not grow beyond XL
+        )
+      );
       @import "../styles/theme.css";
 
       body {

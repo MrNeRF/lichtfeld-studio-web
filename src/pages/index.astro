@@ -6,7 +6,7 @@ import Splat from "@/components/Splat.astro";
 import ContributorsWall from "@/components/contribute/ContributorsWall.astro";
 
 // Centralized external links (avoid magic strings):
-import { GITHUB_REPO_URL, DISCORD_URL, GITHUB_SPONSORS_URL, PAYPAL_DONATE_URL, PATREON_URL } from "@/constants/links";
+import { GITHUB_REPO_URL, DISCORD_URL, PAYPAL_URL, DONORBOX_URL, CRYPTO_WALLET_BITCOIN } from "@/constants/links";
 
 const base = import.meta.env.BASE_URL + "/";
 ---
@@ -289,76 +289,99 @@ const base = import.meta.env.BASE_URL + "/";
   </section>
 
   <!-- Support / Donations (deeplink target) -->
-  <section class="container px-4 py-5" id="support" aria-labelledby="support-heading">
-    <h2 id="support-heading" class="pb-2 border-bottom">Support the Project</h2>
+  <section class="container px-4 py-5" id="support-the-project" aria-labelledby="support-the-project-heading">
+    <h2 id="support-the-project-heading" class="pb-2 border-bottom">Support the Project</h2>
     <p class="text-body-primary mt-3 mb-4">
       Fund development and maintenance through your preferred platform. Every contribution helps keep the project alive
       and fund further research and development.
     </p>
 
     <div class="row g-4 row-cols-1 row-cols-md-3">
+      <!-- PayPal Card -->
       <div class="col">
         <div class="card h-100 shadow-sm">
           <div class="card-body d-flex flex-column">
-            <h3 class="fs-5 fw-semibold mb-2">GitHub Sponsors</h3>
-            <p class="text-body-secondary">
-              Sponsor directly on GitHub to keep development momentum and roadmap velocity high.
-            </p>
-
-            <div class="mt-auto">
-              <a
-                class="btn btn-primary w-100"
-                href={GITHUB_SPONSORS_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Open the GitHub Sponsors page in a new tab"
-              >
-                Sponsor on GitHub
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column">
-            <h3 class="fs-5 fw-semibold mb-2">PayPal</h3>
+            <h3 class="fs-5 fw-semibold mb-2 d-flex align-items-center gap-2">
+              <svg class="bi" width="1em" height="1em" focusable="false" aria-hidden="true">
+                <use href={`${base}static/bootstrap-icons.svg#paypal`}></use>
+              </svg>
+              <span>PayPal</span>
+            </h3>
             <p class="text-body-secondary">Make a one-time donation via PayPal.</p>
 
             <div class="mt-auto">
               <a
-                class="btn btn-outline-primary w-100"
-                href={PAYPAL_DONATE_URL}
+                class="btn btn-primary w-100"
+                href={PAYPAL_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Open the PayPal donation link in a new tab"
               >
                 Donate via PayPal
               </a>
-              <!-- TODO: Replace placeholder when the PayPal Hosted Donate Button URL is available. -->
             </div>
           </div>
         </div>
       </div>
 
+      <!-- DonorBox Card -->
       <div class="col">
         <div class="card h-100 shadow-sm">
           <div class="card-body d-flex flex-column">
-            <h3 class="fs-5 fw-semibold mb-2">Patreon</h3>
-            <p class="text-body-secondary">Optional membership tiers to fund ongoing development.</p>
+            <h3 class="fs-5 fw-semibold mb-2 d-flex align-items-center gap-2">
+              <svg class="bi" width="1em" height="1em" focusable="false" aria-hidden="true">
+                <use href={`${base}static/bootstrap-icons.svg#gift-fill`}></use>
+              </svg>
+              <span>DonorBox</span>
+            </h3>
+            <p class="text-body-secondary">Use DonorBox for secure one-time or monthly donations.</p>
 
             <div class="mt-auto">
               <a
-                class="btn btn-outline-secondary w-100"
-                href={PATREON_URL}
+                class="btn btn-primary w-100"
+                href={DONORBOX_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Open the Patreon creator page in a new tab"
+                aria-label="Open the DonorBox donation link in a new tab"
               >
-                Become a Patron
+                Donate via DonorBox
               </a>
-              <!-- TODO: Replace placeholder with the Patreon creator URL when ready. -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Crypto Card -->
+      <div class="col">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column">
+            <h3 class="fs-5 fw-semibold mb-2 d-flex align-items-center gap-2">
+              <svg class="bi" width="1em" height="1em" focusable="false" aria-hidden="true">
+                <use href={`${base}static/bootstrap-icons.svg#currency-bitcoin`}></use>
+              </svg>
+              <span>Bitcoin</span>
+            </h3>
+            <p class="text-body-secondary">Send a direct contribution to our Bitcoin wallet.</p>
+
+            <div class="mt-auto">
+              <div class="input-group">
+                <input
+                  type="text"
+                  class="form-control"
+                  value={CRYPTO_WALLET_BITCOIN}
+                  readonly
+                  id="btc-wallet-address"
+                  aria-label="Bitcoin wallet address"
+                />
+                <button
+                  class="btn btn-outline-secondary"
+                  type="button"
+                  id="copy-btc-address-btn"
+                  title="Copy to clipboard"
+                >
+                  <i class="bi bi-clipboard" aria-hidden="true"></i>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -374,7 +397,7 @@ const base = import.meta.env.BASE_URL + "/";
   /**
    * Manages the visibility of the hero content based on the Splat viewer's state.
    * - Fades out the hero content immediately when the viewer becomes active.
-   * - Fades it back in 5 seconds after the viewer becomes idle.
+   * - Fades it back in 10 seconds after the viewer becomes idle.
    * - Resets the fade-in timer if the user becomes active again.
    */
   document.addEventListener("DOMContentLoaded", () => {
@@ -413,6 +436,57 @@ const base = import.meta.env.BASE_URL + "/";
         fadeInTimerId = null; // Clear the timer ID after it has run.
       }, FADE_IN_DELAY_MS);
     });
+
+    /**
+     * Adds copy-to-clipboard functionality for the Bitcoin wallet address.
+     */
+    const copyBtn = document.getElementById("copy-btc-address-btn");
+    const btcAddressInput = document.getElementById("btc-wallet-address");
+
+    if (copyBtn && btcAddressInput instanceof HTMLInputElement) {
+      copyBtn.addEventListener("click", () => {
+        navigator.clipboard
+          .writeText(btcAddressInput.value)
+          .then(() => {
+            // Provide visual feedback on successful copy
+            const originalIcon = copyBtn.innerHTML;
+            copyBtn.innerHTML = '<i class="bi bi-check-lg"></i>';
+            copyBtn.disabled = true;
+
+            setTimeout(() => {
+              copyBtn.innerHTML = originalIcon;
+              copyBtn.disabled = false;
+            }, 2000);
+          })
+          .catch((err) => {
+            console.error("Failed to copy Bitcoin address: ", err);
+            // Optionally, provide an error message to the user here.
+          });
+      });
+    }
+
+    /**
+     * Robustly handles scrolling to a URL fragment/hash on page load.
+     * This ensures that anchor links work reliably even if default browser
+     * behavior is interrupted by other scripts or slow-loading resources.
+     */
+    if (window.location.hash) {
+      // Use a small timeout to allow the layout to settle, especially
+      // if there are heavy components like the splat viewer.
+      setTimeout(() => {
+        try {
+          const targetElement = document.querySelector(window.location.hash);
+          if (targetElement) {
+            targetElement.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            });
+          }
+        } catch (e) {
+          console.warn(`Failed to scroll to hash "${window.location.hash}":`, e);
+        }
+      }, 100); // A 100ms delay is usually sufficient.
+    }
   });
 </script>
 

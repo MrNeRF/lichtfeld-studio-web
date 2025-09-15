@@ -12,6 +12,9 @@ const bountyPath = `${base}/bounty/`;
 <style>
   #bounty-list {
     top: 92px;
+    /* Set a z-index lower than the site header (1000) to ensure the header's
+       dropdowns appear above this sticky element. */
+    z-index: 1;
   }
 </style>
 

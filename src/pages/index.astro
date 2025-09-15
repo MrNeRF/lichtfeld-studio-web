@@ -639,6 +639,12 @@ const base = import.meta.env.BASE_URL + "/";
     pointer-events: auto;
   }
 
+  /* When the viewer is active and the buttons are faded out, disable their pointer
+     events to prevent invisible elements from being clickable. */
+  .hero__content.is-viewer-active .hero__actions {
+    pointer-events: none;
+  }
+
   /* Ensure the secondary CTA is visible over dark gradients */
   .hero__support-link {
     border-color: rgba(255, 255, 255, 0.6);

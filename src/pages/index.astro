@@ -634,6 +634,9 @@ const base = import.meta.env.BASE_URL + "/";
     flex-wrap: wrap;
     margin-top: 1rem;
     position: relative; /* Establish a new stacking context */
+    /* Re-enable pointer events for the buttons, as the parent `.hero__content`
+       disables them to allow clicks to pass through to the splat canvas. */
+    pointer-events: auto;
   }
 
   /* Ensure the secondary CTA is visible over dark gradients */

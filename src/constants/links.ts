@@ -9,5 +9,6 @@ export const GITHUB_REPO_URL = "https://github.com/MrNeRF/LichtFeld-Studio";
 
 /** Donations — fill in as accounts are confirmed. */
 export const GITHUB_SPONSORS_URL = "https://github.com/sponsors/MrNeRF"; // Verified sponsor entry exists on profile page.
-export const PAYPAL_DONATE_URL = "#"; // TODO: Replace with PayPal hosted donate button URL when ready.
-export const PATREON_URL = "#"; // TODO: Replace with Patreon creator URL when ready.
+export const PAYPAL_URL = "https://www.paypal.com/paypalme/MrNeRF";
+export const DONORBOX_URL = "https://donorbox.org/lichtfeld-studio";
+export const CRYPTO_WALLET_BITCOIN = "bc1qz7z4c2cn46t7rkgsh7mr8tw9ssgctepzxrtqfw";

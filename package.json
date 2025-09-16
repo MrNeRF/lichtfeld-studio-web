@@ -1,20 +1,28 @@
 {
-  "name": "",
+  "name": "lichtfeld-studio-web",
+  "private": true,
   "type": "module",
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
+    "devn": "astro dev --host",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"
   },
   "dependencies": {
+    "@octokit/rest": "^22.0.0",
     "astro": "^5.13.2",
     "bootstrap": "^5.3.7",
     "bootstrap-icons": "^1.13.1",
+    "marked": "^16.2.1",
     "playcanvas": "^2.10.6"
   },
   "devDependencies": {
+    "@types/bootstrap": "^5.2.10",
+    "@types/marked": "^5.0.2",
+    "prettier": "^3.6.2",
+    "prettier-plugin-astro": "^0.14.1",
     "sass": "^1.90.0"
   }
 }

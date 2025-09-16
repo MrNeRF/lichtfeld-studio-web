@@ -1,21 +1,402 @@
 ---
-const { scene } = Astro.props;
+interface SplatProps {
+  /** Scene name (required). */
+  scene: string;
+
+  /**
+   * Where to anchor the progress panel.
+   * Allowed: "center", "top-left", "top-center", "top-right", "bottom-left", "bottom-center", "bottom-right".
+   */
+  progressPosition?:
+    | "center"
+    | "top-left"
+    | "top-center"
+    | "top-right"
+    | "bottom-left"
+    | "bottom-center"
+    | "bottom-right";
+
+  /** Horizontal pixel offset from the chosen anchor (e.g., 16). */
+  progressOffsetX?: number;
+
+  /** Vertical pixel offset from the chosen anchor (e.g., 16). */
+  progressOffsetY?: number;
+
+  /** Optional absolute/relative URL for the preview image. Defaults to BASE_URL/static/<scene>/preview.webp */
+  previewSrc?: string;
+
+  /** Optional inline CSS style passed by the caller (e.g., CSS variables). */
+  style?: string;
+}
+
+const {
+  scene,
+  progressPosition = "center",
+  progressOffsetX = 0,
+  progressOffsetY = 0,
+  previewSrc = `${import.meta.env.BASE_URL}/static/${scene}/preview.webp`,
+  style: userStyle = "",
+} = Astro.props as SplatProps;
 ---
 
-<astro-splat scene={scene} ><canvas /></astro-splat>
+<astro-splat
+  scene={scene}
+  data-base={import.meta.env.BASE_URL}
+  data-progress-position={progressPosition}
+  style={`${userStyle}${userStyle ? ";" : ""} --progress-offset-x:${progressOffsetX}px; --progress-offset-y:${progressOffsetY}px;`}
+>
+  <canvas></canvas>
+
+  <!--
+    DOM loader overlay:
+    - A full-viewport overlay for the canvas with a glassy panel.
+    - A linear progress bar with accessible semantics.
+    - A concise percentage label placed directly beneath the bar.
+  -->
+  <div class="splat-loading" aria-live="polite" aria-busy="true">
+    <!-- Scene preview shown while assets stream; kept under the panel -->
+    <img
+      class="splat-loading__preview"
+      src={previewSrc}
+      alt="Scene preview"
+      decoding="async"
+      loading="eager"
+      fetchpriority="high"
+      aria-hidden="true"
+    />
+
+    <div class="splat-loading__panel" role="group" aria-label="Loading 3D scene">
+      <div class="splat-loading__bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div class="splat-loading__fill" style="width:0%"></div>
+      </div>
+
+      <div class="splat-loading__label">
+        <span class="splat-loading__percent">0%</span>
+      </div>
+    </div>
+  </div>
+</astro-splat>
+
 <script>
-    import { SplatCanvas } from "../script/SplatCanvas";
-    
-    class AstroSplat extends HTMLElement {
-        connectedCallback(){
-            const canvas = this.querySelector('canvas') as HTMLCanvasElement;
-            const splatCanvas = new SplatCanvas(canvas, this.getAttribute('scene') as string, this.parentElement as HTMLElement);
+  import { SplatCanvas } from "../script/SplatCanvas";
+  import { MIN_VIEWPORT_VISIBILITY_FOR_RENDER } from "@/constants/splat-viewer";
+  import { SPLAT_EVT_LOADING_PROGRESS, SPLAT_EVT_LOADED, SPLAT_EVT_FIRST_FRAME } from "@/constants/splat-events";
 
-            this.addEventListener('click', () => {
-                splatCanvas.togglePose(1000);
-            });
+  class AstroSplat extends HTMLElement {
+    connectedCallback() {
+      // ======================
+      // Element lookups
+      // ======================
+      const canvas = this.querySelector("canvas") as HTMLCanvasElement;
+      const base = this.getAttribute("data-base") || "/";
+
+      // Loader DOM hooks
+      const overlay = this.querySelector(".splat-loading") as HTMLElement | null;
+      const panel = this.querySelector(".splat-loading__panel") as HTMLElement | null;
+      const bar = this.querySelector(".splat-loading__bar") as HTMLElement | null;
+      const fill = this.querySelector(".splat-loading__fill") as HTMLElement | null;
+      const percentEl = this.querySelector(".splat-loading__percent") as HTMLElement | null;
+      const previewImg = this.querySelector(".splat-loading__preview") as HTMLImageElement | null;
+
+      // ======================
+      // Viewer init
+      // ======================
+      const splatCanvas = new SplatCanvas(
+        canvas,
+        this.getAttribute("scene") as string,
+        this.parentElement as HTMLElement,
+        base,
+      );
+
+      // Click-to-advance. The SplatCanvas also listens for
+      // pointer/wheel/keyboard to toggle Active/Idle and schedule inactivity.
+      this.addEventListener("click", () => {
+        splatCanvas.togglePose(1000);
+      });
+
+      // ===== Event forwarding =====
+      // Event forwarding from SplatCanvas to the global document
+      // This decouples the canvas from the page layout, allowing any
+      // component on the page to react to viewer state changes.
+      canvas.addEventListener("splat:active", () => {
+        document.dispatchEvent(new CustomEvent("splatviewer:active"));
+      });
+
+      canvas.addEventListener("splat:idle", () => {
+        document.dispatchEvent(new CustomEvent("splatviewer:idle"));
+      });
+
+      // ======================
+      // Loader wiring
+      // ======================
+      if (overlay && panel && bar && fill && percentEl) {
+        /**
+         * Update visual width and accessible value.
+         * @param {number} p0to100 Percent value clamped to [0..100].
+         */
+        const updateProgress = (p0to100: number) => {
+          const clamped = Math.max(0, Math.min(100, p0to100 | 0));
+
+          fill.style.width = clamped + "%";
+          percentEl.textContent = clamped + "%";
+
+          // Keep a11y attributes in sync with visuals (APG/MDN guidance).
+          bar.setAttribute("aria-valuenow", String(clamped));
+        };
+
+        this.addEventListener(SPLAT_EVT_LOADING_PROGRESS, (e) => {
+          const { percent } = (e as CustomEvent).detail || { percent: 0 };
+          updateProgress(percent);
+        });
+
+        // Prepare to fade on load completion.
+        this.addEventListener(SPLAT_EVT_LOADED, () => {
+          overlay.classList.add("is-loaded");
+        });
+
+        // Fade out after first frame to avoid popping.
+        this.addEventListener(SPLAT_EVT_FIRST_FRAME, () => {
+          overlay.classList.add("is-finished");
+          // Remove from hit-testing after transition ends.
+          overlay.addEventListener(
+            "transitionend",
+            () => {
+              overlay.style.display = "none";
+              overlay.setAttribute("aria-busy", "false");
+            },
+            { once: true },
+          );
+        });
+      }
+
+      // Preview Image
+      if (previewImg) {
+        const ready = () => previewImg.classList.add("is-ready");
+
+        if (previewImg.complete) {
+          // Already in cache/decoded
+          ready();
+        } else {
+          previewImg.addEventListener("load", ready, { once: true });
+          previewImg.addEventListener("error", () => previewImg.classList.add("is-hidden"), { once: true });
         }
-    }
+      }
 
-    customElements.define('astro-splat', AstroSplat);
+      // ===== Viewport visibility: pause when < 20% visible =====
+      // Use a low-overhead IntersectionObserver to compute intersection ratio.
+      // Threshold array includes the exact cutoff, so we get callbacks when crossing it.
+      const io = new IntersectionObserver(
+        (entries) => {
+          const entry = entries[0];
+
+          // entry.intersectionRatio ∈ [0,1]; pass to viewer to decide suspend/resume.
+          splatCanvas.setViewportVisibility(entry.intersectionRatio);
+        },
+        { root: null, threshold: [0, MIN_VIEWPORT_VISIBILITY_FOR_RENDER] },
+      );
+
+      io.observe(this);
+
+      // ===== Page Visibility: suspend when tab/page is hidden =====
+      const onVis = () => splatCanvas.notifyPageVisibility(document.hidden);
+      document.addEventListener("visibilitychange", onVis, { passive: true });
+
+      // Initialize once in case we mount hidden.
+      onVis();
+
+      // NOTE: This simple element has no disconnectedCallback today. If we
+      // ever remove/detach it dynamically, remember to io.disconnect() and
+      // removeEventListener('visibilitychange', onVis) for cleanup.
+    }
+  }
+
+  customElements.define("astro-splat", AstroSplat);
 </script>
+
+<style>
+  astro-splat {
+    display: block;
+    width: 100%;
+    height: 100%;
+    position: relative; /* contain overlay and panel */
+  }
+
+  /* =========================
+   * Overlay shell
+   * ========================= */
+  .splat-loading {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+
+    /* Subtle scrim so preview remains visible */
+    background: linear-gradient(180deg, rgba(8, 10, 14, 0.45), rgba(8, 10, 14, 0.32));
+    backdrop-filter: blur(2px) saturate(120%);
+
+    transition:
+      opacity 260ms ease,
+      transform 260ms ease;
+    display: block;
+  }
+
+  .splat-loading.is-loaded {
+    /* Slight micro-shrink to signal readiness pre-fade */
+    transform: scale(0.995);
+  }
+
+  .splat-loading.is-finished {
+    opacity: 0;
+    transform: scale(0.985);
+    pointer-events: none;
+  }
+
+  /* Preview image sits under the progress panel */
+  .splat-loading__preview {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* cover the overlay rect without distortion */
+    object-position: center; /* keep subject centered */
+    opacity: 0;
+    transition: opacity 200ms ease;
+    z-index: 0; /* panel is above by default */
+    user-select: none;
+    pointer-events: none;
+    /* Apply a Gaussian blur to the preview. Use a CSS var for easy tuning. */
+    filter: blur(var(--preview-blur-px, 12px));
+    /* Slightly upscale to avoid visible transparent edges introduced by blur kernels. */
+    transform: scale(1.06);
+    /* Hint the browser that filter/transform may animate during the overlay’s life. Use sparingly. */
+    will-change: filter, transform;
+  }
+
+  .splat-loading__preview.is-ready {
+    opacity: 1;
+  }
+
+  .splat-loading__preview.is-hidden {
+    display: none;
+  }
+
+  /* =========================
+   * Panel layout and placement
+   * ========================= */
+  .splat-loading__panel {
+    position: absolute;
+    /* Default: center anchor */
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+
+    /* 8-pt rhythm paddings and sizing */
+    padding: 16px 18px;
+    min-width: min(560px, 82%);
+    max-width: 92%;
+
+    /* Elegant glass panel */
+    background: rgba(20, 23, 28, 0.52);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    box-shadow:
+      0 10px 30px rgba(0, 0, 0, 0.32),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+
+    /* Stacking and transitions */
+    transition:
+      transform 220ms ease,
+      opacity 220ms ease;
+
+    /* Layout for bar and label */
+    display: grid;
+    grid-auto-flow: row;
+    row-gap: 8px; /* label sits directly beneath bar */
+  }
+
+  /* Position presets (offsets via CSS vars) */
+  astro-splat[data-progress-position="top-left"] .splat-loading__panel {
+    left: var(--progress-offset-x, 0px);
+    top: var(--progress-offset-y, 0px);
+    transform: none;
+  }
+  astro-splat[data-progress-position="top-center"] .splat-loading__panel {
+    left: 50%;
+    top: var(--progress-offset-y, 0px);
+    transform: translate(-50%, 0);
+  }
+  astro-splat[data-progress-position="top-right"] .splat-loading__panel {
+    right: var(--progress-offset-x, 0px);
+    top: var(--progress-offset-y, 0px);
+    left: auto;
+    transform: none;
+  }
+  astro-splat[data-progress-position="bottom-left"] .splat-loading__panel {
+    left: var(--progress-offset-x, 0px);
+    bottom: var(--progress-offset-y, 0px);
+    top: auto;
+    transform: none;
+  }
+  astro-splat[data-progress-position="bottom-center"] .splat-loading__panel {
+    left: 50%;
+    bottom: var(--progress-offset-y, 0px);
+    top: auto;
+    transform: translate(-50%, 0);
+  }
+  astro-splat[data-progress-position="bottom-right"] .splat-loading__panel {
+    right: var(--progress-offset-x, 0px);
+    bottom: var(--progress-offset-y, 0px);
+    left: auto;
+    top: auto;
+    transform: none;
+  }
+
+  /* =========================
+   * Determinate bar + label
+   * ========================= */
+  .splat-loading__bar {
+    position: relative;
+    width: 100%;
+    height: 10px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.08));
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+    overflow: hidden;
+  }
+
+  .splat-loading__fill {
+    height: 100%;
+    width: 0%;
+    border-radius: inherit;
+    /* Calm two-tone sheen; high-contrast on dark panel */
+    background: linear-gradient(90deg, #7fb0ff, #0d6efd);
+    box-shadow: 0 1px 4px rgba(13, 110, 253, 0.35);
+    transition: width 120ms ease;
+  }
+
+  .splat-loading__label {
+    /* Ensure AA contrast over the panel per WCAG */
+    color: #eaf1ff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+    font:
+      600 0.95rem/1.2 system-ui,
+      -apple-system,
+      Segoe UI,
+      Roboto,
+      Ubuntu,
+      "Helvetica Neue",
+      Arial,
+      "Noto Sans",
+      "Apple Color Emoji",
+      "Segoe UI Emoji";
+    letter-spacing: 0.01em;
+  }
+
+  /* Respect reduced motion preferences (if anim rules expand later) */
+  @media (prefers-reduced-motion: reduce) {
+    .splat-loading,
+    .splat-loading__panel,
+    .splat-loading__fill .splat-loading__preview {
+      transition: none;
+    }
+  }
+</style>

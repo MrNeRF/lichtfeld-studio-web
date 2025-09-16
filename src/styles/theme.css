@@ -1,0 +1,34 @@
+/**
+ * Centralized Design Tokens for the Application.
+ * This file contains shared CSS variables to ensure a consistent
+ * look and feel across all components.
+ */
+:root {
+  /* Colors */
+  --color-primary: #0d6efd;
+  --color-text: #343a40;
+  --color-text-hover: #000;
+  --color-text-light: #fff;
+  --color-background: rgba(255, 255, 255, 0.9);
+  --background-hover: #e9ecef;
+  --dropdown-background: #fff;
+  /* Opaque background for submenus */
+  --body-background: #f8f9fa;
+  /* Bootstrap’s light gray color */
+
+  /* Borders */
+  --border-radius: 8px;
+  --border-color: #e9ecef;
+  --border-color-light: #dee2e6;
+
+  /* Layout */
+  --nav-height: 60px;
+  --nav-padding-x: 20px;
+  --container-padding: 1rem;
+
+  /* Breakpoints */
+  --breakpoint-lg: 992px;
+
+  /* Shadows */
+  --dropdown-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}

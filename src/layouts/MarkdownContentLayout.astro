@@ -1,0 +1,110 @@
+---
+/**
+ * A reusable layout for pages that display markdown content fetched from a remote URL.
+ * It handles fetching, parsing, and rendering the content within a standardized, styled container.
+ *
+ * Props:
+ *  - title?: string — An optional main heading to display on the page.
+ *  - sourceUrl: string — The raw URL of the markdown file to fetch.
+ */
+import Layout from "@/layouts/Layout.astro";
+import { getRemoteMarkdownAsHtml } from "@/services/remote-content";
+
+interface Props {
+  title?: string;
+  sourceUrl: string;
+}
+
+const { title, sourceUrl } = Astro.props;
+
+// Fetch and parse the remote markdown content at build time.
+const contentHtml = await getRemoteMarkdownAsHtml(sourceUrl);
+---
+
+<Layout>
+  <div class="container px-4 py-5">
+    <div class="row">
+      <div class="col-lg-10 mx-auto">
+        <div class="markdown-content">
+          {title && <h1 class="pb-2 border-bottom">{title}</h1>}
+          <article set:html={contentHtml} />
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style is:global>
+  /**
+   * Provides clean, readable styling for markdown content rendered from external sources.
+   * This ensures that elements like headings, code blocks, and lists are legible
+   * and consistent with the site's overall theme.
+   */
+  .markdown-content {
+    line-height: 1.7;
+    color: var(--color-text);
+  }
+
+  .markdown-content h1,
+  .markdown-content h2,
+  .markdown-content h3,
+  .markdown-content h4,
+  .markdown-content h5,
+  .markdown-content h6 {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+
+  .markdown-content p {
+    margin-bottom: 1rem;
+  }
+
+  .markdown-content a {
+    color: var(--color-primary);
+    text-decoration: none;
+  }
+
+  .markdown-content a:hover {
+    text-decoration: underline;
+  }
+
+  .markdown-content ul,
+  .markdown-content ol {
+    padding-left: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .markdown-content li {
+    margin-bottom: 0.5rem;
+  }
+
+  .markdown-content pre {
+    background-color: #f0f0f0; /* A light gray background for code blocks */
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    overflow-x: auto; /* Allow horizontal scrolling for long lines */
+    font-size: 0.9rem;
+  }
+
+  .markdown-content code {
+    background-color: #e9ecef; /* A slightly different gray for inline code */
+    border-radius: 3px;
+    padding: 0.2em 0.4em;
+    font-size: 90%;
+  }
+
+  .markdown-content pre code {
+    background-color: transparent; /* Reset background for code inside pre */
+    padding: 0;
+  }
+
+  .markdown-content blockquote {
+    border-left: 4px solid var(--border-color-light);
+    padding-left: 1rem;
+    margin-left: 0;
+    color: #6c757d; /* Muted text color */
+    font-style: italic;
+  }
+</style>

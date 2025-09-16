@@ -1,36 +1,50 @@
-<!DOCTYPE html>
+---
+import Footer from "@/components/Footer.astro";
+import Header from "@/components/Header.astro";
+
+// Let Vite/Astro handle asset rebasing (icons’ font URLs)
+import "bootstrap-icons/font/bootstrap-icons.css";
+---
+
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/svg+xml" href={Astro.url.pathname + "/static/favicon.svg"} />
-	  <title>LichtFeld Studio</title>
+    <link rel="icon" type="image/svg+xml" href={import.meta.env.BASE_URL + "static/favicon.svg"} />
+    <title>LichtFeld Studio</title>
     <style lang="scss" is:global>
-      @use "bootstrap/scss/bootstrap" as *;
+      @use "bootstrap/scss/bootstrap" as *
+        /*with (
+        $container-max-widths: (
+          sm: 540px,
+          md: 720px,
+          lg: 960px,
+          xl: 1140px,
+          // do not grow beyond XL
+        )
+      )*/;
+      @import "../styles/theme.css";
 
       body {
-        background-color: #f8f9fa; /* Bootstrap’s light gray color */
+        background-color: var(--body-background);
       }
 
-      .splat-wrapper {
-        width: 100%;
-        position: relative;
-
-        canvas {
-          position: absolute;
-          top: 0;
-          left: 0;
-        }
-
-        .container {
-          aspect-ratio: 2/1;
-        }
+      main {
+        padding-top: var(--nav-height); /* Offset content to account for the fixed header */
       }
     </style>
   </head>
   <body>
     <main>
-	    <slot/>
-	  </main>
+      <!-- Header -->
+      <Header />
+
+      <!-- Content -->
+      <slot />
+
+      <!-- Footer -->
+      <Footer />
+    </main>
   </body>
 </html>

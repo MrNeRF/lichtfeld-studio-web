@@ -6,7 +6,7 @@ const currentPath = Astro.url.pathname;
 
 const bounties = (await getCollection("bounty")).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 
-const bountyPath = `${base}/bounty/`;
+const bountyPath = `${base}bounty/`;
 ---
 
 <style>

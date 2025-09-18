@@ -18,7 +18,7 @@ export default defineConfig({
       if (name.endsWith(".github.io")) {
         return `https://${name}/`;
       }
-      
+
       return `https://${owner}.github.io/${name}/`;
     }
 
@@ -30,16 +30,21 @@ export default defineConfig({
 
   base: (() => {
     const override = process.env.BASE_PATH;
-    if (override) return override.startsWith("/") ? override : `/${override}`;
+    if (override) {
+      // Normalize override to start *and* end with a slash so URL joins are correct (e.g. `${BASE_URL}static/...`).
+      const withLead = override.startsWith("/") ? override : `/${override}`;
+      return withLead.endsWith("/") ? withLead : `${withLead}/`;
+    }
 
     const repo = process.env.GITHUB_REPOSITORY; // "owner/repo"
     if (repo) {
       const name = repo.split("/")[1];
-      return name.endsWith(".github.io") ? "/" : `/${name}`;
+      // Project Pages must have '/<repo>/' as base; User/Org Pages get '/'.
+      return name.endsWith(".github.io") ? "/" : `/${name}/`;
     }
 
     // Local/dev fallback
-    return "/lichtfeld-studio-web";
+    return "/lichtfeld-studio-web/";
   })(),
 
   outDir: "./docs",

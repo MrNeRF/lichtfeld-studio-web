@@ -8,7 +8,7 @@ const base = import.meta.env.BASE_URL;
 const bounties = (await getCollection("bounty")).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 
 const latestBounty = bounties[0];
-const latestBountyPath = latestBounty ? `${base}/bounty/${latestBounty.slug}` : `${base}/bounty/bounty2`;
+const latestBountyPath = latestBounty ? `${base}bounty/${latestBounty.slug}` : `${base}bounty/bounty2`;
 ---
 
 <script>

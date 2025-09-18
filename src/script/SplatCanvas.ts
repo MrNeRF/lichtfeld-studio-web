@@ -175,7 +175,7 @@ class SplatCanvas {
       return;
     }
 
-    const location = this.base + "/static/" + sceneName;
+    const location = this.base + "static/" + sceneName;
     const [splat, document] = await this.loadAssets(location);
 
     const ssDocument = document.resource as SuperSplatProjectDocument;

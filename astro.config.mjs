@@ -11,16 +11,19 @@ export default defineConfig({
     if (override) return override.endsWith("/") ? override : `${override}/`;
 
     const repo = process.env.GITHUB_REPOSITORY; // "owner/repo"
+
     if (repo) {
       const [owner, name] = repo.split("/");
+
       if (name.endsWith(".github.io")) {
         return `https://${name}/`;
       }
+      
       return `https://${owner}.github.io/${name}/`;
     }
 
     // Local/dev fallback
-    return "https://mrnerf.github.io/lichtfeld-studio-web/";
+    return "https://lichtfeld.io/";
   })(),
 
   output: "static",

@@ -11,7 +11,7 @@ winner: ''
 
 💸 **Prize Pool: $2,430**
 
-* [AukiNetwork](https://x.com/auki): $1,000
+* [Auki](https://x.com/auki): $1,000
 * [Vincent Woo](https://vincentwoo.com/): $500
 * [MrNeRF](https://x.com/janusch_patas): $300
 * [Yehe Liu](https://x.com/YeheLiu): $280

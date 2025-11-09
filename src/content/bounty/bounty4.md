@@ -1,7 +1,7 @@
 ---
 title: 'Automatic Per-Scene Hyperparameter Optimization'
 date: 2025-09-14
-deadline: 2025-10-12
+deadline: 2025-11-09
 summary: 'Build a system that automatically finds optimal hyperparameters for each scene.'
 winner: ''
 ---
@@ -11,7 +11,7 @@ winner: ''
 
 💸 **Prize Pool: $2,430**
 
-* [AukiNetwork](https://x.com/aukinetwork): $1,000
+* [AukiNetwork](https://x.com/auki): $1,000
 * [Vincent Woo](https://vincentwoo.com/): $500
 * [MrNeRF](https://x.com/janusch_patas): $300
 * [Yehe Liu](https://x.com/YeheLiu): $280

@@ -1,0 +1,140 @@
+---
+/**
+ * BreadcrumbSchema.astro
+ *
+ * Renders a BreadcrumbList JSON-LD schema for improved search engine visibility.
+ * Google uses this structured data to display breadcrumb navigation in search results,
+ * helping users understand the page's position in the site hierarchy.
+ *
+ * Usage:
+ *   <BreadcrumbSchema items={[
+ *     { name: "Home", url: "/" },
+ *     { name: "Contribute", url: "/contribute/" },
+ *     { name: "Build on Windows", url: "/contribute/build-on-windows/" }
+ *   ]} />
+ *
+ * Or use the auto-generation feature:
+ *   <BreadcrumbSchema />
+ *   (Will automatically generate breadcrumbs from the current URL path)
+ *
+ * References:
+ * - https://schema.org/BreadcrumbList
+ * - https://developers.google.com/search/docs/appearance/structured-data/breadcrumb
+ */
+
+import { NAVIGATION, type BreadcrumbItem } from "@/config/site.config";
+
+// ============================================================================
+// Props Interface
+// ============================================================================
+
+interface Props {
+  /**
+   * Array of breadcrumb items from root to current page.
+   * If not provided, breadcrumbs will be auto-generated from the URL path.
+   */
+  items?: BreadcrumbItem[];
+}
+
+// ============================================================================
+// Breadcrumb Generation
+// ============================================================================
+
+const { items: providedItems } = Astro.props;
+
+/**
+ * Auto-generate breadcrumb items from the current URL path.
+ * Builds a hierarchical list by progressively constructing paths.
+ *
+ * Example: /contribute/build-on-windows/ generates:
+ * 1. Home -> /
+ * 2. Contribute -> /contribute/
+ * 3. Build on Windows -> /contribute/build-on-windows/
+ */
+function generateBreadcrumbs(pathname: string): BreadcrumbItem[] {
+  const breadcrumbs: BreadcrumbItem[] = [];
+
+  // Always start with Home
+  breadcrumbs.push({
+    name: NAVIGATION["/"] || "Home",
+    url: "/",
+  });
+
+  // Skip if we're on the homepage
+  if (pathname === "/" || pathname === import.meta.env.BASE_URL) {
+    return breadcrumbs;
+  }
+
+  // Normalize pathname by removing base URL if present
+  let normalizedPath = pathname;
+  const baseUrl = import.meta.env.BASE_URL;
+
+  if (baseUrl !== "/" && normalizedPath.startsWith(baseUrl)) {
+    normalizedPath = normalizedPath.slice(baseUrl.length - 1);
+  }
+
+  // Split path into segments and build breadcrumbs progressively
+  const segments = normalizedPath.split("/").filter(Boolean);
+  let currentPath = "";
+
+  for (const segment of segments) {
+    currentPath += `/${segment}/`;
+
+    // Look up the path in NAVIGATION for a human-readable name
+    const navKey = currentPath as keyof typeof NAVIGATION;
+    const name = NAVIGATION[navKey] || formatSegmentName(segment);
+
+    breadcrumbs.push({
+      name,
+      url: currentPath,
+    });
+  }
+
+  return breadcrumbs;
+}
+
+/**
+ * Format a URL segment into a human-readable name.
+ * Converts kebab-case to Title Case.
+ *
+ * Example: "build-on-windows" -> "Build On Windows"
+ */
+function formatSegmentName(segment: string): string {
+  return segment
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+// Use provided items or auto-generate from URL
+const items = providedItems ?? generateBreadcrumbs(Astro.url.pathname);
+
+// ============================================================================
+// JSON-LD Schema
+// ============================================================================
+
+/**
+ * Build the BreadcrumbList structured data.
+ * Each item gets a position number starting from 1.
+ */
+const breadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: items.map((item, index) => ({
+    "@type": "ListItem",
+    position: index + 1,
+    name: item.name,
+    item: new URL(item.url, Astro.site).toString(),
+  })),
+};
+---
+
+<!-- Only render if we have more than just the home breadcrumb -->
+{
+  items.length > 1 && (
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify(breadcrumbJsonLd)}
+    />
+  )
+}

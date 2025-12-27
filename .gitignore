@@ -13,11 +13,19 @@ pnpm-debug.log*
 
 # environment variables
 .env
-.env.production
+.env.*
+.dev.vars
+.dev.vars.*
+
+# wrangler local state
+.wrangler/
 
 # macOS-specific files
 .DS_Store
 
 # jetbrains setting folder
 .idea/
+
+.claude/
 CLAUDE.md
+nul

@@ -1,9 +1,22 @@
 ---
+/**
+ * Build on Windows guide page.
+ * Fetches and displays the Windows build instructions from the main repository.
+ */
 import MarkdownContentLayout from "@/layouts/MarkdownContentLayout.astro";
+import { getDocUrl, DOC_PATHS } from "@/constants/project";
 
 // The source URL for the Windows build instructions markdown file.
-const sourceUrl =
-  "https://github.com/MrNeRF/LichtFeld-Studio/raw/refs/heads/master/docs/docs/installation/building/windows.md";
+const sourceUrl = getDocUrl(DOC_PATHS.buildOnWindows);
+
+// SEO metadata
+const seoTitle = "Build on Windows";
+const seoDescription =
+  "Step-by-step guide to building LichtFeld Studio on Windows. Learn how to set up the development environment and compile the 3D Gaussian Splatting engine.";
 ---
 
-<MarkdownContentLayout sourceUrl={sourceUrl} />
+<MarkdownContentLayout
+  sourceUrl={sourceUrl}
+  title={seoTitle}
+  description={seoDescription}
+/>

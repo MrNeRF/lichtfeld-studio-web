@@ -12,12 +12,20 @@
 import Layout from "@/layouts/Layout.astro";
 import { SITE } from "@/config/site.config";
 
-import viewerDemo from "@/assets/viewer_demo.gif";
+import { SmartVideo } from "@alos-no/astro-media";
 import Splat from "@/components/Splat.astro";
 import ContributorsWall from "@/components/contribute/ContributorsWall.astro";
 
 // Centralized external links (avoid magic strings):
-import { GITHUB_REPO_URL, GITHUB_RELEASES_URL, GITHUB_WIKI_URL, DISCORD_URL, PAYPAL_URL, DONORBOX_URL, CRYPTO_WALLET_BITCOIN } from "@/constants/project";
+import {
+  GITHUB_REPO_URL,
+  GITHUB_RELEASES_URL,
+  GITHUB_WIKI_URL,
+  DISCORD_URL,
+  PAYPAL_URL,
+  DONORBOX_URL,
+  CRYPTO_WALLET_BITCOIN,
+} from "@/constants/project";
 
 const base = import.meta.env.BASE_URL;
 
@@ -32,7 +40,13 @@ const seoDescription = SITE.description;
     <div class="hero__splat">
       <!-- The Splat canvas is the visual anchor in the header -->
       <div class="splat-wrapper">
-        <Splat scene="botanics" style="--preview-blur-px: 7px;" progressPosition="bottom-center" progressOffsetY={50} controlScheme="none" />
+        <Splat
+          scene="botanics"
+          style="--preview-blur-px: 7px;"
+          progressPosition="bottom-center"
+          progressOffsetY={50}
+          controlScheme="none"
+        />
       </div>
     </div>
 
@@ -54,7 +68,7 @@ const seoDescription = SITE.description;
                 rel="noopener noreferrer"
                 aria-label="Download the latest LichtFeld Studio release"
               >
-                <i class="bi bi-download me-2" aria-hidden="true"></i>
+                <i class="bi bi-download mr-2" aria-hidden="true"></i>
                 Download
               </a>
               <!-- Secondary CTA: Get Started (links to wiki for documentation/tutorials) -->
@@ -65,7 +79,7 @@ const seoDescription = SITE.description;
                 rel="noopener noreferrer"
                 aria-label="Open the LichtFeld Studio wiki documentation"
               >
-                <i class="bi bi-book me-2" aria-hidden="true"></i>
+                <i class="bi bi-book mr-2" aria-hidden="true"></i>
                 Get Started
               </a>
               <!-- Tertiary CTA: Join Discord (icon + kept white text for contrast on dark imagery) -->
@@ -76,7 +90,7 @@ const seoDescription = SITE.description;
                 rel="noopener noreferrer"
                 aria-label="Open the Discord community in a new tab"
               >
-                <i class="bi bi-discord me-2" aria-hidden="true"></i>
+                <i class="bi bi-discord mr-2" aria-hidden="true"></i>
                 Discord
               </a>
             </div>
@@ -87,28 +101,57 @@ const seoDescription = SITE.description;
   </header>
 
   <!-- Introduction -->
-  <section class="container px-4 py-5">
-    <div class="row align-items-center g-5">
+  <section class="container px-6 pt-14 pb-6">
+    <div class="row items-center g-5">
       <div class="col-12 col-lg-6 order-2 order-lg-1">
-        <!-- TODO: Replace the animated GIF with MP4/WebM for significantly smaller payloads and better LCP. -->
+        <!-- SmartVideo replaces the GIF with an MP4 for smaller payload and better LCP -->
         <!-- See: https://web.dev/articles/replace-gifs-with-videos -->
-        <img
-          src={viewerDemo.src}
-          class="d-block mx-lg-auto img-fluid rounded shadow-sm"
-          alt="Real-time Gaussian Splatting viewer demonstration"
-          width="700"
-          height="500"
-          loading="lazy"
-        />
+        <div class="intro-media">
+          <SmartVideo
+            src={`${base}videos/viewer_demo`}
+            class="block mx-auto img-fluid rounded-2xl"
+            sizeStrategy="intrinsic"
+          />
+        </div>
       </div>
 
       <div class="col-12 col-lg-6 order-1 order-lg-2">
-        <h2 class="fw-bold text-body-emphasis lh-1 mb-3">What is LichtFeld Studio?</h2>
-        <p class="lead">
-          Unleash the power of real-time <b>3D Gaussian Splatting</b> with MrNeRF's high-performance C++ and CUDA implementation!
-          Experience blazing-fast radiance field rendering, optimized for cutting-edge NVIDIA GPUs. With an intuitive viewer
-          and advanced features like SuperSplat-like editing, it’s perfect for researchers and developers pushing the boundaries
-          of 3D visualization. Join the <a
+        <h2 class="text-3xl font-bold text-gray-900 leading-none mb-4">What is LichtFeld Studio?</h2>
+        <p class="text-lg text-gray-600 mb-6">
+          An all-in-one open-source studio for <b>3D Gaussian Splatting</b>. Train, edit, and render splats in a single
+          desktop app. No cloud required.
+        </p>
+
+        <!-- Highlight badges -->
+        <div class="intro-badges">
+          <span class="intro-badge intro-badge--speed">
+            <svg class="bi" width="1em" height="1em" aria-hidden="true">
+              <use href={`${base}static/bootstrap-icons.svg#lightning-charge-fill`}></use>
+            </svg>
+            2.4× Faster
+          </span>
+          <span class="intro-badge intro-badge--edit">
+            <svg class="bi" width="1em" height="1em" aria-hidden="true">
+              <use href={`${base}static/bootstrap-icons.svg#vector-pen`}></use>
+            </svg>
+            Full Editing Suite
+          </span>
+          <span class="intro-badge intro-badge--offline">
+            <svg class="bi" width="1em" height="1em" aria-hidden="true">
+              <use href={`${base}static/bootstrap-icons.svg#cloud-slash`}></use>
+            </svg>
+            Fully Offline
+          </span>
+          <span class="intro-badge intro-badge--open">
+            <svg class="bi" width="1em" height="1em" aria-hidden="true">
+              <use href={`${base}static/bootstrap-icons.svg#unlock-fill`}></use>
+            </svg>
+            100% Open Source
+          </span>
+        </div>
+
+        <p class="text-base text-gray-500 mt-6">
+          Join the <a
             href={DISCORD_URL}
             class="link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-100-hover"
             target="_blank"
@@ -122,291 +165,241 @@ const seoDescription = SITE.description;
     </div>
   </section>
 
-  <!-- Feature List -->
-  <section class="container px-4 py-5" id="features">
-    <h2 class="pb-2 border-bottom">Key Capabilities</h2>
+  <!-- Wave divider between intro and features (multi-layer + ripple lines) -->
+  <div class="section-wave" aria-hidden="true">
+    <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <defs>
+        <!-- Reuse the EXACT same front-wave curve (no bottom close) for the ripple lines -->
+        <path id="wave-front-curve" d="M0 120C240 120 480 120 720 90C960 60 1200 40 1440 60"></path>
 
-    <div class="features-grid row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 py-4">
-      <div class="col">
-        <article class="feature-card">
-          <div class="feature-card__icon" aria-hidden="true">
-            <svg class="bi" width="1.25em" height="1.25em" focusable="false">
-              <use
-                href={`${base}static/bootstrap-icons.svg#speedometer2`}
-                xlink:href={`${base}static/bootstrap-icons.svg#speedometer2`}
-              >
-              </use>
-            </svg>
-          </div>
-          <div class="feature-card__body">
-            <h3 class="fw-bold mb-1 fs-5 text-body-emphasis">High-Performance</h3>
-            <p class="mb-0">Utilizes C++ and CUDA for unmatched speed in 3D Gaussian Splatting.</p>
-          </div>
-        </article>
+        <!-- A left-to-right fade so the ripple lines feel subtle and professional -->
+        <linearGradient id="wave-ripple-stroke" x1="0" y1="0" x2="1440" y2="0" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#3b82f6" stop-opacity="0"></stop>
+          <stop offset="15%" stop-color="#3b82f6" stop-opacity="0.22"></stop>
+          <stop offset="50%" stop-color="#3b82f6" stop-opacity="0.28"></stop>
+          <stop offset="85%" stop-color="#3b82f6" stop-opacity="0.22"></stop>
+          <stop offset="100%" stop-color="#3b82f6" stop-opacity="0"></stop>
+        </linearGradient>
+
+        <!-- Optional: a softer second tint (cool gray) to add depth without “cartoony” color -->
+        <linearGradient id="wave-ripple-stroke-2" x1="0" y1="0" x2="1440" y2="0" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#64748b" stop-opacity="0"></stop>
+          <stop offset="18%" stop-color="#64748b" stop-opacity="0.16"></stop>
+          <stop offset="50%" stop-color="#64748b" stop-opacity="0.18"></stop>
+          <stop offset="82%" stop-color="#64748b" stop-opacity="0.16"></stop>
+          <stop offset="100%" stop-color="#64748b" stop-opacity="0"></stop>
+        </linearGradient>
+      </defs>
+
+      <!-- Multi-layer wave fills with enhanced contrast for visual depth -->
+      <path d="M0 120C240 120 480 90 720 55C960 20 1200 5 1440 30V120H0Z" fill="#e0e9f2"></path>
+      <path d="M0 120C240 120 480 105 720 72C960 38 1200 22 1440 45V120H0Z" fill="#e9eff6"></path>
+      <path d="M0 120C240 120 480 120 720 90C960 60 1200 40 1440 60V120H0Z" fill="#f2f6fa"></path>
+
+      <!-- NEW: ripple layers above the front wave (same curve, stroked, slightly offset up) -->
+      <g class="wave-ripples">
+        <!-- closest, strongest ripple -->
+        <use href="#wave-front-curve" class="wave-ripple wave-ripple--a" transform="translate(0 -10)"></use>
+        <!-- mid ripple -->
+        <use href="#wave-front-curve" class="wave-ripple wave-ripple--b" transform="translate(0 -18)"></use>
+        <!-- faint top ripple -->
+        <use href="#wave-front-curve" class="wave-ripple wave-ripple--c" transform="translate(0 -26)"></use>
+      </g>
+    </svg>
+  </div>
+
+  <!-- Feature List: Bento Grid Layout -->
+  <section class="bg-features" id="features">
+    <div class="container px-6 pt-12 pb-22">
+      <div class="text-center mb-8">
+        <h2 class="text-4xl font-bold text-gray-900 mb-3">Features</h2>
+        <p class="text-lg text-gray-500">Powerful by design. Built for performance.</p>
       </div>
 
-      <div class="col">
-        <article class="feature-card">
-          <div class="feature-card__icon" aria-hidden="true">
-            <svg class="bi" width="1.25em" height="1.25em" focusable="false">
-              <use
-                href={`${base}static/bootstrap-icons.svg#display`}
-                xlink:href={`${base}static/bootstrap-icons.svg#display`}
-              >
-              </use>
-            </svg>
-          </div>
-          <div class="feature-card__body">
-            <h3 class="fw-bold mb-1 fs-5 text-body-emphasis">Real-Time Rendering</h3>
-            <p class="mb-0">Enables real-time radiance field rendering with optimized CUDA backend.</p>
-          </div>
-        </article>
-      </div>
-
-      <div class="col">
-        <article class="feature-card">
-          <div class="feature-card__icon" aria-hidden="true">
-            <svg class="bi" width="1.25em" height="1.25em" focusable="false">
-              <use
-                href={`${base}static/bootstrap-icons.svg#gear-fill`}
-                xlink:href={`${base}static/bootstrap-icons.svg#gear-fill`}
-              >
-              </use>
-            </svg>
-          </div>
-          <div class="feature-card__body">
-            <h3 class="fw-bold mb-1 fs-5 text-body-emphasis">MCMC Optimization</h3>
-            <p class="mb-0">Robust convergence with a configurable cap on Gaussians to manage complexity.</p>
-          </div>
-        </article>
-      </div>
-
-      <div class="col">
-        <article class="feature-card">
-          <div class="feature-card__icon" aria-hidden="true">
-            <svg class="bi" width="1.25em" height="1.25em" focusable="false">
-              <use
-                href={`${base}static/bootstrap-icons.svg#brightness-high`}
-                xlink:href={`${base}static/bootstrap-icons.svg#brightness-high`}
-              >
-              </use>
-            </svg>
-          </div>
-          <div class="feature-card__body">
-            <h3 class="fw-bold mb-1 fs-5 text-body-emphasis">Bilateral-Grid</h3>
-            <p class="mb-0">Handles per-image lighting/color shifts for consistent training across captures.</p>
-          </div>
-        </article>
-      </div>
-
-      <div class="col">
-        <article class="feature-card">
-          <div class="feature-card__icon" aria-hidden="true">
-            <svg class="bi" width="1.25em" height="1.25em" focusable="false">
-              <use
-                href={`${base}static/bootstrap-icons.svg#bar-chart-fill`}
-                xlink:href={`${base}static/bootstrap-icons.svg#bar-chart-fill`}
-              >
-              </use>
-            </svg>
-          </div>
-          <div class="feature-card__body">
-            <h3 class="fw-bold mb-1 fs-5 text-body-emphasis">Metrics Built-In</h3>
-            <p class="mb-0">PSNR, SSIM, and LPIPS monitoring to track training quality and regressions.</p>
-          </div>
-        </article>
-      </div>
-
-      <div class="col">
-        <article class="feature-card">
-          <div class="feature-card__icon" aria-hidden="true">
-            <svg class="bi" width="1.25em" height="1.25em" focusable="false">
-              <use
-                href={`${base}static/bootstrap-icons.svg#box-seam`}
-                xlink:href={`${base}static/bootstrap-icons.svg#box-seam`}
-              >
-              </use>
-            </svg>
-          </div>
-          <div class="feature-card__body">
-            <h3 class="fw-bold mb-1 fs-5 text-body-emphasis">Dockerized</h3>
-            <p class="mb-0">Reproducible builds for research handoff and CI environments.</p>
-          </div>
-        </article>
-      </div>
-
-      <div class="col">
-        <article class="feature-card">
-          <div class="feature-card__icon" aria-hidden="true">
-            <svg class="bi" width="1.25em" height="1.25em" focusable="false">
-              <use
-                href={`${base}static/bootstrap-icons.svg#cpu-fill`}
-                xlink:href={`${base}static/bootstrap-icons.svg#cpu-fill`}
-              >
-              </use>
-            </svg>
-          </div>
-          <div class="feature-card__body">
-            <h3 class="fw-bold mb-1 fs-5 text-body-emphasis">LibTorch 2.7.0</h3>
-            <p class="mb-0">CUDA 12.8 compatible backend leveraging Torch ecosystem for training.</p>
-          </div>
-        </article>
-      </div>
-
-      <div class="col">
-        <article class="feature-card">
-          <div class="feature-card__icon" aria-hidden="true">
-            <svg class="bi" width="1.25em" height="1.25em" focusable="false">
-              <use
-                href={`${base}static/bootstrap-icons.svg#people-fill`}
-                xlink:href={`${base}static/bootstrap-icons.svg#people-fill`}
-              >
-              </use>
-            </svg>
-          </div>
-          <div class="feature-card__body">
-            <h3 class="fw-bold mb-1 fs-5 text-body-emphasis">Community-Driven</h3>
-            <p class="mb-0">Encourages contributions with clear guidelines and a supportive Discord community.</p>
-          </div>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- “Jump In” Links Box (important links) -->
-  <section class="container px-4 py-5">
-    <div class="jumpin card border-0 shadow-sm">
-      <div class="card-body p-4 p-md-5">
-        <div class="row gx-4 gy-3 align-items-center">
-          <div class="col-12 col-md">
-            <h3 class="mb-2">Jump In</h3>
-            <p class="mb-0 text-body-secondary">
-              Join the community and explore the codebase. Start a conversation on Discord or star the repo on GitHub.
-            </p>
-          </div>
-          <!-- Stronger, full-color, vertically stacked CTAs for contrast on white and clear hierarchy -->
-          <div class="col-12 col-md-5">
-            <div class="jumpin__buttons d-grid gap-3">
-              <a
-                class="btn btn-primary btn-lg w-100"
-                href={DISCORD_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Open the Discord community in a new tab"
-              >
-                <i class="bi bi-discord me-2" aria-hidden="true"></i>
-                Discord
-              </a>
-              <a
-                class="btn btn-dark btn-lg w-100"
-                href={GITHUB_REPO_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Open the GitHub repository in a new tab"
-              >
-                <i class="bi bi-github me-2" aria-hidden="true"></i>
-                GitHub
-              </a>
+      <div class="features-bento py-6">
+        <!-- Hero row: 2 large cards -->
+        <div class="bento-row bento-row--hero">
+          <article class="bento-card bento-card--large bento-card--kernel">
+            <div class="bento-card__icon" aria-hidden="true">
+              <svg class="bi" width="2em" height="2em">
+                <use href={`${base}static/bootstrap-icons.svg#cpu-fill`}></use>
+              </svg>
             </div>
-          </div>
+            <h3 class="bento-card__title">Built for Performance</h3>
+            <p class="bento-card__desc">
+              Custom CUDA kernel purpose-built from scratch for maximum efficiency and optimized memory usage.
+            </p>
+          </article>
+          <article class="bento-card bento-card--large bento-card--editing">
+            <div class="bento-card__icon" aria-hidden="true">
+              <svg class="bi" width="2em" height="2em">
+                <use href={`${base}static/bootstrap-icons.svg#vector-pen`}></use>
+              </svg>
+            </div>
+            <h3 class="bento-card__title">Full Editing Suite</h3>
+            <p class="bento-card__desc">
+              Move, rotate, scale, and crop splats with brush, lasso, and polygon selection tools.
+            </p>
+          </article>
+        </div>
+
+        <!-- Medium row: 3 cards -->
+        <div class="bento-row bento-row--medium">
+          <article class="bento-card bento-card--speed">
+            <div class="bento-card__icon" aria-hidden="true">
+              <svg class="bi" width="1.5em" height="1.5em">
+                <use href={`${base}static/bootstrap-icons.svg#speedometer2`}></use>
+              </svg>
+            </div>
+            <h3 class="bento-card__title">2.4× Faster</h3>
+            <p class="bento-card__desc">Optimized rendering pipeline that outperforms reference implementations.</p>
+          </article>
+          <article class="bento-card bento-card--opensource">
+            <div class="bento-card__icon" aria-hidden="true">
+              <svg class="bi" width="1.5em" height="1.5em">
+                <use href={`${base}static/bootstrap-icons.svg#heart-fill`}></use>
+              </svg>
+            </div>
+            <h3 class="bento-card__title">Free & Open Source</h3>
+            <p class="bento-card__desc">GPL-3.0 licensed with fully transparent development.</p>
+          </article>
+          <article class="bento-card bento-card--masking">
+            <div class="bento-card__icon" aria-hidden="true">
+              <svg class="bi" width="1.5em" height="1.5em">
+                <use href={`${base}static/bootstrap-icons.svg#layers-fill`}></use>
+              </svg>
+            </div>
+            <h3 class="bento-card__title">Mask Support</h3>
+            <p class="bento-card__desc">Isolate subjects with segment, ignore, and alpha modes.</p>
+          </article>
+        </div>
+
+        <!-- Feature checklist row (no cards) -->
+        <div class="bento-checklist">
+          <span class="bento-check-item">
+            <svg class="bi" width="1em" height="1em" aria-hidden="true">
+              <use href={`${base}static/bootstrap-icons.svg#intersect`}></use>
+            </svg>
+            Splat Composition
+          </span>
+          <span class="bento-check-item">
+            <svg class="bi" width="1em" height="1em" aria-hidden="true">
+              <use href={`${base}static/bootstrap-icons.svg#clock-history`}></use>
+            </svg>
+            Save & Resume
+          </span>
+          <span class="bento-check-item">
+            <svg class="bi" width="1em" height="1em" aria-hidden="true">
+              <use href={`${base}static/bootstrap-icons.svg#arrows-angle-contract`}></use>
+            </svg>
+            3-Point Align
+          </span>
+          <span class="bento-check-item">
+            <svg class="bi" width="1em" height="1em" aria-hidden="true">
+              <use href={`${base}static/bootstrap-icons.svg#palette`}></use>
+            </svg>
+            Modern UI
+          </span>
         </div>
       </div>
     </div>
   </section>
 
   <!-- Support / Donations (deeplink target) -->
-  <section class="container px-4 py-5" id="support-the-project" aria-labelledby="support-the-project-heading">
-    <h2 id="support-the-project-heading" class="pb-2 border-bottom">Support the Project</h2>
-    <p class="text-body-primary mt-3 mb-4">
-      Fund development and maintenance through your preferred platform. Every contribution helps keep the project alive
-      and fund further research and development.
-    </p>
+  <section id="support-the-project" aria-labelledby="support-the-project-heading">
+    <div class="container px-6 pt-22 pb-8">
+      <h2 id="support-the-project-heading" class="text-2xl font-semibold text-black pb-2">Support the Project</h2>
+      <p class="text-gray-700 mt-4 mb-6">
+        Fund development and maintenance through your preferred platform. Every contribution helps keep the project
+        alive and fund further research and development.
+      </p>
 
-    <div class="row g-4 row-cols-1 row-cols-md-3">
-      <!-- PayPal Card -->
-      <div class="col">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column">
-            <h3 class="fs-5 fw-semibold mb-2 d-flex align-items-center gap-2">
-              <svg class="bi" width="1em" height="1em" focusable="false" aria-hidden="true">
-                <use href={`${base}static/bootstrap-icons.svg#paypal`}></use>
-              </svg>
-              <span>PayPal</span>
-            </h3>
-            <p class="text-body-secondary">Make a one-time donation via PayPal.</p>
+      <div class="row g-4 row-cols-1 row-cols-md-3">
+        <!-- PayPal Card -->
+        <div class="col flex">
+          <div class="card h-full w-full shadow-sm">
+            <div class="card-body flex flex-col">
+              <h3 class="text-xl font-semibold mb-2 flex items-center gap-2">
+                <svg class="bi" width="1em" height="1em" focusable="false" aria-hidden="true">
+                  <use href={`${base}static/bootstrap-icons.svg#paypal`}></use>
+                </svg>
+                <span>PayPal</span>
+              </h3>
+              <p class="text-gray-500">Make a one-time donation via PayPal.</p>
 
-            <div class="mt-auto">
-              <a
-                class="btn btn-primary w-100"
-                href={PAYPAL_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Open the PayPal donation link in a new tab"
-              >
-                Donate via PayPal
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- DonorBox Card -->
-      <div class="col">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column">
-            <h3 class="fs-5 fw-semibold mb-2 d-flex align-items-center gap-2">
-              <svg class="bi" width="1em" height="1em" focusable="false" aria-hidden="true">
-                <use href={`${base}static/bootstrap-icons.svg#gift-fill`}></use>
-              </svg>
-              <span>DonorBox</span>
-            </h3>
-            <p class="text-body-secondary">Use DonorBox for secure one-time or monthly donations.</p>
-
-            <div class="mt-auto">
-              <a
-                class="btn btn-primary w-100"
-                href={DONORBOX_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Open the DonorBox donation link in a new tab"
-              >
-                Donate via DonorBox
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Crypto Card -->
-      <div class="col">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column">
-            <h3 class="fs-5 fw-semibold mb-2 d-flex align-items-center gap-2">
-              <svg class="bi" width="1em" height="1em" focusable="false" aria-hidden="true">
-                <use href={`${base}static/bootstrap-icons.svg#currency-bitcoin`}></use>
-              </svg>
-              <span>Bitcoin</span>
-            </h3>
-            <p class="text-body-secondary">Send a direct contribution to our Bitcoin wallet.</p>
-
-            <div class="mt-auto">
-              <div class="input-group">
-                <input
-                  type="text"
-                  class="form-control"
-                  value={CRYPTO_WALLET_BITCOIN}
-                  readonly
-                  id="btc-wallet-address"
-                  aria-label="Bitcoin wallet address"
-                />
-                <button
-                  class="btn btn-outline-secondary"
-                  type="button"
-                  id="copy-btc-address-btn"
-                  title="Copy to clipboard"
+              <div class="mt-auto">
+                <a
+                  class="btn btn-primary w-full"
+                  href={PAYPAL_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Open the PayPal donation link in a new tab"
                 >
-                  <i class="bi bi-clipboard" aria-hidden="true"></i>
-                </button>
+                  Donate via PayPal
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DonorBox Card -->
+        <div class="col flex">
+          <div class="card h-full w-full shadow-sm">
+            <div class="card-body flex flex-col">
+              <h3 class="text-xl font-semibold mb-2 flex items-center gap-2">
+                <svg class="bi" width="1em" height="1em" focusable="false" aria-hidden="true">
+                  <use href={`${base}static/bootstrap-icons.svg#gift-fill`}></use>
+                </svg>
+                <span>DonorBox</span>
+              </h3>
+              <p class="text-gray-500">Use DonorBox for secure one-time or monthly donations.</p>
+
+              <div class="mt-auto">
+                <a
+                  class="btn btn-primary w-full"
+                  href={DONORBOX_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Open the DonorBox donation link in a new tab"
+                >
+                  Donate via DonorBox
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Crypto Card -->
+        <div class="col flex">
+          <div class="card h-full w-full shadow-sm">
+            <div class="card-body flex flex-col">
+              <h3 class="text-xl font-semibold mb-2 flex items-center gap-2">
+                <svg class="bi" width="1em" height="1em" focusable="false" aria-hidden="true">
+                  <use href={`${base}static/bootstrap-icons.svg#currency-bitcoin`}></use>
+                </svg>
+                <span>Bitcoin</span>
+              </h3>
+              <p class="text-gray-500">Send a direct contribution to our Bitcoin wallet.</p>
+
+              <div class="mt-auto">
+                <div class="input-group">
+                  <input
+                    type="text"
+                    class="form-control"
+                    value={CRYPTO_WALLET_BITCOIN}
+                    readonly
+                    id="btc-wallet-address"
+                    aria-label="Bitcoin wallet address"
+                  />
+                  <button
+                    class="btn btn-outline-secondary"
+                    type="button"
+                    id="copy-btc-address-btn"
+                    title="Copy to clipboard"
+                  >
+                    <i class="bi bi-clipboard" aria-hidden="true"></i>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -416,7 +409,9 @@ const seoDescription = SITE.description;
   </section>
 
   <!-- Contributors (reusable component, fetched at build time) -->
-  <ContributorsWall />
+  <section class="contributors-section">
+    <ContributorsWall />
+  </section>
 </Layout>
 
 <script>
@@ -448,19 +443,19 @@ const seoDescription = SITE.description;
     // Listen for pointerdown on the splat wrapper to detect explicit clicks.
     if (splatWrapper) {
       splatWrapper.addEventListener("pointerdown", () => {
-        console.debug('[Hero] pointerdown on splat-wrapper - setting userClickedOnViewer=true');
+        console.debug("[Hero] pointerdown on splat-wrapper - setting userClickedOnViewer=true");
         userClickedOnViewer = true;
       });
     }
 
     // Listen for the custom event dispatched when the viewer becomes active (user interaction).
     document.addEventListener("splatviewer:active", () => {
-      console.debug('[Hero] splatviewer:active received, userClickedOnViewer=', userClickedOnViewer);
+      console.debug("[Hero] splatviewer:active received, userClickedOnViewer=", userClickedOnViewer);
 
       // Only fade out if the user explicitly clicked on the viewer.
       // This prevents scroll/wheel events from hiding the hero content.
       if (!userClickedOnViewer) {
-        console.debug('[Hero] userClickedOnViewer is false - NOT hiding hero');
+        console.debug("[Hero] userClickedOnViewer is false - NOT hiding hero");
 
         return;
       }
@@ -471,7 +466,7 @@ const seoDescription = SITE.description;
         fadeInTimerId = null;
       }
 
-      console.debug('[Hero] hiding hero content');
+      console.debug("[Hero] hiding hero content");
 
       // Apply the CSS class to fade out the hero content.
       heroContent.classList.add("is-viewer-active");
@@ -484,7 +479,7 @@ const seoDescription = SITE.description;
 
     // Listen for the custom event dispatched when the viewer goes idle.
     document.addEventListener("splatviewer:idle", () => {
-      console.debug('[Hero] splatviewer:idle received');
+      console.debug("[Hero] splatviewer:idle received");
 
       // Debounce the flag reset to allow click handlers to fire first.
       // The issue: pointerdown triggers page activity → restartIdleAnimation
@@ -495,7 +490,7 @@ const seoDescription = SITE.description;
       }
 
       clickResetTimerId = window.setTimeout(() => {
-        console.debug('[Hero] resetting userClickedOnViewer=false (debounced)');
+        console.debug("[Hero] resetting userClickedOnViewer=false (debounced)");
         userClickedOnViewer = false;
         clickResetTimerId = null;
       }, 50);
@@ -750,7 +745,7 @@ const seoDescription = SITE.description;
   .hero__get-started-link {
     border-color: rgba(40, 167, 69, 0.8);
     color: #fff;
-    background: rgba(40, 167, 69, 0.5);
+    background: rgba(40, 167, 69, 0.75);
   }
 
   .hero__get-started-link:hover {
@@ -765,48 +760,6 @@ const seoDescription = SITE.description;
   }
   .btn .bi {
     margin-right: 0.4rem;
-  }
-
-  /* ===========================
-    * “Jump In” links card
-    * =========================== */
-  .jumpin {
-    border-radius: var(--border-radius);
-
-    /* Make it pop: subtle frosted-panel background with stronger depth */
-    background: radial-gradient(120% 140% at 20% 0%, rgba(13, 110, 253, 0.06), rgba(255, 255, 255, 0.9) 40%) #fff;
-    box-shadow:
-      0 10px 26px rgba(13, 110, 253, 0.08),
-      0 2px 6px rgba(0, 0, 0, 0.06);
-    border: 1px solid rgba(13, 110, 253, 0.15);
-    position: relative;
-    overflow: hidden; /* To contain pseudo-elements */
-  }
-
-  /* Constrain button group width and center it for better layout on wide screens. */
-  .jumpin__buttons {
-    max-width: 320px;
-    margin: 0 auto;
-  }
-
-  /* Vertical, full-width CTAs for stronger emphasis and clearer hierarchy */
-  .jumpin__buttons .btn {
-    width: 100%;
-  }
-
-  .jumpin::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    pointer-events: none;
-    /* faint inner highlight ring */
-    box-shadow: inset 0 0 0 1px rgba(13, 110, 253, 0.08);
-  }
-
-  /* A little polish */
-  #features .bi {
-    opacity: 0.8;
   }
 
   /* ===========================
@@ -891,6 +844,405 @@ const seoDescription = SITE.description;
 
     .hero__actions .btn {
       width: 100%;
+    }
+  }
+
+  /* ===========================
+   * Section Wave Divider (Multi-layer)
+   * =========================== */
+
+  .section-wave {
+    width: 100%;
+    line-height: 0;
+
+    /* keep your existing top seam fix */
+    margin-top: -1px;
+
+    /* overlap into the features section to eliminate the bottom seam */
+    margin-bottom: -1px;
+
+    /* ensure the top area is truly transparent */
+    background: transparent;
+  }
+
+  .section-wave svg {
+    display: block;
+    width: 100%;
+    height: 100px;
+
+    /* good practice when using translated stroke ripples */
+    overflow: visible;
+  }
+
+  @media (min-width: 768px) {
+    .section-wave svg {
+      height: 140px;
+    }
+  }
+
+  .bg-features {
+    background-color: #f2f6fa;
+  }
+
+  /* Narrower container for features section */
+  .bg-features .container {
+    max-width: 1180px;
+  }
+
+  /* ===========================
+   * Intro Section Enhancements
+   * =========================== */
+
+  /* Highlight badges row */
+  .intro-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.625rem;
+  }
+
+  .intro-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    border-radius: 9999px;
+    white-space: nowrap;
+  }
+
+  .intro-badge .bi {
+    font-size: 0.9rem;
+  }
+
+  /* Badge color variants */
+  .intro-badge--speed {
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.15), rgba(255, 152, 0, 0.15));
+    color: #b86e00;
+    border: 1px solid rgba(255, 152, 0, 0.3);
+  }
+
+  .intro-badge--edit {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(99, 102, 241, 0.12));
+    color: #6d28d9;
+    border: 1px solid rgba(139, 92, 246, 0.25);
+  }
+
+  .intro-badge--offline {
+    background: linear-gradient(135deg, rgba(100, 116, 139, 0.12), rgba(71, 85, 105, 0.12));
+    color: #475569;
+    border: 1px solid rgba(100, 116, 139, 0.25);
+  }
+
+  .intro-badge--open {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(14, 165, 233, 0.12));
+    color: #1d4ed8;
+    border: 1px solid rgba(59, 130, 246, 0.25);
+  }
+
+  /* Intro media wrapper with subtle styling */
+  .intro-media {
+    position: relative;
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow:
+      0 20px 40px rgba(0, 0, 0, 0.08),
+      0 8px 16px rgba(0, 0, 0, 0.04);
+  }
+
+  .intro-media img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  /* ===========================
+   * Bento Grid Feature Layout
+   * =========================== */
+
+  .features-bento {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .bento-row {
+    display: grid;
+    gap: 1rem;
+    margin-inline: 2rem;
+  }
+
+  .bento-row--hero {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .bento-row--medium {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .bento-row--small {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .bento-card {
+    padding: 1.5rem;
+    border-radius: 1rem;
+    background: #f8fafc;
+    position: relative;
+    /* No border - gradient pseudo-element provides it */
+    border: none;
+    /* Multi-layer soft shadow for subtle depth */
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.04),
+      0 4px 8px rgba(0, 0, 0, 0.04),
+      0 8px 16px rgba(0, 0, 0, 0.02);
+    transition:
+      transform 0.25s cubic-bezier(0.33, 1, 0.68, 1),
+      box-shadow 0.25s cubic-bezier(0.33, 1, 0.68, 1);
+  }
+
+  /* Gradient border via pseudo-element */
+  .bento-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(168, 85, 247, 0.15), rgba(59, 130, 246, 0.15));
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    transition: background 0.3s ease;
+  }
+
+  .bento-card:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      0 8px 24px rgba(99, 102, 241, 0.08),
+      0 12px 24px rgba(0, 0, 0, 0.04),
+      0 24px 48px rgba(0, 0, 0, 0.03);
+  }
+
+  .bento-card:hover::before {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.35), rgba(168, 85, 247, 0.25), rgba(59, 130, 246, 0.2));
+  }
+
+  .bento-card__icon {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-bottom: 0.75rem;
+    position: relative;
+  }
+
+  /* Soft glowing dot behind icons */
+  .bento-card__icon::before {
+    content: "";
+    position: absolute;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 70%);
+    left: -0.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 0;
+  }
+
+  /* Accent-colored icons (default indigo) */
+  .bento-card__icon svg {
+    fill: #4f46e5;
+    color: #4f46e5;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Card-specific icon colors */
+  .bento-card--kernel .bento-card__icon svg {
+    fill: #7c3aed;
+    color: #7c3aed; /* Violet for CUDA/tech */
+  }
+  .bento-card--kernel .bento-card__icon::before {
+    background: radial-gradient(circle, rgba(124, 58, 237, 0.12) 0%, transparent 70%);
+  }
+
+  .bento-card--editing .bento-card__icon svg {
+    fill: #8b5cf6;
+    color: #8b5cf6; /* Purple for creative/editing */
+  }
+  .bento-card--editing .bento-card__icon::before {
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, transparent 70%);
+  }
+
+  .bento-card--speed .bento-card__icon svg {
+    fill: #059669;
+    color: #059669; /* Emerald for speed/performance */
+  }
+  .bento-card--speed .bento-card__icon::before {
+    background: radial-gradient(circle, rgba(5, 150, 105, 0.12) 0%, transparent 70%);
+  }
+
+  .bento-card--opensource .bento-card__icon svg {
+    fill: #dc2626;
+    color: #dc2626; /* Red for heart/open source */
+  }
+  .bento-card--opensource .bento-card__icon::before {
+    background: radial-gradient(circle, rgba(220, 38, 38, 0.12) 0%, transparent 70%);
+  }
+
+  .bento-card--masking .bento-card__icon svg {
+    fill: #0d9488;
+    color: #0d9488; /* Deep teal for masking/layers */
+  }
+  .bento-card--masking .bento-card__icon::before {
+    background: radial-gradient(circle, rgba(13, 148, 136, 0.12) 0%, transparent 70%);
+  }
+
+  .bento-card__title {
+    font-weight: 650;
+    margin-bottom: 0.5rem;
+    color: #111827;
+  }
+
+  .bento-card__desc {
+    font-size: 0.875rem;
+    color: var(--bs-secondary-color);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  /* Large hero cards */
+  .bento-card--large {
+    padding: 2rem;
+  }
+
+  .bento-card--large .bento-card__icon {
+    margin-bottom: 1rem;
+  }
+  .bento-card--large .bento-card__icon::before {
+    width: 3.25rem;
+    height: 3.25rem;
+    left: -0.5rem;
+  }
+  .bento-card--large .bento-card__icon svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  .bento-card--large .bento-card__title {
+    font-size: 1.375rem;
+    margin-bottom: 0.625rem;
+  }
+
+  .bento-card--large .bento-card__desc {
+    font-size: 0.9375rem;
+  }
+
+  /* Feature checklist row */
+  .bento-checklist {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding-top: 1.5rem;
+    padding-inline: 1rem;
+    margin: 0 6rem;
+  }
+
+  .bento-check-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+  }
+
+  .bento-check-item svg {
+    color: #4f46e5;
+    flex-shrink: 0;
+    width: 1.25em;
+    height: 1.25em;
+  }
+
+  /* Responsive bento grid - tablet */
+  @media (max-width: 991.98px) {
+    .features-bento {
+      max-width: 640px;
+      margin-inline: auto;
+    }
+    .bento-row--hero,
+    .bento-row--medium {
+      grid-template-columns: 1fr;
+    }
+    .bento-checklist {
+      justify-content: center;
+      gap: 1rem 2rem;
+      margin: 0;
+    }
+  }
+
+  /* Smaller mobile adjustments */
+  @media (max-width: 575.98px) {
+    .features-bento {
+      max-width: 100%;
+    }
+    .bento-card {
+      padding: 1.25rem;
+    }
+    .bento-card--large {
+      padding: 1.5rem;
+    }
+    .bento-card--large .bento-card__title {
+      font-size: 1.25rem;
+    }
+    .bento-checklist {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding-inline: 0;
+    }
+    .bento-check-item {
+      font-size: 1rem;
+    }
+  }
+
+  /* Reduced motion for bento */
+  @media (prefers-reduced-motion: reduce) {
+    .bento-card {
+      transition: none;
+    }
+    .bento-card:hover {
+      transform: none;
+    }
+  }
+
+  /* ===========================
+   * Section dividers (SVG arcs)
+   * =========================== */
+
+  /* Full-width gentle arc divider between sections */
+  .section-divider {
+    width: 100%;
+    line-height: 0;
+    overflow: hidden;
+  }
+
+  .section-divider svg {
+    display: block;
+    width: 100%;
+    height: 32px;
+  }
+
+  /* Responsive arc height */
+  @media (min-width: 768px) {
+    .section-divider svg {
+      height: 48px;
     }
   }
 </style>

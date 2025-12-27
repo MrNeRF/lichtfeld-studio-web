@@ -1,5 +1,5 @@
 /**
- * functions/test/setup.ts
+ * workers/stats-api/test/setup.ts
  *
  * Test setup file that runs before each test file.
  * Applies D1 schema to initialize the database.

@@ -6,20 +6,38 @@
  * Displays the copyright notice and logo.
  */
 import lichtFeldLogo from '../assets/lichtfeld-logo.svg';
+import core11Logo from '../assets/core11-logo.svg';
 
 const base = import.meta.env.BASE_URL;
 ---
 
 <div class="container">
-  <footer class="site-footer d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
-    <p class="col-md-4 mb-0 site-footer__copyright">© 2025 LichtFeld</p>
-    <a
-      href={base}
-      class="col-md-4 d-flex align-items-center justify-content-center mb-3 mb-md-0 me-md-auto text-decoration-none"
-      aria-label="LichtFeld Studio Home"
-    >
-      <img src={lichtFeldLogo.src} alt="LichtFeld Studio" class="site-footer__logo" />
-    </a>
+  <footer class="site-footer py-3 my-4">
+    <!-- Supported by section -->
+    <div class="d-flex flex-column align-items-center mb-3 pb-3 border-bottom">
+      <p class="text-body-secondary mb-2 small">Supported by</p>
+      <a
+        href="https://www.core11.eu/"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Visit Core11 website"
+        class="sponsor-logo"
+      >
+        <img src={core11Logo.src} alt="Core11" class="sponsor-logo__image" />
+      </a>
+    </div>
+
+    <!-- Footer content -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center">
+      <p class="col-md-4 mb-0 site-footer__copyright">© 2025 LichtFeld</p>
+      <a
+        href={base}
+        class="col-md-4 d-flex align-items-center justify-content-center mb-3 mb-md-0 me-md-auto text-decoration-none"
+        aria-label="LichtFeld Studio Home"
+      >
+        <img src={lichtFeldLogo.src} alt="LichtFeld Studio" class="site-footer__logo" />
+      </a>
+    </div>
   </footer>
 </div>
 
@@ -43,5 +61,18 @@ const base = import.meta.env.BASE_URL;
 
   .site-footer__logo:hover {
     opacity: 1;
+  }
+
+  .sponsor-logo {
+    transition: opacity var(--transition-fast, 150ms) ease-out;
+  }
+
+  .sponsor-logo:hover {
+    opacity: 1 !important;
+  }
+
+  .sponsor-logo__image {
+    height: 32px;
+    opacity: 0.85;
   }
 </style>

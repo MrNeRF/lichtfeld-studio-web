@@ -5,7 +5,7 @@ const bountyCollection = defineCollection({
   schema: z.object({
     title: z.string(),
     date: z.date(),
-    deadline: z.date(),
+    deadline: z.date().optional(),
     summary: z.string(),
     winner: z.string().default('').optional()
   })

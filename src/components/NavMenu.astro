@@ -13,7 +13,7 @@
  *  - Submenu opens on hover for desktop and on click for mobile.
  */
 import { withBase } from "@/utils/navigation";
-import { GITHUB_REPO_URL, DISCORD_URL } from "@/constants/links";
+import { GITHUB_REPO_URL, DISCORD_URL } from "@/constants/project";
 
 const { bountiesHref } = Astro.props as { bountiesHref: string };
 
@@ -23,6 +23,10 @@ const currentPath = Astro.url.pathname;
 
 /** Route constants with base-aware URLs. */
 const ROUTES = {
+  showcase: withBase(base, "/showcase"),
+
+  statistics: withBase(base, "/statistics"),
+
   contribute: withBase(base, "/contribute"),
 
   buildOnWindows: withBase(base, "/contribute/build-on-windows"),
@@ -36,6 +40,8 @@ const normalize = (p: string) => (p.endsWith("/") ? p.slice(0, -1) : p);
 /** Active checks for top-level items. */
 const isHomeActive = normalize(currentPath) === normalize(base);
 const isBountiesActive = currentPath.startsWith(`${normalize(base)}/bounty/`);
+const isShowcaseActive = normalize(currentPath) === normalize(ROUTES.showcase);
+const isStatisticsActive = normalize(currentPath) === normalize(ROUTES.statistics);
 
 /** Any /contribute* page activates the parent "Contribute" item. */
 const isContributeActive = currentPath.startsWith(ROUTES.contribute);
@@ -46,7 +52,24 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
   <li class="nav-menu__item">
     <a href={base} class:list={["nav-menu__link", { "is-active": isHomeActive }]}>Home</a>
   </li>
+<!--- TODO: Uncomment this when ready -->
+{false &&
+  <!-- Showcase -->
+  <li class="nav-menu__item">
+    <a href={ROUTES.showcase} class:list={["nav-menu__link", { "is-active": isShowcaseActive }]}>
+      <i class="bi bi-play-circle me-2" aria-hidden="true"></i>
+      Showcase
+    </a>
+  </li>
 
+  <!-- Statistics -->
+  <li class="nav-menu__item">
+    <a href={ROUTES.statistics} class:list={["nav-menu__link", { "is-active": isStatisticsActive }]}>
+      <i class="bi bi-graph-up me-2" aria-hidden="true"></i>
+      Statistics
+    </a>
+  </li>
+}
   <!-- Bounties -->
   <li class="nav-menu__item">
     <a href={bountiesHref} class:list={["nav-menu__link", { "is-active": isBountiesActive }]}>Bounties</a>
@@ -85,17 +108,29 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
     </ul>
   </li>
 
-  <!-- External links -->
+  <!-- External links (icon-only with screen-reader text for accessibility) -->
   <li class="nav-menu__item">
-    <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer" class="nav-menu__link">
-      <i class="bi bi-discord me-1" aria-hidden="true"></i>
-      Discord
+    <a
+      href={DISCORD_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="nav-menu__link nav-menu__link--icon-only"
+      aria-label="Discord"
+    >
+      <i class="bi bi-discord" aria-hidden="true"></i>
+      <span class="sr-only">Discord</span>
     </a>
   </li>
   <li class="nav-menu__item">
-    <a href={GITHUB_REPO_URL} target="_blank" rel="noopener noreferrer" class="nav-menu__link">
-      <i class="bi bi-github me-1" aria-hidden="true"></i>
-      GitHub
+    <a
+      href={GITHUB_REPO_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="nav-menu__link nav-menu__link--icon-only"
+      aria-label="GitHub"
+    >
+      <i class="bi bi-github" aria-hidden="true"></i>
+      <span class="sr-only">GitHub</span>
     </a>
   </li>
 </ul>
@@ -222,37 +257,94 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
   }
 
   .nav-menu__link {
-    display: block;
+    display: flex;
+    align-items: center;
     padding: 0.5rem var(--nav-padding-x);
     color: var(--color-text);
     text-decoration: none;
     white-space: nowrap;
-    transition: color 0.15s ease-in-out;
+    transition:
+      color 0.15s ease-in-out,
+      border-color 0.15s ease-in-out;
+    border-bottom: 2px solid transparent; /* Reserve space for the indicator */
   }
 
   .nav-menu__link:hover {
     color: var(--color-text-hover);
   }
 
-  /* Active state styling */
+  /* Icon-only links (Discord, GitHub) */
+  .nav-menu__link--icon-only {
+    padding: 0.5rem 0.75rem;
+    font-size: 1.25rem;
+    border-bottom: none; /* No underline indicator for social icons */
+  }
+
+  /* Discord brand color */
+  .nav-menu__link--icon-only .bi-discord {
+    color: #5865f2;
+  }
+
+  /* GitHub brand color */
+  .nav-menu__link--icon-only .bi-github {
+    color: #24292f;
+  }
+
+  /* Hover effect for social icons */
+  .nav-menu__link--icon-only:hover .bi-discord {
+    color: #4752c4;
+  }
+
+  .nav-menu__link--icon-only:hover .bi-github {
+    color: #000;
+  }
+
+  /* Add spacing before the first social icon */
+  .nav-menu__item:has(.nav-menu__link--icon-only) {
+    margin-left: 0.75rem;
+  }
+
+  /* Reset margin for consecutive social icons */
+  .nav-menu__item:has(.nav-menu__link--icon-only) + .nav-menu__item:has(.nav-menu__link--icon-only) {
+    margin-left: 0;
+  }
+
+  /* Screen-reader-only text for accessibility */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Active state styling - bottom border indicator */
   .nav-menu__link.is-active {
-    background-color: var(--color-primary);
-    color: var(--color-text-light);
-    border-radius: var(--border-radius);
+    color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
   }
 
   /* Container for the split-button dropdown parts */
   .nav-menu__dropdown-container {
     display: flex;
-    align-items: stretch;
+    align-items: center;
+    border-bottom: 2px solid transparent; /* Single underline spanning both link and toggle */
+    transition: border-color 0.15s ease-in-out;
+  }
+
+  /* Active state for the entire dropdown container */
+  .nav-menu__dropdown-container:has(.nav-menu__link.is-active) {
+    border-bottom-color: var(--color-primary);
   }
 
   /* Adjust padding for the link part of the split button */
   .nav-menu__dropdown-container .nav-menu__link {
-    padding-right: 0.5rem;
-  }
-  .nav-menu__dropdown-container .nav-menu__link.is-active {
-    border-radius: var(--border-radius) 0 0 var(--border-radius);
+    padding-right: 0.25rem;
+    border-bottom: none; /* Remove individual border, container handles it */
   }
 
   /* The caret/toggle button part of the split button */
@@ -262,9 +354,9 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
     background: none;
     border: none;
     cursor: pointer;
-    padding: 0.5rem 0.5rem 0.5rem 0.25rem;
-    margin-left: -1px; /* Overlap for a seamless background on active */
+    padding: 0.5rem 0.5rem 0.5rem 0;
     color: var(--color-text);
+    transition: color 0.15s ease-in-out;
   }
 
   /* The caret icon, created with CSS borders */
@@ -281,11 +373,9 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
     border-left: 0.3em solid transparent;
   }
 
-  /* Active state for the toggle part */
-  .nav-menu__dropdown-container .nav-menu__link.is-active + .nav-menu__dropdown-toggle {
-    background-color: var(--color-primary);
-    color: var(--color-text-light);
-    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+  /* Active state for the toggle - match the link's text color */
+  .nav-menu__dropdown-container:has(.nav-menu__link.is-active) .nav-menu__dropdown-toggle {
+    color: var(--color-primary);
   }
 
   /* Submenu styles */
@@ -331,6 +421,7 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
       align-items: stretch;
       width: 100%;
       gap: 0.25rem;
+      height: auto;
     }
 
     .nav-menu__item {
@@ -340,6 +431,16 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
     .nav-menu__link {
       padding: 0.75rem 1rem; /* Generous padding for easy tapping */
       text-align: left;
+      border-bottom: none; /* Remove bottom border on mobile */
+      margin-bottom: 0;
+      border-left: 3px solid transparent; /* Use left border for mobile */
+      border-radius: 0;
+    }
+
+    /* Mobile active state - left border indicator */
+    .nav-menu__link.is-active {
+      border-left-color: var(--color-primary);
+      border-bottom-color: transparent;
     }
 
     /* Ensure the split dropdown container takes full width and aligns items correctly */
@@ -350,23 +451,23 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
       align-items: center;
       padding: 0.75rem 1rem; /* Padding is now on the container */
       cursor: pointer;
-      border-radius: var(--border-radius);
+      border-left: 3px solid transparent; /* Use left border for mobile */
     }
 
     /* Remove padding from the link inside, as the container now has it */
     .nav-menu__dropdown-container .nav-menu__link {
       padding: 0;
+      border-left: none;
     }
 
-    /* When the container holds an active link, style the container itself */
+    /* When the container holds an active link, style the container with left border */
     .nav-menu__dropdown-container:has(.nav-menu__link.is-active) {
-      background-color: var(--color-primary);
-      color: var(--color-text-light); /* This applies to both text and the caret icon */
+      border-left-color: var(--color-primary);
     }
 
-    /* The link inside an active container must be transparent */
+    /* The link inside an active container keeps the primary color text */
     .nav-menu__dropdown-container .nav-menu__link.is-active {
-      background-color: transparent;
+      border-left-color: transparent;
     }
 
     /* Remove padding from the toggle button as well */

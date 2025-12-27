@@ -1,28 +1,19 @@
 /**
- * functions/test/stats.test.ts
+ * workers/stats-api/test/stats.test.ts
  *
- * E2E tests for the /api/stats Pages Function.
+ * E2E tests for the Stats API Worker.
  * Tests the HTTP endpoints and database queries.
  *
  * Reference: https://developers.cloudflare.com/workers/testing/vitest-integration/
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
-import {
-    env,
-    createExecutionContext,
-    waitOnExecutionContext,
-} from "cloudflare:test";
-import { onRequestGet, onRequestOptions } from "../api/stats";
+import { env, SELF } from "cloudflare:test";
+import worker from "../src/index";
 
 // =============================================================================
 // Types
 // =============================================================================
-
-/**
- * Type for incoming requests with CF properties.
- */
-type IncomingRequest = Request<unknown, IncomingRequestCfProperties>;
 
 /**
  * Expected structure of the stats response.
@@ -110,13 +101,6 @@ function monthTimestamp(ts: number): number {
 // =============================================================================
 // Helper Functions
 // =============================================================================
-
-/**
- * Creates a fetch request with standard properties.
- */
-function createRequest(url: string, options?: RequestInit): IncomingRequest {
-    return new Request(url, options) as IncomingRequest;
-}
 
 /**
  * Clears all data from the test database tables.
@@ -242,27 +226,11 @@ async function seedDatabase(): Promise<void> {
     await seedMonthlyData();
 }
 
-/**
- * Creates a mock Pages Function context.
- */
-function createPagesContext(request: IncomingRequest) {
-    return {
-        request,
-        env,
-        params: {},
-        waitUntil: () => {},
-        passThroughOnException: () => {},
-        next: () => Promise.resolve(new Response()),
-        data: {},
-        functionPath: "/api/stats",
-    } as unknown as Parameters<typeof onRequestGet>[0];
-}
-
 // =============================================================================
 // Test Suite
 // =============================================================================
 
-describe("Stats API", () => {
+describe("Stats API Worker", () => {
     // -------------------------------------------------------------------------
     // Setup and Teardown
     // -------------------------------------------------------------------------
@@ -277,14 +245,11 @@ describe("Stats API", () => {
 
     describe("OPTIONS /api/stats", () => {
         it("should return CORS headers", async () => {
-            // Arrange
-            const request = createRequest("http://localhost/api/stats", {
-                method: "OPTIONS",
-            });
-            const ctx = createPagesContext(request);
-
-            // Act
-            const response = await onRequestOptions(ctx);
+            // Arrange & Act
+            const response = await worker.fetch(
+                new Request("http://localhost/api/stats", { method: "OPTIONS" }),
+                env
+            );
 
             // Assert
             expect(response.status).toBe(204);
@@ -303,11 +268,11 @@ describe("Stats API", () => {
             // Arrange
             await seedDatabase();
 
-            const request = createRequest("http://localhost/api/stats");
-            const ctx = createPagesContext(request);
-
             // Act
-            const response = await onRequestGet(ctx);
+            const response = await worker.fetch(
+                new Request("http://localhost/api/stats"),
+                env
+            );
 
             // Assert
             expect(response.status).toBe(200);
@@ -337,11 +302,11 @@ describe("Stats API", () => {
             // Arrange
             await seedDatabase();
 
-            const request = createRequest("http://localhost/api/stats");
-            const ctx = createPagesContext(request);
-
             // Act
-            const response = await onRequestGet(ctx);
+            const response = await worker.fetch(
+                new Request("http://localhost/api/stats"),
+                env
+            );
             const body = await response.json() as StatsResponse;
 
             // Assert: asOf should be yesterday's date in YYYY-MM-DD format
@@ -354,11 +319,11 @@ describe("Stats API", () => {
             // Arrange
             await seedDatabase();
 
-            const request = createRequest("http://localhost/api/stats");
-            const ctx = createPagesContext(request);
-
             // Act
-            const response = await onRequestGet(ctx);
+            const response = await worker.fetch(
+                new Request("http://localhost/api/stats"),
+                env
+            );
             const body = await response.json() as StatsResponse;
 
             // Assert: Should sum total_downloads from releases table
@@ -369,11 +334,11 @@ describe("Stats API", () => {
             // Arrange
             await seedDatabase();
 
-            const request = createRequest("http://localhost/api/stats");
-            const ctx = createPagesContext(request);
-
             // Act
-            const response = await onRequestGet(ctx);
+            const response = await worker.fetch(
+                new Request("http://localhost/api/stats"),
+                env
+            );
             const body = await response.json() as StatsResponse;
 
             // Assert
@@ -388,11 +353,11 @@ describe("Stats API", () => {
             // Arrange
             await seedDatabase();
 
-            const request = createRequest("http://localhost/api/stats");
-            const ctx = createPagesContext(request);
-
             // Act
-            const response = await onRequestGet(ctx);
+            const response = await worker.fetch(
+                new Request("http://localhost/api/stats"),
+                env
+            );
             const body = await response.json() as StatsResponse;
 
             // Assert: Each release should have daily data points
@@ -416,11 +381,11 @@ describe("Stats API", () => {
             // Arrange
             await seedDatabase();
 
-            const request = createRequest("http://localhost/api/stats");
-            const ctx = createPagesContext(request);
-
             // Act
-            const response = await onRequestGet(ctx);
+            const response = await worker.fetch(
+                new Request("http://localhost/api/stats"),
+                env
+            );
             const body = await response.json() as StatsResponse;
 
             // Assert: Each release should have weekly data points
@@ -439,11 +404,11 @@ describe("Stats API", () => {
             // Arrange
             await seedDatabase();
 
-            const request = createRequest("http://localhost/api/stats");
-            const ctx = createPagesContext(request);
-
             // Act
-            const response = await onRequestGet(ctx);
+            const response = await worker.fetch(
+                new Request("http://localhost/api/stats"),
+                env
+            );
             const body = await response.json() as StatsResponse;
 
             // Assert: Each release should have monthly data points
@@ -462,11 +427,11 @@ describe("Stats API", () => {
             // Arrange
             await seedDatabase();
 
-            const request = createRequest("http://localhost/api/stats");
-            const ctx = createPagesContext(request);
-
             // Act
-            const response = await onRequestGet(ctx);
+            const response = await worker.fetch(
+                new Request("http://localhost/api/stats"),
+                env
+            );
 
             // Assert
             expect(response.headers.get("Access-Control-Allow-Origin")).toBe("*");
@@ -476,11 +441,11 @@ describe("Stats API", () => {
             // Arrange
             await seedDatabase();
 
-            const request = createRequest("http://localhost/api/stats");
-            const ctx = createPagesContext(request);
-
             // Act
-            const response = await onRequestGet(ctx);
+            const response = await worker.fetch(
+                new Request("http://localhost/api/stats"),
+                env
+            );
 
             // Assert: 86400 seconds = 24 hours
             expect(response.headers.get("Cache-Control")).toContain("max-age=86400");
@@ -490,11 +455,11 @@ describe("Stats API", () => {
             // Arrange
             await seedDatabase();
 
-            const request = createRequest("http://localhost/api/stats");
-            const ctx = createPagesContext(request);
-
             // Act
-            const response = await onRequestGet(ctx);
+            const response = await worker.fetch(
+                new Request("http://localhost/api/stats"),
+                env
+            );
 
             // Assert: First request should be a cache miss
             expect(response.headers.get("X-Cache")).toBe("MISS");
@@ -508,11 +473,12 @@ describe("Stats API", () => {
     describe("Empty Database", () => {
         it("should return zeros for empty database", async () => {
             // Arrange: Database is already empty after clearDatabase
-            const request = createRequest("http://localhost/api/stats");
-            const ctx = createPagesContext(request);
 
             // Act
-            const response = await onRequestGet(ctx);
+            const response = await worker.fetch(
+                new Request("http://localhost/api/stats"),
+                env
+            );
             const body = await response.json() as StatsResponse;
 
             // Assert
@@ -521,12 +487,11 @@ describe("Stats API", () => {
         });
 
         it("should still include asOf date for empty database", async () => {
-            // Arrange
-            const request = createRequest("http://localhost/api/stats");
-            const ctx = createPagesContext(request);
-
             // Act
-            const response = await onRequestGet(ctx);
+            const response = await worker.fetch(
+                new Request("http://localhost/api/stats"),
+                env
+            );
             const body = await response.json() as StatsResponse;
 
             // Assert
@@ -542,21 +507,13 @@ describe("Stats API", () => {
 
     describe("Error Handling", () => {
         it("should return 503 when database is not configured", async () => {
-            // Arrange: Create context without database binding
-            const request = createRequest("http://localhost/api/stats");
-            const ctx = {
-                request,
-                env: {}, // Empty env - no STATS_DB
-                params: {},
-                waitUntil: () => {},
-                passThroughOnException: () => {},
-                next: () => Promise.resolve(new Response()),
-                data: {},
-                functionPath: "/api/stats",
-            } as unknown as Parameters<typeof onRequestGet>[0];
+            // Arrange: Create env without database binding
 
             // Act
-            const response = await onRequestGet(ctx);
+            const response = await worker.fetch(
+                new Request("http://localhost/api/stats"),
+                {} as any // Empty env - no STATS_DB
+            );
 
             // Assert
             expect(response.status).toBe(503);
@@ -564,6 +521,17 @@ describe("Stats API", () => {
             const body = await response.json() as { error: string };
 
             expect(body.error).toContain("Database not configured");
+        });
+
+        it("should return 404 for unknown routes", async () => {
+            // Act
+            const response = await worker.fetch(
+                new Request("http://localhost/unknown"),
+                env
+            );
+
+            // Assert
+            expect(response.status).toBe(404);
         });
     });
 });

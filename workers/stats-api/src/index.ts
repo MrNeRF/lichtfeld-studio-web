@@ -1,7 +1,9 @@
 /**
- * functions/api/stats.ts
+ * workers/stats-api/src/index.ts
  *
- * Serves download statistics from D1.
+ * Stats API Worker - Serves download statistics from D1.
+ * Migrated from Pages Functions to Workers module format.
+ *
  * Endpoint: GET /api/stats
  *
  * Response is cached for 24 hours and computed based on "yesterday" (the last
@@ -27,12 +29,18 @@ interface CloudflareCacheStorage extends CacheStorage {
 
 declare const caches: CloudflareCacheStorage;
 
-interface Env {
+/**
+ * Worker environment bindings.
+ */
+export interface Env {
     STATS_DB: D1Database;
     /** Set to "true" to disable caching (e.g., in test environment) */
     DISABLE_CACHE?: string;
 }
 
+/**
+ * Stats API response structure.
+ */
 interface StatsResponse {
     /** Date anchor for this response (yesterday's date in YYYY-MM-DD format) */
     asOf: string;
@@ -240,12 +248,14 @@ async function getReleases(db: D1Database): Promise<StatsResponse["releases"]> {
     }));
 }
 
-
 // =============================================================================
 // Request Handlers
 // =============================================================================
 
-export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
+/**
+ * Handles GET /api/stats requests.
+ */
+async function handleStats(request: Request, env: Env): Promise<Response> {
     if (!env.STATS_DB) {
         return errorResponse("Database not configured", 503);
     }
@@ -309,9 +319,12 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
 
         return errorResponse("Failed to fetch statistics");
     }
-};
+}
 
-export const onRequestOptions: PagesFunction<Env> = async () => {
+/**
+ * Handles CORS preflight requests.
+ */
+function handleOptions(): Response {
     return new Response(null, {
         status: 204,
         headers: {
@@ -320,4 +333,27 @@ export const onRequestOptions: PagesFunction<Env> = async () => {
             "Access-Control-Max-Age": "86400",
         },
     });
+}
+
+// =============================================================================
+// Worker Entry Point
+// =============================================================================
+
+export default {
+    async fetch(request: Request, env: Env): Promise<Response> {
+        const url = new URL(request.url);
+
+        // Handle CORS preflight
+        if (request.method === "OPTIONS") {
+            return handleOptions();
+        }
+
+        // Route: GET /api/stats
+        if (url.pathname === "/api/stats" && request.method === "GET") {
+            return handleStats(request, env);
+        }
+
+        // 404 for unmatched routes
+        return new Response("Not Found", { status: 404 });
+    },
 };

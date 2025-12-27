@@ -1,7 +1,7 @@
 /**
- * functions/vitest.config.ts
+ * workers/stats-api/vitest.config.ts
  *
- * Vitest configuration for E2E testing the api/stats Pages Function.
+ * Vitest configuration for E2E testing the Stats API Worker.
  * Uses @cloudflare/vitest-pool-workers to run tests inside the Workers runtime.
  *
  * Reference: https://developers.cloudflare.com/workers/testing/vitest-integration/
@@ -20,7 +20,8 @@ import { defineWorkersConfig } from "@cloudflare/vitest-pool-workers/config";
  * Handles multi-line statements and filters out comment-only lines.
  */
 function loadSchemaStatements(): string[] {
-    const schemaPath = path.resolve(__dirname, "../db/schema.sql");
+    // Schema is at the project root
+    const schemaPath = path.resolve(__dirname, "../../db/schema.sql");
     const schemaContent = fs.readFileSync(schemaPath, "utf-8");
 
     // Split by semicolons, handling multi-line statements

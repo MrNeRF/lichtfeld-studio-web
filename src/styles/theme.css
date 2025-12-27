@@ -2,8 +2,53 @@
  * Centralized Design Tokens for the Application.
  * This file contains shared CSS variables to ensure a consistent
  * look and feel across all components.
+ *
+ * Tailwind-compatible spacing and utility classes are defined below
+ * to facilitate future migration to Tailwind CSS.
  */
 :root {
+  /* ===========================
+   * Tailwind-Compatible Spacing Scale
+   * =========================== */
+  --spacing-0: 0px;
+  --spacing-1: 0.25rem;   /* 4px */
+  --spacing-2: 0.5rem;    /* 8px */
+  --spacing-3: 0.75rem;   /* 12px */
+  --spacing-4: 1rem;      /* 16px */
+  --spacing-5: 1.25rem;   /* 20px */
+  --spacing-6: 1.5rem;    /* 24px */
+  --spacing-7: 1.75rem;   /* 28px */
+  --spacing-8: 2rem;      /* 32px */
+  --spacing-9: 2.25rem;   /* 36px */
+  --spacing-10: 2.5rem;   /* 40px */
+  --spacing-11: 2.75rem;  /* 44px */
+  --spacing-12: 3rem;     /* 48px */
+  --spacing-14: 3.5rem;   /* 56px */
+  --spacing-16: 4rem;     /* 64px */
+  --spacing-18: 4.5rem;   /* 72px */
+  --spacing-20: 5rem;     /* 80px */
+  --spacing-22: 5.5rem;   /* 88px */
+  --spacing-24: 6rem;     /* 96px */
+  --spacing-26: 6.5rem;   /* 104px */
+  --spacing-28: 7rem;     /* 112px */
+  --spacing-30: 7.5rem;   /* 120px */
+
+  /* ===========================
+   * Tailwind-Compatible Border Radius
+   * =========================== */
+  --rounded-none: 0px;
+  --rounded-sm: 0.125rem;
+  --rounded: 0.25rem;
+  --rounded-md: 0.375rem;
+  --rounded-lg: 0.5rem;
+  --rounded-xl: 0.75rem;
+  --rounded-2xl: 1rem;
+  --rounded-3xl: 1.5rem;
+  --rounded-full: 9999px;
+
+  /* ===========================
+   * Legacy Variables (kept for compatibility)
+   * =========================== */
   /* Colors */
   --color-primary: #0d6efd;
   --color-text: #343a40;
@@ -12,9 +57,7 @@
   --color-background: rgba(255, 255, 255, 0.9);
   --background-hover: #e9ecef;
   --dropdown-background: #fff;
-  /* Opaque background for submenus */
-  --body-background: #f8f9fa;
-  /* Bootstrap’s light gray color */
+  --body-background: #ffffff;
 
   /* Borders */
   --border-radius: 8px;
@@ -31,4 +74,281 @@
 
   /* Shadows */
   --dropdown-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+
+  /* Section backgrounds */
+  --section-bg-alt: #f3f4f6;
+}
+
+/* ===========================
+ * Tailwind-Compatible Utility Classes
+ * These mirror Tailwind's naming for easy migration.
+ * =========================== */
+
+/* --- Padding --- */
+.p-0 { padding: var(--spacing-0); }
+.p-1 { padding: var(--spacing-1); }
+.p-2 { padding: var(--spacing-2); }
+.p-3 { padding: var(--spacing-3); }
+.p-4 { padding: var(--spacing-4); }
+.p-5 { padding: var(--spacing-5); }
+.p-6 { padding: var(--spacing-6); }
+.p-8 { padding: var(--spacing-8); }
+
+.px-0 { padding-left: var(--spacing-0); padding-right: var(--spacing-0); }
+.px-1 { padding-left: var(--spacing-1); padding-right: var(--spacing-1); }
+.px-2 { padding-left: var(--spacing-2); padding-right: var(--spacing-2); }
+.px-3 { padding-left: var(--spacing-3); padding-right: var(--spacing-3); }
+.px-4 { padding-left: var(--spacing-4); padding-right: var(--spacing-4); }
+.px-5 { padding-left: var(--spacing-5); padding-right: var(--spacing-5); }
+.px-6 { padding-left: var(--spacing-6); padding-right: var(--spacing-6); }
+.px-8 { padding-left: var(--spacing-8); padding-right: var(--spacing-8); }
+
+.py-0 { padding-top: var(--spacing-0); padding-bottom: var(--spacing-0); }
+.py-1 { padding-top: var(--spacing-1); padding-bottom: var(--spacing-1); }
+.py-2 { padding-top: var(--spacing-2); padding-bottom: var(--spacing-2); }
+.py-3 { padding-top: var(--spacing-3); padding-bottom: var(--spacing-3); }
+.py-4 { padding-top: var(--spacing-4); padding-bottom: var(--spacing-4); }
+.py-5 { padding-top: var(--spacing-5); padding-bottom: var(--spacing-5); }
+.py-6 { padding-top: var(--spacing-6); padding-bottom: var(--spacing-6); }
+.py-8 { padding-top: var(--spacing-8); padding-bottom: var(--spacing-8); }
+.py-12 { padding-top: var(--spacing-12); padding-bottom: var(--spacing-12); }
+.py-14 { padding-top: var(--spacing-14); padding-bottom: var(--spacing-14); }
+.py-16 { padding-top: var(--spacing-16); padding-bottom: var(--spacing-16); }
+.py-18 { padding-top: var(--spacing-18); padding-bottom: var(--spacing-18); }
+
+.pt-0 { padding-top: var(--spacing-0); }
+.pt-1 { padding-top: var(--spacing-1); }
+.pt-2 { padding-top: var(--spacing-2); }
+.pt-3 { padding-top: var(--spacing-3); }
+.pt-4 { padding-top: var(--spacing-4); }
+.pt-5 { padding-top: var(--spacing-5); }
+.pt-6 { padding-top: var(--spacing-6); }
+.pt-8 { padding-top: var(--spacing-8); }
+.pt-10 { padding-top: var(--spacing-10); }
+.pt-12 { padding-top: var(--spacing-12); }
+.pt-14 { padding-top: var(--spacing-14); }
+.pt-16 { padding-top: var(--spacing-16); }
+.pt-18 { padding-top: var(--spacing-18); }
+.pt-20 { padding-top: var(--spacing-20); }
+.pt-22 { padding-top: var(--spacing-22); }
+.pt-24 { padding-top: var(--spacing-24); }
+.pt-26 { padding-top: var(--spacing-26); }
+.pt-28 { padding-top: var(--spacing-28); }
+.pt-30 { padding-top: var(--spacing-30); }
+
+.pb-0 { padding-bottom: var(--spacing-0); }
+.pb-1 { padding-bottom: var(--spacing-1); }
+.pb-2 { padding-bottom: var(--spacing-2); }
+.pb-3 { padding-bottom: var(--spacing-3); }
+.pb-4 { padding-bottom: var(--spacing-4); }
+.pb-5 { padding-bottom: var(--spacing-5); }
+.pb-6 { padding-bottom: var(--spacing-6); }
+.pb-8 { padding-bottom: var(--spacing-8); }
+.pb-10 { padding-bottom: var(--spacing-10); }
+.pb-12 { padding-bottom: var(--spacing-12); }
+.pb-14 { padding-bottom: var(--spacing-14); }
+.pb-16 { padding-bottom: var(--spacing-16); }
+.pb-18 { padding-bottom: var(--spacing-18); }
+.pb-20 { padding-bottom: var(--spacing-20); }
+.pb-22 { padding-bottom: var(--spacing-22); }
+.pb-24 { padding-bottom: var(--spacing-24); }
+.pb-26 { padding-bottom: var(--spacing-26); }
+.pb-28 { padding-bottom: var(--spacing-28); }
+.pb-30 { padding-bottom: var(--spacing-30); }
+
+/* --- Margin --- */
+.m-0 { margin: var(--spacing-0); }
+.m-auto { margin: auto; }
+.mx-auto { margin-left: auto; margin-right: auto; }
+
+.mt-0 { margin-top: var(--spacing-0); }
+.mt-1 { margin-top: var(--spacing-1); }
+.mt-2 { margin-top: var(--spacing-2); }
+.mt-3 { margin-top: var(--spacing-3); }
+.mt-4 { margin-top: var(--spacing-4); }
+.mt-5 { margin-top: var(--spacing-5); }
+.mt-6 { margin-top: var(--spacing-6); }
+.mt-8 { margin-top: var(--spacing-8); }
+.mt-auto { margin-top: auto; }
+
+.mb-0 { margin-bottom: var(--spacing-0); }
+.mb-1 { margin-bottom: var(--spacing-1); }
+.mb-2 { margin-bottom: var(--spacing-2); }
+.mb-3 { margin-bottom: var(--spacing-3); }
+.mb-4 { margin-bottom: var(--spacing-4); }
+.mb-5 { margin-bottom: var(--spacing-5); }
+.mb-6 { margin-bottom: var(--spacing-6); }
+.mb-8 { margin-bottom: var(--spacing-8); }
+
+.mr-2 { margin-right: var(--spacing-2); }
+.mr-4 { margin-right: var(--spacing-4); }
+.ml-2 { margin-left: var(--spacing-2); }
+.ml-4 { margin-left: var(--spacing-4); }
+
+/* --- Gap (Flexbox/Grid) --- */
+.gap-0 { gap: var(--spacing-0); }
+.gap-1 { gap: var(--spacing-1); }
+.gap-2 { gap: var(--spacing-2); }
+.gap-3 { gap: var(--spacing-3); }
+.gap-4 { gap: var(--spacing-4); }
+.gap-5 { gap: var(--spacing-5); }
+.gap-6 { gap: var(--spacing-6); }
+.gap-8 { gap: var(--spacing-8); }
+
+/* --- Display --- */
+.block { display: block; }
+.inline-block { display: inline-block; }
+.inline { display: inline; }
+.flex { display: flex; }
+.inline-flex { display: inline-flex; }
+.grid { display: grid; }
+.hidden { display: none; }
+
+/* --- Flexbox --- */
+.flex-row { flex-direction: row; }
+.flex-col { flex-direction: column; }
+.flex-wrap { flex-wrap: wrap; }
+.flex-nowrap { flex-wrap: nowrap; }
+.flex-1 { flex: 1 1 0%; }
+.flex-auto { flex: 1 1 auto; }
+.flex-none { flex: none; }
+.grow { flex-grow: 1; }
+.shrink-0 { flex-shrink: 0; }
+
+.items-start { align-items: flex-start; }
+.items-center { align-items: center; }
+.items-end { align-items: flex-end; }
+.items-stretch { align-items: stretch; }
+
+.justify-start { justify-content: flex-start; }
+.justify-center { justify-content: center; }
+.justify-end { justify-content: flex-end; }
+.justify-between { justify-content: space-between; }
+.justify-around { justify-content: space-around; }
+
+.self-start { align-self: flex-start; }
+.self-center { align-self: center; }
+.self-end { align-self: flex-end; }
+
+/* --- Width/Height --- */
+.w-full { width: 100%; }
+.w-auto { width: auto; }
+.h-full { height: 100%; }
+.h-auto { height: auto; }
+.min-h-screen { min-height: 100vh; }
+
+/* --- Text --- */
+.text-left { text-align: left; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+
+.font-normal { font-weight: 400; }
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+
+.text-xs { font-size: 0.75rem; line-height: 1rem; }
+.text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+.text-base { font-size: 1rem; line-height: 1.5rem; }
+.text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+.text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+.text-2xl { font-size: 1.5rem; line-height: 2rem; }
+.text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+.text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
+.text-5xl { font-size: 3rem; line-height: 1; }
+
+.leading-none { line-height: 1; }
+.leading-tight { line-height: 1.25; }
+.leading-normal { line-height: 1.5; }
+.leading-relaxed { line-height: 1.625; }
+
+/* --- Border Radius --- */
+.rounded-none { border-radius: var(--rounded-none); }
+.rounded-sm { border-radius: var(--rounded-sm); }
+.rounded { border-radius: var(--rounded); }
+.rounded-md { border-radius: var(--rounded-md); }
+.rounded-lg { border-radius: var(--rounded-lg); }
+.rounded-xl { border-radius: var(--rounded-xl); }
+.rounded-2xl { border-radius: var(--rounded-2xl); }
+.rounded-3xl { border-radius: var(--rounded-3xl); }
+.rounded-full { border-radius: var(--rounded-full); }
+
+/* --- Position --- */
+.relative { position: relative; }
+.absolute { position: absolute; }
+.fixed { position: fixed; }
+.sticky { position: sticky; }
+
+/* --- Overflow --- */
+.overflow-hidden { overflow: hidden; }
+.overflow-auto { overflow: auto; }
+.overflow-scroll { overflow: scroll; }
+
+/* --- Shadow --- */
+.shadow-sm { box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); }
+.shadow { box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); }
+.shadow-md { box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
+.shadow-lg { box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); }
+.shadow-none { box-shadow: none; }
+
+/* --- Background Colors --- */
+.bg-white { background-color: #ffffff; }
+.bg-black { background-color: #000000; }
+.bg-gray-50 { background-color: #f9fafb; }
+.bg-gray-100 { background-color: #f3f4f6; }
+.bg-gray-200 { background-color: #e5e7eb; }
+.bg-gray-300 { background-color: #d1d5db; }
+.bg-gray-400 { background-color: #9ca3af; }
+.bg-gray-500 { background-color: #6b7280; }
+.bg-gray-600 { background-color: #4b5563; }
+.bg-gray-700 { background-color: #374151; }
+.bg-gray-800 { background-color: #1f2937; }
+.bg-gray-900 { background-color: #111827; }
+.bg-slate-50 { background-color: #f8fafc; }
+.bg-slate-100 { background-color: #f1f5f9; }
+.bg-slate-200 { background-color: #e2e8f0; }
+
+/* --- Text Colors --- */
+.text-white { color: #ffffff; }
+.text-black { color: #000000; }
+.text-gray-50 { color: #f9fafb; }
+.text-gray-100 { color: #f3f4f6; }
+.text-gray-200 { color: #e5e7eb; }
+.text-gray-300 { color: #d1d5db; }
+.text-gray-400 { color: #9ca3af; }
+.text-gray-500 { color: #6b7280; }
+.text-gray-600 { color: #4b5563; }
+.text-gray-700 { color: #374151; }
+.text-gray-800 { color: #1f2937; }
+.text-gray-900 { color: #111827; }
+.text-slate-500 { color: #64748b; }
+.text-slate-600 { color: #475569; }
+
+/* --- Border Colors --- */
+.border { border-width: 1px; }
+.border-0 { border-width: 0; }
+.border-gray-100 { border-color: #f3f4f6; }
+.border-gray-200 { border-color: #e5e7eb; }
+.border-gray-300 { border-color: #d1d5db; }
+
+/* ===========================
+ * Global Section Styling
+ * =========================== */
+
+/**
+ * Section spacing for visual separation.
+ * Overrides Bootstrap's py-5 with adjusted padding.
+ */
+section > .container.py-5,
+section.py-5 > .container {
+  padding-top: 3.5rem !important;
+  padding-bottom: 3.5rem !important;
+}
+
+@media (min-width: 768px) {
+  section > .container.py-5,
+  section.py-5 > .container {
+    padding-top: 4.5rem !important;
+    padding-bottom: 4.5rem !important;
+  }
 }

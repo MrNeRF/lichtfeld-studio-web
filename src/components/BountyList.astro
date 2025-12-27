@@ -28,7 +28,7 @@ const bountyPath = `${base}bounty/`;
         <div class="w-100 justify-content-between">
           <h5 class="mb-1">{bounty.data.title}</h5>
           <small>
-            {bounty.data.date.toLocaleDateString()} - {bounty.data.deadline.toLocaleDateString()}
+            {bounty.data.date.toLocaleDateString()} - {bounty.data.deadline?.toLocaleDateString() ?? 'open'}
           </small>
         </div>
         <p class="mb-1 p-2">{bounty.data.summary}</p>

@@ -1,0 +1,318 @@
+---
+/**
+ * ReleaseTable.astro
+ *
+ * A responsive table displaying release-by-release download statistics.
+ * Shows version, total downloads, percentage of total, and trend indicators.
+ *
+ * Props:
+ *   - title: Optional table title
+ */
+
+interface Props {
+    title?: string;
+}
+
+const { title } = Astro.props;
+---
+
+<div class="release-table">
+    {title && <h3 class="release-table__title">{title}</h3>}
+
+    <div class="release-table__container">
+        <table class="release-table__table">
+            <thead>
+                <tr>
+                    <th class="release-table__th">Version</th>
+                    <th class="release-table__th release-table__th--right">Downloads</th>
+                    <th class="release-table__th release-table__th--right">% of Total</th>
+                    <th class="release-table__th release-table__th--right">This Month</th>
+                </tr>
+            </thead>
+            <tbody class="release-table__body" data-table-body>
+                <tr>
+                    <td colspan="4" class="release-table__loading">
+                        <div class="release-table__spinner"></div>
+                        <span>Loading releases...</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    /**
+     * Client-side JavaScript for populating the release table.
+     */
+
+    /**
+     * Release data structure from the API.
+     */
+    interface ReleaseData {
+        tag: string;
+        name: string;
+        downloads: number;
+        monthly: Array<{ month: number; downloads: number }>;
+    }
+
+    /**
+     * Formats a number with locale-aware separators.
+     */
+    function formatNumber(num: number): string {
+        return new Intl.NumberFormat().format(num);
+    }
+
+    /**
+     * Calculates percentage of total.
+     */
+    function calculatePercentage(value: number, total: number): string {
+        if (total === 0) return "0%";
+
+        return (value / total * 100).toFixed(1) + "%";
+    }
+
+    /**
+     * Gets the latest month's downloads from monthly data.
+     */
+    function getLatestMonthDownloads(monthly: Array<{ month: number; downloads: number }>): number {
+        if (monthly.length === 0) return 0;
+
+        // Return the most recent month's value
+        return monthly[monthly.length - 1]?.downloads ?? 0;
+    }
+
+    /**
+     * Creates a table row for a release.
+     */
+    function createReleaseRow(release: ReleaseData, totalDownloads: number): HTMLTableRowElement {
+        const row = document.createElement("tr");
+        const monthlyDownloads = getLatestMonthDownloads(release.monthly);
+
+        row.innerHTML = `
+            <td class="release-table__td">
+                <div class="release-table__version">
+                    <span class="release-table__tag">${release.tag}</span>
+                    <span class="release-table__name">${release.name !== release.tag ? release.name : ""}</span>
+                </div>
+            </td>
+            <td class="release-table__td release-table__td--right">
+                <span class="release-table__downloads">${formatNumber(release.downloads)}</span>
+            </td>
+            <td class="release-table__td release-table__td--right">
+                <div class="release-table__percentage">
+                    <div class="release-table__percentage-bar" style="width: ${totalDownloads > 0 ? (release.downloads / totalDownloads * 100) : 0}%"></div>
+                    <span>${calculatePercentage(release.downloads, totalDownloads)}</span>
+                </div>
+            </td>
+            <td class="release-table__td release-table__td--right">
+                <span class="release-table__monthly ${monthlyDownloads > 0 ? "release-table__monthly--positive" : ""}">
+                    ${monthlyDownloads > 0 ? "+" : ""}${formatNumber(monthlyDownloads)}
+                </span>
+            </td>
+        `;
+
+        return row;
+    }
+
+    /**
+     * Initializes the release table with data.
+     */
+    document.addEventListener("DOMContentLoaded", () => {
+        const tables = document.querySelectorAll(".release-table");
+
+        tables.forEach((table) => {
+            const tbody = table.querySelector("[data-table-body]");
+
+            if (!tbody) return;
+
+            // Listen for data updates
+            table.addEventListener("tabledata", ((event: CustomEvent) => {
+                const { releases, totalDownloads } = event.detail;
+
+                // Clear loading state
+                tbody.innerHTML = "";
+
+                if (releases.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="4" class="release-table__empty">
+                                No releases found
+                            </td>
+                        </tr>
+                    `;
+
+                    return;
+                }
+
+                // Add rows for each release
+                releases.forEach((release: ReleaseData) => {
+                    const row = createReleaseRow(release, totalDownloads);
+
+                    tbody.appendChild(row);
+                });
+            }) as EventListener);
+        });
+    });
+</script>
+
+<style>
+    /**
+     * Release Table Styles
+     */
+    .release-table {
+        width: 100%;
+    }
+
+    .release-table__title {
+        margin-bottom: 1rem;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--color-text);
+    }
+
+    .release-table__container {
+        background-color: #fff;
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+    }
+
+    .release-table__table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .release-table__th {
+        padding: 0.75rem 1rem;
+        text-align: left;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        background-color: var(--body-background);
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .release-table__th--right {
+        text-align: right;
+    }
+
+    .release-table :global(.release-table__td) {
+        padding: 0.875rem 1rem;
+        border-bottom: 1px solid var(--border-color);
+        vertical-align: middle;
+    }
+
+    .release-table :global(.release-table__td--right) {
+        text-align: right;
+    }
+
+    .release-table :global(tbody tr:last-child .release-table__td) {
+        border-bottom: none;
+    }
+
+    .release-table :global(tbody tr:hover) {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+
+    /* Version cell */
+    .release-table :global(.release-table__version) {
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
+    }
+
+    .release-table :global(.release-table__tag) {
+        font-weight: 600;
+        color: var(--color-text);
+    }
+
+    .release-table :global(.release-table__name) {
+        font-size: 0.8125rem;
+        color: #6c757d;
+    }
+
+    /* Downloads cell */
+    .release-table :global(.release-table__downloads) {
+        font-weight: 600;
+        font-size: 1rem;
+    }
+
+    /* Percentage cell with bar */
+    .release-table :global(.release-table__percentage) {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+
+    .release-table :global(.release-table__percentage-bar) {
+        height: 0.5rem;
+        background: linear-gradient(90deg, var(--color-primary), #6610f2);
+        border-radius: 0.25rem;
+        min-width: 2px;
+        max-width: 100px;
+    }
+
+    /* Monthly change cell */
+    .release-table :global(.release-table__monthly) {
+        font-weight: 500;
+        color: #6c757d;
+    }
+
+    .release-table :global(.release-table__monthly--positive) {
+        color: #198754;
+    }
+
+    /* Loading state */
+    .release-table__loading {
+        padding: 2rem 1rem;
+        text-align: center;
+    }
+
+    .release-table__loading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        color: #6c757d;
+    }
+
+    .release-table__spinner {
+        width: 1.5rem;
+        height: 1.5rem;
+        border: 2px solid var(--border-color);
+        border-top-color: var(--color-primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Empty state */
+    .release-table :global(.release-table__empty) {
+        padding: 2rem 1rem;
+        text-align: center;
+        color: #6c757d;
+    }
+
+    /* Responsive */
+    @media (max-width: 576px) {
+        .release-table__th,
+        .release-table :global(.release-table__td) {
+            padding: 0.625rem 0.75rem;
+        }
+
+        /* Hide percentage column on small screens */
+        .release-table__th:nth-child(3),
+        .release-table :global(.release-table__td:nth-child(3)) {
+            display: none;
+        }
+    }
+</style>

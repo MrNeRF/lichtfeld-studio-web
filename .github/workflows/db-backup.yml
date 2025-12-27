@@ -1,0 +1,132 @@
+# =============================================================================
+# D1 Database Weekly Backup
+# =============================================================================
+#
+# Exports the D1 database to SQL and commits it to the `db-backups` branch.
+# Git history is permanent, so backups are retained indefinitely.
+#
+# Manual trigger: Actions > "D1 Database Backup" > "Run workflow"
+# Schedule: Every Sunday at 2:00 AM UTC
+#
+# Required secrets:
+#   - CLOUDFLARE_API_TOKEN: API token with D1 read permissions
+#   - CLOUDFLARE_ACCOUNT_ID: Your Cloudflare account ID
+#
+# To restore from a backup:
+#   git fetch origin db-backups
+#   git show origin/db-backups:backups/lichtfeld-stats_2025-01-01.sql > restore.sql
+#   wrangler d1 execute lichtfeld-stats --file=restore.sql
+#
+# Reference: https://developers.cloudflare.com/d1/reference/wrangler-commands/#export
+# =============================================================================
+
+name: D1 Database Backup
+
+on:
+  # Run weekly on Sunday at 2:00 AM UTC
+  schedule:
+    - cron: "0 2 * * 0"
+
+  # Allow manual trigger
+  workflow_dispatch:
+
+jobs:
+  backup:
+    name: Export D1 Database
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout db-backups branch
+        uses: actions/checkout@v4
+        with:
+          ref: db-backups
+          fetch-depth: 0
+        continue-on-error: true
+        id: checkout-branch
+
+      - name: Create db-backups branch if it doesn't exist
+        if: steps.checkout-branch.outcome == 'failure'
+        run: |
+          git clone --depth 1 https://github.com/${{ github.repository }}.git .
+          git checkout --orphan db-backups
+          git rm -rf . || true
+          mkdir -p backups
+          echo "# D1 Database Backups" > README.md
+          echo "" >> README.md
+          echo "This branch contains weekly SQL exports of the lichtfeld-stats D1 database." >> README.md
+          echo "" >> README.md
+          echo "## Restore a backup" >> README.md
+          echo "" >> README.md
+          echo "\`\`\`bash" >> README.md
+          echo "git fetch origin db-backups" >> README.md
+          echo "git show origin/db-backups:backups/lichtfeld-stats_YYYY-MM-DD.sql > restore.sql" >> README.md
+          echo "wrangler d1 execute lichtfeld-stats --file=restore.sql" >> README.md
+          echo "\`\`\`" >> README.md
+          git add README.md
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "Initialize db-backups branch"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install wrangler
+        run: npm install -g wrangler
+
+      - name: Export D1 database
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          # Create backup directory
+          mkdir -p backups
+
+          # Generate date for filename (one backup per day max)
+          DATE=$(date -u +"%Y-%m-%d")
+
+          # Export the database to SQL
+          wrangler d1 export lichtfeld-stats --output="backups/lichtfeld-stats_${DATE}.sql"
+
+          # Show backup size
+          echo "Backup created:"
+          ls -lh backups/
+
+          # Save date for later steps
+          echo "BACKUP_DATE=${DATE}" >> $GITHUB_ENV
+
+      - name: Commit and push backup
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add backups/
+
+          # Check if there are changes to commit
+          if git diff --staged --quiet; then
+            echo "No changes to commit (backup already exists for today)"
+          else
+            git commit -m "Backup: lichtfeld-stats_${BACKUP_DATE}"
+            git push origin db-backups
+            echo "Backup committed and pushed"
+          fi
+
+      - name: Summary
+        run: |
+          echo "## D1 Backup Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Database: \`lichtfeld-stats\`" >> $GITHUB_STEP_SUMMARY
+          echo "Date: ${BACKUP_DATE}" >> $GITHUB_STEP_SUMMARY
+          echo "Branch: \`db-backups\`" >> $GITHUB_STEP_SUMMARY
+          echo "Retention: **Permanent** (stored in git history)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Restore command" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "git fetch origin db-backups" >> $GITHUB_STEP_SUMMARY
+          echo "git show origin/db-backups:backups/lichtfeld-stats_${BACKUP_DATE}.sql > restore.sql" >> $GITHUB_STEP_SUMMARY
+          echo "wrangler d1 execute lichtfeld-stats --file=restore.sql" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY

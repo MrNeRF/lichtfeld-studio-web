@@ -1,23 +1,38 @@
 ---
+/**
+ * index.astro
+ *
+ * Homepage for LichtFeld Studio website.
+ * Features:
+ * - Interactive 3D Gaussian Splatting demo in the hero section
+ * - Feature overview grid
+ * - Support/donation section
+ * - Contributors wall
+ */
 import Layout from "@/layouts/Layout.astro";
+import { SITE } from "@/config/site.config";
 
 import viewerDemo from "@/assets/viewer_demo.gif";
 import Splat from "@/components/Splat.astro";
 import ContributorsWall from "@/components/contribute/ContributorsWall.astro";
 
 // Centralized external links (avoid magic strings):
-import { GITHUB_REPO_URL, DISCORD_URL, PAYPAL_URL, DONORBOX_URL, CRYPTO_WALLET_BITCOIN } from "@/constants/links";
+import { GITHUB_REPO_URL, GITHUB_RELEASES_URL, GITHUB_WIKI_URL, DISCORD_URL, PAYPAL_URL, DONORBOX_URL, CRYPTO_WALLET_BITCOIN } from "@/constants/project";
 
 const base = import.meta.env.BASE_URL;
+
+// SEO metadata for the homepage
+const seoTitle = SITE.name;
+const seoDescription = SITE.description;
 ---
 
-<Layout>
+<Layout title={seoTitle} description={seoDescription}>
   <!-- Big Splat Header (Hero) -->
   <header class="hero">
     <div class="hero__splat">
       <!-- The Splat canvas is the visual anchor in the header -->
       <div class="splat-wrapper">
-        <Splat scene="botanics" style="--preview-blur-px: 7px;" progressPosition="bottom-center" progressOffsetY={50} />
+        <Splat scene="botanics" style="--preview-blur-px: 7px;" progressPosition="bottom-center" progressOffsetY={50} controlScheme="none" />
       </div>
     </div>
 
@@ -31,18 +46,29 @@ const base = import.meta.env.BASE_URL;
             <h1 class="hero__title">LichtFeld Studio</h1>
 
             <div class="hero__actions">
-              <!-- Primary CTA: “Get Started” (currently links to GitHub; future tutorial page can replace URL) -->
+              <!-- Primary CTA: Download latest release -->
               <a
-                class="btn btn-primary btn-lg"
-                href={GITHUB_REPO_URL}
+                class="btn btn-lg hero__download-link"
+                href={GITHUB_RELEASES_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Open the LichtFeld Studio GitHub repository in a new tab"
+                aria-label="Download the latest LichtFeld Studio release"
               >
-                <i class="bi bi-github me-2" aria-hidden="true"></i>
+                <i class="bi bi-download me-2" aria-hidden="true"></i>
+                Download
+              </a>
+              <!-- Secondary CTA: Get Started (links to wiki for documentation/tutorials) -->
+              <a
+                class="btn btn-outline-light btn-lg hero__get-started-link"
+                href={GITHUB_WIKI_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Open the LichtFeld Studio wiki documentation"
+              >
+                <i class="bi bi-book me-2" aria-hidden="true"></i>
                 Get Started
               </a>
-              <!-- Secondary CTA: Join Discord (icon + kept white text for contrast on dark imagery) -->
+              <!-- Tertiary CTA: Join Discord (icon + kept white text for contrast on dark imagery) -->
               <a
                 class="btn btn-outline-light btn-lg hero__support-link"
                 href={DISCORD_URL}
@@ -51,7 +77,7 @@ const base = import.meta.env.BASE_URL;
                 aria-label="Open the Discord community in a new tab"
               >
                 <i class="bi bi-discord me-2" aria-hidden="true"></i>
-                Join us on Discord
+                Discord
               </a>
             </div>
           </div>
@@ -396,7 +422,8 @@ const base = import.meta.env.BASE_URL;
 <script>
   /**
    * Manages the visibility of the hero content based on the Splat viewer's state.
-   * - Fades out the hero content immediately when the viewer becomes active.
+   * - Fades out the hero content only when the user clicks/drags on the viewer.
+   * - Ignores scroll/wheel events to prevent accidental fade-out during page scroll.
    * - Fades it back in 10 seconds after the viewer becomes idle.
    * - Resets the fade-in timer if the user becomes active again.
    */
@@ -408,26 +435,75 @@ const base = import.meta.env.BASE_URL;
       return;
     }
 
+    // Find the splat wrapper to track click interactions.
+    const splatWrapper = document.querySelector(".splat-wrapper");
+
     // A timer ID for the delayed fade-in when the viewer goes idle.
     let fadeInTimerId: number | null = null;
 
+    // Track whether the user has explicitly clicked on the splat viewer.
+    // This prevents scroll/wheel events from triggering the fade-out.
+    let userClickedOnViewer = false;
+
+    // Listen for pointerdown on the splat wrapper to detect explicit clicks.
+    if (splatWrapper) {
+      splatWrapper.addEventListener("pointerdown", () => {
+        console.debug('[Hero] pointerdown on splat-wrapper - setting userClickedOnViewer=true');
+        userClickedOnViewer = true;
+      });
+    }
+
     // Listen for the custom event dispatched when the viewer becomes active (user interaction).
     document.addEventListener("splatviewer:active", () => {
+      console.debug('[Hero] splatviewer:active received, userClickedOnViewer=', userClickedOnViewer);
+
+      // Only fade out if the user explicitly clicked on the viewer.
+      // This prevents scroll/wheel events from hiding the hero content.
+      if (!userClickedOnViewer) {
+        console.debug('[Hero] userClickedOnViewer is false - NOT hiding hero');
+
+        return;
+      }
+
       // If a fade-in was scheduled, cancel it because the user is active again.
       if (fadeInTimerId) {
         clearTimeout(fadeInTimerId);
         fadeInTimerId = null;
       }
+
+      console.debug('[Hero] hiding hero content');
+
       // Apply the CSS class to fade out the hero content.
       heroContent.classList.add("is-viewer-active");
     });
 
+    // Timer for debouncing the userClickedOnViewer reset.
+    // This prevents race conditions where splatviewer:idle fires between
+    // pointerdown and click, resetting the flag too early.
+    let clickResetTimerId: number | null = null;
+
     // Listen for the custom event dispatched when the viewer goes idle.
     document.addEventListener("splatviewer:idle", () => {
+      console.debug('[Hero] splatviewer:idle received');
+
+      // Debounce the flag reset to allow click handlers to fire first.
+      // The issue: pointerdown triggers page activity → restartIdleAnimation
+      // → splatviewer:idle is dispatched BEFORE the click handler fires.
+      // By debouncing, we give the click handler time to check the flag.
+      if (clickResetTimerId) {
+        clearTimeout(clickResetTimerId);
+      }
+
+      clickResetTimerId = window.setTimeout(() => {
+        console.debug('[Hero] resetting userClickedOnViewer=false (debounced)');
+        userClickedOnViewer = false;
+        clickResetTimerId = null;
+      }, 50);
+
       // Schedule the hero content to fade back in after a 10-second delay.
       const FADE_IN_DELAY_MS = 10000;
 
-      console.debug(`Splat viewer went idle. Scheduling fade-in in ${FADE_IN_DELAY_MS}ms.`);
+      console.debug(`[Hero] Scheduling fade-in in ${FADE_IN_DELAY_MS}ms.`);
 
       fadeInTimerId = window.setTimeout(() => {
         heroContent.classList.remove("is-viewer-active");
@@ -645,6 +721,19 @@ const base = import.meta.env.BASE_URL;
     pointer-events: none;
   }
 
+  /* Download button with solid blue background (primary CTA) */
+  .hero__download-link {
+    border: 1px solid #0d6efd;
+    color: #fff;
+    background: #0d6efd;
+  }
+
+  .hero__download-link:hover {
+    border-color: #3d8bfd;
+    color: #fff;
+    background: #3d8bfd;
+  }
+
   /* Ensure the secondary CTA is visible over dark gradients */
   .hero__support-link {
     border-color: rgba(255, 255, 255, 0.6);
@@ -655,6 +744,19 @@ const base = import.meta.env.BASE_URL;
     border-color: #fff;
     color: #fff;
     background: rgba(255, 255, 255, 0.1);
+  }
+
+  /* Get Started button with semi-transparent green background */
+  .hero__get-started-link {
+    border-color: rgba(40, 167, 69, 0.8);
+    color: #fff;
+    background: rgba(40, 167, 69, 0.5);
+  }
+
+  .hero__get-started-link:hover {
+    border-color: rgba(40, 167, 69, 1);
+    color: #fff;
+    background: rgba(40, 167, 69, 0.65);
   }
 
   /* Consistent spacing for inline Bootstrap Icons in buttons/links */

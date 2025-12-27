@@ -1,0 +1,278 @@
+---
+/**
+ * Seo.astro
+ *
+ * Centralized SEO head component that renders all search engine optimization elements.
+ * This component should be placed in the <head> of every page.
+ *
+ * Features:
+ * - Primary meta tags (title, description, author, robots)
+ * - Canonical URL with proper base path handling
+ * - Open Graph meta tags for social sharing
+ * - Twitter Card meta tags
+ * - SoftwareApplication JSON-LD structured data
+ * - Organization JSON-LD structured data
+ *
+ * Usage:
+ *   <Seo
+ *     title="Page Title"
+ *     description="Page description for search results"
+ *     image="/path/to/social-image.jpg"
+ *   />
+ *
+ * References:
+ * - https://developers.google.com/search/docs/appearance/structured-data/software-app
+ * - https://ogp.me/
+ * - https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/markup
+ */
+
+import {
+  SITE,
+  SOCIAL_IMAGE,
+  SOFTWARE_APP,
+  ORGANIZATION,
+  type SeoProps,
+} from "@/config/site.config";
+import { getLatestRelease } from "@/services/github";
+
+// Get the base URL for proper asset path resolution in fork deployments
+const base = import.meta.env.BASE_URL;
+
+// ============================================================================
+// Release Data (fetched once and cached)
+// ============================================================================
+
+/**
+ * Fetch the latest release from GitHub to get the current version.
+ * This is cached at the module level, so multiple pages share the same data.
+ */
+const latestRelease = await getLatestRelease();
+
+// ============================================================================
+// Props Handling
+// ============================================================================
+
+/**
+ * Extract and validate props with sensible defaults.
+ */
+const props = Astro.props as SeoProps;
+
+const {
+  title,
+  description,
+  image,
+  canonicalURL = new URL(Astro.url.pathname, Astro.site),
+  ogType = "website",
+  publishedDate,
+  noindex = false,
+  nofollow = false,
+} = props;
+
+// ============================================================================
+// Computed Values
+// ============================================================================
+
+/**
+ * Construct the full page title with site name suffix.
+ * Format: "Page Title | LichtFeld Studio"
+ */
+const fullTitle = title === SITE.name ? title : `${title} | ${SITE.name}`;
+
+/**
+ * Resolve the social sharing image to an absolute URL.
+ * Falls back to the default social card if no image is provided.
+ * Uses the base path to ensure correct URLs in fork deployments.
+ */
+const imagePath = image ?? `${base}static/social-card.jpg`;
+const socialImageURL = new URL(imagePath, Astro.site).toString();
+
+/**
+ * Build the robots meta content based on noindex/nofollow flags.
+ */
+const robotsContent = [
+  noindex ? "noindex" : "index",
+  nofollow ? "nofollow" : "follow",
+].join(", ");
+
+// ============================================================================
+// JSON-LD Structured Data
+// ============================================================================
+
+/**
+ * WebSite schema for sitelinks search box and site identity.
+ * This helps Google understand the overall site structure.
+ *
+ * Reference: https://developers.google.com/search/docs/appearance/structured-data/sitelinks-searchbox
+ */
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": `${SITE.url}/#website`,
+  name: SITE.name,
+  url: SITE.url,
+  description: SITE.description,
+  publisher: {
+    "@id": `${SITE.url}/#organization`,
+  },
+};
+
+/**
+ * Organization schema to establish brand identity.
+ * Links the project to its maintainer/author for entity verification.
+ *
+ * Reference: https://developers.google.com/search/docs/appearance/structured-data/organization
+ */
+/**
+ * Construct the logo URL with proper base path handling.
+ * The logoPath in config is relative (e.g., "static/favicon.svg"),
+ * and we prepend the base URL for fork deployments.
+ */
+const logoURL = new URL(`${base}static/favicon.svg`, Astro.site).toString();
+
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "@id": `${SITE.url}/#organization`,
+  name: ORGANIZATION.name,
+  url: ORGANIZATION.url,
+  logo: {
+    "@type": "ImageObject",
+    "@id": `${SITE.url}/#logo`,
+    url: logoURL,
+    contentUrl: logoURL,
+    caption: `${SITE.name} logo`,
+  },
+  sameAs: ORGANIZATION.sameAs,
+};
+
+/**
+ * SoftwareApplication schema for rich results in Google Search.
+ * This enables enhanced search result display with app details.
+ *
+ * The softwareVersion is dynamically fetched from the latest GitHub release.
+ * If no release exists, falls back to the static version in config.
+ *
+ * Reference: https://developers.google.com/search/docs/appearance/structured-data/software-app
+ */
+const softwareAppSchema = {
+  "@context": "https://schema.org",
+  "@type": SOFTWARE_APP.type,
+  name: SOFTWARE_APP.name,
+  applicationCategory: SOFTWARE_APP.applicationCategory,
+  operatingSystem: SOFTWARE_APP.operatingSystem.join(", "),
+  // Use dynamic version from GitHub release, fallback to static config
+  softwareVersion: latestRelease?.version ?? SOFTWARE_APP.softwareVersion,
+  offers: {
+    "@type": "Offer",
+    price: SOFTWARE_APP.offers.price,
+    priceCurrency: SOFTWARE_APP.offers.priceCurrency,
+  },
+  // Use release URL if available, otherwise fallback to repo URL
+  downloadUrl: latestRelease?.htmlUrl ?? SOFTWARE_APP.downloadUrl,
+  screenshot: new URL(`${base}static/lfstudio-screen.jpg`, Astro.site).toString(),
+  featureList: SOFTWARE_APP.featureList,
+  memoryRequirements: SOFTWARE_APP.memoryRequirements,
+  processorRequirements: SOFTWARE_APP.processorRequirements,
+  license: SOFTWARE_APP.license,
+  author: {
+    "@id": `${SITE.url}/#organization`,
+  },
+  publisher: {
+    "@id": `${SITE.url}/#organization`,
+  },
+};
+
+/**
+ * WebPage schema for the current page.
+ * Provides page-specific structured data.
+ */
+const webPageSchema = {
+  "@context": "https://schema.org",
+  "@type": ogType === "article" ? "Article" : "WebPage",
+  "@id": canonicalURL.toString(),
+  name: title,
+  description: description,
+  url: canonicalURL.toString(),
+  image: socialImageURL,
+  isPartOf: {
+    "@id": `${SITE.url}/#website`,
+  },
+  ...(ogType === "article" && publishedDate
+    ? {
+        datePublished: publishedDate.toISOString(),
+        dateModified: publishedDate.toISOString(),
+        author: {
+          "@id": `${SITE.url}/#organization`,
+        },
+      }
+    : {}),
+};
+---
+
+<!-- ========================================================================
+     Primary Meta Tags
+     ======================================================================== -->
+<title>{fullTitle}</title>
+<meta name="title" content={fullTitle} />
+<meta name="description" content={description} />
+<meta name="author" content={SITE.author} />
+<meta name="robots" content={robotsContent} />
+<meta name="generator" content={Astro.generator} />
+
+<!-- Canonical URL -->
+<link rel="canonical" href={canonicalURL.toString()} />
+
+<!-- ========================================================================
+     Open Graph Meta Tags (Facebook, LinkedIn, etc.)
+     Reference: https://ogp.me/
+     ======================================================================== -->
+<meta property="og:type" content={ogType} />
+<meta property="og:url" content={canonicalURL.toString()} />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:image" content={socialImageURL} />
+<meta property="og:image:width" content={String(SOCIAL_IMAGE.width)} />
+<meta property="og:image:height" content={String(SOCIAL_IMAGE.height)} />
+<meta property="og:image:alt" content={SOCIAL_IMAGE.alt} />
+<meta property="og:site_name" content={SITE.name} />
+<meta property="og:locale" content={SITE.locale} />
+
+<!-- ========================================================================
+     Twitter Card Meta Tags
+     Reference: https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/markup
+     ======================================================================== -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:site" content={`@${SITE.twitterHandle}`} />
+<meta name="twitter:creator" content={`@${SITE.twitterHandle}`} />
+<meta name="twitter:title" content={fullTitle} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={socialImageURL} />
+<meta name="twitter:image:alt" content={SOCIAL_IMAGE.alt} />
+
+<!-- ========================================================================
+     JSON-LD Structured Data
+     Reference: https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data
+     ======================================================================== -->
+
+<!-- WebSite Schema -->
+<script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
+
+<!-- Organization Schema -->
+<script
+  type="application/ld+json"
+  set:html={JSON.stringify(organizationSchema)}
+/>
+
+<!-- SoftwareApplication Schema (only on homepage) -->
+{
+  Astro.url.pathname === "/" ||
+  Astro.url.pathname === import.meta.env.BASE_URL ? (
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify(softwareAppSchema)}
+    />
+  ) : null
+}
+
+<!-- WebPage/Article Schema -->
+<script type="application/ld+json" set:html={JSON.stringify(webPageSchema)} />

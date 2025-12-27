@@ -1,0 +1,552 @@
+---
+/**
+ * statistics.astro
+ *
+ * Download statistics dashboard for LichtFeld Studio.
+ * Showcases download metrics, growth trends, and release breakdowns
+ * to demonstrate project traction for investors and users.
+ *
+ * Features:
+ * - Key metric cards (total downloads, this month, latest release)
+ * - Stacked area chart showing downloads by version
+ * - Line chart showing cumulative growth
+ * - Release breakdown table
+ * - Contributors wall
+ */
+import Layout from "@/layouts/Layout.astro";
+import { SITE } from "@/config/site.config";
+
+// Stats components
+import StatCard from "@/components/stats/StatCard.astro";
+import TimeRangeSelector from "@/components/stats/TimeRangeSelector.astro";
+import StackedAreaChart from "@/components/stats/StackedAreaChart.astro";
+import ReleaseTable from "@/components/stats/ReleaseTable.astro";
+
+// Reuse contributors wall from homepage
+import ContributorsWall from "@/components/contribute/ContributorsWall.astro";
+
+// SEO metadata
+const seoTitle = `Download Statistics | ${SITE.name}`;
+const seoDescription = "Real-time download statistics and growth metrics for LichtFeld Studio. Track releases, monitor adoption, and see our growing community.";
+---
+
+<Layout title={seoTitle} description={seoDescription}>
+    <!-- Hero Section with Key Metrics -->
+    <section class="stats-hero">
+        <div class="container px-4 py-5">
+            <div class="stats-hero__header">
+                <h1 class="stats-hero__title">Download Statistics</h1>
+                <p class="stats-hero__subtitle">
+                    Real-time metrics showing LichtFeld Studio adoption and growth
+                </p>
+            </div>
+
+            <!-- Key Metric Cards -->
+            <div class="stats-cards">
+                <StatCard
+                    label="Total Downloads"
+                    icon="bi-download"
+                    loading={true}
+                />
+                <StatCard
+                    label="This Month"
+                    icon="bi-calendar-month"
+                    loading={true}
+                />
+                <StatCard
+                    label="Latest Release"
+                    icon="bi-tag"
+                    loading={true}
+                />
+                <StatCard
+                    label="Active Releases"
+                    icon="bi-collection"
+                    loading={true}
+                />
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Chart Section -->
+    <section class="container px-4 py-4">
+        <div class="stats-section">
+            <div class="stats-section__header">
+                <h2 class="stats-section__title">Downloads by Version</h2>
+                <TimeRangeSelector selected="monthly" id="main-chart-range" />
+            </div>
+
+            <StackedAreaChart
+                id="downloads-chart"
+                height={450}
+            />
+        </div>
+    </section>
+
+    <!-- Secondary Charts and Table -->
+    <section class="container px-4 py-4">
+        <div class="stats-grid">
+            <!-- Growth Trend Chart -->
+            <div class="stats-grid__item stats-grid__item--chart">
+                <StackedAreaChart
+                    id="cumulative-chart"
+                    height={350}
+                    title="Cumulative Downloads"
+                />
+            </div>
+
+            <!-- Release Breakdown Table -->
+            <div class="stats-grid__item stats-grid__item--table">
+                <ReleaseTable title="Release Breakdown" />
+            </div>
+        </div>
+    </section>
+
+    <!-- Data Attribution -->
+    <section class="container px-4 py-3">
+        <p class="stats-attribution">
+            <i class="bi bi-info-circle"></i>
+            Statistics are updated daily and reflect download counts from GitHub releases.
+            Data shown is as of <span id="stats-as-of">loading...</span>
+        </p>
+    </section>
+
+    <!-- Contributors Section -->
+    <ContributorsWall title="Our Growing Community" />
+</Layout>
+
+<script>
+    /**
+     * Client-side data fetching and chart initialization.
+     * Fetches stats from the API and dispatches events to components.
+     */
+
+    /**
+     * API response types.
+     */
+    interface StatsResponse {
+        asOf: string;
+        totals: {
+            allTime: number;
+        };
+        releases: Array<{
+            tag: string;
+            name: string;
+            downloads: number;
+            daily: Array<{ date: number; downloads: number }>;
+            weekly: Array<{ week: number; downloads: number }>;
+            monthly: Array<{ month: number; downloads: number }>;
+        }>;
+    }
+
+    /**
+     * Chart data point structure.
+     */
+    interface ChartDataPoint {
+        x: number;
+        y: number;
+    }
+
+    /**
+     * Chart series structure.
+     */
+    interface ChartSeries {
+        name: string;
+        data: ChartDataPoint[];
+    }
+
+    /**
+     * Current time range selection.
+     */
+    type TimeRange = "daily" | "weekly" | "monthly";
+
+    let currentRange: TimeRange = "monthly";
+    let statsData: StatsResponse | null = null;
+
+    /**
+     * Formats a number with locale-aware separators.
+     */
+    function formatNumber(num: number): string {
+        return new Intl.NumberFormat().format(num);
+    }
+
+    /**
+     * Updates a StatCard with a new value.
+     */
+    function updateStatCard(index: number, value: number): void {
+        const cards = document.querySelectorAll(".stat-card");
+        const card = cards[index];
+
+        if (!card) return;
+
+        // Remove loading state
+        card.classList.remove("stat-card--loading");
+
+        // Update value
+        const valueEl = card.querySelector(".stat-card__value");
+
+        if (valueEl) {
+            valueEl.innerHTML = formatNumber(value);
+        }
+    }
+
+    /**
+     * Parses a version string (e.g., "v1.2.3") into comparable numeric parts.
+     */
+    function parseVersion(tag: string): number[] {
+        // Remove 'v' prefix and split by dots
+        const match = tag.match(/v?(\d+)\.(\d+)\.(\d+)/);
+
+        if (!match) return [0, 0, 0];
+
+        return [parseInt(match[1]), parseInt(match[2]), parseInt(match[3])];
+    }
+
+    /**
+     * Compares two version arrays. Returns negative if a < b, positive if a > b, 0 if equal.
+     */
+    function compareVersions(a: number[], b: number[]): number {
+        for (let i = 0; i < 3; i++) {
+            if (a[i] !== b[i]) {
+                return a[i] - b[i];
+            }
+        }
+
+        return 0;
+    }
+
+    /**
+     * Transforms release data into chart series format.
+     * Sorts releases so older versions are at the bottom of the stack
+     * and newer versions are at the top (latest on top).
+     */
+    function transformToChartSeries(releases: StatsResponse["releases"], range: TimeRange): ChartSeries[] {
+        // Sort releases by version: older first (bottom of stack), newer last (top of stack)
+        const sortedReleases = [...releases].sort((a, b) => {
+            const versionA = parseVersion(a.tag);
+            const versionB = parseVersion(b.tag);
+
+            return compareVersions(versionA, versionB);
+        });
+
+        return sortedReleases.map((release) => {
+            let data: ChartDataPoint[];
+
+            if (range === "daily") {
+                data = release.daily.map((d) => ({ x: d.date, y: d.downloads }));
+            } else if (range === "weekly") {
+                data = release.weekly.map((d) => ({ x: d.week, y: d.downloads }));
+            } else {
+                data = release.monthly.map((d) => ({ x: d.month, y: d.downloads }));
+            }
+
+            return {
+                name: release.tag,
+                data,
+            };
+        });
+    }
+
+    /**
+     * Transforms release data into cumulative growth series.
+     * Shows how total downloads have grown over time (monotonically increasing).
+     * Sorts releases so older versions are at the bottom and newer versions are on top.
+     */
+    function transformToCumulativeSeries(releases: StatsResponse["releases"], range: TimeRange): ChartSeries[] {
+        // Sort releases by version: older first (bottom of stack), newer last (top of stack)
+        const sortedReleases = [...releases].sort((a, b) => {
+            const versionA = parseVersion(a.tag);
+            const versionB = parseVersion(b.tag);
+
+            return compareVersions(versionA, versionB);
+        });
+
+        // For each release, create a cumulative series (limit to top 5)
+        return sortedReleases.slice(0, 5).map((release) => {
+            const data: ChartDataPoint[] = [];
+
+            // Get the time series data for this release
+            let timeSeriesData: Array<{ ts: number; downloads: number }>;
+
+            if (range === "daily") {
+                timeSeriesData = release.daily.map((d) => ({ ts: d.date, downloads: d.downloads }));
+            } else if (range === "weekly") {
+                timeSeriesData = release.weekly.map((d) => ({ ts: d.week, downloads: d.downloads }));
+            } else {
+                timeSeriesData = release.monthly.map((d) => ({ ts: d.month, downloads: d.downloads }));
+            }
+
+            // Sort by timestamp
+            timeSeriesData.sort((a, b) => a.ts - b.ts);
+
+            // Calculate cumulative sum
+            let cumulativeTotal = 0;
+
+            timeSeriesData.forEach((point) => {
+                cumulativeTotal += point.downloads;
+                data.push({ x: point.ts, y: cumulativeTotal });
+            });
+
+            return {
+                name: release.tag,
+                data,
+            };
+        });
+    }
+
+    /**
+     * Updates all charts with data for the specified range.
+     */
+    function updateCharts(range: TimeRange): void {
+        if (!statsData) return;
+
+        // Update downloads by version stacked area chart
+        const downloadsChart = document.querySelector("[data-chart-id='downloads-chart']");
+
+        if (downloadsChart) {
+            const series = transformToChartSeries(statsData.releases, range);
+            const event = new CustomEvent("chartdata", {
+                detail: { series, granularity: range },
+            });
+
+            downloadsChart.dispatchEvent(event);
+        }
+
+        // Update cumulative downloads stacked area chart
+        const cumulativeChart = document.querySelector("[data-chart-id='cumulative-chart']");
+
+        if (cumulativeChart) {
+            const series = transformToCumulativeSeries(statsData.releases, range);
+            const event = new CustomEvent("chartdata", {
+                detail: { series, granularity: range },
+            });
+
+            cumulativeChart.dispatchEvent(event);
+        }
+    }
+
+    /**
+     * Updates the release table with data.
+     */
+    function updateReleaseTable(): void {
+        if (!statsData) return;
+
+        const table = document.querySelector(".release-table");
+
+        if (table) {
+            const event = new CustomEvent("tabledata", {
+                detail: {
+                    releases: statsData.releases,
+                    totalDownloads: statsData.totals.allTime,
+                },
+            });
+
+            table.dispatchEvent(event);
+        }
+    }
+
+    /**
+     * Gets total downloads for the current month.
+     */
+    function getThisMonthDownloads(releases: StatsResponse["releases"]): number {
+        let total = 0;
+
+        releases.forEach((release) => {
+            if (release.monthly.length >= 1) {
+                total += release.monthly[release.monthly.length - 1]?.downloads ?? 0;
+            }
+        });
+
+        return total;
+    }
+
+    /**
+     * Fetches stats data and initializes the dashboard.
+     */
+    async function initDashboard(): Promise<void> {
+        try {
+            // Fetch stats from API
+            const response = await fetch("/api/stats");
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            statsData = await response.json() as StatsResponse;
+
+            // Update stat cards
+            updateStatCard(0, statsData.totals.allTime);
+            updateStatCard(1, getThisMonthDownloads(statsData.releases));
+
+            // Latest release downloads
+            if (statsData.releases.length > 0) {
+                updateStatCard(2, statsData.releases[0].downloads);
+            }
+
+            // Active releases count
+            updateStatCard(3, statsData.releases.length);
+
+            // Update "as of" date
+            const asOfEl = document.getElementById("stats-as-of");
+
+            if (asOfEl) {
+                asOfEl.textContent = new Date(statsData.asOf).toLocaleDateString(undefined, {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                });
+            }
+
+            // Initialize charts with default range
+            updateCharts(currentRange);
+
+            // Update release table
+            updateReleaseTable();
+        } catch (error) {
+            console.error("Failed to fetch stats:", error);
+
+            // Show error state
+            const cards = document.querySelectorAll(".stat-card");
+
+            cards.forEach((card) => {
+                card.classList.remove("stat-card--loading");
+
+                const valueEl = card.querySelector(".stat-card__value");
+
+                if (valueEl) {
+                    valueEl.textContent = "—";
+                }
+            });
+        }
+    }
+
+    /**
+     * Handles range change events from the TimeRangeSelector.
+     */
+    function handleRangeChange(event: CustomEvent): void {
+        const { range } = event.detail;
+
+        currentRange = range as TimeRange;
+        updateCharts(currentRange);
+    }
+
+    // Initialize on DOM ready
+    document.addEventListener("DOMContentLoaded", () => {
+        initDashboard();
+
+        // Listen for range changes
+        document.addEventListener("rangechange", handleRangeChange as EventListener);
+    });
+</script>
+
+<style>
+    /**
+     * Statistics Page Styles
+     */
+
+    /* Hero Section */
+    .stats-hero {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .stats-hero__header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .stats-hero__title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--color-text);
+        margin-bottom: 0.5rem;
+    }
+
+    .stats-hero__subtitle {
+        font-size: 1.125rem;
+        color: #6c757d;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    /* Stat Cards Grid */
+    .stats-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.5rem;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    /* Section Headers */
+    .stats-section {
+        margin-bottom: 2rem;
+    }
+
+    .stats-section__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stats-section__title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--color-text);
+        margin: 0;
+    }
+
+    /* Two-column Grid for Charts and Table */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+
+    .stats-grid__item--chart,
+    .stats-grid__item--table {
+        min-width: 0; /* Prevent grid blowout */
+    }
+
+    /* Attribution */
+    .stats-attribution {
+        font-size: 0.875rem;
+        color: #6c757d;
+        text-align: center;
+        margin: 0;
+    }
+
+    .stats-attribution .bi {
+        margin-right: 0.25rem;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 991px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 767px) {
+        .stats-hero__title {
+            font-size: 2rem;
+        }
+
+        .stats-section__header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .stats-cards {
+            grid-template-columns: 1fr;
+        }
+
+        .stats-hero__title {
+            font-size: 1.75rem;
+        }
+    }
+</style>

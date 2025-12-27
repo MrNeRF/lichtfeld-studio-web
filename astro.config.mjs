@@ -1,8 +1,16 @@
 // @ts-check
 import { defineConfig } from "astro/config";
+import sitemap from "@astrojs/sitemap";
 
 // https://astro.build/config
 export default defineConfig({
+  // Astro integrations for enhanced functionality
+  integrations: [
+    // Sitemap generation for SEO
+    // Reference: https://docs.astro.build/en/guides/integrations-guide/sitemap/
+    sitemap(),
+  ],
+
   // Derive site/base automatically when building on GitHub Actions so forks
   // publish at https://<owner>.github.io/<repo>/ without changing the code.
   // Fallback to the original repo when building locally.

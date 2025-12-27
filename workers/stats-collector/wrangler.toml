@@ -1,0 +1,57 @@
+# =============================================================================
+# LichtFeld Stats Collector Worker
+# =============================================================================
+#
+# This Worker runs on a daily schedule to collect download statistics
+# from the GitHub API and store them in the D1 database.
+#
+# Deployment:
+#   cd workers/stats-collector
+#   npx wrangler deploy
+#
+# Local Testing:
+#   npx wrangler dev --test-scheduled
+#   curl "http://localhost:8787/__scheduled?cron=0+2+*+*+*"
+#
+# =============================================================================
+
+name = "lichtfeld-stats-collector"
+main = "src/index.ts"
+compatibility_date = "2024-12-01"
+
+# -----------------------------------------------------------------------------
+# D1 Database Binding
+# -----------------------------------------------------------------------------
+# The same database used by the Pages Functions API.
+# Create with: npx wrangler d1 create lichtfeld-stats
+# Then update the database_id below.
+
+[[d1_databases]]
+binding = "STATS_DB"
+database_name = "lichtfeld-stats"
+database_id = "8e58f2af-6fff-4e6d-89b4-8aa02f719c01"
+
+# -----------------------------------------------------------------------------
+# Cron Triggers
+# -----------------------------------------------------------------------------
+# Runs daily at 02:00 UTC to capture the previous day's download data.
+# GitHub's traffic data updates hourly, so 2 AM gives us complete previous day stats.
+
+[triggers]
+crons = ["0 2 * * *"]
+
+# -----------------------------------------------------------------------------
+# Environment Variables
+# -----------------------------------------------------------------------------
+# Non-sensitive configuration values.
+# For GITHUB_TOKEN, use: npx wrangler secret put GITHUB_TOKEN
+
+# Production config: set these via wrangler secret or dashboard
+# [vars]
+# GITHUB_OWNER = "MrNeRF"
+# GITHUB_REPO = "LichtFeld-Studio"
+
+# Local testing: use cli/cli which has releases (comment out for production)
+[vars]
+GITHUB_OWNER = "cli"
+GITHUB_REPO = "cli"

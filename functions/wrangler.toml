@@ -1,0 +1,21 @@
+# =============================================================================
+# LichtFeld Stats API - Pages Functions Configuration
+# =============================================================================
+#
+# This configuration is used for local development and testing of the
+# /api/stats Pages Function.
+#
+# =============================================================================
+
+name = "lichtfeld-stats-api"
+compatibility_date = "2024-12-01"
+
+# -----------------------------------------------------------------------------
+# D1 Database Binding
+# -----------------------------------------------------------------------------
+# Shared with the stats-collector worker.
+
+[[d1_databases]]
+binding = "STATS_DB"
+database_name = "lichtfeld-stats"
+database_id = "8e58f2af-6fff-4e6d-89b4-8aa02f719c01"

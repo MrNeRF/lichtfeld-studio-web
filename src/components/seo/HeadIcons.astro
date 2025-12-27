@@ -1,0 +1,75 @@
+---
+/**
+ * HeadIcons.astro
+ *
+ * Favicon, Apple Touch Icon, and PWA-related meta tags.
+ * This component centralizes all icon-related head elements to avoid repetition.
+ *
+ * Features:
+ * - SVG favicon (scales to any size)
+ * - Apple Touch Icon for iOS home screen
+ * - Web App Manifest link for PWA support
+ * - Theme color for browser chrome
+ * - Mobile web app capability meta tags
+ *
+ * Usage:
+ *   Place in the <head> section of your layout:
+ *   <HeadIcons />
+ *
+ * Note:
+ *   The base URL is automatically handled via import.meta.env.BASE_URL
+ *   to ensure icons work correctly in both development and production.
+ */
+
+import { SITE } from "@/config/site.config";
+
+// Get the base URL for proper asset path resolution
+const base = import.meta.env.BASE_URL;
+---
+
+<!-- ========================================================================
+     Favicon
+     Using SVG for infinite scalability and modern browser support.
+     ======================================================================== -->
+<link rel="icon" type="image/svg+xml" href={`${base}static/favicon.svg`} />
+
+<!-- Fallback for older browsers that don't support SVG favicons -->
+<link rel="alternate icon" type="image/png" href={`${base}static/favicon.png`} />
+
+<!-- ========================================================================
+     Apple Touch Icon
+     Used when users add the site to their iOS home screen.
+     Recommended size: 180x180 for modern iOS devices.
+     ======================================================================== -->
+<link rel="apple-touch-icon" sizes="180x180" href={`${base}static/favicon.svg`} />
+
+<!-- ========================================================================
+     Web App Manifest
+     Enables PWA features and provides app metadata for installation.
+     ======================================================================== -->
+<link rel="manifest" href={`${base}site.webmanifest`} />
+
+<!-- ========================================================================
+     Theme & Mobile Web App Meta Tags
+     ======================================================================== -->
+
+<!-- Theme color for browser UI (address bar, etc.) -->
+<meta name="theme-color" content={SITE.themeColor} />
+
+<!-- Microsoft Tile Color for Windows -->
+<meta name="msapplication-TileColor" content={SITE.themeColor} />
+
+<!-- Enable standalone web app on Android -->
+<meta name="mobile-web-app-capable" content="yes" />
+
+<!-- Enable standalone web app on iOS -->
+<meta name="apple-mobile-web-app-capable" content="yes" />
+
+<!-- iOS status bar style (default shows black text on white background) -->
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
+<!-- App title shown on iOS home screen -->
+<meta name="apple-mobile-web-app-title" content={SITE.shortName} />
+
+<!-- Application name for Windows -->
+<meta name="application-name" content={SITE.shortName} />

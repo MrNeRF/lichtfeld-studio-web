@@ -1,0 +1,311 @@
+---
+/**
+ * LineChart.astro
+ *
+ * A line chart component using ApexCharts for visualizing cumulative download
+ * trends. Ideal for showing growth over time.
+ *
+ * Props:
+ *   - id: Unique identifier for the chart container
+ *   - height: Chart height in pixels (default: 300)
+ *   - title: Optional chart title
+ */
+
+interface Props {
+    id?: string;
+    height?: number;
+    title?: string;
+}
+
+const { id = "line-chart", height = 300, title } = Astro.props;
+---
+
+<div class="line-chart" data-chart-id={id}>
+    {title && <h3 class="line-chart__title">{title}</h3>}
+
+    <div class="line-chart__container" id={id} style={`height: ${height}px;`}>
+        <div class="line-chart__loading">
+            <div class="line-chart__spinner"></div>
+            <span>Loading chart data...</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    /**
+     * Client-side chart initialization using ApexCharts.
+     */
+    import ApexCharts from "apexcharts";
+
+    /**
+     * Color palette for chart series.
+     * Colors are assigned in reverse order so the newest version gets primary blue.
+     */
+    const CHART_COLORS = [
+        "#0dcaf0", // Cyan (oldest version)
+        "#20c997", // Teal
+        "#198754", // Green
+        "#ffc107", // Yellow
+        "#fd7e14", // Orange
+        "#dc3545", // Red
+        "#d63384", // Pink
+        "#6f42c1", // Indigo
+        "#6610f2", // Purple
+        "#0d6efd", // Primary blue (newest version)
+    ];
+
+    /**
+     * Data structure for chart series.
+     */
+    interface ChartDataPoint {
+        x: number;
+        y: number;
+    }
+
+    interface ChartSeries {
+        name: string;
+        data: ChartDataPoint[];
+    }
+
+    /**
+     * Formats a timestamp based on the granularity.
+     */
+    function formatTimestamp(timestamp: number, granularity: "daily" | "weekly" | "monthly"): string {
+        const date = new Date(timestamp);
+
+        if (granularity === "daily") {
+            return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+        } else if (granularity === "weekly") {
+            return `Week of ${date.toLocaleDateString(undefined, { month: "short", day: "numeric" })}`;
+        } else {
+            return date.toLocaleDateString(undefined, { month: "short", year: "2-digit" });
+        }
+    }
+
+    /**
+     * Creates ApexCharts options for the line chart.
+     */
+    function createChartOptions(
+        series: ChartSeries[],
+        granularity: "daily" | "weekly" | "monthly"
+    ): ApexCharts.ApexOptions {
+        return {
+            chart: {
+                type: "line",
+                height: "100%",
+                fontFamily: "inherit",
+                toolbar: {
+                    show: true,
+                    tools: {
+                        download: true,
+                        selection: false,
+                        zoom: true,
+                        zoomin: true,
+                        zoomout: true,
+                        pan: true,
+                        reset: true,
+                    },
+                },
+                animations: {
+                    enabled: true,
+                    easing: "easeinout",
+                    speed: 400,
+                },
+                zoom: {
+                    enabled: true,
+                    type: "x",
+                },
+            },
+            // Take colors from the end of the palette so newest version gets primary blue
+            colors: CHART_COLORS.slice(-series.length),
+            dataLabels: {
+                enabled: false,
+            },
+            stroke: {
+                curve: "smooth",
+                width: 3,
+            },
+            markers: {
+                size: 0,
+                hover: {
+                    size: 6,
+                },
+            },
+            series: series,
+            xaxis: {
+                type: "datetime",
+                labels: {
+                    formatter: (value: string) => {
+                        return formatTimestamp(parseInt(value), granularity);
+                    },
+                    style: {
+                        colors: "#6c757d",
+                        fontSize: "11px",
+                    },
+                },
+                axisBorder: {
+                    show: false,
+                },
+                axisTicks: {
+                    show: false,
+                },
+            },
+            yaxis: {
+                labels: {
+                    formatter: (value: number) => {
+                        return new Intl.NumberFormat().format(Math.round(value));
+                    },
+                    style: {
+                        colors: "#6c757d",
+                        fontSize: "11px",
+                    },
+                },
+            },
+            legend: {
+                position: "top",
+                horizontalAlign: "left",
+                markers: {
+                    size: 8,
+                    strokeWidth: 0,
+                    offsetX: -4,
+                },
+                itemMargin: {
+                    horizontal: 12,
+                    vertical: 4,
+                },
+            },
+            tooltip: {
+                shared: true,
+                intersect: false,
+                x: {
+                    formatter: (value: number) => {
+                        return formatTimestamp(value, granularity);
+                    },
+                },
+                y: {
+                    formatter: (value: number) => {
+                        return new Intl.NumberFormat().format(value) + " downloads";
+                    },
+                },
+            },
+            grid: {
+                borderColor: "#e9ecef",
+                strokeDashArray: 4,
+                xaxis: {
+                    lines: {
+                        show: false,
+                    },
+                },
+            },
+            responsive: [
+                {
+                    breakpoint: 576,
+                    options: {
+                        legend: {
+                            position: "bottom",
+                            horizontalAlign: "center",
+                        },
+                    },
+                },
+            ],
+        };
+    }
+
+    /**
+     * Initializes all line charts on the page.
+     */
+    document.addEventListener("DOMContentLoaded", () => {
+        const chartContainers = document.querySelectorAll(".line-chart");
+        const charts = new Map<string, ApexCharts>();
+
+        chartContainers.forEach((container) => {
+            const chartElement = container.querySelector(".line-chart__container");
+            const chartId = (chartElement as HTMLElement)?.id;
+
+            if (!chartElement || !chartId) return;
+
+            // Listen for data updates
+            container.addEventListener("chartdata", ((event: CustomEvent) => {
+                const { series, granularity } = event.detail;
+
+                // Remove loading state
+                const loading = container.querySelector(".line-chart__loading");
+
+                if (loading) {
+                    loading.remove();
+                }
+
+                // Destroy existing chart if present
+                if (charts.has(chartId)) {
+                    charts.get(chartId)?.destroy();
+                }
+
+                // Create new chart
+                const options = createChartOptions(series, granularity);
+                const chart = new ApexCharts(chartElement, options);
+
+                chart.render();
+                charts.set(chartId, chart);
+            }) as EventListener);
+        });
+    });
+</script>
+
+<style>
+    /**
+     * Line Chart Styles
+     */
+    .line-chart {
+        width: 100%;
+    }
+
+    .line-chart__title {
+        margin-bottom: 1rem;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--color-text);
+    }
+
+    .line-chart__container {
+        width: 100%;
+        background-color: #fff;
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        padding: 1rem;
+    }
+
+    .line-chart__loading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        gap: 1rem;
+        color: #6c757d;
+    }
+
+    .line-chart__spinner {
+        width: 2rem;
+        height: 2rem;
+        border: 3px solid var(--border-color);
+        border-top-color: var(--color-primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* ApexCharts overrides */
+    .line-chart :global(.apexcharts-toolbar) {
+        z-index: 10;
+    }
+
+    .line-chart :global(.apexcharts-menu) {
+        border: 1px solid var(--border-color);
+        box-shadow: var(--dropdown-shadow);
+    }
+</style>

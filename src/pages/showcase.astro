@@ -1,0 +1,866 @@
+---
+/**
+ * Showcase page for 3D Gaussian Splat demos.
+ *
+ * YouTube-style layout with:
+ * - 16:9 constrained viewer with control bar overlay
+ * - Title section below viewer
+ * - Description box with share button
+ * - Scene gallery grid (replacing comments area)
+ *
+ * @module pages/showcase
+ */
+import Layout from '@/layouts/Layout.astro';
+import Splat from '@/components/Splat.astro';
+import SceneCard from '@/components/showcase/SceneCard.astro';
+import { SHOWCASE_SCENES, DEFAULT_SCENE_ID } from '@/constants/scenes';
+import type { ControlScheme, IdleAnimationType } from '@/constants/scenes';
+
+// Base path for asset URLs
+const base = import.meta.env.BASE_URL;
+
+// SEO metadata
+const seoTitle = 'Showcase | LichtFeld Studio';
+const seoDescription =
+  'Explore interactive 3D Gaussian Splatting demos. View high-fidelity neural radiance field renders directly in your browser.';
+
+// Get the default scene for initial display
+const defaultScene = SHOWCASE_SCENES.find((s) => s.id === DEFAULT_SCENE_ID) ?? SHOWCASE_SCENES[0];
+const defaultControlScheme = defaultScene?.controlScheme ?? 'both';
+const defaultIdleAnimation = defaultScene?.idleAnimation ?? 'none';
+
+// Build a JSON map of scene data for client-side use
+const sceneDataMap = Object.fromEntries(
+  SHOWCASE_SCENES.map((s) => [
+    s.id,
+    {
+      folder: s.folderName,
+      controlScheme: s.controlScheme ?? 'both',
+      idleAnimation: s.idleAnimation ?? 'none',
+      name: s.name,
+      description: s.description,
+      attribution: s.attribution,
+    },
+  ])
+);
+
+/**
+ * Generate control hints text based on control scheme.
+ */
+function getControlHints(scheme: ControlScheme): string {
+  switch (scheme) {
+    case 'orbit':
+      return 'Left-drag: Orbit • Scroll: Zoom';
+    case 'fly':
+      return 'WASD: Move • Right-drag: Look';
+    case 'both':
+    default:
+      return 'Left-drag: Orbit • WASD: Move • Scroll: Zoom';
+  }
+}
+
+const defaultControlHints = getControlHints(defaultControlScheme);
+---
+
+<Layout title={seoTitle} description={seoDescription}>
+  <div class="showcase-page">
+    <!-- ====================================================================
+         Viewer Section with Control Bar Overlay
+         ==================================================================== -->
+    <section class="showcase-player">
+      <div class="showcase-player__container" id="player-container">
+        <!-- The Splat viewer component -->
+        <Splat
+          scene={defaultScene.folderName}
+          controlScheme={defaultControlScheme}
+          progressPosition="center"
+          enablePoseCycling={false}
+          idleAnimation={defaultIdleAnimation}
+        />
+
+        <!-- Control bar overlay (bottom of viewer) -->
+        <div class="showcase-player__bar">
+          <!-- Inline hints - tablet/desktop only -->
+          <div class="showcase-player__hints" id="control-hints">
+            {defaultControlHints}
+          </div>
+
+          <!-- Buttons - right side -->
+          <div class="showcase-player__buttons">
+            <!-- Help button - mobile only -->
+            <button
+              type="button"
+              class="showcase-player__btn showcase-player__btn--help"
+              id="help-toggle"
+              aria-label="Show camera controls"
+              aria-expanded="false"
+              aria-controls="help-panel"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+            </button>
+
+            <!-- Fullscreen button - always visible -->
+            <button
+              type="button"
+              class="showcase-player__btn"
+              id="fullscreen-toggle"
+              aria-label="Toggle fullscreen"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="fullscreen-icon">
+                <polyline points="15 3 21 3 21 9"></polyline>
+                <polyline points="9 21 3 21 3 15"></polyline>
+                <line x1="21" y1="3" x2="14" y2="10"></line>
+                <line x1="3" y1="21" x2="10" y2="14"></line>
+              </svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="exit-fullscreen-icon" style="display: none;">
+                <polyline points="4 14 10 14 10 20"></polyline>
+                <polyline points="20 10 14 10 14 4"></polyline>
+                <line x1="14" y1="10" x2="21" y2="3"></line>
+                <line x1="3" y1="21" x2="10" y2="14"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Help overlay - mobile only (shown when help button clicked) -->
+        <div class="showcase-player__help" id="help-panel" aria-hidden="true">
+          <div class="showcase-player__help-content">
+            <h3 class="showcase-player__help-title">Camera Controls</h3>
+            <div class="showcase-player__help-grid" id="help-grid">
+              <div class="showcase-player__help-item">
+                <span class="showcase-player__help-key">Left Click + Drag</span>
+                <span class="showcase-player__help-desc">Orbit around scene</span>
+              </div>
+              <div class="showcase-player__help-item">
+                <span class="showcase-player__help-key">Right Click + Drag</span>
+                <span class="showcase-player__help-desc">Look around</span>
+              </div>
+              <div class="showcase-player__help-item">
+                <span class="showcase-player__help-key">Scroll Wheel</span>
+                <span class="showcase-player__help-desc">Zoom in/out</span>
+              </div>
+              <div class="showcase-player__help-item">
+                <span class="showcase-player__help-key">WASD / Arrows</span>
+                <span class="showcase-player__help-desc">Move camera</span>
+              </div>
+            </div>
+            <button type="button" class="showcase-player__help-close" id="help-close">Got it</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         Title Section
+         ==================================================================== -->
+    <section class="showcase-title">
+      <h1 id="scene-title">{defaultScene.name}</h1>
+    </section>
+
+    <!-- ====================================================================
+         Description Box with Share Button
+         ==================================================================== -->
+    <section class="showcase-description">
+      <div class="showcase-description__header">
+        <div class="showcase-description__meta" id="scene-meta">
+          {defaultScene.attribution && <span class="showcase-description__attribution">Source: {defaultScene.attribution}</span>}
+        </div>
+        <button
+          type="button"
+          class="showcase-description__share"
+          id="share-btn"
+          aria-label="Share scene"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="18" cy="5" r="3"></circle>
+            <circle cx="6" cy="12" r="3"></circle>
+            <circle cx="18" cy="19" r="3"></circle>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+          </svg>
+          <span>Share</span>
+        </button>
+      </div>
+      <p class="showcase-description__text" id="scene-description">
+        {defaultScene.description}
+      </p>
+    </section>
+
+    <!-- ====================================================================
+         Scene Gallery
+         ==================================================================== -->
+    {SHOWCASE_SCENES.length > 1 && (
+      <section class="showcase-gallery">
+        <h2 class="showcase-gallery__title">More Scenes</h2>
+        <div class="showcase-gallery__grid" role="list" aria-label="Available scenes">
+          {SHOWCASE_SCENES.map((scene) => (
+            <div
+              class="showcase-gallery__item"
+              role="listitem"
+              data-scene-wrapper={scene.id}
+            >
+              <SceneCard
+                scene={scene}
+                isSelected={scene.id === DEFAULT_SCENE_ID}
+                basePath={base}
+              />
+            </div>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- Toast notification for share -->
+    <div class="showcase-toast" id="share-toast" aria-live="polite" aria-hidden="true">
+      Link copied to clipboard!
+    </div>
+  </div>
+</Layout>
+
+<script is:inline define:vars={{ sceneDataMap, defaultSceneId: DEFAULT_SCENE_ID }}>
+  /**
+   * Showcase page interactivity.
+   *
+   * Manages fullscreen, help panel, share, and scene switching.
+   */
+  document.addEventListener('DOMContentLoaded', () => {
+    // =========================================================================
+    // Element references
+    // =========================================================================
+    const playerContainer = document.getElementById('player-container');
+    const helpToggle = document.getElementById('help-toggle');
+    const helpClose = document.getElementById('help-close');
+    const helpPanel = document.getElementById('help-panel');
+    const fullscreenToggle = document.getElementById('fullscreen-toggle');
+    const fullscreenIcon = document.getElementById('fullscreen-icon');
+    const exitFullscreenIcon = document.getElementById('exit-fullscreen-icon');
+    const shareBtn = document.getElementById('share-btn');
+    const shareToast = document.getElementById('share-toast');
+    const sceneTitle = document.getElementById('scene-title');
+    const sceneDescription = document.getElementById('scene-description');
+    const sceneMeta = document.getElementById('scene-meta');
+    const controlHints = document.getElementById('control-hints');
+    const sceneCards = document.querySelectorAll('.scene-card');
+
+    // Track state
+    let selectedSceneId = defaultSceneId;
+    let isHelpOpen = false;
+
+    // =========================================================================
+    // Help panel functions
+    // =========================================================================
+
+    function openHelp() {
+      if (!helpPanel || !helpToggle) return;
+
+      isHelpOpen = true;
+      helpPanel.classList.add('is-open');
+      helpPanel.setAttribute('aria-hidden', 'false');
+      helpToggle.setAttribute('aria-expanded', 'true');
+    }
+
+    function closeHelp() {
+      if (!helpPanel || !helpToggle) return;
+
+      isHelpOpen = false;
+      helpPanel.classList.remove('is-open');
+      helpPanel.setAttribute('aria-hidden', 'true');
+      helpToggle.setAttribute('aria-expanded', 'false');
+    }
+
+    // =========================================================================
+    // Fullscreen functions
+    // =========================================================================
+
+    function updateFullscreenIcon() {
+      const isFullscreen = !!document.fullscreenElement;
+
+      if (fullscreenIcon && exitFullscreenIcon) {
+        fullscreenIcon.style.display = isFullscreen ? 'none' : 'block';
+        exitFullscreenIcon.style.display = isFullscreen ? 'block' : 'none';
+      }
+    }
+
+    function toggleFullscreen() {
+      if (!playerContainer) return;
+
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      } else {
+        playerContainer.requestFullscreen();
+      }
+    }
+
+    // =========================================================================
+    // Share functions
+    // =========================================================================
+
+    function shareScene() {
+      const url = new URL(window.location.href);
+
+      url.searchParams.set('scene', selectedSceneId);
+      navigator.clipboard.writeText(url.toString()).then(() => {
+        showToast();
+      });
+    }
+
+    function showToast() {
+      if (!shareToast) return;
+
+      shareToast.classList.add('is-visible');
+      shareToast.setAttribute('aria-hidden', 'false');
+      setTimeout(() => {
+        shareToast.classList.remove('is-visible');
+        shareToast.setAttribute('aria-hidden', 'true');
+      }, 2000);
+    }
+
+    // =========================================================================
+    // Scene switching
+    // =========================================================================
+
+    function getControlHints(scheme) {
+      switch (scheme) {
+        case 'orbit':
+          return 'Left-drag: Orbit • Scroll: Zoom';
+        case 'fly':
+          return 'WASD: Move • Right-drag: Look';
+        case 'both':
+        default:
+          return 'Left-drag: Orbit • WASD: Move • Scroll: Zoom';
+      }
+    }
+
+    function updateSelection(newSelectedId) {
+      sceneCards.forEach((card) => {
+        const sceneId = card.dataset.sceneId;
+        const isSelected = sceneId === newSelectedId;
+
+        card.classList.toggle('scene-card--selected', isSelected);
+        card.setAttribute('aria-pressed', String(isSelected));
+      });
+    }
+
+    function loadScene(sceneId) {
+      const splatViewer = document.querySelector('astro-splat');
+
+      if (!splatViewer) return;
+
+      // Get scene data
+      const sceneData = sceneDataMap[sceneId];
+
+      if (!sceneData) return;
+
+      const { folder, controlScheme, name, description, attribution } = sceneData;
+
+      // Update the UI
+      if (sceneTitle) {
+        sceneTitle.textContent = name;
+      }
+
+      if (sceneDescription) {
+        sceneDescription.textContent = description;
+      }
+
+      if (sceneMeta) {
+        sceneMeta.innerHTML = attribution
+          ? `<span class="showcase-description__attribution">Source: ${attribution}</span>`
+          : '';
+      }
+
+      if (controlHints) {
+        controlHints.textContent = getControlHints(controlScheme);
+      }
+
+      // Dispatch scene change event
+      const event = new CustomEvent('splatviewer:load-scene', {
+        detail: {
+          scene: folder,
+          controlScheme: controlScheme,
+        },
+        bubbles: true,
+      });
+
+      splatViewer.dispatchEvent(event);
+
+      // Update browser URL without reload
+      const url = new URL(window.location.href);
+
+      url.searchParams.set('scene', sceneId);
+      window.history.replaceState({}, '', url.toString());
+    }
+
+    // =========================================================================
+    // URL parameter handling
+    // =========================================================================
+
+    function loadSceneFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      const sceneId = params.get('scene');
+
+      if (sceneId && sceneDataMap[sceneId] && sceneId !== selectedSceneId) {
+        selectedSceneId = sceneId;
+        updateSelection(sceneId);
+        loadScene(sceneId);
+      }
+    }
+
+    // =========================================================================
+    // Event listeners
+    // =========================================================================
+
+    // Help toggle
+    helpToggle?.addEventListener('click', () => {
+      if (isHelpOpen) {
+        closeHelp();
+      } else {
+        openHelp();
+      }
+    });
+
+    helpClose?.addEventListener('click', closeHelp);
+
+    // Click outside help panel to close
+    helpPanel?.addEventListener('click', (e) => {
+      if (e.target === helpPanel) {
+        closeHelp();
+      }
+    });
+
+    // Fullscreen toggle
+    fullscreenToggle?.addEventListener('click', toggleFullscreen);
+    document.addEventListener('fullscreenchange', updateFullscreenIcon);
+
+    // Share button
+    shareBtn?.addEventListener('click', shareScene);
+
+    // Scene card clicks
+    sceneCards.forEach((card) => {
+      card.addEventListener('click', () => {
+        const sceneId = card.dataset.sceneId;
+
+        if (!sceneId || sceneId === selectedSceneId) return;
+
+        selectedSceneId = sceneId;
+        updateSelection(sceneId);
+        loadScene(sceneId);
+      });
+    });
+
+    // Keyboard handling
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isHelpOpen) {
+        closeHelp();
+      }
+    });
+
+    // Load scene from URL on page load
+    loadSceneFromUrl();
+  });
+</script>
+
+<style>
+  /* ============================================================================
+   * Page Container
+   * ============================================================================ */
+
+  .showcase-page {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 1rem;
+    background: var(--body-background, #f8f9fa);
+  }
+
+  @media (min-width: 768px) {
+    .showcase-page {
+      padding: 1.5rem 2rem;
+    }
+  }
+
+  /* ============================================================================
+   * Viewer Section
+   * ============================================================================ */
+
+  .showcase-player {
+    margin-bottom: 1rem;
+  }
+
+  .showcase-player__container {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #0a0a0f;
+    border-radius: 0.75rem;
+    overflow: hidden;
+  }
+
+  .showcase-player__container :global(astro-splat) {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Fullscreen styles */
+  .showcase-player__container:fullscreen {
+    border-radius: 0;
+  }
+
+  .showcase-player__container:fullscreen :global(astro-splat) {
+    width: 100vw;
+    height: 100vh;
+  }
+
+  /* ============================================================================
+   * Control Bar (bottom of viewer)
+   * ============================================================================ */
+
+  .showcase-player__bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+    pointer-events: none;
+  }
+
+  .showcase-player__bar > * {
+    pointer-events: auto;
+  }
+
+  /* Inline hints - tablet/desktop only */
+  .showcase-player__hints {
+    display: none;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  }
+
+  @media (min-width: 768px) {
+    .showcase-player__hints {
+      display: block;
+    }
+  }
+
+  /* Buttons container */
+  .showcase-player__buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: auto;
+  }
+
+  /* Control buttons */
+  .showcase-player__btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 0.5rem;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .showcase-player__btn:hover {
+    background: rgba(0, 0, 0, 0.7);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  .showcase-player__btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.5);
+  }
+
+  /* Help button - mobile only */
+  .showcase-player__btn--help {
+    display: flex;
+  }
+
+  @media (min-width: 768px) {
+    .showcase-player__btn--help {
+      display: none;
+    }
+  }
+
+  /* ============================================================================
+   * Help Overlay (mobile only)
+   * ============================================================================ */
+
+  .showcase-player__help {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    z-index: 20;
+  }
+
+  .showcase-player__help.is-open {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .showcase-player__help-content {
+    max-width: 320px;
+    padding: 1.5rem;
+    background: rgba(20, 20, 25, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
+  }
+
+  .showcase-player__help-title {
+    margin: 0 0 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+  }
+
+  .showcase-player__help-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .showcase-player__help-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .showcase-player__help-item:last-child {
+    border-bottom: none;
+  }
+
+  .showcase-player__help-key {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .showcase-player__help-desc {
+    font-size: 0.8125rem;
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .showcase-player__help-close {
+    width: 100%;
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    background: var(--color-primary, #0d6efd);
+    border: none;
+    border-radius: 0.5rem;
+    color: #fff;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+
+  .showcase-player__help-close:hover {
+    background: #0b5ed7;
+  }
+
+  /* ============================================================================
+   * Title Section
+   * ============================================================================ */
+
+  .showcase-title {
+    margin-bottom: 0.75rem;
+  }
+
+  .showcase-title h1 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-text, #1f2937);
+    line-height: 1.3;
+  }
+
+  @media (min-width: 768px) {
+    .showcase-title h1 {
+      font-size: 1.5rem;
+    }
+  }
+
+  /* ============================================================================
+   * Description Section
+   * ============================================================================ */
+
+  .showcase-description {
+    padding: 1rem;
+    background: #fff;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .showcase-description__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .showcase-description__meta {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .showcase-description__attribution {
+    font-size: 0.8125rem;
+    color: #6c757d;
+  }
+
+  .showcase-description__share {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.5rem 0.875rem;
+    background: transparent;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 2rem;
+    color: var(--color-text, #1f2937);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+  }
+
+  .showcase-description__share:hover {
+    background: var(--body-background, #f8f9fa);
+    border-color: #ced4da;
+  }
+
+  .showcase-description__share:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.25);
+  }
+
+  .showcase-description__text {
+    margin: 0;
+    font-size: 0.9375rem;
+    color: var(--color-text, #1f2937);
+    line-height: 1.6;
+  }
+
+  /* ============================================================================
+   * Scene Gallery
+   * ============================================================================ */
+
+  .showcase-gallery {
+    margin-bottom: 2rem;
+  }
+
+  .showcase-gallery__title {
+    margin: 0 0 1rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--color-text, #1f2937);
+  }
+
+  .showcase-gallery__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  @media (min-width: 576px) {
+    .showcase-gallery__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 768px) {
+    .showcase-gallery__grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .showcase-gallery__grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .showcase-gallery__item {
+    display: flex;
+  }
+
+  /* ============================================================================
+   * Toast Notification
+   * ============================================================================ */
+
+  .showcase-toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(1rem);
+    padding: 0.75rem 1.5rem;
+    background: #1f2937;
+    color: #fff;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    z-index: 100;
+  }
+
+  .showcase-toast.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ============================================================================
+   * Responsive Adjustments
+   * ============================================================================ */
+
+  @media (max-width: 575.98px) {
+    .showcase-page {
+      padding: 0.5rem;
+    }
+
+    .showcase-player__container {
+      border-radius: 0;
+      margin: -0.5rem -0.5rem 0.5rem;
+      width: calc(100% + 1rem);
+    }
+
+    .showcase-title,
+    .showcase-description,
+    .showcase-gallery {
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+    }
+
+    .showcase-description {
+      margin-left: 0;
+      margin-right: 0;
+      border-radius: 0.5rem;
+    }
+  }
+</style>

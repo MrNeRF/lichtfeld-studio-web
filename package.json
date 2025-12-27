@@ -3,26 +3,48 @@
   "private": true,
   "type": "module",
   "version": "0.0.1",
+  "packageManager": "pnpm@10.26.1",
   "scripts": {
     "dev": "astro dev",
     "devn": "astro dev --host",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:worker": "cd workers/stats-collector && pnpm test",
+    "test:api": "cd functions && pnpm test",
+    "test:all": "pnpm test:run && pnpm test:worker && pnpm test:api",
+    "dev:pages": "node -e \"fs.rmSync('functions/node_modules',{recursive:true,force:true})\" && wrangler pages dev docs --persist-to .wrangler/state",
+    "dev:worker": "cd workers/stats-collector && pnpm run dev",
+    "db:init": "wrangler d1 execute lichtfeld-stats --local --persist-to .wrangler/state --file=db/schema.sql",
+    "db:seed": "wrangler d1 execute lichtfeld-stats --local --persist-to .wrangler/state --file=db/seed-mock-data.sql",
+    "db:setup": "pnpm run db:init && pnpm run db:seed",
+    "db:reset": "wrangler d1 execute lichtfeld-stats --local --persist-to .wrangler/state --command=\"DROP TABLE IF EXISTS downloads_monthly; DROP TABLE IF EXISTS downloads_weekly; DROP TABLE IF EXISTS downloads_daily; DROP TABLE IF EXISTS releases;\" && pnpm run db:init",
+    "build:local": "node --eval \"require('child_process').execSync('pnpm run build',{stdio:'inherit',env:{...process.env,BASE_PATH:'/',SITE_URL:'http://localhost:8788'}})\"",
+    "dev:stats": "pnpm run db:reset && pnpm run db:seed && pnpm run build:local && pnpm run dev:pages",
+    "worker:collect": "curl -X POST http://localhost:8787/collect",
+    "worker:db:init": "cd workers/stats-collector && pnpm run db:init"
   },
   "dependencies": {
-    "@octokit/rest": "^22.0.0",
-    "astro": "^5.13.2",
-    "bootstrap": "^5.3.7",
+    "@astrojs/sitemap": "^3.6.0",
+    "@octokit/rest": "^22.0.1",
+    "apexcharts": "^4.3.0",
+    "astro": "^5.16.6",
+    "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
-    "marked": "^16.2.1",
-    "playcanvas": "^2.10.6"
+    "marked": "^17.0.1",
+    "playcanvas": "^2.13.1"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241205.0",
     "@types/bootstrap": "^5.2.10",
-    "@types/marked": "^5.0.2",
-    "prettier": "^3.6.2",
+    "@vitest/coverage-v8": "^4.0.16",
+    "prettier": "^3.7.4",
     "prettier-plugin-astro": "^0.14.1",
-    "sass": "^1.90.0"
+    "sass": "^1.97.1",
+    "vitest": "^4.0.16",
+    "wrangler": "^3.99.0"
   }
 }

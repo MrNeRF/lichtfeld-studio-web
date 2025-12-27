@@ -1,9 +1,58 @@
 ---
+/**
+ * Layout.astro
+ *
+ * Base layout component that wraps all pages with common structure and SEO elements.
+ * This layout provides:
+ * - Comprehensive SEO meta tags via the Seo component
+ * - Favicon and PWA support via HeadIcons
+ * - Breadcrumb structured data via BreadcrumbSchema
+ * - Performance hints via Preconnect
+ * - Common header/footer structure
+ *
+ * Props:
+ *   - title: Page title (required)
+ *   - description: Meta description (required)
+ *   - image: Custom social sharing image (optional)
+ *   - ogType: "website" | "article" (optional, defaults to "website")
+ *   - noindex: Set to true for pages that shouldn't be indexed (optional)
+ */
+
 import Footer from "@/components/Footer.astro";
 import Header from "@/components/Header.astro";
 
-// Let Vite/Astro handle asset rebasing (icons’ font URLs)
+// SEO Components
+import Seo from "@/components/seo/Seo.astro";
+import HeadIcons from "@/components/seo/HeadIcons.astro";
+import BreadcrumbSchema from "@/components/seo/BreadcrumbSchema.astro";
+import Preconnect from "@/components/seo/Preconnect.astro";
+
+// Site configuration for defaults
+import { SITE } from "@/config/site.config";
+import type { SeoProps } from "@/config/site.config";
+
+// Let Vite/Astro handle asset rebasing (icons' font URLs)
 import "bootstrap-icons/font/bootstrap-icons.css";
+
+// ============================================================================
+// Props Handling
+// ============================================================================
+
+interface Props extends Partial<SeoProps> {
+  /** Page title - defaults to site name */
+  title?: string;
+  /** Meta description - defaults to site description */
+  description?: string;
+}
+
+const {
+  title = SITE.name,
+  description = SITE.description,
+  image,
+  ogType = "website",
+  noindex = false,
+  nofollow = false,
+} = Astro.props;
 ---
 
 <!doctype html>
@@ -11,8 +60,38 @@ import "bootstrap-icons/font/bootstrap-icons.css";
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/svg+xml" href={import.meta.env.BASE_URL + "static/favicon.svg"} />
-    <title>LichtFeld Studio</title>
+
+    <!-- ========================================================================
+         Google Fonts: Inter (Variable Weight)
+
+         Preconnect to Google Fonts domains for faster font loading.
+         Inter is used as the primary font family for modern, clean typography.
+         ======================================================================== -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Performance: Early connection hints for external resources -->
+    <Preconnect />
+
+    <!-- SEO: All meta tags, Open Graph, Twitter Cards, and JSON-LD -->
+    <Seo
+      title={title}
+      description={description}
+      image={image}
+      ogType={ogType}
+      noindex={noindex}
+      nofollow={nofollow}
+    />
+
+    <!-- Icons: Favicon, Apple Touch Icon, PWA manifest -->
+    <HeadIcons />
+
+    <!-- Structured Data: Breadcrumb navigation for search results -->
+    <BreadcrumbSchema />
     <style lang="scss" is:global>
       @use "bootstrap/scss/bootstrap" as *
         /*with (

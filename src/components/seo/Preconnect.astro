@@ -1,0 +1,46 @@
+---
+/**
+ * Preconnect.astro
+ *
+ * Renders DNS prefetch and preconnect hints for known external origins.
+ * This improves page load performance by establishing early connections
+ * to servers that will be needed for resources like API calls or images.
+ *
+ * Performance Benefits:
+ * - dns-prefetch: Resolves domain names ahead of time (~20-120ms saved)
+ * - preconnect: Establishes full connection (DNS + TCP + TLS) early
+ *
+ * Usage:
+ *   Place in the <head> section of your layout, ideally near the top:
+ *   <Preconnect />
+ *
+ * Configuration:
+ *   Add/remove origins in src/config/site.config.ts under EXTERNAL_ORIGINS
+ *
+ * References:
+ * - https://web.dev/articles/preconnect-and-dns-prefetch
+ * - https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/rel/preconnect
+ */
+
+import { EXTERNAL_ORIGINS } from "@/config/site.config";
+
+// Convert the EXTERNAL_ORIGINS object to an array of origins
+const origins = Object.values(EXTERNAL_ORIGINS);
+---
+
+<!--
+  For each external origin:
+  1. dns-prefetch: Fallback for browsers that don't support preconnect
+  2. preconnect: Full early connection establishment with crossorigin for CORS
+
+  Note: We use crossorigin attribute because most modern APIs require CORS.
+  This ensures the preconnected socket can be reused for fetch requests.
+-->
+{
+  origins.map((origin) => (
+    <>
+      <link rel="dns-prefetch" href={origin} />
+      <link rel="preconnect" href={origin} crossorigin />
+    </>
+  ))
+}

@@ -865,33 +865,41 @@ export class SuperSplatViewer implements IDisposable {
     // Create PlayCanvas camera controls (loads script from CDN).
     // This provides orbit/fly controls that integrate with the idle animation system.
     // The controls are disabled by default and enabled when exiting idle mode.
-    try {
-      this._cameraControls = await createPlayCanvasCameraControls({
-        app: this._app,
-        cameraEntity: this._cameraEntity,
-        controls: {
-          enableOrbit,
-          enableFly,
-          enablePan: enableOrbit,
-        },
-        focusTarget: [firstPose.target.x, firstPose.target.y, firstPose.target.z],
-        sceneSize: firstPose.position.distance(firstPose.target),
-        onInputActivity: (type) => {
-          this._cameraController?.notifyInputActivity(type);
-          this._suspensionManager?.notifyInputActivity();
-        },
-      });
+    //
+    // IMPORTANT: Only create controls if user controls are enabled.
+    // When controlScheme is 'none' (homepage), we skip this entirely to avoid
+    // the PlayCanvas camera-controls script consuming wheel events that should
+    // scroll the page. Without this check, wheel events are captured by the
+    // underlying script even when controls are disabled.
+    if (enableOrbit || enableFly) {
+      try {
+        this._cameraControls = await createPlayCanvasCameraControls({
+          app: this._app,
+          cameraEntity: this._cameraEntity,
+          controls: {
+            enableOrbit,
+            enableFly,
+            enablePan: enableOrbit,
+          },
+          focusTarget: [firstPose.target.x, firstPose.target.y, firstPose.target.z],
+          sceneSize: firstPose.position.distance(firstPose.target),
+          onInputActivity: (type) => {
+            this._cameraController?.notifyInputActivity(type);
+            this._suspensionManager?.notifyInputActivity();
+          },
+        });
 
-      // Attach controls to the controller manager.
-      // This allows the controller to enable/disable controls based on mode.
-      this._cameraController.attachPlayCanvasControls(this._cameraControls);
+        // Attach controls to the controller manager.
+        // This allows the controller to enable/disable controls based on mode.
+        this._cameraController.attachPlayCanvasControls(this._cameraControls);
 
-      if (this._debug) {
-        console.debug('[SuperSplatViewer] PlayCanvas camera controls loaded and attached');
+        if (this._debug) {
+          console.debug('[SuperSplatViewer] PlayCanvas camera controls loaded and attached');
+        }
+      } catch (err) {
+        console.warn('[SuperSplatViewer] Failed to load PlayCanvas camera controls:', err);
+        // Continue without controls - idle animation will still work
       }
-    } catch (err) {
-      console.warn('[SuperSplatViewer] Failed to load PlayCanvas camera controls:', err);
-      // Continue without controls - idle animation will still work
     }
 
     // Create suspension manager

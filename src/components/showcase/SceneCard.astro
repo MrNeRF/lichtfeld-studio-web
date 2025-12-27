@@ -35,8 +35,8 @@ const { scene, isSelected = false, basePath = '' } = Astro.props;
  * Falls back to a placeholder if no preview is defined.
  */
 const previewImagePath = scene.previewImage
-  ? `${basePath}/static/${scene.folderName}/${scene.previewImage}`
-  : `${basePath}/static/${scene.folderName}/preview.webp`;
+  ? `${basePath}static/${scene.folderName}/${scene.previewImage}`
+  : `${basePath}static/${scene.folderName}/preview.webp`;
 ---
 
 <button

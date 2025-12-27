@@ -24,22 +24,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Install pnpm using the official action (reads version from packageManager in package.json)
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       # Node 22 is the current default recommended by the official Astro action
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
+          cache: pnpm
 
-      # Prefer a lockfile for reproducible builds. If you don't have one, commit it.
+      # Install dependencies using pnpm
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       # Build for the canonical repo on the custom domain (root path).
       # Forces Astro `site` and `base` so assets resolve at https://lichtfeld.io/ (no subpath).
       - name: Build (lichtfeld.io root)
         if: ${{ github.repository == 'MrNeRF/lichtfeld-studio-web' }}
-        run: npm run build
+        run: pnpm run build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SITE_URL: https://lichtfeld.io/
@@ -49,7 +53,7 @@ jobs:
       # Lets astro.config.mjs auto-derive site/base from GITHUB_REPOSITORY (subpath).
       - name: Build (forks / project pages)
         if: ${{ github.repository != 'MrNeRF/lichtfeld-studio-web' }}
-        run: npm run build
+        run: pnpm run build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

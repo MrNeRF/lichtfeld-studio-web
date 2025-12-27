@@ -167,52 +167,9 @@ const seoDescription = SITE.description;
     </div>
   </section>
 
-  <!-- Wave divider between intro and features (multi-layer + ripple lines) -->
-  <div class="section-wave" aria-hidden="true">
-    <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-      <defs>
-        <!-- Reuse the EXACT same front-wave curve (no bottom close) for the ripple lines -->
-        <path id="wave-front-curve" d="M0 120C240 120 480 120 720 90C960 60 1200 40 1440 60"></path>
-
-        <!-- A left-to-right fade so the ripple lines feel subtle and professional -->
-        <linearGradient id="wave-ripple-stroke" x1="0" y1="0" x2="1440" y2="0" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stop-color="#3b82f6" stop-opacity="0"></stop>
-          <stop offset="15%" stop-color="#3b82f6" stop-opacity="0.22"></stop>
-          <stop offset="50%" stop-color="#3b82f6" stop-opacity="0.28"></stop>
-          <stop offset="85%" stop-color="#3b82f6" stop-opacity="0.22"></stop>
-          <stop offset="100%" stop-color="#3b82f6" stop-opacity="0"></stop>
-        </linearGradient>
-
-        <!-- Optional: a softer second tint (cool gray) to add depth without “cartoony” color -->
-        <linearGradient id="wave-ripple-stroke-2" x1="0" y1="0" x2="1440" y2="0" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stop-color="#64748b" stop-opacity="0"></stop>
-          <stop offset="18%" stop-color="#64748b" stop-opacity="0.16"></stop>
-          <stop offset="50%" stop-color="#64748b" stop-opacity="0.18"></stop>
-          <stop offset="82%" stop-color="#64748b" stop-opacity="0.16"></stop>
-          <stop offset="100%" stop-color="#64748b" stop-opacity="0"></stop>
-        </linearGradient>
-      </defs>
-
-      <!-- Multi-layer wave fills with enhanced contrast for visual depth -->
-      <path d="M0 120C240 120 480 90 720 55C960 20 1200 5 1440 30V120H0Z" fill="#e0e9f2"></path>
-      <path d="M0 120C240 120 480 105 720 72C960 38 1200 22 1440 45V120H0Z" fill="#e9eff6"></path>
-      <path d="M0 120C240 120 480 120 720 90C960 60 1200 40 1440 60V120H0Z" fill="#f2f6fa"></path>
-
-      <!-- NEW: ripple layers above the front wave (same curve, stroked, slightly offset up) -->
-      <g class="wave-ripples">
-        <!-- closest, strongest ripple -->
-        <use href="#wave-front-curve" class="wave-ripple wave-ripple--a" transform="translate(0 -10)"></use>
-        <!-- mid ripple -->
-        <use href="#wave-front-curve" class="wave-ripple wave-ripple--b" transform="translate(0 -18)"></use>
-        <!-- faint top ripple -->
-        <use href="#wave-front-curve" class="wave-ripple wave-ripple--c" transform="translate(0 -26)"></use>
-      </g>
-    </svg>
-  </div>
-
   <!-- Feature List: Bento Grid Layout -->
-  <section class="bg-features" id="features">
-    <div class="container px-6 pt-12 pb-22">
+  <section id="features">
+    <div class="container px-6 pt-20 pb-12">
       <div class="text-center mb-8">
         <h2 class="text-4xl font-bold text-gray-900 mb-3">Features</h2>
         <p class="text-lg text-gray-500">Powerful by design. Built for performance.</p>
@@ -367,102 +324,102 @@ const seoDescription = SITE.description;
           alive and fund further research and development.
         </p>
 
-      <!-- Amount Selection -->
-      <div class="donate-amounts" role="radiogroup" aria-label="Select donation amount">
-        <button type="button" class="donate-amount" data-amount="5" aria-pressed="false">$5</button>
-        <button type="button" class="donate-amount" data-amount="10" aria-pressed="true">$10</button>
-        <button type="button" class="donate-amount" data-amount="25" aria-pressed="false">$25</button>
-        <button type="button" class="donate-amount" data-amount="100" aria-pressed="false">$100</button>
-        <div class="donate-amount-custom">
-          <span class="donate-amount-custom__prefix">$</span>
-          <input
-            type="number"
-            class="donate-amount-custom__input"
-            id="custom-amount"
-            placeholder="Other"
-            min="1"
-            aria-label="Enter custom donation amount"
-          />
-        </div>
-      </div>
-
-      <!-- Provider Buttons -->
-      <div class="donate-providers">
-        <a
-          class="donate-provider donate-provider--paypal"
-          href={PAYPAL_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          data-provider="paypal"
-          data-base-url={PAYPAL_URL}
-          aria-label="Donate via PayPal"
-        >
-          <svg class="bi" width="1.25em" height="1.25em" aria-hidden="true">
-            <use href={`${base}static/bootstrap-icons.svg#paypal`}></use>
-          </svg>
-          PayPal
-        </a>
-        <a
-          class="donate-provider donate-provider--donorbox"
-          href={DONORBOX_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          data-provider="donorbox"
-          data-base-url={DONORBOX_URL}
-          aria-label="Donate via DonorBox"
-        >
-          <svg class="bi" width="1.25em" height="1.25em" aria-hidden="true">
-            <use href={`${base}static/bootstrap-icons.svg#gift-fill`}></use>
-          </svg>
-          DonorBox
-        </a>
-        <a
-          class="donate-provider donate-provider--github"
-          href={GITHUB_SPONSORS_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          data-provider="github"
-          aria-label="Sponsor on GitHub"
-        >
-          <svg class="bi" width="1.25em" height="1.25em" aria-hidden="true">
-            <use href={`${base}static/bootstrap-icons.svg#github`}></use>
-          </svg>
-          GitHub Sponsors
-        </a>
-        <button
-          type="button"
-          class="donate-provider donate-provider--bitcoin"
-          data-provider="bitcoin"
-          data-wallet={CRYPTO_WALLET_BITCOIN}
-          aria-label="Copy Bitcoin wallet address"
-        >
-          <svg class="bi" width="1.25em" height="1.25em" aria-hidden="true">
-            <use href={`${base}static/bootstrap-icons.svg#currency-bitcoin`}></use>
-          </svg>
-          Bitcoin
-        </button>
-      </div>
-
-      <!-- Bitcoin wallet popup (hidden by default) -->
-      <div class="donate-bitcoin-popup" id="bitcoin-popup" aria-hidden="true">
-        <div class="donate-bitcoin-popup__content">
-          <p class="donate-bitcoin-popup__label">Bitcoin Wallet Address</p>
-          <div class="donate-bitcoin-popup__address">
-            <code id="btc-wallet-display">{CRYPTO_WALLET_BITCOIN}</code>
-            <button
-              type="button"
-              class="donate-bitcoin-popup__copy"
-              id="copy-btc-btn"
-              aria-label="Copy wallet address"
-            >
-              <svg class="bi" width="1em" height="1em" aria-hidden="true">
-                <use href={`${base}static/bootstrap-icons.svg#clipboard`}></use>
-              </svg>
-            </button>
+        <!-- Amount Selection -->
+        <div class="donate-amounts" role="radiogroup" aria-label="Select donation amount">
+          <button type="button" class="donate-amount" data-amount="5" aria-pressed="false">$5</button>
+          <button type="button" class="donate-amount" data-amount="10" aria-pressed="true">$10</button>
+          <button type="button" class="donate-amount" data-amount="25" aria-pressed="false">$25</button>
+          <button type="button" class="donate-amount" data-amount="100" aria-pressed="false">$100</button>
+          <div class="donate-amount-custom">
+            <span class="donate-amount-custom__prefix">$</span>
+            <input
+              type="number"
+              class="donate-amount-custom__input"
+              id="custom-amount"
+              placeholder="Other"
+              min="1"
+              aria-label="Enter custom donation amount"
+            />
           </div>
-          <p class="donate-bitcoin-popup__hint" id="btc-copy-status">Click to copy</p>
         </div>
-      </div>
+
+        <!-- Provider Buttons -->
+        <div class="donate-providers">
+          <a
+            class="donate-provider donate-provider--paypal"
+            href={PAYPAL_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-provider="paypal"
+            data-base-url={PAYPAL_URL}
+            aria-label="Donate via PayPal"
+          >
+            <svg class="bi" width="1.25em" height="1.25em" aria-hidden="true">
+              <use href={`${base}static/bootstrap-icons.svg#paypal`}></use>
+            </svg>
+            PayPal
+          </a>
+          <a
+            class="donate-provider donate-provider--donorbox"
+            href={DONORBOX_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-provider="donorbox"
+            data-base-url={DONORBOX_URL}
+            aria-label="Donate via DonorBox"
+          >
+            <svg class="bi" width="1.25em" height="1.25em" aria-hidden="true">
+              <use href={`${base}static/bootstrap-icons.svg#gift-fill`}></use>
+            </svg>
+            DonorBox
+          </a>
+          <a
+            class="donate-provider donate-provider--github"
+            href={GITHUB_SPONSORS_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-provider="github"
+            aria-label="Sponsor on GitHub"
+          >
+            <svg class="bi" width="1.25em" height="1.25em" aria-hidden="true">
+              <use href={`${base}static/bootstrap-icons.svg#github`}></use>
+            </svg>
+            GitHub Sponsors
+          </a>
+          <button
+            type="button"
+            class="donate-provider donate-provider--bitcoin"
+            data-provider="bitcoin"
+            data-wallet={CRYPTO_WALLET_BITCOIN}
+            aria-label="Copy Bitcoin wallet address"
+          >
+            <svg class="bi" width="1.25em" height="1.25em" aria-hidden="true">
+              <use href={`${base}static/bootstrap-icons.svg#currency-bitcoin`}></use>
+            </svg>
+            Bitcoin
+          </button>
+        </div>
+
+        <!-- Bitcoin wallet popup (hidden by default) -->
+        <div class="donate-bitcoin-popup" id="bitcoin-popup" aria-hidden="true">
+          <div class="donate-bitcoin-popup__content">
+            <p class="donate-bitcoin-popup__label">Bitcoin Wallet Address</p>
+            <div class="donate-bitcoin-popup__address">
+              <code id="btc-wallet-display">{CRYPTO_WALLET_BITCOIN}</code>
+              <button
+                type="button"
+                class="donate-bitcoin-popup__copy"
+                id="copy-btc-btn"
+                aria-label="Copy wallet address"
+              >
+                <svg class="bi" width="1em" height="1em" aria-hidden="true">
+                  <use href={`${base}static/bootstrap-icons.svg#clipboard`}></use>
+                </svg>
+              </button>
+            </div>
+            <p class="donate-bitcoin-popup__hint" id="btc-copy-status">Click to copy</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -1026,45 +983,8 @@ const seoDescription = SITE.description;
     }
   }
 
-  /* ===========================
-   * Section Wave Divider (Multi-layer)
-   * =========================== */
-
-  .section-wave {
-    width: 100%;
-    line-height: 0;
-
-    /* keep your existing top seam fix */
-    margin-top: -1px;
-
-    /* overlap into the features section to eliminate the bottom seam */
-    margin-bottom: -1px;
-
-    /* ensure the top area is truly transparent */
-    background: transparent;
-  }
-
-  .section-wave svg {
-    display: block;
-    width: 100%;
-    height: 100px;
-
-    /* good practice when using translated stroke ripples */
-    overflow: visible;
-  }
-
-  @media (min-width: 768px) {
-    .section-wave svg {
-      height: 140px;
-    }
-  }
-
-  .bg-features {
-    background-color: #f2f6fa;
-  }
-
   /* Narrower container for features section */
-  .bg-features .container {
+  #features .container {
     max-width: 1180px;
   }
 
@@ -1763,8 +1683,14 @@ const seoDescription = SITE.description;
   }
 
   @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-8px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .donate-bitcoin-popup__label {

@@ -1,4 +1,21 @@
 ---
+/**
+ * Camera control scheme type.
+ * - 'none': No user controls (pose cycling only)
+ * - 'orbit': Orbit around a focus point
+ * - 'fly': Free-flight movement
+ * - 'both': Both modes available (default)
+ */
+type ControlScheme = "none" | "orbit" | "fly" | "both";
+
+/**
+ * Idle animation type.
+ * - 'none': No idle animation (user has full control)
+ * - 'drift-pause': Gentle hovering/drifting effect with pauses
+ * - 'auto-rotate': Continuous rotation around the focus point
+ */
+type IdleAnimationType = "none" | "drift-pause" | "auto-rotate";
+
 interface SplatProps {
   /** Scene name (required). */
   scene: string;
@@ -27,6 +44,35 @@ interface SplatProps {
 
   /** Optional inline CSS style passed by the caller (e.g., CSS variables). */
   style?: string;
+
+  /**
+   * Camera control scheme.
+   * - 'none': No user controls (pose cycling only, for homepage)
+   * - 'orbit': Orbit around focus point (left-click drag, wheel zoom)
+   * - 'fly': Free-flight with WASD (right-click look)
+   * - 'both': Both modes available (default)
+   */
+  controlScheme?: ControlScheme;
+
+  /**
+   * Enable click-to-cycle camera poses.
+   *
+   * When true (default), clicking on the viewer cycles through predefined
+   * camera poses from the document.json. Set to false for interactive
+   * gallery mode where user controls should not be interrupted.
+   */
+  enablePoseCycling?: boolean;
+
+  /**
+   * Idle animation type.
+   *
+   * - 'none': No idle animation (user has full control immediately)
+   * - 'drift-pause': Gentle hovering/drifting with pauses (default for homepage)
+   * - 'auto-rotate': Continuous rotation around focus point
+   *
+   * Default: 'drift-pause'
+   */
+  idleAnimation?: IdleAnimationType;
 }
 
 const {
@@ -36,59 +82,132 @@ const {
   progressOffsetY = 0,
   previewSrc = `${import.meta.env.BASE_URL}/static/${scene}/preview.webp`,
   style: userStyle = "",
+  controlScheme = "both",
+  enablePoseCycling = true,
+  idleAnimation = "drift-pause",
 } = Astro.props as SplatProps;
+
+/**
+ * Environment toggle to disable splat rendering.
+ * When DISABLE_SPLAT=true, a static preview image is shown instead of the WebGL viewer.
+ * This is useful for development when the 3D viewer causes performance issues or crashes.
+ */
+const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
 ---
 
-<astro-splat
-  scene={scene}
-  data-base={import.meta.env.BASE_URL}
-  data-progress-position={progressPosition}
-  style={`${userStyle}${userStyle ? ";" : ""} --progress-offset-x:${progressOffsetX}px; --progress-offset-y:${progressOffsetY}px;`}
->
-  <canvas></canvas>
-
-  <!--
-    DOM loader overlay:
-    - A full-viewport overlay for the canvas with a glassy panel.
-    - A linear progress bar with accessible semantics.
-    - A concise percentage label placed directly beneath the bar.
-  -->
-  <div class="splat-loading" aria-live="polite" aria-busy="true">
-    <!-- Scene preview shown while assets stream; kept under the panel -->
+{isSplatDisabled ? (
+  <!-- Disabled mode: Show static preview with overlay message -->
+  <div
+    class="splat-disabled"
+    style={userStyle}
+  >
     <img
-      class="splat-loading__preview"
+      class="splat-disabled__preview"
       src={previewSrc}
-      alt="Scene preview"
+      alt={`Preview of ${scene} scene`}
       decoding="async"
       loading="eager"
-      fetchpriority="high"
-      aria-hidden="true"
     />
-
-    <div class="splat-loading__panel" role="group" aria-label="Loading 3D scene">
-      <div class="splat-loading__bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-        <div class="splat-loading__fill" style="width:0%"></div>
-      </div>
-
-      <div class="splat-loading__label">
-        <span class="splat-loading__percent">0%</span>
-      </div>
+    <div class="splat-disabled__overlay">
+      <span class="splat-disabled__badge">3D Viewer Disabled</span>
+      <span class="splat-disabled__hint">Set DISABLE_SPLAT=false in .env to enable</span>
     </div>
   </div>
-</astro-splat>
+) : (
+  <astro-splat
+    scene={scene}
+    data-base={import.meta.env.BASE_URL}
+    data-progress-position={progressPosition}
+    data-control-scheme={controlScheme}
+    data-enable-pose-cycling={enablePoseCycling.toString()}
+    data-idle-animation={idleAnimation}
+    style={`${userStyle}${userStyle ? ";" : ""} --progress-offset-x:${progressOffsetX}px; --progress-offset-y:${progressOffsetY}px;`}
+  >
+    <canvas></canvas>
+
+    <!--
+      DOM loader overlay:
+      - A full-viewport overlay for the canvas with a glassy panel.
+      - A linear progress bar with accessible semantics.
+      - A concise percentage label placed directly beneath the bar.
+    -->
+    <div class="splat-loading" aria-live="polite" aria-busy="true">
+      <!-- Scene preview shown while assets stream; kept under the panel -->
+      <img
+        class="splat-loading__preview"
+        src={previewSrc}
+        alt="Scene preview"
+        decoding="async"
+        loading="eager"
+        fetchpriority="high"
+        aria-hidden="true"
+      />
+
+      <div class="splat-loading__panel" role="group" aria-label="Loading 3D scene">
+        <div class="splat-loading__bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div class="splat-loading__fill" style="width:0%"></div>
+        </div>
+
+        <div class="splat-loading__label">
+          <span class="splat-loading__percent">0%</span>
+        </div>
+      </div>
+    </div>
+  </astro-splat>
+)}
 
 <script>
-  import { SplatCanvas } from "../script/SplatCanvas";
+  import { SuperSplatViewer } from "../script/splat/SuperSplatViewer";
   import { MIN_VIEWPORT_VISIBILITY_FOR_RENDER } from "@/constants/splat-viewer";
   import { SPLAT_EVT_LOADING_PROGRESS, SPLAT_EVT_LOADED, SPLAT_EVT_FIRST_FRAME } from "@/constants/splat-events";
 
   class AstroSplat extends HTMLElement {
+    /** Reference to the viewer instance for cleanup. */
+    private _viewer?: SuperSplatViewer;
+
+    /** IntersectionObserver for visibility tracking. */
+    private _intersectionObserver?: IntersectionObserver;
+
+    /** Bound visibility change handler for cleanup. */
+    private _visibilityHandler?: () => void;
+
+    /** Bound page activity handler for cleanup. */
+    private _pageActivityHandler?: () => void;
+
+    /** List of activity events for cleanup. */
+    private _activityEvents?: (keyof WindowEventMap)[];
+
+    /** Bound scene load handler for cleanup. */
+    private _sceneLoadHandler?: (event: Event) => void;
+
+    /** Current scene name. */
+    private _currentScene?: string;
+
+    /** Base URL for assets. */
+    private _base?: string;
+
+    /** Current control scheme. */
+    private _controlScheme?: "none" | "orbit" | "fly" | "both";
+
+    /** Idle animation type. */
+    private _idleAnimation?: "none" | "drift-pause" | "auto-rotate";
+
     connectedCallback() {
       // ======================
       // Element lookups
       // ======================
       const canvas = this.querySelector("canvas") as HTMLCanvasElement;
       const base = this.getAttribute("data-base") || "/";
+      const controlScheme = (this.getAttribute("data-control-scheme") || "both") as "none" | "orbit" | "fly" | "both";
+      const idleAnimation = (this.getAttribute("data-idle-animation") || "drift-pause") as
+        | "none"
+        | "drift-pause"
+        | "auto-rotate";
+
+      this._base = base;
+      this._currentScene = this.getAttribute("scene") as string;
+      this._controlScheme = controlScheme;
+      this._idleAnimation = idleAnimation;
 
       // Loader DOM hooks
       const overlay = this.querySelector(".splat-loading") as HTMLElement | null;
@@ -99,24 +218,39 @@ const {
       const previewImg = this.querySelector(".splat-loading__preview") as HTMLImageElement | null;
 
       // ======================
-      // Viewer init
+      // Viewer init (using new modular implementation)
       // ======================
-      const splatCanvas = new SplatCanvas(
+      this._viewer = new SuperSplatViewer({
         canvas,
-        this.getAttribute("scene") as string,
-        this.parentElement as HTMLElement,
+        scene: this._currentScene,
+        sizeElement: this.parentElement as HTMLElement,
         base,
-      );
-
-      // Click-to-advance. The SplatCanvas also listens for
-      // pointer/wheel/keyboard to toggle Active/Idle and schedule inactivity.
-      this.addEventListener("click", () => {
-        splatCanvas.togglePose(1000);
+        controlScheme,
+        idleAnimation,
       });
 
+      // Click-to-advance (optional).
+      // When enabled, clicking on the viewer cycles through predefined camera poses.
+      // Disabled in gallery/showcase mode to allow uninterrupted user controls.
+      const enablePoseCycling = this.getAttribute("data-enable-pose-cycling") !== "false";
+
+      if (enablePoseCycling) {
+        this.addEventListener("click", () => {
+          console.debug("[Splat] click handler - dispatching splatviewer:active");
+
+          // Dispatch splatviewer:active immediately when user clicks to cycle poses.
+          // This is necessary because the state transition (idle → transitioning → idle)
+          // doesn't emit 'splat:active' (only user control modes like orbit/fly do).
+          // Without this, the hero content wouldn't hide when clicking to cycle.
+          document.dispatchEvent(new CustomEvent("splatviewer:active"));
+
+          this._viewer?.togglePose(1000);
+        });
+      }
+
       // ===== Event forwarding =====
-      // Event forwarding from SplatCanvas to the global document
-      // This decouples the canvas from the page layout, allowing any
+      // Event forwarding from SuperSplatViewer to the global document.
+      // This decouples the viewer from the page layout, allowing any
       // component on the page to react to viewer state changes.
       canvas.addEventListener("splat:active", () => {
         document.dispatchEvent(new CustomEvent("splatviewer:active"));
@@ -182,31 +316,191 @@ const {
         }
       }
 
-      // ===== Viewport visibility: pause when < 20% visible =====
+      // ===== Scene switching support =====
+      // Listen for scene load requests from the Showcase page or other components.
+      // When a new scene is requested, we reload the page with the new scene.
+      // This is the most reliable approach since the SuperSplatViewer creates
+      // a PlayCanvas Application that's complex to properly reset.
+      this._sceneLoadHandler = (event: Event) => {
+        const customEvent = event as CustomEvent<{
+          scene: string;
+          controlScheme?: "none" | "orbit" | "fly" | "both";
+        }>;
+        const newScene = customEvent.detail?.scene;
+        const newControlScheme = customEvent.detail?.controlScheme;
+
+        if (newScene && newScene !== this._currentScene) {
+          // For now, we'll use a simple approach: reload the viewer with the new scene.
+          // This involves disposing the current viewer and creating a new one.
+          this._loadScene(newScene, newControlScheme);
+        }
+      };
+
+      this.addEventListener("splatviewer:load-scene", this._sceneLoadHandler);
+
+      // ===== Viewport visibility: pause when < 60% visible =====
       // Use a low-overhead IntersectionObserver to compute intersection ratio.
       // Threshold array includes the exact cutoff, so we get callbacks when crossing it.
-      const io = new IntersectionObserver(
+      this._intersectionObserver = new IntersectionObserver(
         (entries) => {
           const entry = entries[0];
 
           // entry.intersectionRatio ∈ [0,1]; pass to viewer to decide suspend/resume.
-          splatCanvas.setViewportVisibility(entry.intersectionRatio);
+          this._viewer?.setViewportVisibility(entry.intersectionRatio);
         },
         { root: null, threshold: [0, MIN_VIEWPORT_VISIBILITY_FOR_RENDER] },
       );
 
-      io.observe(this);
+      this._intersectionObserver.observe(this);
 
       // ===== Page Visibility: suspend when tab/page is hidden =====
-      const onVis = () => splatCanvas.notifyPageVisibility(document.hidden);
-      document.addEventListener("visibilitychange", onVis, { passive: true });
+      this._visibilityHandler = () => this._viewer?.notifyPageVisibility(document.hidden);
+      document.addEventListener("visibilitychange", this._visibilityHandler, { passive: true });
 
       // Initialize once in case we mount hidden.
-      onVis();
+      this._visibilityHandler();
 
-      // NOTE: This simple element has no disconnectedCallback today. If we
-      // ever remove/detach it dynamically, remember to io.disconnect() and
-      // removeEventListener('visibilitychange', onVis) for cleanup.
+      // ===== Page Activity: resume idle animation on any page interaction =====
+      // This replicates the old SplatCanvas behavior where any page activity
+      // (mouse move, click, scroll, keyboard) would cause the drift animation
+      // to resume, assuming the viewer is visible.
+      //
+      // Only set up these handlers if idle animation is enabled. When set to
+      // 'none' (e.g., on the Showcase page), we don't want page activity to
+      // constantly restart the idle animation and fight with user camera controls.
+      if (idleAnimation !== "none") {
+        this._pageActivityHandler = () => this._viewer?.notifyPageActivity();
+        const activityEvents: (keyof WindowEventMap)[] = [
+          "pointerdown",
+          "pointermove",
+          "wheel",
+          "click",
+          "keydown",
+          "scroll",
+        ];
+        activityEvents.forEach((event) => {
+          window.addEventListener(event, this._pageActivityHandler!, { passive: true });
+        });
+        // Store for cleanup
+        this._activityEvents = activityEvents;
+      }
+    }
+
+    /**
+     * Load a new scene into the viewer.
+     *
+     * Disposes the current viewer and creates a new one with the specified scene.
+     * Also resets the loading overlay to show progress for the new scene.
+     *
+     * @param scene Scene folder name to load
+     * @param controlScheme Optional control scheme override for the new scene
+     */
+    private _loadScene(scene: string, controlScheme?: "none" | "orbit" | "fly" | "both"): void {
+      // Get DOM elements
+      const canvas = this.querySelector("canvas") as HTMLCanvasElement;
+      const overlay = this.querySelector(".splat-loading") as HTMLElement | null;
+      const fill = this.querySelector(".splat-loading__fill") as HTMLElement | null;
+      const percentEl = this.querySelector(".splat-loading__percent") as HTMLElement | null;
+      const bar = this.querySelector(".splat-loading__bar") as HTMLElement | null;
+      const previewImg = this.querySelector(".splat-loading__preview") as HTMLImageElement | null;
+
+      // Dispose the current viewer
+      if (this._viewer) {
+        this._viewer.dispose();
+        this._viewer = undefined;
+      }
+
+      // Reset the loading overlay for the new scene
+      if (overlay) {
+        overlay.classList.remove("is-loaded", "is-finished");
+        overlay.style.display = "block";
+        overlay.setAttribute("aria-busy", "true");
+      }
+
+      if (fill) {
+        fill.style.width = "0%";
+      }
+
+      if (percentEl) {
+        percentEl.textContent = "0%";
+      }
+
+      if (bar) {
+        bar.setAttribute("aria-valuenow", "0");
+      }
+
+      // Update preview image for the new scene
+      if (previewImg && this._base) {
+        previewImg.classList.remove("is-ready", "is-hidden");
+        previewImg.src = `${this._base}static/${scene}/preview.webp`;
+
+        // Set up load handler for new preview
+        const ready = () => previewImg.classList.add("is-ready");
+
+        if (previewImg.complete) {
+          ready();
+        } else {
+          previewImg.addEventListener("load", ready, { once: true });
+          previewImg.addEventListener("error", () => previewImg.classList.add("is-hidden"), { once: true });
+        }
+      }
+
+      // Update the scene attribute and control scheme
+      this.setAttribute("scene", scene);
+      this._currentScene = scene;
+
+      // Use the new control scheme if provided, otherwise keep the current one
+      const effectiveControlScheme = controlScheme ?? this._controlScheme ?? "both";
+
+      this._controlScheme = effectiveControlScheme;
+      this.setAttribute("data-control-scheme", effectiveControlScheme);
+
+      // Create a new viewer with the new scene.
+      // Use the stored _idleAnimation value from the initial config.
+      // This ensures scene switches maintain the same idle animation behavior.
+      this._viewer = new SuperSplatViewer({
+        canvas,
+        scene,
+        sizeElement: this.parentElement as HTMLElement,
+        base: this._base!,
+        controlScheme: effectiveControlScheme,
+        idleAnimation: this._idleAnimation,
+      });
+    }
+
+    disconnectedCallback() {
+      // Clean up intersection observer
+      if (this._intersectionObserver) {
+        this._intersectionObserver.disconnect();
+        this._intersectionObserver = undefined;
+      }
+
+      // Clean up visibility listener
+      if (this._visibilityHandler) {
+        document.removeEventListener("visibilitychange", this._visibilityHandler);
+        this._visibilityHandler = undefined;
+      }
+
+      // Clean up page activity listeners
+      if (this._pageActivityHandler && this._activityEvents) {
+        this._activityEvents.forEach((event) => {
+          window.removeEventListener(event, this._pageActivityHandler!);
+        });
+        this._pageActivityHandler = undefined;
+        this._activityEvents = undefined;
+      }
+
+      // Clean up scene load handler
+      if (this._sceneLoadHandler) {
+        this.removeEventListener("splatviewer:load-scene", this._sceneLoadHandler);
+        this._sceneLoadHandler = undefined;
+      }
+
+      // Dispose viewer
+      if (this._viewer) {
+        this._viewer.dispose();
+        this._viewer = undefined;
+      }
     }
   }
 
@@ -398,5 +692,57 @@ const {
     .splat-loading__fill .splat-loading__preview {
       transition: none;
     }
+  }
+
+  /* =========================
+   * Disabled state placeholder
+   * Shown when DISABLE_SPLAT=true
+   * ========================= */
+  .splat-disabled {
+    display: block;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    background: #0a0a0f;
+  }
+
+  .splat-disabled__preview {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    filter: blur(4px) saturate(80%);
+    transform: scale(1.02);
+    opacity: 0.7;
+  }
+
+  .splat-disabled__overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.4);
+  }
+
+  .splat-disabled__badge {
+    padding: 8px 16px;
+    background: rgba(255, 193, 7, 0.9);
+    color: #1a1a1a;
+    font-weight: 600;
+    font-size: 0.875rem;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .splat-disabled__hint {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.75rem;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
   }
 </style>

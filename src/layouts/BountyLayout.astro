@@ -1,10 +1,33 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import BountyList from '../components/BountyList.astro';
+/**
+ * BountyLayout.astro
+ *
+ * Layout for individual bounty pages.
+ * Displays the bounty content alongside a list of all available bounties.
+ * Automatically generates SEO metadata from the bounty data.
+ */
+import Layout from "@/layouts/Layout.astro";
+import BountyList from "@/components/BountyList.astro";
+
+interface Props {
+  data: {
+    title: string;
+    description?: string;
+    reward?: string;
+    status?: string;
+  };
+}
+
 const { data } = Astro.props;
+
+// SEO: Generate metadata from bounty data
+const seoTitle = data.title;
+const seoDescription =
+  data.description ||
+  `${data.title} bounty for LichtFeld Studio. ${data.reward ? `Reward: ${data.reward}.` : ""} Contribute to the 3D Gaussian Splatting engine.`;
 ---
 
-<Layout>
+<Layout title={seoTitle} description={seoDescription}>
   <!-- Content -->
   <div class="container px-4 py-5">
     <div class="row">

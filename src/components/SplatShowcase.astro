@@ -1,0 +1,513 @@
+---
+/**
+ * SplatShowcase.astro
+ *
+ * An interactive section for the homepage that allows users to explore
+ * different 3D Gaussian Splatting scenes. Each scene highlights specific
+ * capabilities of the technology.
+ *
+ * Features:
+ * - 2-3 selectable scenes with capability callouts
+ * - Smooth scene transitions
+ * - Theme-aware styling
+ * - Responsive layout
+ *
+ * @module components/SplatShowcase
+ */
+import Splat from '@/components/Splat.astro';
+import type { SceneConfig } from '@/constants/scenes';
+
+/**
+ * Scene showcase configuration with capability highlights.
+ * Each scene demonstrates specific features of 3DGS technology.
+ */
+interface ShowcaseScene {
+  /** Scene configuration from registry */
+  scene: SceneConfig;
+  /** Short capability tagline */
+  capability: string;
+  /** Brief description of what this scene demonstrates */
+  highlight: string;
+}
+
+/**
+ * Curated scenes for the homepage showcase.
+ * Selected to demonstrate diverse capabilities.
+ */
+const showcaseScenes: ShowcaseScene[] = [
+  {
+    scene: {
+      id: 'botanics',
+      name: 'Botanical Garden',
+      description: 'Photogrammetry capture showcasing outdoor environment reconstruction.',
+      folderName: 'botanics',
+      previewImage: 'preview.webp',
+      controlScheme: 'both',
+      idleAnimation: 'drift-pause',
+    },
+    capability: 'Outdoor Environments',
+    highlight: 'Real-time rendering of large-scale outdoor scenes with natural lighting',
+  },
+  {
+    scene: {
+      id: 'bonsai-tree',
+      name: 'Bonsai Tree',
+      description: 'Intricate organic detail with complex branch geometry.',
+      folderName: 'bonsai-tree',
+      previewImage: 'preview.webp',
+      controlScheme: 'orbit',
+      idleAnimation: 'auto-rotate',
+    },
+    capability: 'Fine Detail',
+    highlight: 'Capture intricate organic structures with sub-millimeter precision',
+  },
+  {
+    scene: {
+      id: 'vintage-camera',
+      name: 'Vintage Camera',
+      description: 'Product visualization with reflective surfaces.',
+      folderName: 'vintage-camera',
+      previewImage: 'preview.webp',
+      controlScheme: 'orbit',
+      idleAnimation: 'auto-rotate',
+    },
+    capability: 'Product Visualization',
+    highlight: 'High-fidelity object scanning for e-commerce and design',
+  },
+];
+
+const base = import.meta.env.BASE_URL;
+---
+
+<section class="splat-showcase" id="explore-scenes">
+  <div class="container px-4">
+    <!-- Section header -->
+    <div class="splat-showcase__header">
+      <h2 class="splat-showcase__title">Explore 3D Gaussian Splatting</h2>
+      <p class="splat-showcase__subtitle">
+        Click a scene below to experience real-time neural rendering. Drag to rotate, scroll to zoom.
+      </p>
+    </div>
+
+    <!-- Scene selector pills -->
+    <div class="splat-showcase__selector" role="tablist" aria-label="Scene selection">
+      {showcaseScenes.map((item, index) => (
+        <button
+          type="button"
+          class:list={['splat-showcase__pill', { 'splat-showcase__pill--active': index === 0 }]}
+          data-scene-id={item.scene.id}
+          role="tab"
+          aria-selected={index === 0 ? 'true' : 'false'}
+          aria-controls={`scene-panel-${item.scene.id}`}
+          id={`scene-tab-${item.scene.id}`}
+        >
+          <span class="splat-showcase__pill-capability">{item.capability}</span>
+          <span class="splat-showcase__pill-name">{item.scene.name}</span>
+        </button>
+      ))}
+    </div>
+
+    <!-- Scene viewer container -->
+    <div class="splat-showcase__viewer">
+      {showcaseScenes.map((item, index) => (
+        <div
+          class:list={['splat-showcase__scene', { 'splat-showcase__scene--active': index === 0 }]}
+          data-scene-id={item.scene.id}
+          role="tabpanel"
+          id={`scene-panel-${item.scene.id}`}
+          aria-labelledby={`scene-tab-${item.scene.id}`}
+          aria-hidden={index !== 0 ? 'true' : 'false'}
+        >
+          {/* Only render the first scene's Splat initially, others load on demand */}
+          {index === 0 && (
+            <Splat
+              scene={item.scene.folderName}
+              style="--preview-blur-px: 5px;"
+              progressPosition="bottom-center"
+              progressOffsetY={20}
+              controlScheme={item.scene.controlScheme}
+              idleAnimation={item.scene.idleAnimation}
+            />
+          )}
+
+          {/* Placeholder for lazy-loaded scenes */}
+          {index !== 0 && (
+            <div
+              class="splat-showcase__placeholder"
+              data-scene-folder={item.scene.folderName}
+              data-control-scheme={item.scene.controlScheme}
+              data-idle-animation={item.scene.idleAnimation}
+            >
+              <img
+                src={`${base}static/${item.scene.folderName}/${item.scene.previewImage}`}
+                alt={`Preview of ${item.scene.name}`}
+                class="splat-showcase__placeholder-image"
+                loading="lazy"
+              />
+              <div class="splat-showcase__placeholder-overlay">
+                <span class="splat-showcase__placeholder-text">Click to load scene</span>
+              </div>
+            </div>
+          )}
+
+          {/* Capability highlight badge */}
+          <div class="splat-showcase__highlight">
+            <span class="splat-showcase__highlight-label">{item.capability}</span>
+            <span class="splat-showcase__highlight-text">{item.highlight}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- CTA to full showcase -->
+    <div class="splat-showcase__cta">
+      <a href={`${base}showcase`} class="splat-showcase__cta-link">
+        <span>View Full Gallery</span>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20" aria-hidden="true">
+          <line x1="5" y1="12" x2="19" y2="12" />
+          <polyline points="12 5 19 12 12 19" />
+        </svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  /**
+   * Splat Showcase Section Styles
+   *
+   * A theme-aware interactive gallery for the homepage.
+   */
+  .splat-showcase {
+    padding: var(--space-16, 4rem) 0;
+    background-color: var(--surface-muted, #f8fafc);
+    transition: background-color var(--transition-normal, 200ms) ease-out;
+  }
+
+  :global([data-theme='dark']) .splat-showcase {
+    background-color: var(--surface-elevated, #16161d);
+  }
+
+  .splat-showcase__header {
+    text-align: center;
+    margin-bottom: var(--space-8, 2rem);
+  }
+
+  .splat-showcase__title {
+    font-size: var(--font-h1, clamp(1.75rem, 4vw, 2.5rem));
+    font-weight: 700;
+    letter-spacing: var(--tracking-tight, -0.02em);
+    color: var(--text-primary, #0f172a);
+    margin: 0 0 var(--space-3, 0.75rem);
+  }
+
+  .splat-showcase__subtitle {
+    font-size: var(--font-body, 1rem);
+    color: var(--text-secondary, #64748b);
+    margin: 0;
+    max-width: 600px;
+    margin-inline: auto;
+  }
+
+  /* Scene selector pills */
+  .splat-showcase__selector {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-3, 0.75rem);
+    margin-bottom: var(--space-6, 1.5rem);
+    flex-wrap: wrap;
+  }
+
+  .splat-showcase__pill {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: var(--space-3, 0.75rem) var(--space-5, 1.25rem);
+    background-color: var(--surface-card, #fff);
+    border: 2px solid var(--border-default, #e2e8f0);
+    border-radius: var(--radius-lg, 0.75rem);
+    cursor: pointer;
+    transition:
+      background-color var(--transition-fast, 150ms) ease-out,
+      border-color var(--transition-fast, 150ms) ease-out,
+      transform var(--transition-fast, 150ms) ease-out,
+      box-shadow var(--transition-fast, 150ms) ease-out;
+  }
+
+  .splat-showcase__pill:hover {
+    border-color: var(--accent-primary, #6366f1);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md, 0 4px 12px rgba(0, 0, 0, 0.1));
+  }
+
+  .splat-showcase__pill--active {
+    background-color: var(--accent-primary, #6366f1);
+    border-color: var(--accent-primary, #6366f1);
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+  }
+
+  .splat-showcase__pill--active:hover {
+    transform: none;
+  }
+
+  .splat-showcase__pill-capability {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--accent-primary, #6366f1);
+  }
+
+  .splat-showcase__pill--active .splat-showcase__pill-capability {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .splat-showcase__pill-name {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-primary, #0f172a);
+  }
+
+  .splat-showcase__pill--active .splat-showcase__pill-name {
+    color: #fff;
+  }
+
+  /* Scene viewer container */
+  .splat-showcase__viewer {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    max-height: 500px;
+    border-radius: var(--radius-xl, 1rem);
+    overflow: hidden;
+    background-color: var(--surface-base, #0a0a0f);
+    box-shadow: var(--shadow-xl, 0 20px 50px rgba(0, 0, 0, 0.2));
+  }
+
+  .splat-showcase__scene {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity var(--transition-normal, 200ms) ease-out,
+      visibility var(--transition-normal, 200ms) ease-out;
+  }
+
+  .splat-showcase__scene--active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Placeholder for lazy-loaded scenes */
+  .splat-showcase__placeholder {
+    position: absolute;
+    inset: 0;
+    cursor: pointer;
+  }
+
+  .splat-showcase__placeholder-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .splat-showcase__placeholder-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.4);
+    transition: background-color var(--transition-fast, 150ms) ease-out;
+  }
+
+  .splat-showcase__placeholder:hover .splat-showcase__placeholder-overlay {
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+
+  .splat-showcase__placeholder-text {
+    padding: var(--space-3, 0.75rem) var(--space-5, 1.25rem);
+    background-color: var(--accent-primary, #6366f1);
+    color: #fff;
+    font-weight: 500;
+    border-radius: var(--radius-md, 0.5rem);
+    box-shadow: var(--shadow-lg, 0 10px 25px rgba(0, 0, 0, 0.3));
+  }
+
+  /* Capability highlight badge */
+  .splat-showcase__highlight {
+    position: absolute;
+    bottom: var(--space-4, 1rem);
+    left: var(--space-4, 1rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: var(--space-3, 0.75rem) var(--space-4, 1rem);
+    background-color: var(--glass-bg, rgba(255, 255, 255, 0.1));
+    backdrop-filter: blur(12px);
+    border-radius: var(--radius-md, 0.5rem);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    pointer-events: none;
+    max-width: 300px;
+  }
+
+  .splat-showcase__highlight-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--accent-secondary, #22d3ee);
+  }
+
+  .splat-showcase__highlight-text {
+    font-size: 0.875rem;
+    line-height: 1.4;
+    opacity: 0.9;
+  }
+
+  /* CTA link to full gallery */
+  .splat-showcase__cta {
+    display: flex;
+    justify-content: center;
+    margin-top: var(--space-8, 2rem);
+  }
+
+  .splat-showcase__cta-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2, 0.5rem);
+    padding: var(--space-3, 0.75rem) var(--space-6, 1.5rem);
+    background-color: transparent;
+    border: 2px solid var(--accent-primary, #6366f1);
+    color: var(--accent-primary, #6366f1);
+    font-weight: 500;
+    border-radius: var(--radius-md, 0.5rem);
+    text-decoration: none;
+    transition:
+      background-color var(--transition-fast, 150ms) ease-out,
+      color var(--transition-fast, 150ms) ease-out,
+      transform var(--transition-fast, 150ms) ease-out;
+  }
+
+  .splat-showcase__cta-link:hover {
+    background-color: var(--accent-primary, #6366f1);
+    color: #fff;
+    transform: translateY(-2px);
+  }
+
+  .splat-showcase__cta-link svg {
+    transition: transform var(--transition-fast, 150ms) ease-out;
+  }
+
+  .splat-showcase__cta-link:hover svg {
+    transform: translateX(4px);
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 767.98px) {
+    .splat-showcase__pill {
+      padding: var(--space-2, 0.5rem) var(--space-4, 1rem);
+    }
+
+    .splat-showcase__highlight {
+      bottom: var(--space-2, 0.5rem);
+      left: var(--space-2, 0.5rem);
+      right: var(--space-2, 0.5rem);
+      max-width: none;
+    }
+  }
+
+  /* Respect reduced-motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    .splat-showcase__pill,
+    .splat-showcase__scene,
+    .splat-showcase__cta-link {
+      transition: none;
+    }
+
+    .splat-showcase__pill:hover,
+    .splat-showcase__cta-link:hover {
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  /**
+   * Scene switching logic for the homepage showcase.
+   *
+   * Handles:
+   * - Tab selection and scene visibility
+   * - Lazy loading of splat scenes on demand
+   * - ARIA attribute updates for accessibility
+   */
+  function initSplatShowcase(): void {
+    const pills = document.querySelectorAll<HTMLButtonElement>('.splat-showcase__pill');
+    const scenes = document.querySelectorAll<HTMLElement>('.splat-showcase__scene');
+    const placeholders = document.querySelectorAll<HTMLElement>('.splat-showcase__placeholder');
+
+    if (pills.length === 0 || scenes.length === 0) {
+      return;
+    }
+
+    /**
+     * Switch to a specific scene by ID.
+     */
+    function switchToScene(sceneId: string): void {
+      // Update pills
+      pills.forEach((pill) => {
+        const isActive = pill.dataset.sceneId === sceneId;
+        pill.classList.toggle('splat-showcase__pill--active', isActive);
+        pill.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+
+      // Update scenes
+      scenes.forEach((scene) => {
+        const isActive = scene.dataset.sceneId === sceneId;
+        scene.classList.toggle('splat-showcase__scene--active', isActive);
+        scene.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+      });
+    }
+
+    // Handle pill clicks
+    pills.forEach((pill) => {
+      pill.addEventListener('click', () => {
+        const sceneId = pill.dataset.sceneId;
+
+        if (sceneId) {
+          switchToScene(sceneId);
+        }
+      });
+    });
+
+    // Handle placeholder clicks (lazy load scene)
+    placeholders.forEach((placeholder) => {
+      placeholder.addEventListener('click', () => {
+        // For now, just show a message - full lazy loading would require
+        // dynamic Splat component creation which is complex in Astro
+        const overlay = placeholder.querySelector('.splat-showcase__placeholder-overlay');
+
+        if (overlay) {
+          const text = overlay.querySelector('.splat-showcase__placeholder-text');
+
+          if (text) {
+            text.textContent = 'Loading scene...';
+          }
+        }
+
+        // In a full implementation, we would dynamically load the Splat component
+        // For now, the scene preview remains visible
+        console.info('Scene lazy loading would happen here:', placeholder.dataset);
+      });
+    });
+  }
+
+  // Initialize when DOM is ready
+  document.addEventListener('DOMContentLoaded', initSplatShowcase);
+
+  // Also handle Astro's view transitions if present
+  document.addEventListener('astro:page-load', initSplatShowcase);
+</script>

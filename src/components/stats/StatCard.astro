@@ -1,0 +1,150 @@
+---
+/**
+ * StatCard.astro
+ *
+ * A visually prominent card displaying a single statistic.
+ * Designed for clean, centered presentation of key metrics.
+ *
+ * Props:
+ *   - label: The descriptive label for the metric (e.g., "Total Downloads")
+ *   - value: The numeric value to display (will be formatted with locale separators)
+ *   - icon: Optional Bootstrap Icons class (e.g., "bi-download")
+ *   - loading: Whether the card is in a loading state
+ */
+
+interface Props {
+    label: string;
+    value?: number;
+    icon?: string;
+    loading?: boolean;
+}
+
+const { label, value, icon, loading = false } = Astro.props;
+
+/**
+ * Formats a number with locale-aware thousand separators.
+ */
+function formatNumber(num: number): string {
+    return new Intl.NumberFormat().format(num);
+}
+---
+
+<div class="stat-card" class:list={{ "stat-card--loading": loading }}>
+    {/* Icon */}
+    {icon && (
+        <div class="stat-card__icon">
+            <i class={`bi ${icon}`}></i>
+        </div>
+    )}
+
+    {/* Value - the hero number */}
+    {loading ? (
+        <span class="stat-card__value stat-card__value--skeleton">
+            <span class="skeleton-text">00,000</span>
+        </span>
+    ) : (
+        <span class="stat-card__value">
+            {value !== undefined ? formatNumber(value) : "—"}
+        </span>
+    )}
+
+    {/* Label */}
+    <span class="stat-card__label">{label}</span>
+</div>
+
+<style>
+    /**
+     * Stat Card Component Styles
+     * Clean, centered design for maximum visual impact.
+     */
+    .stat-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        gap: 0.5rem;
+        padding: 1.5rem 1rem;
+        background-color: #fff;
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
+        min-height: 160px;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    }
+
+    /* Icon styling */
+    .stat-card__icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 3.5rem;
+        height: 3.5rem;
+        background: linear-gradient(135deg, var(--color-primary), #6610f2);
+        border-radius: 1rem;
+        color: #fff;
+        font-size: 1.5rem;
+        margin-bottom: 0.25rem;
+    }
+
+    /* Value styling - the hero number */
+    .stat-card__value {
+        font-size: 2.25rem;
+        font-weight: 700;
+        color: var(--color-text);
+        line-height: 1.1;
+    }
+
+    /* Label styling */
+    .stat-card__label {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #6c757d;
+    }
+
+    /* Loading state */
+    .stat-card--loading {
+        pointer-events: none;
+    }
+
+    .stat-card__value--skeleton .skeleton-text {
+        display: inline-block;
+        background: linear-gradient(90deg, #e9ecef 25%, #f8f9fa 50%, #e9ecef 75%);
+        background-size: 200% 100%;
+        animation: skeleton-shimmer 1.5s infinite;
+        border-radius: 4px;
+        color: transparent;
+    }
+
+    @keyframes skeleton-shimmer {
+        0% {
+            background-position: 200% 0;
+        }
+        100% {
+            background-position: -200% 0;
+        }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 576px) {
+        .stat-card {
+            padding: 1.25rem 1rem;
+            min-height: 140px;
+        }
+
+        .stat-card__icon {
+            width: 3rem;
+            height: 3rem;
+            font-size: 1.25rem;
+        }
+
+        .stat-card__value {
+            font-size: 1.75rem;
+        }
+    }
+</style>

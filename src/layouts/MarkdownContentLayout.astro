@@ -4,24 +4,34 @@
  * It handles fetching, parsing, and rendering the content within a standardized, styled container.
  *
  * Props:
- *  - title?: string — An optional main heading to display on the page.
+ *  - title?: string — An optional main heading to display on the page (also used for SEO).
+ *  - description?: string — Meta description for SEO.
  *  - sourceUrl: string — The raw URL of the markdown file to fetch.
  */
 import Layout from "@/layouts/Layout.astro";
 import { getRemoteMarkdownAsHtml } from "@/services/remote-content";
+import { SITE } from "@/config/site.config";
 
 interface Props {
+  /** Page title for display and SEO */
   title?: string;
+  /** Meta description for SEO */
+  description?: string;
+  /** Raw URL of the markdown file to fetch */
   sourceUrl: string;
 }
 
-const { title, sourceUrl } = Astro.props;
+const { title, description, sourceUrl } = Astro.props;
 
 // Fetch and parse the remote markdown content at build time.
 const contentHtml = await getRemoteMarkdownAsHtml(sourceUrl);
+
+// SEO: Use provided description or generate a default based on title
+const seoTitle = title || "Documentation";
+const seoDescription = description || `${seoTitle} - ${SITE.tagline}`;
 ---
 
-<Layout>
+<Layout title={seoTitle} description={seoDescription}>
   <div class="container px-4 py-5">
     <div class="row">
       <div class="col-lg-10 mx-auto">

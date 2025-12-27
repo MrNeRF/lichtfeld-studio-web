@@ -1,9 +1,22 @@
 ---
+/**
+ * Create New Tools guide page.
+ * Fetches and displays the tool development guide from the main repository.
+ */
 import MarkdownContentLayout from "@/layouts/MarkdownContentLayout.astro";
+import { getDocUrl, DOC_PATHS } from "@/constants/project";
 
 // The source URL for the "create new tool" guide markdown file.
-const sourceUrl =
-  "https://github.com/MrNeRF/LichtFeld-Studio/raw/refs/heads/master/docs/docs/development/components/tools.md";
+const sourceUrl = getDocUrl(DOC_PATHS.createNewTools);
+
+// SEO metadata
+const seoTitle = "Create New Tools";
+const seoDescription =
+  "Developer guide for creating new tools in LichtFeld Studio. Learn how to extend the 3D Gaussian Splatting engine with custom functionality.";
 ---
 
-<MarkdownContentLayout sourceUrl={sourceUrl} />
+<MarkdownContentLayout
+  sourceUrl={sourceUrl}
+  title={seoTitle}
+  description={seoDescription}
+/>

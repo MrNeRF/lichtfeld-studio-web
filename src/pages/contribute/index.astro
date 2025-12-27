@@ -10,16 +10,22 @@
 import Layout from "@/layouts/Layout.astro";
 import ContributionCard from "@/components/contribute/ContributionCard.astro";
 import ContributorsWall from "@/components/contribute/ContributorsWall.astro";
-import { getContributionIdeas, REPO_OWNER, CONTRIBUTION_IDEAS_REPO_NAME } from "@/services/github";
+import { getContributionIdeas } from "@/services/github";
+import { REPO_OWNER, CONTRIBUTION_IDEAS_REPO_NAME } from "@/constants/project";
 
 // Fetch all required data from the GitHub API during the static build process.
 const ideas = await getContributionIdeas();
 
 // Construct the URL to the correct GitHub issues page.
 const contributionIdeasRepoUrl = `https://github.com/${REPO_OWNER}/${CONTRIBUTION_IDEAS_REPO_NAME}/issues`;
+
+// SEO metadata for the contribute page
+const seoTitle = "Contribute";
+const seoDescription =
+  "Join the LichtFeld Studio community! Contribute code, share datasets, implement features, or fix bugs. See open contribution ideas and become a contributor.";
 ---
 
-<Layout>
+<Layout title={seoTitle} description={seoDescription}>
   <!-- Page Header / Hero Section -->
   <div class="container px-4 py-5 text-center">
     <h1 class="display-5 fw-bold text-body-emphasis">Get Involved</h1>

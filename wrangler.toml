@@ -1,0 +1,45 @@
+# =============================================================================
+# LichtFeld Studio Website - Cloudflare Pages Configuration
+# =============================================================================
+#
+# This file configures Cloudflare Pages Functions for the website.
+# Used for the /api/stats endpoint that reads from D1.
+#
+# Note: Cron triggers are NOT supported in Pages Functions.
+# The stats-collector Worker (in workers/stats-collector/) handles data collection.
+#
+# Setup:
+#   1. Create D1 database: npx wrangler d1 create lichtfeld-stats
+#   2. Update database_id below
+#   3. Apply schema: npx wrangler d1 execute lichtfeld-stats --file=./db/schema.sql
+#   4. Deploy: npx wrangler pages deploy dist
+#
+# Local Development:
+#   pnpm run dev:stats  # Full workflow: reset DB, seed, build, and run dev server
+#   pnpm run dev:pages  # Just run the dev server (requires prior db:setup)
+#
+# =============================================================================
+
+# Name of the Pages project
+name = "lichtfeld-studio-web"
+
+# Build output directory (Astro's default)
+pages_build_output_dir = "dist"
+
+# Compatibility date for Workers runtime features
+compatibility_date = "2024-12-01"
+
+# -----------------------------------------------------------------------------
+# D1 Database Binding
+# -----------------------------------------------------------------------------
+# Shared database with the stats-collector Worker.
+# Create with: npx wrangler d1 create lichtfeld-stats
+# Then update the database_id.
+
+[[d1_databases]]
+binding = "STATS_DB"
+database_name = "lichtfeld-stats"
+database_id = "8e58f2af-6fff-4e6d-89b4-8aa02f719c01"
+# For local development, use the database name as preview_database_id
+# This ensures wrangler d1 execute and wrangler pages dev use the same local database
+preview_database_id = "lichtfeld-stats"

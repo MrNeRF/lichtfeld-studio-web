@@ -37,11 +37,11 @@ export const SITE = {
   shortName: "LFS",
 
   /** Primary tagline / slogan */
-  tagline: "High-Performance 3D Gaussian Splat Engine",
+  tagline: "All-in-One Open-Source 3D Gaussian Splatting Studio",
 
   /** Default meta description for pages without a custom description */
   description:
-    "LichtFeld Studio is a free and open-source, high-performance C++23/CUDA 12.8+ engine for 3D Gaussian Splatting. Train and render neural radiance fields with blazing-fast performance, optimized for research and production.",
+    "Train, edit, and render 3D Gaussian Splats in a single desktop app. LichtFeld Studio is a free and open-source studio with a full editing suite, 2.4× faster training, and completely offline workflow. No cloud required.",
 
   /** Production site URL (without trailing slash) */
   url: "https://lichtfeld.io",
@@ -105,7 +105,12 @@ export const SOFTWARE_APP = {
   /** Supported operating systems */
   operatingSystem: ["Windows", "Linux"],
 
-  /** Software version (should be updated with releases) */
+  /**
+   * Software version placeholder.
+   * Note: The actual version is fetched dynamically from GitHub releases/tags
+   * at build time via `getLatestVersion()` in the Seo.astro component.
+   * This value is used as a fallback if the API call fails.
+   */
   softwareVersion: "1.0.0",
 
   /** Pricing - free and open source */
@@ -120,15 +125,16 @@ export const SOFTWARE_APP = {
   /** Screenshot for rich results */
   screenshot: "/static/lfstudio-screen.jpg",
 
-  /** Feature list for rich snippets */
+  /** Feature list for rich snippets (matches homepage features) */
   featureList: [
-    "Real-time 3D Gaussian Splatting rendering",
-    "MCMC-based optimization",
-    "Bilateral-grid appearance modeling",
-    "C++23 and CUDA 12.8+ support",
-    "LibTorch 2.7.0 integration",
-    "Docker support",
-    "Interactive RGB/depth/combined views",
+    "2.4× faster training than reference implementations",
+    "Full editing suite with brush, lasso, and polygon selection",
+    "Completely offline workflow, no cloud required",
+    "Mask support with segment, ignore, and alpha modes",
+    "Splat composition and 3-point alignment",
+    "Save and resume training sessions",
+    "Modern, intuitive UI",
+    "GPL-3.0 open source license",
   ],
 
   /** Hardware requirements */

@@ -1,5 +1,0 @@
-# Ignore test files and dependencies when building Pages Functions
-node_modules
-test
-vitest.config.ts
-*.test.ts

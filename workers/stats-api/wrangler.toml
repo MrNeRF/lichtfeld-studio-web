@@ -1,0 +1,47 @@
+# =============================================================================
+# LichtFeld Stats API Worker
+# =============================================================================
+#
+# Serves download statistics from D1.
+# Endpoint: GET /api/stats
+#
+# Deployment:
+#   cd workers/stats-api && wrangler deploy
+#
+# Local Development:
+#   cd workers/stats-api && wrangler dev
+#
+# =============================================================================
+
+name = "lichtfeld-stats-api"
+main = "src/index.ts"
+compatibility_date = "2024-12-01"
+
+# -----------------------------------------------------------------------------
+# Routes
+# -----------------------------------------------------------------------------
+# More specific than the static site's /* route, so this takes precedence.
+
+[[routes]]
+pattern = "lichtfeld.io/api/*"
+zone_name = "lichtfeld.io"
+
+# Also serve on workers.dev for testing
+workers_dev = true
+
+# -----------------------------------------------------------------------------
+# D1 Database Binding
+# -----------------------------------------------------------------------------
+# Shared database with the stats-collector Worker.
+
+[[d1_databases]]
+binding = "STATS_DB"
+database_name = "lichtfeld-stats"
+database_id = "8e58f2af-6fff-4e6d-89b4-8aa02f719c01"
+
+# -----------------------------------------------------------------------------
+# Observability
+# -----------------------------------------------------------------------------
+
+[observability]
+enabled = true

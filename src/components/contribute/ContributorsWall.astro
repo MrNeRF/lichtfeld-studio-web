@@ -47,9 +47,9 @@ const contributors: Contributor[] = providedContributors ?? (await getContributo
 
 {
   contributors.length > 0 && (
-    <div class="container px-4 py-5" id={sectionId}>
-      {showHeading && <h2 class="pb-2 border-bottom">{title}</h2>}
-      <p class="mt-3">A huge thank you to everyone who has contributed to the project.</p>
+    <div class="container px-6 py-12" id={sectionId}>
+      {showHeading && <h2 class="text-2xl font-semibold text-black pb-2">{title}</h2>}
+      <p class="mt-4">A huge thank you to everyone who has contributed to the project.</p>
 
       <div class="contributor-wall">
         {contributors.map((contributor: Contributor) => (

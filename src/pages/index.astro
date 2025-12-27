@@ -100,7 +100,7 @@ const seoDescription = SITE.description;
   </header>
 
   <!-- Introduction -->
-  <section class="container px-6 pt-14 pb-6">
+  <section class="intro-section container px-6 pt-14 pb-6">
     <div class="row items-center g-5">
       <div class="col-12 col-lg-6 order-2 order-lg-1">
         <!-- SmartVideo replaces the GIF with an MP4 for smaller payload and better LCP -->
@@ -965,13 +965,8 @@ const seoDescription = SITE.description;
     /* The .hero__stack panel scales with content; no fixed viewport panel needed anymore. */
   }
 
-  /* Additional narrow-phone tweaks: stack CTAs and tighten padding */
-  @media (max-width: 575.98px) {
-    .hero__stack {
-      padding-block: clamp(1.25rem, 6vh, 2.5rem);
-      padding-inline: clamp(0.75rem, 5vw, 1.5rem);
-    }
-
+  /* Tablet: stack hero buttons in column layout */
+  @media (max-width: 991.98px) {
     .hero__actions {
       flex-direction: column;
       align-items: stretch;
@@ -980,12 +975,38 @@ const seoDescription = SITE.description;
 
     .hero__actions .btn {
       width: 100%;
+      padding: 0.625rem 1.25rem;
+      font-size: 0.9375rem;
+    }
+  }
+
+  /* Additional narrow-phone tweaks: tighten padding and reduce button size */
+  @media (max-width: 575.98px) {
+    .hero__stack {
+      padding-block: clamp(1.25rem, 6vh, 2.5rem);
+      padding-inline: clamp(0.75rem, 5vw, 1.5rem);
+    }
+
+    .hero__actions .btn {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
     }
   }
 
   /* Narrower container for features section */
   #features .container {
     max-width: 1180px;
+  }
+
+  /* Match support section container width to features section */
+  #support-the-project .container {
+    max-width: 1180px;
+  }
+
+  /* Match contributors section container width to features section */
+  .contributors-section :global(.container) {
+    max-width: 1180px;
+    text-align: center;
   }
 
   /* ===========================
@@ -1279,7 +1300,7 @@ const seoDescription = SITE.description;
   /* Responsive bento grid - tablet */
   @media (max-width: 991.98px) {
     .features-bento {
-      max-width: 640px;
+      max-width: 740px;
       margin-inline: auto;
     }
     .bento-row--hero,
@@ -1309,9 +1330,9 @@ const seoDescription = SITE.description;
     }
     .bento-checklist {
       flex-direction: column;
-      align-items: flex-start;
+      align-items: center;
       gap: 0.75rem;
-      padding-inline: 0;
+      padding-inline: 1rem;
     }
     .bento-check-item {
       font-size: 1rem;
@@ -1432,6 +1453,7 @@ const seoDescription = SITE.description;
     background: linear-gradient(145deg, #ffffff 0%, #f0f4f8 100%);
     border-radius: 1.5rem;
     padding: 2.5rem;
+    margin-inline: 2rem;
     border: 2px solid rgba(99, 102, 241, 0.2);
     box-shadow:
       0 4px 6px -1px rgba(0, 0, 0, 0.08),
@@ -1442,6 +1464,7 @@ const seoDescription = SITE.description;
   .support-box__header {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 0.75rem;
     margin-bottom: 0.75rem;
   }
@@ -1473,6 +1496,8 @@ const seoDescription = SITE.description;
     font-size: 1rem;
     margin-bottom: 1.5rem;
     max-width: 600px;
+    margin-inline: auto;
+    text-align: center;
   }
 
   /* Override card styles inside support box */
@@ -1508,6 +1533,7 @@ const seoDescription = SITE.description;
   .donate-amounts {
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
     gap: 0.75rem;
     margin-bottom: 1.5rem;
   }
@@ -1593,6 +1619,7 @@ const seoDescription = SITE.description;
   .donate-providers {
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
     gap: 0.75rem;
   }
 
@@ -1671,10 +1698,12 @@ const seoDescription = SITE.description;
   .donate-bitcoin-popup {
     display: none;
     margin-top: 1rem;
+    margin-inline: auto;
     padding: 1rem;
     background: white;
     border-radius: 0.75rem;
     border: 1px solid #e2e8f0;
+    max-width: 400px;
   }
 
   .donate-bitcoin-popup[aria-hidden="false"] {
@@ -1767,6 +1796,53 @@ const seoDescription = SITE.description;
 
     .donate-provider {
       width: 100%;
+    }
+  }
+
+  /* ===========================
+   * Mobile Section Spacing
+   * =========================== */
+
+  @media (max-width: 767.98px) {
+    /* Reduce gap between intro content and video */
+    .intro-section {
+      padding-top: 2.5rem;
+      padding-bottom: 1rem;
+    }
+
+    /* Reduce gap before Features section */
+    #features .container {
+      padding-top: 3rem;
+      padding-bottom: 2rem;
+    }
+
+    /* Reduce gap around Support section */
+    #support-the-project .container {
+      padding-top: 2rem;
+      padding-bottom: 2rem;
+    }
+
+    /* Reduce horizontal margin on tablet */
+    .support-box {
+      margin-inline: 1rem;
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    /* Further reduce spacing on smallest screens */
+    #features .container {
+      padding-top: 2rem;
+      padding-bottom: 1.5rem;
+    }
+
+    #support-the-project .container {
+      padding-top: 1.5rem;
+      padding-bottom: 1.5rem;
+    }
+
+    /* Smaller margin on phones */
+    .support-box {
+      margin-inline: 0.5rem;
     }
   }
 </style>

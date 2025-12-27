@@ -21,6 +21,7 @@ import {
   GITHUB_REPO_URL,
   GITHUB_RELEASES_URL,
   GITHUB_WIKI_URL,
+  GITHUB_SPONSORS_URL,
   DISCORD_URL,
   PAYPAL_URL,
   DONORBOX_URL,
@@ -82,16 +83,14 @@ const seoDescription = SITE.description;
                 <i class="bi bi-book mr-2" aria-hidden="true"></i>
                 Get Started
               </a>
-              <!-- Tertiary CTA: Join Discord (icon + kept white text for contrast on dark imagery) -->
+              <!-- Tertiary CTA: Donate (scrolls to support section) -->
               <a
                 class="btn btn-outline-light btn-lg hero__support-link"
-                href={DISCORD_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Open the Discord community in a new tab"
+                href="#support-the-project"
+                aria-label="Scroll to support the project section"
               >
-                <i class="bi bi-discord mr-2" aria-hidden="true"></i>
-                Discord
+                <i class="bi bi-heart-fill mr-2" aria-hidden="true"></i>
+                Donate
               </a>
             </div>
           </div>
@@ -107,11 +106,14 @@ const seoDescription = SITE.description;
         <!-- SmartVideo replaces the GIF with an MP4 for smaller payload and better LCP -->
         <!-- See: https://web.dev/articles/replace-gifs-with-videos -->
         <div class="intro-media">
-          <SmartVideo
-            src={`${base}videos/viewer_demo`}
-            class="block mx-auto img-fluid rounded-2xl"
-            sizeStrategy="intrinsic"
-          />
+          <div class="intro-video-wrapper">
+            <SmartVideo
+              src={`${base}videos/viewer_demo`}
+              poster={`${base}videos/viewer_demo_poster.jpg`}
+              class="rounded-2xl"
+              sizeStrategy="fill"
+            />
+          </div>
         </div>
       </div>
 
@@ -305,105 +307,162 @@ const seoDescription = SITE.description;
     </div>
   </section>
 
+  <!-- What's New Section (commented out)
+  <section id="whats-new" class="whats-new-section">
+    <div class="container px-6 pt-22 pb-12">
+      <div class="row items-start g-5">
+        <div class="col-12 col-lg-7">
+          <div class="whats-new-video">
+            <iframe
+              src="https://www.youtube.com/embed/zWIzBHRc-60"
+              title="What's New in LichtFeld Studio"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allowfullscreen
+            >
+            </iframe>
+          </div>
+        </div>
+        <div class="col-12 col-lg-5">
+          <h2 class="text-3xl font-bold text-gray-900 mb-4">What's New?</h2>
+          <p class="text-lg text-gray-600 mb-12">
+            LichtFeld Studio is evolving rapidly. Join our Discord server to stay up to date with the latest features,
+            improvements, and community contributions.
+          </p>
+          <div class="whats-new-actions">
+            <a href={GITHUB_RELEASES_URL} class="btn btn-primary btn-lg" target="_blank" rel="noopener noreferrer">
+              <svg class="bi" width="1.25em" height="1.25em" aria-hidden="true">
+                <use href={`${base}static/bootstrap-icons.svg#download`}></use>
+              </svg>
+              Download
+            </a>
+            <a href={DISCORD_URL} class="btn btn-outline-secondary btn-lg" target="_blank" rel="noopener noreferrer">
+              <svg class="bi" width="1.25em" height="1.25em" aria-hidden="true">
+                <use href={`${base}static/bootstrap-icons.svg#discord`}></use>
+              </svg>
+              Join the Community
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  -->
+
   <!-- Support / Donations (deeplink target) -->
   <section id="support-the-project" aria-labelledby="support-the-project-heading">
-    <div class="container px-6 pt-22 pb-8">
-      <h2 id="support-the-project-heading" class="text-2xl font-semibold text-black pb-2">Support the Project</h2>
-      <p class="text-gray-700 mt-4 mb-6">
-        Fund development and maintenance through your preferred platform. Every contribution helps keep the project
-        alive and fund further research and development.
-      </p>
-
-      <div class="row g-4 row-cols-1 row-cols-md-3">
-        <!-- PayPal Card -->
-        <div class="col flex">
-          <div class="card h-full w-full shadow-sm">
-            <div class="card-body flex flex-col">
-              <h3 class="text-xl font-semibold mb-2 flex items-center gap-2">
-                <svg class="bi" width="1em" height="1em" focusable="false" aria-hidden="true">
-                  <use href={`${base}static/bootstrap-icons.svg#paypal`}></use>
-                </svg>
-                <span>PayPal</span>
-              </h3>
-              <p class="text-gray-500">Make a one-time donation via PayPal.</p>
-
-              <div class="mt-auto">
-                <a
-                  class="btn btn-primary w-full"
-                  href={PAYPAL_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Open the PayPal donation link in a new tab"
-                >
-                  Donate via PayPal
-                </a>
-              </div>
-            </div>
+    <div class="container px-6 pt-12 pb-12">
+      <div class="support-box">
+        <div class="support-box__header">
+          <div class="support-box__icon" aria-hidden="true">
+            <svg class="bi" width="1.5em" height="1.5em">
+              <use href={`${base}static/bootstrap-icons.svg#heart-fill`}></use>
+            </svg>
           </div>
+          <h2 id="support-the-project-heading" class="support-box__title">Support the Project</h2>
         </div>
+        <p class="support-box__desc">
+          Fund development and maintenance through your preferred platform. Every contribution helps keep the project
+          alive and fund further research and development.
+        </p>
 
-        <!-- DonorBox Card -->
-        <div class="col flex">
-          <div class="card h-full w-full shadow-sm">
-            <div class="card-body flex flex-col">
-              <h3 class="text-xl font-semibold mb-2 flex items-center gap-2">
-                <svg class="bi" width="1em" height="1em" focusable="false" aria-hidden="true">
-                  <use href={`${base}static/bootstrap-icons.svg#gift-fill`}></use>
-                </svg>
-                <span>DonorBox</span>
-              </h3>
-              <p class="text-gray-500">Use DonorBox for secure one-time or monthly donations.</p>
+      <!-- Amount Selection -->
+      <div class="donate-amounts" role="radiogroup" aria-label="Select donation amount">
+        <button type="button" class="donate-amount" data-amount="5" aria-pressed="false">$5</button>
+        <button type="button" class="donate-amount" data-amount="10" aria-pressed="true">$10</button>
+        <button type="button" class="donate-amount" data-amount="25" aria-pressed="false">$25</button>
+        <button type="button" class="donate-amount" data-amount="100" aria-pressed="false">$100</button>
+        <div class="donate-amount-custom">
+          <span class="donate-amount-custom__prefix">$</span>
+          <input
+            type="number"
+            class="donate-amount-custom__input"
+            id="custom-amount"
+            placeholder="Other"
+            min="1"
+            aria-label="Enter custom donation amount"
+          />
+        </div>
+      </div>
 
-              <div class="mt-auto">
-                <a
-                  class="btn btn-primary w-full"
-                  href={DONORBOX_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Open the DonorBox donation link in a new tab"
-                >
-                  Donate via DonorBox
-                </a>
-              </div>
-            </div>
+      <!-- Provider Buttons -->
+      <div class="donate-providers">
+        <a
+          class="donate-provider donate-provider--paypal"
+          href={PAYPAL_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-provider="paypal"
+          data-base-url={PAYPAL_URL}
+          aria-label="Donate via PayPal"
+        >
+          <svg class="bi" width="1.25em" height="1.25em" aria-hidden="true">
+            <use href={`${base}static/bootstrap-icons.svg#paypal`}></use>
+          </svg>
+          PayPal
+        </a>
+        <a
+          class="donate-provider donate-provider--donorbox"
+          href={DONORBOX_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-provider="donorbox"
+          data-base-url={DONORBOX_URL}
+          aria-label="Donate via DonorBox"
+        >
+          <svg class="bi" width="1.25em" height="1.25em" aria-hidden="true">
+            <use href={`${base}static/bootstrap-icons.svg#gift-fill`}></use>
+          </svg>
+          DonorBox
+        </a>
+        <a
+          class="donate-provider donate-provider--github"
+          href={GITHUB_SPONSORS_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-provider="github"
+          aria-label="Sponsor on GitHub"
+        >
+          <svg class="bi" width="1.25em" height="1.25em" aria-hidden="true">
+            <use href={`${base}static/bootstrap-icons.svg#github`}></use>
+          </svg>
+          GitHub Sponsors
+        </a>
+        <button
+          type="button"
+          class="donate-provider donate-provider--bitcoin"
+          data-provider="bitcoin"
+          data-wallet={CRYPTO_WALLET_BITCOIN}
+          aria-label="Copy Bitcoin wallet address"
+        >
+          <svg class="bi" width="1.25em" height="1.25em" aria-hidden="true">
+            <use href={`${base}static/bootstrap-icons.svg#currency-bitcoin`}></use>
+          </svg>
+          Bitcoin
+        </button>
+      </div>
+
+      <!-- Bitcoin wallet popup (hidden by default) -->
+      <div class="donate-bitcoin-popup" id="bitcoin-popup" aria-hidden="true">
+        <div class="donate-bitcoin-popup__content">
+          <p class="donate-bitcoin-popup__label">Bitcoin Wallet Address</p>
+          <div class="donate-bitcoin-popup__address">
+            <code id="btc-wallet-display">{CRYPTO_WALLET_BITCOIN}</code>
+            <button
+              type="button"
+              class="donate-bitcoin-popup__copy"
+              id="copy-btc-btn"
+              aria-label="Copy wallet address"
+            >
+              <svg class="bi" width="1em" height="1em" aria-hidden="true">
+                <use href={`${base}static/bootstrap-icons.svg#clipboard`}></use>
+              </svg>
+            </button>
           </div>
+          <p class="donate-bitcoin-popup__hint" id="btc-copy-status">Click to copy</p>
         </div>
-
-        <!-- Crypto Card -->
-        <div class="col flex">
-          <div class="card h-full w-full shadow-sm">
-            <div class="card-body flex flex-col">
-              <h3 class="text-xl font-semibold mb-2 flex items-center gap-2">
-                <svg class="bi" width="1em" height="1em" focusable="false" aria-hidden="true">
-                  <use href={`${base}static/bootstrap-icons.svg#currency-bitcoin`}></use>
-                </svg>
-                <span>Bitcoin</span>
-              </h3>
-              <p class="text-gray-500">Send a direct contribution to our Bitcoin wallet.</p>
-
-              <div class="mt-auto">
-                <div class="input-group">
-                  <input
-                    type="text"
-                    class="form-control"
-                    value={CRYPTO_WALLET_BITCOIN}
-                    readonly
-                    id="btc-wallet-address"
-                    aria-label="Bitcoin wallet address"
-                  />
-                  <button
-                    class="btn btn-outline-secondary"
-                    type="button"
-                    id="copy-btc-address-btn"
-                    title="Copy to clipboard"
-                  >
-                    <i class="bi bi-clipboard" aria-hidden="true"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      </div>
       </div>
     </div>
   </section>
@@ -559,6 +618,125 @@ const seoDescription = SITE.description;
       }, 100); // A 100ms delay is usually sufficient.
     }
   });
+
+  /**
+   * Donation Box Interactivity
+   * - Handles amount selection (preset buttons and custom input)
+   * - Updates provider URLs with selected amount
+   * - Manages Bitcoin wallet popup and copy functionality
+   */
+  (function setupDonationBox() {
+    // Amount selection elements
+    const amountButtons = document.querySelectorAll<HTMLButtonElement>(".donate-amount");
+    const customInput = document.getElementById("custom-amount") as HTMLInputElement | null;
+
+    // Provider elements
+    const paypalLink = document.querySelector<HTMLAnchorElement>('[data-provider="paypal"]');
+    const donorboxLink = document.querySelector<HTMLAnchorElement>('[data-provider="donorbox"]');
+    const bitcoinBtn = document.querySelector<HTMLButtonElement>('[data-provider="bitcoin"]');
+
+    // Bitcoin popup elements
+    const bitcoinPopup = document.getElementById("bitcoin-popup");
+    const copyBtcBtn = document.getElementById("copy-btc-btn");
+    const btcCopyStatus = document.getElementById("btc-copy-status");
+    const btcWalletDisplay = document.getElementById("btc-wallet-display");
+
+    // Track the currently selected amount (default: $10)
+    let selectedAmount = 10;
+
+    /**
+     * Updates the visual state of amount buttons.
+     */
+    function updateAmountSelection(activeButton: HTMLButtonElement | null) {
+      amountButtons.forEach((btn) => {
+        btn.setAttribute("aria-pressed", "false");
+      });
+
+      if (activeButton) {
+        activeButton.setAttribute("aria-pressed", "true");
+      }
+
+      // Clear custom input if a preset is selected
+      if (activeButton && customInput) {
+        customInput.value = "";
+      }
+    }
+
+    /**
+     * Updates the provider URLs with the current amount.
+     */
+    function updateProviderUrls() {
+      // PayPal: append amount to URL (PayPal.me supports /amount format)
+      if (paypalLink) {
+        const baseUrl = paypalLink.dataset.baseUrl || "";
+        paypalLink.href = `${baseUrl}/${selectedAmount}`;
+      }
+
+      // DonorBox: use query parameter for amount
+      if (donorboxLink) {
+        const baseUrl = donorboxLink.dataset.baseUrl || "";
+        donorboxLink.href = `${baseUrl}?amount=${selectedAmount}`;
+      }
+    }
+
+    // Set up preset amount button clicks
+    amountButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const amount = parseInt(btn.dataset.amount || "10", 10);
+        selectedAmount = amount;
+        updateAmountSelection(btn);
+        updateProviderUrls();
+      });
+    });
+
+    // Set up custom amount input
+    if (customInput) {
+      customInput.addEventListener("input", () => {
+        const value = parseInt(customInput.value, 10);
+        if (value > 0) {
+          selectedAmount = value;
+          updateAmountSelection(null); // Deselect all preset buttons
+          updateProviderUrls();
+        }
+      });
+
+      customInput.addEventListener("focus", () => {
+        updateAmountSelection(null); // Deselect presets when focusing custom input
+      });
+    }
+
+    // Bitcoin button: toggle popup
+    if (bitcoinBtn && bitcoinPopup) {
+      bitcoinBtn.addEventListener("click", () => {
+        const isHidden = bitcoinPopup.getAttribute("aria-hidden") === "true";
+        bitcoinPopup.setAttribute("aria-hidden", isHidden ? "false" : "true");
+      });
+    }
+
+    // Copy Bitcoin address
+    if (copyBtcBtn && btcWalletDisplay && btcCopyStatus) {
+      copyBtcBtn.addEventListener("click", async () => {
+        const address = btcWalletDisplay.textContent || "";
+        try {
+          await navigator.clipboard.writeText(address);
+          btcCopyStatus.textContent = "Copied!";
+          btcCopyStatus.classList.add("copied");
+
+          // Reset after 2 seconds
+          setTimeout(() => {
+            btcCopyStatus.textContent = "Click to copy";
+            btcCopyStatus.classList.remove("copied");
+          }, 2000);
+        } catch (err) {
+          console.error("Failed to copy:", err);
+          btcCopyStatus.textContent = "Failed to copy";
+        }
+      });
+    }
+
+    // Initialize with default amount
+    updateProviderUrls();
+  })();
 </script>
 
 <style>
@@ -731,14 +909,15 @@ const seoDescription = SITE.description;
 
   /* Ensure the secondary CTA is visible over dark gradients */
   .hero__support-link {
-    border-color: rgba(255, 255, 255, 0.6);
+    background: rgba(99, 102, 241, 0.25);
+    border-color: rgba(165, 180, 252, 0.5);
     color: #fff;
   }
 
   .hero__support-link:hover {
-    border-color: #fff;
+    background: rgba(99, 102, 241, 0.4);
+    border-color: rgba(165, 180, 252, 0.8);
     color: #fff;
-    background: rgba(255, 255, 255, 0.1);
   }
 
   /* Get Started button with semi-transparent green background */
@@ -948,6 +1127,13 @@ const seoDescription = SITE.description;
     box-shadow:
       0 20px 40px rgba(0, 0, 0, 0.08),
       0 8px 16px rgba(0, 0, 0, 0.04);
+  }
+
+  .intro-video-wrapper {
+    position: relative;
+    width: 100%;
+    /* Aspect ratio 600:338 ≈ 16:9 */
+    aspect-ratio: 600 / 338;
   }
 
   .intro-media img {
@@ -1243,6 +1429,418 @@ const seoDescription = SITE.description;
   @media (min-width: 768px) {
     .section-divider svg {
       height: 48px;
+    }
+  }
+
+  /* ===========================
+   * What's New Section
+   * =========================== */
+
+  .whats-new-section {
+  }
+
+  .whats-new-video {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  }
+
+  .whats-new-video iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  .whats-new-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    max-width: 280px;
+    margin: 0 auto;
+  }
+
+  .whats-new-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    padding: 0.875rem 1.5rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+    width: 100%;
+  }
+
+  .whats-new-actions .btn-primary {
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
+    border: none;
+    color: white;
+  }
+
+  .whats-new-actions .btn-primary:hover {
+    background: linear-gradient(135deg, #4338ca, #4f46e5);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+  }
+
+  .whats-new-actions .btn-outline-secondary {
+    background: transparent;
+    border: 2px solid #e2e8f0;
+    color: #475569;
+  }
+
+  .whats-new-actions .btn-outline-secondary:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    transform: translateY(-2px);
+  }
+
+  /* ===========================
+   * Support the Project Box
+   * =========================== */
+
+  .support-box {
+    background: linear-gradient(145deg, #ffffff 0%, #f0f4f8 100%);
+    border-radius: 1.5rem;
+    padding: 2.5rem;
+    border: 2px solid rgba(99, 102, 241, 0.2);
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.08),
+      0 2px 4px -2px rgba(0, 0, 0, 0.05),
+      0 12px 32px -8px rgba(99, 102, 241, 0.12);
+  }
+
+  .support-box__header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .support-box__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.75rem;
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    color: white;
+  }
+
+  .support-box__icon svg {
+    fill: currentColor;
+  }
+
+  .support-box__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+  }
+
+  .support-box__desc {
+    color: #475569;
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    max-width: 600px;
+  }
+
+  /* Override card styles inside support box */
+  .support-box .card {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(100, 116, 139, 0.1);
+  }
+
+  .support-box .btn-primary {
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
+    border: none;
+  }
+
+  .support-box .btn-primary:hover {
+    background: linear-gradient(135deg, #4338ca, #4f46e5);
+  }
+
+  @media (max-width: 767.98px) {
+    .support-box {
+      padding: 1.5rem;
+      border-radius: 1rem;
+    }
+
+    .support-box__title {
+      font-size: 1.25rem;
+    }
+  }
+
+  /* ===========================
+   * Donation Amount Selector
+   * =========================== */
+
+  .donate-amounts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .donate-amount {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 4.5rem;
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #475569;
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .donate-amount:hover {
+    border-color: #a5b4fc;
+    background: #f8fafc;
+  }
+
+  .donate-amount[aria-pressed="true"] {
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
+    border-color: transparent;
+    color: white;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+  }
+
+  .donate-amount-custom {
+    display: flex;
+    align-items: center;
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding-left: 0.75rem;
+    transition: all 0.15s ease;
+  }
+
+  .donate-amount-custom:focus-within {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  }
+
+  .donate-amount-custom__prefix {
+    font-weight: 600;
+    color: #64748b;
+  }
+
+  .donate-amount-custom__input {
+    width: 5rem;
+    padding: 0.75rem 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+    background: transparent;
+    border: none;
+    outline: none;
+  }
+
+  .donate-amount-custom__input::placeholder {
+    color: #94a3b8;
+    font-weight: 500;
+  }
+
+  /* Hide number input spinners */
+  .donate-amount-custom__input::-webkit-outer-spin-button,
+  .donate-amount-custom__input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .donate-amount-custom__input[type="number"] {
+    -moz-appearance: textfield;
+  }
+
+  /* ===========================
+   * Donation Provider Buttons
+   * =========================== */
+
+  .donate-providers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .donate-provider {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.5rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 0.75rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .donate-provider svg {
+    flex-shrink: 0;
+    fill: currentColor;
+  }
+
+  /* PayPal - Blue */
+  .donate-provider--paypal {
+    background: #0070ba;
+    color: white;
+  }
+  .donate-provider--paypal:hover {
+    background: #005ea6;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 112, 186, 0.3);
+  }
+
+  /* DonorBox - Teal/Green */
+  .donate-provider--donorbox {
+    background: #28a745;
+    color: white;
+  }
+  .donate-provider--donorbox:hover {
+    background: #218838;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+  }
+
+  /* GitHub - Dark */
+  .donate-provider--github {
+    background: #24292f;
+    color: white;
+  }
+  .donate-provider--github:hover {
+    background: #1b1f23;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(36, 41, 47, 0.3);
+  }
+
+  /* Bitcoin - Orange */
+  .donate-provider--bitcoin {
+    background: #f7931a;
+    color: white;
+  }
+  .donate-provider--bitcoin:hover {
+    background: #e8850f;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(247, 147, 26, 0.3);
+  }
+
+  /* ===========================
+   * Bitcoin Popup
+   * =========================== */
+
+  .donate-bitcoin-popup {
+    display: none;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 0.75rem;
+    border: 1px solid #e2e8f0;
+  }
+
+  .donate-bitcoin-popup[aria-hidden="false"] {
+    display: block;
+    animation: fadeIn 0.2s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .donate-bitcoin-popup__label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 0.5rem;
+  }
+
+  .donate-bitcoin-popup__address {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+  }
+
+  .donate-bitcoin-popup__address code {
+    flex: 1;
+    font-size: 0.8125rem;
+    color: #1e293b;
+    word-break: break-all;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  }
+
+  .donate-bitcoin-popup__copy {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    color: #64748b;
+  }
+
+  .donate-bitcoin-popup__copy:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #475569;
+  }
+
+  .donate-bitcoin-popup__hint {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-top: 0.5rem;
+    text-align: center;
+  }
+
+  .donate-bitcoin-popup__hint.copied {
+    color: #059669;
+    font-weight: 500;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 575.98px) {
+    .donate-amounts {
+      gap: 0.5rem;
+    }
+
+    .donate-amount {
+      min-width: 3.5rem;
+      padding: 0.625rem 1rem;
+      font-size: 0.9375rem;
+    }
+
+    .donate-providers {
+      flex-direction: column;
+    }
+
+    .donate-provider {
+      width: 100%;
     }
   }
 </style>

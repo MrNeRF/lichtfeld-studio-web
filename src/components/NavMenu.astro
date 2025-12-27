@@ -332,11 +332,19 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
   .nav-menu__dropdown-container {
     display: flex;
     align-items: center;
+    border-bottom: 2px solid transparent; /* Single underline spanning both link and toggle */
+    transition: border-color 0.15s ease-in-out;
+  }
+
+  /* Active state for the entire dropdown container */
+  .nav-menu__dropdown-container:has(.nav-menu__link.is-active) {
+    border-bottom-color: var(--color-primary);
   }
 
   /* Adjust padding for the link part of the split button */
   .nav-menu__dropdown-container .nav-menu__link {
-    padding-right: 0.5rem;
+    padding-right: 0.25rem;
+    border-bottom: none; /* Remove individual border, container handles it */
   }
 
   /* The caret/toggle button part of the split button */
@@ -345,13 +353,10 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
     align-items: center;
     background: none;
     border: none;
-    border-bottom: 2px solid transparent; /* Match the link's border */
     cursor: pointer;
-    padding: 0.5rem 0.5rem 0.5rem 0.25rem;
+    padding: 0.5rem 0.5rem 0.5rem 0;
     color: var(--color-text);
-    transition:
-      color 0.15s ease-in-out,
-      border-color 0.15s ease-in-out;
+    transition: color 0.15s ease-in-out;
   }
 
   /* The caret icon, created with CSS borders */
@@ -368,10 +373,9 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
     border-left: 0.3em solid transparent;
   }
 
-  /* Active state for the toggle part - match the link's active style */
-  .nav-menu__dropdown-container .nav-menu__link.is-active + .nav-menu__dropdown-toggle {
+  /* Active state for the toggle - match the link's text color */
+  .nav-menu__dropdown-container:has(.nav-menu__link.is-active) .nav-menu__dropdown-toggle {
     color: var(--color-primary);
-    border-bottom-color: var(--color-primary);
   }
 
   /* Submenu styles */

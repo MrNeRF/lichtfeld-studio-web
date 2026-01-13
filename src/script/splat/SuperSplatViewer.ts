@@ -20,6 +20,7 @@ import {
   Pose,
   RESOLUTION_AUTO,
   Vec3,
+  Quat,
 } from 'playcanvas';
 
 import type { IDisposable } from './core/interfaces/IDisposable';
@@ -68,6 +69,13 @@ interface SuperSplatDocument {
         position: [number, number, number];
         target: [number, number, number];
       }>;
+    },
+  ];
+  splats: [
+    {
+      position: [number, number, number];
+      rotation: [number, number, number, number];
+      scale: [number, number, number];
     },
   ];
 }
@@ -937,10 +945,12 @@ export class SuperSplatViewer implements IDisposable {
    * Initialize splat entity.
    */
   private _initSplat(splatAsset: Asset): void {
+    const attrs = this._document.splats[0];
     this._splatEntity = new Entity('Scene');
     this._splatEntity.addComponent('gsplat', { asset: splatAsset });
-    this._splatEntity.setPosition(0, 0, 0);
-    this._splatEntity.setEulerAngles(0, 0, 180);
+    this._splatEntity.setLocalPosition(new Vec3(attrs.position));
+    this._splatEntity.setLocalRotation(new Quat(attrs.rotation));
+    this._splatEntity.setLocalScale(new Vec3(attrs.scale));
     this._app.root.addChild(this._splatEntity);
   }
 

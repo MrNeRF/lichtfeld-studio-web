@@ -71,3 +71,23 @@ database_id = "8e58f2af-6fff-4e6d-89b4-8aa02f719c01"
 
 [observability]
 enabled = true
+
+# -----------------------------------------------------------------------------
+# Cron Triggers
+# -----------------------------------------------------------------------------
+# Runs daily at 02:00 UTC to collect GitHub release download statistics.
+# GitHub's traffic data updates hourly, so 2 AM gives complete previous day stats.
+# Reference: https://developers.cloudflare.com/workers/configuration/cron-triggers/
+
+[triggers]
+crons = ["0 2 * * *"]
+
+# -----------------------------------------------------------------------------
+# Environment Variables
+# -----------------------------------------------------------------------------
+# Non-sensitive configuration for the stats collector.
+# For GITHUB_TOKEN, use: pnpm wrangler secret put GITHUB_TOKEN
+
+[vars]
+GITHUB_OWNER = "MrNeRF"
+GITHUB_REPO = "LichtFeld-Studio"

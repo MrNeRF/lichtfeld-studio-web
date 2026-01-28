@@ -15,7 +15,10 @@
 
 name = "lichtfeld-stats-api"
 main = "src/index.ts"
-compatibility_date = "2024-12-01"
+compatibility_date = "2026-01-28"
+
+# Also serve on workers.dev for testing
+workers_dev = true
 
 # -----------------------------------------------------------------------------
 # Routes
@@ -25,9 +28,6 @@ compatibility_date = "2024-12-01"
 [[routes]]
 pattern = "lichtfeld.io/api/*"
 zone_name = "lichtfeld.io"
-
-# Also serve on workers.dev for testing
-workers_dev = true
 
 # -----------------------------------------------------------------------------
 # D1 Database Binding

@@ -17,12 +17,12 @@
 
 name = "lichtfeld-stats-collector"
 main = "src/index.ts"
-compatibility_date = "2024-12-01"
+compatibility_date = "2026-01-28"
 
 # -----------------------------------------------------------------------------
 # D1 Database Binding
 # -----------------------------------------------------------------------------
-# The same database used by the Pages Functions API.
+# Shared database with the stats-api Worker.
 # Create with: npx wrangler d1 create lichtfeld-stats
 # Then update the database_id below.
 

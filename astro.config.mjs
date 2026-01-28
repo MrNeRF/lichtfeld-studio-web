@@ -36,6 +36,7 @@ export default defineConfig({
 
   output: "static",
 
+  // Dynamic base path: supports GitHub forks while defaulting to "/" for Cloudflare
   base: (() => {
     const override = process.env.BASE_PATH;
     if (override) {
@@ -51,11 +52,12 @@ export default defineConfig({
       return name.endsWith(".github.io") ? "/" : `/${name}/`;
     }
 
-    // Local/dev fallback
-    return "/lichtfeld-studio-web/";
+    // Production fallback: Cloudflare custom domain has no subpath
+    return "/";
   })(),
 
-  outDir: "./docs",
+  // Output to ./dist for Cloudflare Workers Static Assets
+  outDir: "./dist",
   vite: {
     css: {
       preprocessorOptions: {

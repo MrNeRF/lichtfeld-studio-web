@@ -112,6 +112,7 @@ const seoDescription = SITE.description;
               poster={`${base}videos/viewer_demo_poster.jpg`}
               class="rounded-2xl"
               sizeStrategy="fill"
+              fit="contain"
             />
           </div>
         </div>
@@ -1073,8 +1074,8 @@ const seoDescription = SITE.description;
   .intro-video-wrapper {
     position: relative;
     width: 100%;
-    /* Aspect ratio 600:338 ≈ 16:9 */
-    aspect-ratio: 600 / 338;
+    /* Aspect ratio matches viewer_demo.mp4 (1116x720 = 31:20) */
+    aspect-ratio: 31 / 20;
   }
 
   .intro-media img {

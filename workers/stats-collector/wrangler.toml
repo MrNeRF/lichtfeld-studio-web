@@ -46,12 +46,10 @@ crons = ["0 2 * * *"]
 # Non-sensitive configuration values.
 # For GITHUB_TOKEN, use: npx wrangler secret put GITHUB_TOKEN
 
-# Production config: set these via wrangler secret or dashboard
-# [vars]
-# GITHUB_OWNER = "MrNeRF"
-# GITHUB_REPO = "LichtFeld-Studio"
-
-# Local testing: use cli/cli which has releases (comment out for production)
+# Production config
 [vars]
-GITHUB_OWNER = "cli"
-GITHUB_REPO = "cli"
+GITHUB_OWNER = "MrNeRF"
+GITHUB_REPO = "LichtFeld-Studio"
+
+# For local testing with a repo that has releases, override with:
+#   wrangler dev --var GITHUB_OWNER:cli --var GITHUB_REPO:cli

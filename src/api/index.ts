@@ -1,18 +1,16 @@
 /**
- * workers/stats-api/src/index.ts
+ * src/api/index.ts
  *
- * Stats API Worker - Serves download statistics from D1.
- * Migrated from Pages Functions to Workers module format.
+ * API Worker Entry Point - Handles /api/* routes for the LichtFeld Studio website.
  *
- * Endpoint: GET /api/stats
+ * This worker is invoked for /api/* routes via the `run_worker_first` configuration
+ * in wrangler.toml. All other routes are handled by the static assets binding.
  *
- * Response is cached for 24 hours and computed based on "yesterday" (the last
+ * Endpoints:
+ *   GET /api/stats - Download statistics from D1 database
+ *
+ * The response is cached for 24 hours and computed based on "yesterday" (the last
  * complete day) to ensure idempotent results within each day slice.
- *
- * Time series data (each with its own history range):
- *   - daily: Last 90 days up to yesterday
- *   - weekly: Last ~6 months (182 days) up to yesterday
- *   - monthly: Last ~2 years (730 days) up to yesterday
  */
 
 // =============================================================================
@@ -33,7 +31,12 @@ declare const caches: CloudflareCacheStorage;
  * Worker environment bindings.
  */
 export interface Env {
+    /** D1 database for download statistics */
     STATS_DB: D1Database;
+
+    /** Static assets binding for fallback */
+    ASSETS: Fetcher;
+
     /** Set to "true" to disable caching (e.g., in test environment) */
     DISABLE_CACHE?: string;
 }
@@ -44,10 +47,12 @@ export interface Env {
 interface StatsResponse {
     /** Date anchor for this response (yesterday's date in YYYY-MM-DD format) */
     asOf: string;
+
     totals: {
         /** Sum of lifetime downloads across all releases */
         allTime: number;
     };
+
     /** Per-release statistics including time series data */
     releases: Array<{
         tag: string;
@@ -115,7 +120,7 @@ function formatDate(ts: number): string {
 }
 
 /**
- * Creates an error response.
+ * Creates an error response with JSON body.
  */
 function errorResponse(message: string, status = 500): Response {
     return Response.json({ error: message }, { status });
@@ -146,6 +151,9 @@ function getCacheKey(request: Request): Request {
 // Query Functions
 // =============================================================================
 
+/**
+ * Fetches total download counts from the database.
+ */
 async function getTotals(db: D1Database): Promise<StatsResponse["totals"]> {
     // All-time total from releases table (lifetime stats)
     const allTimeResult = await db
@@ -157,6 +165,9 @@ async function getTotals(db: D1Database): Promise<StatsResponse["totals"]> {
     };
 }
 
+/**
+ * Fetches per-release statistics with time series data.
+ */
 async function getReleases(db: D1Database): Promise<StatsResponse["releases"]> {
     const yesterday = yesterdayTimestamp();
 
@@ -254,6 +265,7 @@ async function getReleases(db: D1Database): Promise<StatsResponse["releases"]> {
 
 /**
  * Handles GET /api/stats requests.
+ * Returns download statistics with 24-hour caching.
  */
 async function handleStats(request: Request, env: Env): Promise<Response> {
     if (!env.STATS_DB) {
@@ -287,7 +299,7 @@ async function handleStats(request: Request, env: Env): Promise<Response> {
             }
         }
 
-        // Compute fresh response
+        // Compute fresh response from database
         const [totals, releases] = await Promise.all([
             getTotals(env.STATS_DB),
             getReleases(env.STATS_DB),
@@ -340,11 +352,19 @@ function handleOptions(): Response {
 // =============================================================================
 
 export default {
+    /**
+     * Main fetch handler for the API worker.
+     *
+     * Routes:
+     *   OPTIONS /api/*  - CORS preflight
+     *   GET /api/stats  - Download statistics
+     *   *               - 404 Not Found
+     */
     async fetch(request: Request, env: Env): Promise<Response> {
         const url = new URL(request.url);
 
-        // Handle CORS preflight
-        if (request.method === "OPTIONS") {
+        // Handle CORS preflight for any /api/* route
+        if (request.method === "OPTIONS" && url.pathname.startsWith("/api/")) {
             return handleOptions();
         }
 
@@ -353,7 +373,13 @@ export default {
             return handleStats(request, env);
         }
 
-        // 404 for unmatched routes
-        return new Response("Not Found", { status: 404 });
+        // 404 for unmatched /api/* routes
+        if (url.pathname.startsWith("/api/")) {
+            return new Response("Not Found", { status: 404 });
+        }
+
+        // This shouldn't happen with run_worker_first = ["/api/*"],
+        // but fallback to assets if somehow a non-API route reaches here
+        return env.ASSETS.fetch(request);
     },
 };

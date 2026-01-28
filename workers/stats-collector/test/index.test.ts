@@ -427,6 +427,51 @@ describe("Stats Collector Worker", () => {
     });
 
     // -------------------------------------------------------------------------
+    // Empty Repository Tests
+    // -------------------------------------------------------------------------
+
+    describe("Empty Repository", () => {
+        it("should handle repository with no releases", async () => {
+            // Arrange: Mock GitHub returning empty releases array
+            vi.stubGlobal("fetch", vi.fn(async () => {
+                return new Response(JSON.stringify([]), {
+                    status: 200,
+                    headers: { "Content-Type": "application/json" },
+                });
+            }));
+
+            const request = createRequest("http://localhost/collect", {
+                method: "POST",
+            });
+            const ctx = createExecutionContext();
+
+            // Act
+            const response = await worker.fetch(request, env, ctx);
+            await waitOnExecutionContext(ctx);
+
+            // Assert
+            expect(response.status).toBe(200);
+
+            const body = await response.json() as {
+                status: string;
+                releasesFound: number;
+                releasesProcessed: number;
+            };
+
+            expect(body.status).toBe("collected");
+            expect(body.releasesFound).toBe(0);
+            expect(body.releasesProcessed).toBe(0);
+
+            // Verify database is empty
+            const releases = await env.STATS_DB
+                .prepare("SELECT COUNT(*) as count FROM releases")
+                .first<{ count: number }>();
+
+            expect(releases?.count).toBe(0);
+        });
+    });
+
+    // -------------------------------------------------------------------------
     // Data Integrity Tests
     // -------------------------------------------------------------------------
 

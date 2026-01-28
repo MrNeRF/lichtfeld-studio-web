@@ -4,12 +4,15 @@
  * E2E tests for the Stats API Worker.
  * Tests the HTTP endpoints and database queries.
  *
+ * Note: Tests are kept in workers/stats-api/ for vitest 3.x compatibility
+ * with @cloudflare/vitest-pool-workers. The actual API code is in src/api/index.ts.
+ *
  * Reference: https://developers.cloudflare.com/workers/testing/vitest-integration/
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
-import { env, SELF } from "cloudflare:test";
-import worker from "../src/index";
+import { env } from "cloudflare:test";
+import worker from "../../../src/api/index";
 
 // =============================================================================
 // Types
@@ -523,10 +526,10 @@ describe("Stats API Worker", () => {
             expect(body.error).toContain("Database not configured");
         });
 
-        it("should return 404 for unknown routes", async () => {
-            // Act
+        it("should return 404 for unknown API routes", async () => {
+            // Act: Test unknown /api/* route (the worker only handles /api/* routes)
             const response = await worker.fetch(
-                new Request("http://localhost/unknown"),
+                new Request("http://localhost/api/unknown"),
                 env
             );
 

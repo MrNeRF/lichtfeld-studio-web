@@ -23,3 +23,7 @@
 
 # Source maps (if not needed in production)
 # **/*.map
+
+# Large source video files (kept in git for reprocessing, not served)
+**/videos/original/**
+**/*.bak

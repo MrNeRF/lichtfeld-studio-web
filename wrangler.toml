@@ -17,10 +17,8 @@
 name = "lichtfeld-studio-web"
 compatibility_date = "2026-01-28"
 
-# Enable assets_navigation_prefers_asset_serving (default after 2025-04-01)
-# This reduces Worker invocations for navigation requests, lowering costs.
-# Reference: https://developers.cloudflare.com/workers/configuration/compatibility-flags/
-compatibility_flags = ["assets_navigation_prefers_asset_serving"]
+# Note: assets_navigation_prefers_asset_serving is now default (2025-04-01+)
+# No need to specify it explicitly.
 
 # Also serve on workers.dev for testing
 workers_dev = true

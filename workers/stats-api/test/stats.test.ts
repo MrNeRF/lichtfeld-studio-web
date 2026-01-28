@@ -4,15 +4,14 @@
  * E2E tests for the Stats API Worker.
  * Tests the HTTP endpoints and database queries.
  *
- * Note: Tests are kept in workers/stats-api/ for vitest 3.x compatibility
- * with @cloudflare/vitest-pool-workers. The actual API code is in src/api/index.ts.
+ * Note: Tests use @cloudflare/vitest-pool-workers for Cloudflare Workers runtime.
  *
  * Reference: https://developers.cloudflare.com/workers/testing/vitest-integration/
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
 import { env } from "cloudflare:test";
-import worker from "../../../src/api/index";
+import worker from "../src/index";
 
 // =============================================================================
 // Types

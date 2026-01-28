@@ -1,0 +1,36 @@
+# =============================================================================
+# Stats API Worker - Test Configuration
+# =============================================================================
+#
+# This is a minimal wrangler configuration for running vitest tests.
+# It excludes the [assets] section to avoid miniflare scanning the large
+# dist/ directory, which contains video files that exceed the 25 MiB limit.
+#
+# The actual deployment uses the root wrangler.toml which includes assets.
+# =============================================================================
+
+name = "lichtfeld-studio-web-test"
+compatibility_date = "2026-01-28"
+
+# Main worker entry point (API routes)
+main = "../../src/api/index.ts"
+
+# -----------------------------------------------------------------------------
+# D1 Database Binding
+# -----------------------------------------------------------------------------
+# IMPORTANT: Tests run in miniflare which creates a LOCAL in-memory D1 database.
+# The database_id below is a dummy placeholder - miniflare ignores it entirely.
+# Production data is NEVER accessed during tests.
+# See: https://developers.cloudflare.com/workers/testing/vitest-integration/configuration/
+
+[[d1_databases]]
+binding = "STATS_DB"
+database_name = "lichtfeld-stats-test"
+database_id = "00000000-0000-0000-0000-000000000000"
+
+# -----------------------------------------------------------------------------
+# Observability (optional for tests)
+# -----------------------------------------------------------------------------
+
+[observability]
+enabled = false

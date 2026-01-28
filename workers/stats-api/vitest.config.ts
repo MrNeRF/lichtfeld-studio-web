@@ -4,6 +4,13 @@
  * Vitest configuration for E2E testing the Stats API Worker.
  * Uses @cloudflare/vitest-pool-workers to run tests inside the Workers runtime.
  *
+ * Note: Tests are kept in this folder for vitest 3.x compatibility with
+ * @cloudflare/vitest-pool-workers (vitest 4.x not yet supported).
+ * The actual API code is in src/api/index.ts, deployed via root wrangler.toml.
+ *
+ * Uses wrangler.test.toml (without [assets] section) to avoid miniflare scanning
+ * the large dist/ directory which contains video files exceeding the 25 MiB limit.
+ *
  * Reference: https://developers.cloudflare.com/workers/testing/vitest-integration/
  */
 
@@ -75,9 +82,12 @@ export default defineWorkersConfig({
         // Pool options for the Workers runtime
         poolOptions: {
             workers: {
-                // Use the wrangler.toml configuration
+                // Use test-specific wrangler.toml that excludes [assets] section.
+                // This avoids miniflare scanning the large dist/ directory which
+                // contains video files exceeding the 25 MiB asset limit.
+                // The actual deployment uses root wrangler.toml with assets.
                 wrangler: {
-                    configPath: "./wrangler.toml",
+                    configPath: "./wrangler.test.toml",
                 },
 
                 // Override miniflare options for testing

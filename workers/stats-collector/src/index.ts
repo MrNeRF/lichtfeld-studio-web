@@ -9,12 +9,15 @@
 // Types
 // =============================================================================
 
-interface Env {
+export interface CollectorEnv {
     STATS_DB: D1Database;
-    GITHUB_TOKEN: string;
+    GITHUB_TOKEN?: string;
     GITHUB_OWNER: string;
     GITHUB_REPO: string;
 }
+
+// Internal alias for backwards compatibility within this file
+type Env = CollectorEnv;
 
 interface GitHubRelease {
     tag_name: string;
@@ -281,7 +284,7 @@ async function batchUpdateMonthly(
 // Main Collection
 // =============================================================================
 
-interface CollectResult {
+export interface CollectResult {
     date: string;
     releasesFound: number;
     releasesProcessed: number;
@@ -293,7 +296,7 @@ async function collect(env: Env): Promise<void> {
     await collectWithStats(env);
 }
 
-async function collectWithStats(env: Env): Promise<CollectResult> {
+export async function collectWithStats(env: CollectorEnv): Promise<CollectResult> {
     const today = todayTimestamp();
     const week = weekTimestamp(today);
     const month = monthTimestamp(today);

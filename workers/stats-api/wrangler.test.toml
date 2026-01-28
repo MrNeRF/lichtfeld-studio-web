@@ -12,8 +12,8 @@
 name = "lichtfeld-studio-web-test"
 compatibility_date = "2026-01-28"
 
-# Main worker entry point (API routes)
-main = "../../src/api/index.ts"
+# Main worker entry point (stats API)
+main = "./src/index.ts"
 
 # -----------------------------------------------------------------------------
 # D1 Database Binding

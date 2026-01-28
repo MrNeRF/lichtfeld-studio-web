@@ -1,45 +1,56 @@
 # =============================================================================
-# LichtFeld Studio Website - Cloudflare Pages Configuration
+# LichtFeld Studio Website - Cloudflare Workers Static Assets
 # =============================================================================
 #
-# This file configures Cloudflare Pages Functions for the website.
-# Used for the /api/stats endpoint that reads from D1.
+# Pure static site - no Worker script needed.
+# Serves pre-built Astro SSG output from the edge.
 #
-# Note: Cron triggers are NOT supported in Pages Functions.
-# The stats-collector Worker (in workers/stats-collector/) handles data collection.
-#
-# Setup:
-#   1. Create D1 database: npx wrangler d1 create lichtfeld-stats
-#   2. Update database_id below
-#   3. Apply schema: npx wrangler d1 execute lichtfeld-stats --file=./db/schema.sql
-#   4. Deploy: npx wrangler pages deploy dist
+# Deployment:
+#   pnpm build && wrangler deploy
 #
 # Local Development:
-#   pnpm run dev:stats  # Full workflow: reset DB, seed, build, and run dev server
-#   pnpm run dev:pages  # Just run the dev server (requires prior db:setup)
+#   pnpm build && wrangler dev
 #
 # =============================================================================
 
-# Name of the Pages project
 name = "lichtfeld-studio-web"
+compatibility_date = "2026-01-28"
 
-# Build output directory (Astro's default)
-pages_build_output_dir = "dist"
+# Enable assets_navigation_prefers_asset_serving (default after 2025-04-01)
+# This reduces Worker invocations for navigation requests, lowering costs.
+# Reference: https://developers.cloudflare.com/workers/configuration/compatibility-flags/
+compatibility_flags = ["assets_navigation_prefers_asset_serving"]
 
-# Compatibility date for Workers runtime features
-compatibility_date = "2024-12-01"
+# Also serve on workers.dev for testing
+workers_dev = true
 
 # -----------------------------------------------------------------------------
-# D1 Database Binding
+# Static Assets Configuration
 # -----------------------------------------------------------------------------
-# Shared database with the stats-collector Worker.
-# Create with: npx wrangler d1 create lichtfeld-stats
-# Then update the database_id.
+# No "main" field - this is a pure static site with no Worker script.
+# Reference: https://developers.cloudflare.com/workers/static-assets/
 
-[[d1_databases]]
-binding = "STATS_DB"
-database_name = "lichtfeld-stats"
-database_id = "8e58f2af-6fff-4e6d-89b4-8aa02f719c01"
-# For local development, use the database name as preview_database_id
-# This ensures wrangler d1 execute and wrangler pages dev use the same local database
-preview_database_id = "lichtfeld-stats"
+[assets]
+directory = "./dist"
+not_found_handling = "404-page"
+html_handling = "auto-trailing-slash"
+
+# -----------------------------------------------------------------------------
+# Routes
+# -----------------------------------------------------------------------------
+# Catch-all route for the static site.
+# The API Worker's more specific route (/api/*) takes precedence.
+# Reference: https://developers.cloudflare.com/workers/configuration/routing/routes/
+
+[[routes]]
+pattern = "lichtfeld.io/*"
+zone_name = "lichtfeld.io"
+
+# -----------------------------------------------------------------------------
+# Observability
+# -----------------------------------------------------------------------------
+# Enable logging and analytics in the Cloudflare Dashboard.
+# Reference: https://developers.cloudflare.com/workers/observability/
+
+[observability]
+enabled = true

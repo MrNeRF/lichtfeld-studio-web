@@ -1,0 +1,25 @@
+# =============================================================================
+# Cloudflare Workers Static Assets - Ignore File
+# =============================================================================
+# Files matching these patterns will not be uploaded to Cloudflare.
+# Reference: https://developers.cloudflare.com/workers/static-assets/
+
+# Node.js
+**/node_modules
+
+# OS files
+**/.DS_Store
+**/Thumbs.db
+
+# Git
+**/.git
+**/.gitignore
+
+# Editor/IDE
+**/.vscode
+**/.idea
+**/*.swp
+**/*.swo
+
+# Source maps (if not needed in production)
+# **/*.map

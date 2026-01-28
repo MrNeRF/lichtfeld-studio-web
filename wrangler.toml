@@ -1,9 +1,10 @@
 # =============================================================================
-# LichtFeld Studio Website - Cloudflare Workers Static Assets
+# LichtFeld Studio Website - Cloudflare Workers Static Assets + API
 # =============================================================================
 #
-# Pure static site - no Worker script needed.
-# Serves pre-built Astro SSG output from the edge.
+# Hybrid static site + API worker.
+# Serves pre-built Astro SSG output from the edge, with /api/* routes handled
+# by the Worker script for dynamic stats endpoint.
 #
 # Deployment:
 #   pnpm build && wrangler deploy
@@ -24,16 +25,22 @@ compatibility_flags = ["assets_navigation_prefers_asset_serving"]
 # Also serve on workers.dev for testing
 workers_dev = true
 
+# Worker entry point for API routes
+main = "src/api/index.ts"
+
 # -----------------------------------------------------------------------------
 # Static Assets Configuration
 # -----------------------------------------------------------------------------
-# No "main" field - this is a pure static site with no Worker script.
+# Static assets served from ./dist, with Worker handling /api/* routes.
 # Reference: https://developers.cloudflare.com/workers/static-assets/
 
 [assets]
 directory = "./dist"
+binding = "ASSETS"
 not_found_handling = "404-page"
 html_handling = "auto-trailing-slash"
+# Route /api/* to the Worker first, everything else to static assets
+run_worker_first = ["/api/*"]
 
 # -----------------------------------------------------------------------------
 # Routes
@@ -45,6 +52,18 @@ html_handling = "auto-trailing-slash"
 [[routes]]
 pattern = "lichtfeld.io/*"
 zone_name = "lichtfeld.io"
+
+# -----------------------------------------------------------------------------
+# D1 Database Binding
+# -----------------------------------------------------------------------------
+# Stats database for download statistics.
+# Create via Dashboard or: wrangler d1 create lichtfeld-stats
+# Reference: https://developers.cloudflare.com/d1/
+
+[[d1_databases]]
+binding = "STATS_DB"
+database_name = "lichtfeld-stats"
+database_id = "8e58f2af-6fff-4e6d-89b4-8aa02f719c01"
 
 # -----------------------------------------------------------------------------
 # Observability

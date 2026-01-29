@@ -53,18 +53,10 @@ function todayTimestamp(): number {
 }
 
 /**
- * Returns Unix timestamp for start of yesterday (UTC).
- * The API uses yesterday as the anchor for idempotent results.
+ * Returns Unix timestamp for N days before today.
  */
-function yesterdayTimestamp(): number {
-    return todayTimestamp() - MS_PER_DAY;
-}
-
-/**
- * Returns Unix timestamp for N days before yesterday.
- */
-function daysBeforeYesterday(n: number): number {
-    return yesterdayTimestamp() - n * MS_PER_DAY;
+function daysBeforeToday(n: number): number {
+    return todayTimestamp() - n * MS_PER_DAY;
 }
 
 /**
@@ -134,43 +126,43 @@ async function seedReleases(): Promise<void> {
 
 /**
  * Seeds the database with daily download snapshots.
- * Uses yesterday as the most recent data point (since API excludes today).
+ * Uses today as the most recent data point (API includes today's snapshot).
  */
 async function seedDailyData(): Promise<void> {
-    const yesterday = yesterdayTimestamp();
+    const today = todayTimestamp();
 
     // Release 1: v1.0.0 - cumulative counts over time
     await env.STATS_DB.prepare(`
         INSERT INTO downloads_daily (date, release_id, count) VALUES (?, 1, 1000)
-    `).bind(daysBeforeYesterday(29)).run();
+    `).bind(daysBeforeToday(29)).run();
 
     await env.STATS_DB.prepare(`
         INSERT INTO downloads_daily (date, release_id, count) VALUES (?, 1, 1200)
-    `).bind(daysBeforeYesterday(6)).run();
+    `).bind(daysBeforeToday(6)).run();
 
     await env.STATS_DB.prepare(`
         INSERT INTO downloads_daily (date, release_id, count) VALUES (?, 1, 1500)
-    `).bind(yesterday).run();
+    `).bind(today).run();
 
     // Release 2: v0.9.0 - cumulative counts over time
     await env.STATS_DB.prepare(`
         INSERT INTO downloads_daily (date, release_id, count) VALUES (?, 2, 300)
-    `).bind(daysBeforeYesterday(29)).run();
+    `).bind(daysBeforeToday(29)).run();
 
     await env.STATS_DB.prepare(`
         INSERT INTO downloads_daily (date, release_id, count) VALUES (?, 2, 400)
-    `).bind(daysBeforeYesterday(6)).run();
+    `).bind(daysBeforeToday(6)).run();
 
     await env.STATS_DB.prepare(`
         INSERT INTO downloads_daily (date, release_id, count) VALUES (?, 2, 500)
-    `).bind(yesterday).run();
+    `).bind(today).run();
 }
 
 /**
  * Seeds the database with weekly aggregates.
  */
 async function seedWeeklyData(): Promise<void> {
-    const thisWeek = weekTimestamp(yesterdayTimestamp());
+    const thisWeek = weekTimestamp(todayTimestamp());
     const lastWeek = thisWeek - 7 * MS_PER_DAY;
 
     // Weekly deltas
@@ -195,7 +187,7 @@ async function seedWeeklyData(): Promise<void> {
  * Seeds the database with monthly aggregates.
  */
 async function seedMonthlyData(): Promise<void> {
-    const thisMonth = monthTimestamp(yesterdayTimestamp());
+    const thisMonth = monthTimestamp(todayTimestamp());
     const lastMonth = new Date(thisMonth);
 
     lastMonth.setUTCMonth(lastMonth.getUTCMonth() - 1);
@@ -300,7 +292,7 @@ describe("Stats API Worker", () => {
             });
         });
 
-        it("should return asOf field with yesterday's date", async () => {
+        it("should return asOf field with today's date", async () => {
             // Arrange
             await seedDatabase();
 
@@ -311,8 +303,8 @@ describe("Stats API Worker", () => {
             );
             const body = await response.json() as StatsResponse;
 
-            // Assert: asOf should be yesterday's date in YYYY-MM-DD format
-            const expectedDate = formatDate(yesterdayTimestamp());
+            // Assert: asOf should be today's date in YYYY-MM-DD format
+            const expectedDate = formatDate(todayTimestamp());
 
             expect(body.asOf).toBe(expectedDate);
         });
@@ -351,7 +343,7 @@ describe("Stats API Worker", () => {
             expect(body.releases[1].downloads).toBe(500);
         });
 
-        it("should return per-release daily time series data up to yesterday", async () => {
+        it("should return per-release daily time series data including today", async () => {
             // Arrange
             await seedDatabase();
 
@@ -373,8 +365,8 @@ describe("Stats API Worker", () => {
                     expect(typeof entry.date).toBe("number");
                     expect(typeof entry.downloads).toBe("number");
 
-                    // No data points should be from today (only up to yesterday)
-                    expect(entry.date).toBeLessThanOrEqual(yesterdayTimestamp());
+                    // Data points should include today's snapshot
+                    expect(entry.date).toBeLessThanOrEqual(todayTimestamp());
                 });
             });
         });
@@ -497,7 +489,7 @@ describe("Stats API Worker", () => {
             const body = await response.json() as StatsResponse;
 
             // Assert
-            const expectedDate = formatDate(yesterdayTimestamp());
+            const expectedDate = formatDate(todayTimestamp());
 
             expect(body.asOf).toBe(expectedDate);
         });

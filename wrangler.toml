@@ -75,12 +75,12 @@ enabled = true
 # -----------------------------------------------------------------------------
 # Cron Triggers
 # -----------------------------------------------------------------------------
-# Runs daily at 02:00 UTC to collect GitHub release download statistics.
-# GitHub's traffic data updates hourly, so 2 AM gives complete previous day stats.
+# Runs daily at 23:00 UTC to collect GitHub release download statistics.
+# End of day collection ensures the day's snapshot is as complete as possible.
 # Reference: https://developers.cloudflare.com/workers/configuration/cron-triggers/
 
 [triggers]
-crons = ["0 2 * * *"]
+crons = ["0 23 * * *"]
 
 # -----------------------------------------------------------------------------
 # Environment Variables

@@ -377,9 +377,16 @@ const seoDescription = "Real-time download statistics and growth metrics for Lic
             updateStatCard(0, statsData.totals.allTime);
             updateStatCard(1, getThisMonthDownloads(statsData.releases));
 
-            // Latest release downloads
+            // Latest release downloads (find by highest version number)
             if (statsData.releases.length > 0) {
-                updateStatCard(2, statsData.releases[0].downloads);
+                const latestRelease = statsData.releases.reduce((latest, current) => {
+                    const latestVersion = parseVersion(latest.tag);
+                    const currentVersion = parseVersion(current.tag);
+
+                    return compareVersions(currentVersion, latestVersion) > 0 ? current : latest;
+                }, statsData.releases[0]);
+
+                updateStatCard(2, latestRelease.downloads);
             }
 
             // Active releases count

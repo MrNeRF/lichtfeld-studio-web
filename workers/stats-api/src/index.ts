@@ -9,8 +9,8 @@
  * Endpoints:
  *   GET /api/stats - Download statistics from D1 database
  *
- * The response is cached for 24 hours and computed based on "yesterday" (the last
- * complete day) to ensure idempotent results within each day slice.
+ * The response is cached for 24 hours and computed based on "today" (the current
+ * day's snapshot) to ensure data is available immediately after collection.
  */
 
 // =============================================================================
@@ -98,18 +98,10 @@ function todayTimestamp(): number {
 }
 
 /**
- * Returns Unix timestamp for start of yesterday (UTC).
- * This is the "anchor" date for all calculations to ensure idempotent results.
+ * Returns Unix timestamp for N days before today.
  */
-function yesterdayTimestamp(): number {
-    return todayTimestamp() - MS_PER_DAY;
-}
-
-/**
- * Returns Unix timestamp for N days before yesterday.
- */
-function daysBeforeYesterday(n: number): number {
-    return yesterdayTimestamp() - n * MS_PER_DAY;
+function daysBeforeToday(n: number): number {
+    return todayTimestamp() - n * MS_PER_DAY;
 }
 
 /**
@@ -131,15 +123,15 @@ function errorResponse(message: string, status = 500): Response {
 // =============================================================================
 
 /**
- * Generates a cache key URL based on yesterday's date.
+ * Generates a cache key URL based on today's date.
  * This ensures the same cache key is used for all requests within a day.
  */
 function getCacheKey(request: Request): Request {
     const url = new URL(request.url);
-    const yesterday = formatDate(yesterdayTimestamp());
+    const today = formatDate(todayTimestamp());
 
     // Create a deterministic cache key URL
-    url.pathname = `/api/stats/${yesterday}`;
+    url.pathname = `/api/stats/${today}`;
     url.search = "";
 
     return new Request(url.toString(), {
@@ -169,12 +161,12 @@ async function getTotals(db: D1Database): Promise<StatsResponse["totals"]> {
  * Fetches per-release statistics with time series data.
  */
 async function getReleases(db: D1Database): Promise<StatsResponse["releases"]> {
-    const yesterday = yesterdayTimestamp();
+    const today = todayTimestamp();
 
     // Each time series has its own history range
-    const dailyStart = daysBeforeYesterday(DAILY_HISTORY_DAYS - 1);
-    const weeklyStart = daysBeforeYesterday(WEEKLY_HISTORY_DAYS - 1);
-    const monthlyStart = daysBeforeYesterday(MONTHLY_HISTORY_DAYS - 1);
+    const dailyStart = daysBeforeToday(DAILY_HISTORY_DAYS - 1);
+    const weeklyStart = daysBeforeToday(WEEKLY_HISTORY_DAYS - 1);
+    const monthlyStart = daysBeforeToday(MONTHLY_HISTORY_DAYS - 1);
 
     // Get releases ordered by lifetime downloads
     const releasesResult = await db
@@ -195,7 +187,7 @@ async function getReleases(db: D1Database): Promise<StatsResponse["releases"]> {
             WHERE date >= ? AND date <= ?
             ORDER BY date ASC
         `)
-            .bind(dailyStart, yesterday)
+            .bind(dailyStart, today)
             .all<{ release_id: number; date: number; downloads: number }>(),
 
         // Weekly aggregates per release (~6 months)
@@ -205,7 +197,7 @@ async function getReleases(db: D1Database): Promise<StatsResponse["releases"]> {
             WHERE week >= ? AND week <= ?
             ORDER BY week ASC
         `)
-            .bind(weeklyStart, yesterday)
+            .bind(weeklyStart, today)
             .all<{ release_id: number; week: number; downloads: number }>(),
 
         // Monthly aggregates per release (~2 years)
@@ -215,7 +207,7 @@ async function getReleases(db: D1Database): Promise<StatsResponse["releases"]> {
             WHERE month >= ? AND month <= ?
             ORDER BY month ASC
         `)
-            .bind(monthlyStart, yesterday)
+            .bind(monthlyStart, today)
             .all<{ release_id: number; month: number; downloads: number }>(),
     ]);
 
@@ -306,7 +298,7 @@ async function handleStats(request: Request, env: StatsApiEnv): Promise<Response
         ]);
 
         const statsResponse: StatsResponse = {
-            asOf: formatDate(yesterdayTimestamp()),
+            asOf: formatDate(todayTimestamp()),
             totals,
             releases,
         };

@@ -89,14 +89,16 @@ const { id = "stacked-area-chart", height = 400, title } = Astro.props;
      */
     function createChartOptions(
         series: ChartSeries[],
-        granularity: "daily" | "weekly" | "monthly"
+        granularity: "daily" | "weekly" | "monthly",
+        containerHeight: number
     ): ApexCharts.ApexOptions {
         return {
             chart: {
                 type: "area",
-                height: "100%",
+                height: containerHeight,
                 stacked: true,
                 fontFamily: "inherit",
+                redrawOnParentResize: true,
                 toolbar: {
                     show: true,
                     tools: {
@@ -117,6 +119,12 @@ const { id = "stacked-area-chart", height = 400, title } = Astro.props;
                 zoom: {
                     enabled: true,
                     type: "x",
+                },
+                events: {
+                    mounted: (chart) => {
+                        // Fix for chart not fitting container on initial render
+                        chart.windowResizeHandler();
+                    },
                 },
             },
             // Take colors from the end of the palette so newest version (last series) gets primary blue
@@ -196,6 +204,12 @@ const { id = "stacked-area-chart", height = 400, title } = Astro.props;
             grid: {
                 borderColor: "#e9ecef",
                 strokeDashArray: 4,
+                padding: {
+                    left: 16,
+                    right: 16,
+                    top: 8,
+                    bottom: 8,
+                },
                 xaxis: {
                     lines: {
                         show: false,
@@ -245,8 +259,11 @@ const { id = "stacked-area-chart", height = 400, title } = Astro.props;
                     charts.get(chartId)?.destroy();
                 }
 
+                // Get container height from inline style or default
+                const containerHeight = (chartElement as HTMLElement).offsetHeight || 400;
+
                 // Create new chart
-                const options = createChartOptions(series, granularity);
+                const options = createChartOptions(series, granularity, containerHeight);
                 const chart = new ApexCharts(chartElement, options);
 
                 chart.render();
@@ -276,7 +293,6 @@ const { id = "stacked-area-chart", height = 400, title } = Astro.props;
         background-color: #fff;
         border: 1px solid var(--border-color);
         border-radius: var(--border-radius);
-        padding: 1rem;
     }
 
     .stacked-area-chart__loading {

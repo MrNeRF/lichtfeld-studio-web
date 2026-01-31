@@ -59,6 +59,8 @@ interface StatsResponse {
         name: string;
         /** Lifetime download count for this release */
         downloads: number;
+        /** Unix timestamp when release was published on GitHub */
+        publishedAt: number | null;
         /** Daily download snapshots (cumulative count) for last 90 days */
         daily: Array<{ date: number; downloads: number }>;
         /** Weekly download deltas for last ~6 months (182 days) */
@@ -171,11 +173,11 @@ async function getReleases(db: D1Database): Promise<StatsResponse["releases"]> {
     // Get releases ordered by lifetime downloads
     const releasesResult = await db
         .prepare(`
-            SELECT id, tag, name, COALESCE(total_downloads, 0) as downloads
+            SELECT id, tag, name, COALESCE(total_downloads, 0) as downloads, published_at
             FROM releases
             ORDER BY downloads DESC
         `)
-        .all<{ id: number; tag: string; name: string; downloads: number }>();
+        .all<{ id: number; tag: string; name: string; downloads: number; published_at: number | null }>();
 
     // Fetch all time series data in bulk queries for efficiency
     // Each query uses its own history range for optimal data coverage
@@ -245,6 +247,7 @@ async function getReleases(db: D1Database): Promise<StatsResponse["releases"]> {
         tag: release.tag,
         name: release.name,
         downloads: release.downloads,
+        publishedAt: release.published_at,
         daily: dailyByRelease.get(release.id) ?? [],
         weekly: weeklyByRelease.get(release.id) ?? [],
         monthly: monthlyByRelease.get(release.id) ?? [],

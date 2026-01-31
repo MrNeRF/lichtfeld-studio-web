@@ -215,9 +215,12 @@ const seoDescription = "Real-time download statistics and growth metrics for Lic
     }
 
     /**
-     * Transforms release data into chart series format.
+     * Transforms release data into chart series format showing DELTAS (new downloads per period).
      * Sorts releases so older versions are at the bottom of the stack
      * and newer versions are at the top (latest on top).
+     *
+     * Note: Daily data is stored as cumulative snapshots, so we calculate deltas.
+     * Weekly/monthly data is already stored as deltas.
      */
     function transformToChartSeries(releases: StatsResponse["releases"], range: TimeRange): ChartSeries[] {
         // Sort releases by version: older first (bottom of stack), newer last (top of stack)
@@ -232,10 +235,21 @@ const seoDescription = "Real-time download statistics and growth metrics for Lic
             let data: ChartDataPoint[];
 
             if (range === "daily") {
-                data = release.daily.map((d) => ({ x: d.date, y: d.downloads }));
+                // Daily data is cumulative snapshots - calculate deltas
+                // Skip first data point since we can't calculate delta without previous reference
+                const sorted = [...release.daily].sort((a, b) => a.date - b.date);
+
+                data = sorted.slice(1).map((d, i) => {
+                    const prevCount = sorted[i].downloads; // i is offset by 1 due to slice
+                    const delta = d.downloads - prevCount;
+
+                    return { x: d.date, y: Math.max(0, delta) };
+                });
             } else if (range === "weekly") {
+                // Weekly data is already deltas
                 data = release.weekly.map((d) => ({ x: d.week, y: d.downloads }));
             } else {
+                // Monthly data is already deltas
                 data = release.monthly.map((d) => ({ x: d.month, y: d.downloads }));
             }
 
@@ -250,6 +264,9 @@ const seoDescription = "Real-time download statistics and growth metrics for Lic
      * Transforms release data into cumulative growth series.
      * Shows how total downloads have grown over time (monotonically increasing).
      * Sorts releases so older versions are at the bottom and newer versions are on top.
+     *
+     * Note: Daily data is already cumulative snapshots, so we use it directly.
+     * Weekly/monthly data is stored as deltas, so we accumulate them.
      */
     function transformToCumulativeSeries(releases: StatsResponse["releases"], range: TimeRange): ChartSeries[] {
         // Sort releases by version: older first (bottom of stack), newer last (top of stack)
@@ -262,29 +279,34 @@ const seoDescription = "Real-time download statistics and growth metrics for Lic
 
         // For each release, create a cumulative series (limit to top 5)
         return sortedReleases.slice(0, 5).map((release) => {
-            const data: ChartDataPoint[] = [];
-
-            // Get the time series data for this release
-            let timeSeriesData: Array<{ ts: number; downloads: number }>;
+            let data: ChartDataPoint[];
 
             if (range === "daily") {
-                timeSeriesData = release.daily.map((d) => ({ ts: d.date, downloads: d.downloads }));
+                // Daily data is already cumulative snapshots - use directly
+                const sorted = [...release.daily].sort((a, b) => a.date - b.date);
+
+                data = sorted.map((d) => ({ x: d.date, y: d.downloads }));
             } else if (range === "weekly") {
-                timeSeriesData = release.weekly.map((d) => ({ ts: d.week, downloads: d.downloads }));
+                // Weekly data is deltas - accumulate them
+                const sorted = [...release.weekly].sort((a, b) => a.week - b.week);
+                let cumulativeTotal = 0;
+
+                data = sorted.map((d) => {
+                    cumulativeTotal += d.downloads;
+
+                    return { x: d.week, y: cumulativeTotal };
+                });
             } else {
-                timeSeriesData = release.monthly.map((d) => ({ ts: d.month, downloads: d.downloads }));
+                // Monthly data is deltas - accumulate them
+                const sorted = [...release.monthly].sort((a, b) => a.month - b.month);
+                let cumulativeTotal = 0;
+
+                data = sorted.map((d) => {
+                    cumulativeTotal += d.downloads;
+
+                    return { x: d.month, y: cumulativeTotal };
+                });
             }
-
-            // Sort by timestamp
-            timeSeriesData.sort((a, b) => a.ts - b.ts);
-
-            // Calculate cumulative sum
-            let cumulativeTotal = 0;
-
-            timeSeriesData.forEach((point) => {
-                cumulativeTotal += point.downloads;
-                data.push({ x: point.ts, y: cumulativeTotal });
-            });
 
             return {
                 name: release.tag,
@@ -360,12 +382,22 @@ const seoDescription = "Real-time download statistics and growth metrics for Lic
     }
 
     /**
+     * Returns the stats API URL based on environment.
+     * Uses production API on localhost for development with real data.
+     */
+    function getStatsApiUrl(): string {
+        const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+
+        return isLocalhost ? "https://lichtfeld.io/api/stats" : "/api/stats";
+    }
+
+    /**
      * Fetches stats data and initializes the dashboard.
      */
     async function initDashboard(): Promise<void> {
         try {
-            // Fetch stats from API
-            const response = await fetch("/api/stats");
+            // Fetch stats from API (uses production API on localhost)
+            const response = await fetch(getStatsApiUrl());
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);

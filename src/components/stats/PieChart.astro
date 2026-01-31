@@ -1,0 +1,277 @@
+---
+/**
+ * PieChart.astro
+ *
+ * A pie/donut chart component using ApexCharts for visualizing
+ * proportional data like version adoption share.
+ *
+ * Props:
+ *   - id: Unique identifier for the chart container
+ *   - height: Chart height in pixels (default: 350)
+ *   - title: Optional chart title
+ *   - donut: Whether to render as donut chart (default: true)
+ */
+
+interface Props {
+    id?: string;
+    height?: number;
+    title?: string;
+    donut?: boolean;
+}
+
+const { id = "pie-chart", height = 350, title, donut = true } = Astro.props;
+---
+
+<div class="pie-chart" data-chart-id={id}>
+    {title && <h3 class="pie-chart__title">{title}</h3>}
+
+    <div class="pie-chart__container" id={id} style={`height: ${height}px;`}>
+        <div class="pie-chart__loading">
+            <div class="pie-chart__spinner"></div>
+            <span>Loading chart data...</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    /**
+     * Client-side chart initialization using ApexCharts.
+     * Waits for data to be provided via custom event.
+     */
+    import ApexCharts from "apexcharts";
+
+    /**
+     * Color palette for chart series.
+     * Matches the stacked area chart colors for consistency.
+     */
+    const CHART_COLORS = [
+        "#0dcaf0", // Cyan
+        "#20c997", // Teal
+        "#198754", // Green
+        "#ffc107", // Yellow
+        "#fd7e14", // Orange
+        "#dc3545", // Red
+        "#d63384", // Pink
+        "#6f42c1", // Indigo
+        "#6610f2", // Purple
+        "#0d6efd", // Primary blue
+    ];
+
+    /**
+     * Data structure for pie chart.
+     */
+    interface PieChartData {
+        labels: string[];
+        values: number[];
+    }
+
+    /**
+     * Creates ApexCharts options for the pie chart.
+     */
+    function createChartOptions(
+        data: PieChartData,
+        containerHeight: number,
+        isDonut: boolean
+    ): ApexCharts.ApexOptions {
+        return {
+            chart: {
+                type: isDonut ? "donut" : "pie",
+                height: containerHeight,
+                fontFamily: "inherit",
+                redrawOnParentResize: true,
+                events: {
+                    mounted: (chart) => {
+                        chart.windowResizeHandler();
+                    },
+                },
+            },
+            series: data.values,
+            labels: data.labels,
+            colors: CHART_COLORS.slice(-data.labels.length),
+            dataLabels: {
+                enabled: true,
+                formatter: (val: number) => {
+                    return val.toFixed(1) + "%";
+                },
+                style: {
+                    fontSize: "12px",
+                    fontWeight: 600,
+                },
+                dropShadow: {
+                    enabled: false,
+                },
+            },
+            plotOptions: {
+                pie: {
+                    donut: {
+                        size: isDonut ? "55%" : "0%",
+                        labels: {
+                            show: isDonut,
+                            name: {
+                                show: true,
+                                fontSize: "14px",
+                                fontWeight: 600,
+                                color: "#212529",
+                            },
+                            value: {
+                                show: true,
+                                fontSize: "24px",
+                                fontWeight: 700,
+                                color: "#212529",
+                                formatter: (val: string) => {
+                                    return new Intl.NumberFormat().format(parseInt(val));
+                                },
+                            },
+                            total: {
+                                show: true,
+                                label: "Total",
+                                fontSize: "14px",
+                                fontWeight: 600,
+                                color: "#6c757d",
+                                formatter: (w) => {
+                                    const total = w.globals.seriesTotals.reduce((a: number, b: number) => a + b, 0);
+
+                                    return new Intl.NumberFormat().format(total);
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            legend: {
+                position: "bottom",
+                horizontalAlign: "center",
+                fontSize: "13px",
+                markers: {
+                    size: 10,
+                    strokeWidth: 0,
+                    offsetX: -4,
+                },
+                itemMargin: {
+                    horizontal: 12,
+                    vertical: 8,
+                },
+            },
+            tooltip: {
+                y: {
+                    formatter: (value: number) => {
+                        return new Intl.NumberFormat().format(value) + " downloads";
+                    },
+                },
+            },
+            stroke: {
+                width: 2,
+                colors: ["#fff"],
+            },
+            responsive: [
+                {
+                    breakpoint: 576,
+                    options: {
+                        chart: {
+                            height: 300,
+                        },
+                        legend: {
+                            position: "bottom",
+                        },
+                    },
+                },
+            ],
+        };
+    }
+
+    /**
+     * Initializes all pie charts on the page.
+     */
+    document.addEventListener("DOMContentLoaded", () => {
+        const chartContainers = document.querySelectorAll(".pie-chart");
+        const charts = new Map<string, ApexCharts>();
+
+        chartContainers.forEach((container) => {
+            const chartElement = container.querySelector(".pie-chart__container");
+            const chartId = (chartElement as HTMLElement)?.id;
+            const isDonut = container.getAttribute("data-donut") !== "false";
+
+            if (!chartElement || !chartId) return;
+
+            // Listen for data updates
+            container.addEventListener("chartdata", ((event: CustomEvent) => {
+                const { labels, values } = event.detail;
+
+                // Remove loading state
+                const loading = container.querySelector(".pie-chart__loading");
+
+                if (loading) {
+                    loading.remove();
+                }
+
+                // Destroy existing chart if present
+                if (charts.has(chartId)) {
+                    charts.get(chartId)?.destroy();
+                }
+
+                // Get container height
+                const containerHeight = (chartElement as HTMLElement).offsetHeight || 350;
+
+                // Create new chart
+                const options = createChartOptions({ labels, values }, containerHeight, isDonut);
+                const chart = new ApexCharts(chartElement, options);
+
+                chart.render();
+                charts.set(chartId, chart);
+            }) as EventListener);
+        });
+    });
+</script>
+
+<style>
+    /**
+     * Pie Chart Styles
+     */
+    .pie-chart {
+        width: 100%;
+    }
+
+    .pie-chart__title {
+        margin-bottom: 1rem;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--color-text);
+    }
+
+    .pie-chart__container {
+        width: 100%;
+        background-color: #fff;
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+    }
+
+    .pie-chart__loading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        gap: 1rem;
+        color: #6c757d;
+    }
+
+    .pie-chart__spinner {
+        width: 2rem;
+        height: 2rem;
+        border: 3px solid var(--border-color);
+        border-top-color: var(--color-primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* ApexCharts overrides */
+    .pie-chart :global(.apexcharts-legend) {
+        padding: 0 1rem 1rem;
+    }
+</style>

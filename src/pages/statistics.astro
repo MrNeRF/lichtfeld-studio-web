@@ -20,6 +20,7 @@ import { SITE } from "@/config/site.config";
 import StatCard from "@/components/stats/StatCard.astro";
 import TimeRangeSelector from "@/components/stats/TimeRangeSelector.astro";
 import StackedAreaChart from "@/components/stats/StackedAreaChart.astro";
+import PieChart from "@/components/stats/PieChart.astro";
 import ReleaseTable from "@/components/stats/ReleaseTable.astro";
 
 // Reuse contributors wall from homepage
@@ -67,35 +68,44 @@ const seoDescription = "Real-time download statistics and growth metrics for Lic
         </div>
     </section>
 
-    <!-- Main Chart Section -->
+    <!-- Charts Row 1: Downloads by Version + Cumulative -->
     <section class="container px-4 py-4">
-        <div class="stats-section">
-            <div class="stats-section__header">
-                <h2 class="stats-section__title">Downloads by Version</h2>
-                <TimeRangeSelector selected="daily" id="main-chart-range" />
-            </div>
-
-            <StackedAreaChart
-                id="downloads-chart"
-                height={450}
-            />
+        <div class="stats-section__header">
+            <h2 class="stats-section__title">Download Trends</h2>
+            <TimeRangeSelector selected="daily" id="main-chart-range" />
         </div>
-    </section>
 
-    <!-- Secondary Charts and Table -->
-    <section class="container px-4 py-4">
         <div class="stats-grid">
-            <!-- Growth Trend Chart -->
-            <div class="stats-grid__item stats-grid__item--chart">
+            <div class="stats-grid__item">
                 <StackedAreaChart
                     id="cumulative-chart"
-                    height={350}
+                    height={380}
                     title="Cumulative Downloads"
                 />
             </div>
 
-            <!-- Release Breakdown Table -->
-            <div class="stats-grid__item stats-grid__item--table">
+            <div class="stats-grid__item">
+                <StackedAreaChart
+                    id="downloads-chart"
+                    height={380}
+                    title="Downloads by Day"
+                />
+            </div>
+        </div>
+    </section>
+
+    <!-- Charts Row 2: Version Adoption + Release Table -->
+    <section class="container px-4 py-4">
+        <div class="stats-grid">
+            <div class="stats-grid__item">
+                <PieChart
+                    id="adoption-chart"
+                    height={380}
+                    title="Version Adoption"
+                />
+            </div>
+
+            <div class="stats-grid__item">
                 <ReleaseTable title="Release Breakdown" />
             </div>
         </div>
@@ -316,10 +326,28 @@ const seoDescription = "Real-time download statistics and growth metrics for Lic
     }
 
     /**
+     * Maps time range to display label for chart title.
+     */
+    const RANGE_LABELS: Record<TimeRange, string> = {
+        daily: "Day",
+        weekly: "Week",
+        monthly: "Month",
+    };
+
+    /**
      * Updates all charts with data for the specified range.
      */
     function updateCharts(range: TimeRange): void {
         if (!statsData) return;
+
+        // Update downloads chart title based on range
+        const downloadsChartTitle = document.querySelector("[data-chart-id='downloads-chart']")
+            ?.closest(".stacked-area-chart")
+            ?.querySelector(".stacked-area-chart__title");
+
+        if (downloadsChartTitle) {
+            downloadsChartTitle.textContent = `Downloads by ${RANGE_LABELS[range]}`;
+        }
 
         // Update downloads by version stacked area chart
         const downloadsChart = document.querySelector("[data-chart-id='downloads-chart']");
@@ -363,6 +391,34 @@ const seoDescription = "Real-time download statistics and growth metrics for Lic
             });
 
             table.dispatchEvent(event);
+        }
+    }
+
+    /**
+     * Updates the version adoption pie chart.
+     */
+    function updateAdoptionChart(): void {
+        if (!statsData) return;
+
+        const pieChart = document.querySelector("[data-chart-id='adoption-chart']");
+
+        if (pieChart) {
+            // Sort releases by version (newest first for display)
+            const sortedReleases = [...statsData.releases].sort((a, b) => {
+                const versionA = parseVersion(a.tag);
+                const versionB = parseVersion(b.tag);
+
+                return compareVersions(versionB, versionA);
+            });
+
+            const labels = sortedReleases.map((r) => r.tag);
+            const values = sortedReleases.map((r) => r.downloads);
+
+            const event = new CustomEvent("chartdata", {
+                detail: { labels, values },
+            });
+
+            pieChart.dispatchEvent(event);
         }
     }
 
@@ -440,6 +496,9 @@ const seoDescription = "Real-time download statistics and growth metrics for Lic
 
             // Update release table
             updateReleaseTable();
+
+            // Update adoption pie chart
+            updateAdoptionChart();
         } catch (error) {
             console.error("Failed to fetch stats:", error);
 

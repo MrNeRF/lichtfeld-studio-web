@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS releases (
     tag TEXT NOT NULL UNIQUE,          -- e.g., "v1.0.0"
     name TEXT,                         -- e.g., "LichtFeld Studio v1.0.0"
     total_downloads INTEGER DEFAULT 0, -- Lifetime download count (updated on each collection)
+    published_at INTEGER,              -- Unix timestamp when release was published on GitHub
     first_seen INTEGER,                -- Unix timestamp when release was first tracked
     last_updated INTEGER               -- Unix timestamp of last update
 );

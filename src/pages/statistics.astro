@@ -142,6 +142,7 @@ const seoDescription = "Real-time download statistics and growth metrics for Lic
             tag: string;
             name: string;
             downloads: number;
+            publishedAt: number | null;
             daily: Array<{ date: number; downloads: number }>;
             weekly: Array<{ week: number; downloads: number }>;
             monthly: Array<{ month: number; downloads: number }>;

@@ -24,6 +24,7 @@ const { title } = Astro.props;
             <thead>
                 <tr>
                     <th class="release-table__th">Version</th>
+                    <th class="release-table__th release-table__th--center">Released</th>
                     <th class="release-table__th release-table__th--right">Downloads</th>
                     <th class="release-table__th release-table__th--right">% of Total</th>
                     <th class="release-table__th release-table__th--right">This Month</th>
@@ -31,7 +32,7 @@ const { title } = Astro.props;
             </thead>
             <tbody class="release-table__body" data-table-body>
                 <tr>
-                    <td colspan="4" class="release-table__loading">
+                    <td colspan="5" class="release-table__loading">
                         <div class="release-table__spinner"></div>
                         <span>Loading releases...</span>
                     </td>
@@ -53,6 +54,7 @@ const { title } = Astro.props;
         tag: string;
         name: string;
         downloads: number;
+        publishedAt: number | null;
         monthly: Array<{ month: number; downloads: number }>;
     }
 
@@ -61,6 +63,19 @@ const { title } = Astro.props;
      */
     function formatNumber(num: number): string {
         return new Intl.NumberFormat().format(num);
+    }
+
+    /**
+     * Formats a Unix timestamp as a short date string.
+     */
+    function formatDate(timestamp: number | null): string {
+        if (!timestamp) return "—";
+
+        return new Date(timestamp).toLocaleDateString(undefined, {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+        });
     }
 
     /**
@@ -95,6 +110,9 @@ const { title } = Astro.props;
                     <span class="release-table__tag">${release.tag}</span>
                     <span class="release-table__name">${release.name !== release.tag ? release.name : ""}</span>
                 </div>
+            </td>
+            <td class="release-table__td release-table__td--center">
+                <span class="release-table__date">${formatDate(release.publishedAt)}</span>
             </td>
             <td class="release-table__td release-table__td--right">
                 <span class="release-table__downloads">${formatNumber(release.downloads)}</span>
@@ -136,7 +154,7 @@ const { title } = Astro.props;
                 if (releases.length === 0) {
                     tbody.innerHTML = `
                         <tr>
-                            <td colspan="4" class="release-table__empty">
+                            <td colspan="5" class="release-table__empty">
                                 No releases found
                             </td>
                         </tr>
@@ -199,6 +217,10 @@ const { title } = Astro.props;
         text-align: right;
     }
 
+    .release-table__th--center {
+        text-align: center;
+    }
+
     .release-table :global(.release-table__td) {
         padding: 0.875rem 1rem;
         border-bottom: 1px solid var(--border-color);
@@ -207,6 +229,10 @@ const { title } = Astro.props;
 
     .release-table :global(.release-table__td--right) {
         text-align: right;
+    }
+
+    .release-table :global(.release-table__td--center) {
+        text-align: center;
     }
 
     .release-table :global(tbody tr:last-child .release-table__td) {
@@ -232,6 +258,13 @@ const { title } = Astro.props;
     .release-table :global(.release-table__name) {
         font-size: 0.8125rem;
         color: #6c757d;
+    }
+
+    /* Date cell */
+    .release-table :global(.release-table__date) {
+        font-size: 0.875rem;
+        color: #6c757d;
+        white-space: nowrap;
     }
 
     /* Downloads cell */
@@ -309,9 +342,11 @@ const { title } = Astro.props;
             padding: 0.625rem 0.75rem;
         }
 
-        /* Hide percentage column on small screens */
-        .release-table__th:nth-child(3),
-        .release-table :global(.release-table__td:nth-child(3)) {
+        /* Hide Released and % of Total columns on small screens */
+        .release-table__th:nth-child(2),
+        .release-table :global(.release-table__td:nth-child(2)),
+        .release-table__th:nth-child(4),
+        .release-table :global(.release-table__td:nth-child(4)) {
             display: none;
         }
     }

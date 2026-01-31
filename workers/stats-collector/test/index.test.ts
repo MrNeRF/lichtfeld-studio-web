@@ -32,6 +32,7 @@ interface MockRelease {
     name: string | null;
     draft: boolean;
     prerelease: boolean;
+    published_at: string;
     assets: Array<{ download_count: number }>;
 }
 
@@ -48,6 +49,7 @@ const mockReleases: MockRelease[] = [
         name: "Version 1.0.0",
         draft: false,
         prerelease: false,
+        published_at: "2024-01-15T12:00:00Z",
         assets: [
             { download_count: 1000 },
             { download_count: 500 },
@@ -58,6 +60,7 @@ const mockReleases: MockRelease[] = [
         name: "Version 0.9.0",
         draft: false,
         prerelease: false,
+        published_at: "2024-01-01T12:00:00Z",
         assets: [
             { download_count: 200 },
         ],
@@ -67,6 +70,7 @@ const mockReleases: MockRelease[] = [
         name: "Draft Release",
         draft: true,
         prerelease: false,
+        published_at: "2023-12-15T12:00:00Z",
         assets: [
             { download_count: 50 },
         ],
@@ -76,6 +80,7 @@ const mockReleases: MockRelease[] = [
         name: "Nightly Build",
         draft: false,
         prerelease: true,
+        published_at: "2024-01-20T12:00:00Z",
         assets: [
             { download_count: 75 },
         ],
@@ -349,6 +354,7 @@ describe("Stats Collector Worker", () => {
                     name: "Version 1.0.0",
                     draft: false,
                     prerelease: false,
+                    published_at: "2024-01-15T12:00:00Z",
                     assets: [
                         { download_count: 1200 }, // Increased
                         { download_count: 600 },  // Increased
@@ -359,6 +365,7 @@ describe("Stats Collector Worker", () => {
                     name: "Version 0.9.0",
                     draft: false,
                     prerelease: false,
+                    published_at: "2024-01-01T12:00:00Z",
                     assets: [
                         { download_count: 250 }, // Increased
                     ],
@@ -484,6 +491,7 @@ describe("Stats Collector Worker", () => {
                     name: "Multi-asset Release",
                     draft: false,
                     prerelease: false,
+                    published_at: "2024-02-01T12:00:00Z",
                     assets: [
                         { download_count: 100 },
                         { download_count: 200 },
@@ -536,6 +544,7 @@ describe("Stats Collector Worker", () => {
                     name: null,
                     draft: false,
                     prerelease: false,
+                    published_at: "2024-03-01T12:00:00Z",
                     assets: [{ download_count: 100 }],
                 },
             ];
@@ -583,6 +592,7 @@ describe("Stats Collector Worker", () => {
                     name: "No Assets Release",
                     draft: false,
                     prerelease: false,
+                    published_at: "2024-04-01T12:00:00Z",
                     assets: [],
                 },
             ];

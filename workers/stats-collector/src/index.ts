@@ -24,6 +24,7 @@ interface GitHubRelease {
     name: string | null;
     draft: boolean;
     prerelease: boolean;
+    published_at: string;
     assets: Array<{ download_count: number }>;
 }
 
@@ -119,6 +120,7 @@ interface ProcessedRelease {
     tag: string;
     name: string;
     count: number;
+    publishedAt: number;
 }
 
 /**
@@ -133,16 +135,17 @@ async function batchUpsertReleases(
 
     // Prepare upsert statements for all releases
     const upsertStmt = db.prepare(`
-        INSERT INTO releases (tag, name, total_downloads, first_seen, last_updated)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO releases (tag, name, total_downloads, published_at, first_seen, last_updated)
+        VALUES (?, ?, ?, ?, ?, ?)
         ON CONFLICT(tag) DO UPDATE SET
             name = excluded.name,
             total_downloads = excluded.total_downloads,
+            published_at = COALESCE(releases.published_at, excluded.published_at),
             last_updated = excluded.last_updated
     `);
 
     const upsertStatements = releases.map((r) =>
-        upsertStmt.bind(r.tag, r.name, r.count, now, now)
+        upsertStmt.bind(r.tag, r.name, r.count, r.publishedAt, now, now)
     );
 
     // Execute all upserts in a single batch
@@ -326,10 +329,11 @@ export async function collectWithStats(env: CollectorEnv): Promise<CollectResult
         const tag = release.tag_name;
         const name = release.name || tag;
         const count = release.assets.reduce((sum, a) => sum + a.download_count, 0);
+        const publishedAt = new Date(release.published_at).getTime();
 
         console.log(`Processing ${tag}: ${count} downloads`);
 
-        return { tag, name, count };
+        return { tag, name, count, publishedAt };
     });
 
     // Batch operations: 6 DB round trips total instead of 7 per release

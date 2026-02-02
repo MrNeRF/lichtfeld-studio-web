@@ -27,7 +27,7 @@ const { title } = Astro.props;
                     <th class="release-table__th release-table__th--center">Released</th>
                     <th class="release-table__th release-table__th--right">Downloads</th>
                     <th class="release-table__th release-table__th--right">% of Total</th>
-                    <th class="release-table__th release-table__th--right">This Month</th>
+                    <th class="release-table__th release-table__th--right">Last 30 Days</th>
                 </tr>
             </thead>
             <tbody class="release-table__body" data-table-body>
@@ -55,8 +55,14 @@ const { title } = Astro.props;
         name: string;
         downloads: number;
         publishedAt: number | null;
+        daily: Array<{ date: number; downloads: number }>;
         monthly: Array<{ month: number; downloads: number }>;
     }
+
+    /**
+     * One day in milliseconds.
+     */
+    const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 
     /**
      * Formats a number with locale-aware separators.
@@ -88,13 +94,37 @@ const { title } = Astro.props;
     }
 
     /**
-     * Gets the latest month's downloads from monthly data.
+     * Calculates downloads in the last 30 days from daily cumulative data.
+     * Returns the difference between the latest value and the value from ~30 days ago.
      */
-    function getLatestMonthDownloads(monthly: Array<{ month: number; downloads: number }>): number {
-        if (monthly.length === 0) return 0;
+    function getLast30DaysDownloads(daily: Array<{ date: number; downloads: number }>): number {
+        if (daily.length < 2) return 0;
 
-        // Return the most recent month's value
-        return monthly[monthly.length - 1]?.downloads ?? 0;
+        const now = Date.now();
+        const thirtyDaysAgo = now - 30 * ONE_DAY_MS;
+
+        // Sort by date ascending
+        const sorted = [...daily].sort((a, b) => a.date - b.date);
+
+        // Get the latest cumulative value
+        const latestValue = sorted[sorted.length - 1].downloads;
+
+        // Find the value closest to 30 days ago (but not after it)
+        let valueThirtyDaysAgo = 0;
+
+        for (let i = sorted.length - 1; i >= 0; i--) {
+            if (sorted[i].date <= thirtyDaysAgo) {
+                valueThirtyDaysAgo = sorted[i].downloads;
+                break;
+            }
+        }
+
+        // If no data point before 30 days ago, use the earliest available
+        if (valueThirtyDaysAgo === 0 && sorted[0].date > thirtyDaysAgo) {
+            valueThirtyDaysAgo = sorted[0].downloads;
+        }
+
+        return latestValue - valueThirtyDaysAgo;
     }
 
     /**
@@ -102,7 +132,7 @@ const { title } = Astro.props;
      */
     function createReleaseRow(release: ReleaseData, totalDownloads: number): HTMLTableRowElement {
         const row = document.createElement("tr");
-        const monthlyDownloads = getLatestMonthDownloads(release.monthly);
+        const last30DaysDownloads = getLast30DaysDownloads(release.daily);
 
         row.innerHTML = `
             <td class="release-table__td">
@@ -124,8 +154,8 @@ const { title } = Astro.props;
                 </div>
             </td>
             <td class="release-table__td release-table__td--right">
-                <span class="release-table__monthly ${monthlyDownloads > 0 ? "release-table__monthly--positive" : ""}">
-                    ${monthlyDownloads > 0 ? "+" : ""}${formatNumber(monthlyDownloads)}
+                <span class="release-table__monthly ${last30DaysDownloads > 0 ? "release-table__monthly--positive" : ""}">
+                    ${last30DaysDownloads > 0 ? "+" : ""}${formatNumber(last30DaysDownloads)}
                 </span>
             </td>
         `;

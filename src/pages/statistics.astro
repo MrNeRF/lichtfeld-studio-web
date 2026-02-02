@@ -491,7 +491,7 @@ const seoDescription = "Real-time download statistics and growth metrics for Lic
         let total = 0;
 
         releases.forEach((release) => {
-            if (release.daily.length < 2) return;
+            if (release.daily.length < 1) return;
 
             // Sort by date ascending
             const sorted = [...release.daily].sort((a, b) => a.date - b.date);
@@ -501,17 +501,26 @@ const seoDescription = "Real-time download statistics and growth metrics for Lic
 
             // Find the value closest to 30 days ago (but not after it)
             let valueThirtyDaysAgo = 0;
+            let foundDataPoint = false;
 
             for (let i = sorted.length - 1; i >= 0; i--) {
                 if (sorted[i].date <= thirtyDaysAgo) {
                     valueThirtyDaysAgo = sorted[i].downloads;
+                    foundDataPoint = true;
                     break;
                 }
             }
 
-            // If no data point before 30 days ago, use the earliest available
-            if (valueThirtyDaysAgo === 0 && sorted[0].date > thirtyDaysAgo) {
-                valueThirtyDaysAgo = sorted[0].downloads;
+            // If no data point before 30 days ago
+            if (!foundDataPoint) {
+                // If the release was published within the last 30 days, all downloads are within this period
+                if (release.publishedAt && release.publishedAt > thirtyDaysAgo) {
+                    valueThirtyDaysAgo = 0; // No downloads before the release existed
+                } else {
+                    // Release is older than 30 days but we don't have data going back that far
+                    // Use the earliest available data point as a conservative estimate
+                    valueThirtyDaysAgo = sorted[0].downloads;
+                }
             }
 
             total += latestValue - valueThirtyDaysAgo;

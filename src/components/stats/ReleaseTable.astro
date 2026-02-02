@@ -96,9 +96,15 @@ const { title } = Astro.props;
     /**
      * Calculates downloads in the last 30 days from daily cumulative data.
      * Returns the difference between the latest value and the value from ~30 days ago.
+     *
+     * @param daily - Array of daily cumulative download snapshots
+     * @param publishedAt - Unix timestamp when the release was published (optional)
      */
-    function getLast30DaysDownloads(daily: Array<{ date: number; downloads: number }>): number {
-        if (daily.length < 2) return 0;
+    function getLast30DaysDownloads(
+        daily: Array<{ date: number; downloads: number }>,
+        publishedAt?: number | null
+    ): number {
+        if (daily.length < 1) return 0;
 
         const now = Date.now();
         const thirtyDaysAgo = now - 30 * ONE_DAY_MS;
@@ -111,17 +117,26 @@ const { title } = Astro.props;
 
         // Find the value closest to 30 days ago (but not after it)
         let valueThirtyDaysAgo = 0;
+        let foundDataPoint = false;
 
         for (let i = sorted.length - 1; i >= 0; i--) {
             if (sorted[i].date <= thirtyDaysAgo) {
                 valueThirtyDaysAgo = sorted[i].downloads;
+                foundDataPoint = true;
                 break;
             }
         }
 
-        // If no data point before 30 days ago, use the earliest available
-        if (valueThirtyDaysAgo === 0 && sorted[0].date > thirtyDaysAgo) {
-            valueThirtyDaysAgo = sorted[0].downloads;
+        // If no data point before 30 days ago
+        if (!foundDataPoint) {
+            // If the release was published within the last 30 days, all downloads are within this period
+            if (publishedAt && publishedAt > thirtyDaysAgo) {
+                valueThirtyDaysAgo = 0; // No downloads before the release existed
+            } else {
+                // Release is older than 30 days but we don't have data going back that far
+                // Use the earliest available data point as a conservative estimate
+                valueThirtyDaysAgo = sorted[0].downloads;
+            }
         }
 
         return latestValue - valueThirtyDaysAgo;
@@ -132,7 +147,7 @@ const { title } = Astro.props;
      */
     function createReleaseRow(release: ReleaseData, totalDownloads: number): HTMLTableRowElement {
         const row = document.createElement("tr");
-        const last30DaysDownloads = getLast30DaysDownloads(release.daily);
+        const last30DaysDownloads = getLast30DaysDownloads(release.daily, release.publishedAt);
 
         row.innerHTML = `
             <td class="release-table__td">

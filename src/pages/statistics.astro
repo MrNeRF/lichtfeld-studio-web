@@ -50,8 +50,8 @@ const seoDescription = "Real-time download statistics and growth metrics for Lic
                     loading={true}
                 />
                 <StatCard
-                    label="This Month"
-                    icon="bi-calendar-month"
+                    label="Last 30 Days"
+                    icon="bi-calendar-range"
                     loading={true}
                 />
                 <StatCard
@@ -480,15 +480,50 @@ const seoDescription = "Real-time download statistics and growth metrics for Lic
     }
 
     /**
-     * Gets total downloads for the current month.
+     * Gets total downloads for the last 30 days.
+     * Calculates from daily cumulative data by finding the difference
+     * between the latest value and the value from ~30 days ago.
      */
-    function getThisMonthDownloads(releases: StatsResponse["releases"]): number {
+    function getLast30DaysDownloads(releases: StatsResponse["releases"]): number {
+        const now = Date.now();
+        const thirtyDaysAgo = now - 30 * ONE_DAY_MS;
+
         let total = 0;
 
         releases.forEach((release) => {
-            if (release.monthly.length >= 1) {
-                total += release.monthly[release.monthly.length - 1]?.downloads ?? 0;
+            if (release.daily.length < 1) return;
+
+            // Sort by date ascending
+            const sorted = [...release.daily].sort((a, b) => a.date - b.date);
+
+            // Get the latest cumulative value
+            const latestValue = sorted[sorted.length - 1].downloads;
+
+            // Find the value closest to 30 days ago (but not after it)
+            let valueThirtyDaysAgo = 0;
+            let foundDataPoint = false;
+
+            for (let i = sorted.length - 1; i >= 0; i--) {
+                if (sorted[i].date <= thirtyDaysAgo) {
+                    valueThirtyDaysAgo = sorted[i].downloads;
+                    foundDataPoint = true;
+                    break;
+                }
             }
+
+            // If no data point before 30 days ago
+            if (!foundDataPoint) {
+                // If the release was published within the last 30 days, all downloads are within this period
+                if (release.publishedAt && release.publishedAt > thirtyDaysAgo) {
+                    valueThirtyDaysAgo = 0; // No downloads before the release existed
+                } else {
+                    // Release is older than 30 days but we don't have data going back that far
+                    // Use the earliest available data point as a conservative estimate
+                    valueThirtyDaysAgo = sorted[0].downloads;
+                }
+            }
+
+            total += latestValue - valueThirtyDaysAgo;
         });
 
         return total;
@@ -520,7 +555,7 @@ const seoDescription = "Real-time download statistics and growth metrics for Lic
 
             // Update stat cards
             updateStatCard(0, statsData.totals.allTime);
-            updateStatCard(1, getThisMonthDownloads(statsData.releases));
+            updateStatCard(1, getLast30DaysDownloads(statsData.releases));
 
             // Latest release downloads (find by highest version number)
             if (statsData.releases.length > 0) {

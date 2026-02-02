@@ -174,6 +174,58 @@ const seoDescription = "Real-time download statistics and growth metrics for Lic
     let statsData: StatsResponse | null = null;
 
     /**
+     * One day in milliseconds.
+     */
+    const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
+    /**
+     * Interpolates missing daily data points by distributing values evenly across gaps.
+     * When data collection misses one or more days, this function fills in the gaps
+     * with linearly interpolated cumulative values.
+     *
+     * @param dailyData - Array of daily cumulative snapshots (must be sorted by date ascending)
+     * @returns Array with interpolated data points filling any gaps
+     */
+    function interpolateMissingDays(
+        dailyData: Array<{ date: number; downloads: number }>
+    ): Array<{ date: number; downloads: number }> {
+        if (dailyData.length < 2) return dailyData;
+
+        const result: Array<{ date: number; downloads: number }> = [];
+
+        for (let i = 0; i < dailyData.length; i++) {
+            const current = dailyData[i];
+
+            result.push(current);
+
+            // Check if there's a next point
+            if (i < dailyData.length - 1) {
+                const next = dailyData[i + 1];
+                const daysBetween = Math.round((next.date - current.date) / ONE_DAY_MS);
+
+                // If there's a gap of more than 1 day, interpolate
+                if (daysBetween > 1) {
+                    const downloadsDelta = next.downloads - current.downloads;
+                    const dailyIncrement = downloadsDelta / daysBetween;
+
+                    // Insert interpolated points for each missing day
+                    for (let j = 1; j < daysBetween; j++) {
+                        const interpolatedDate = current.date + j * ONE_DAY_MS;
+                        const interpolatedDownloads = Math.round(current.downloads + dailyIncrement * j);
+
+                        result.push({
+                            date: interpolatedDate,
+                            downloads: interpolatedDownloads,
+                        });
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Formats a number with locale-aware separators.
      */
     function formatNumber(num: number): string {
@@ -247,11 +299,13 @@ const seoDescription = "Real-time download statistics and growth metrics for Lic
 
             if (range === "daily") {
                 // Daily data is cumulative snapshots - calculate deltas
-                // Skip first data point since we can't calculate delta without previous reference
+                // First sort and interpolate any missing days
                 const sorted = [...release.daily].sort((a, b) => a.date - b.date);
+                const interpolated = interpolateMissingDays(sorted);
 
-                data = sorted.slice(1).map((d, i) => {
-                    const prevCount = sorted[i].downloads; // i is offset by 1 due to slice
+                // Skip first data point since we can't calculate delta without previous reference
+                data = interpolated.slice(1).map((d, i) => {
+                    const prevCount = interpolated[i].downloads; // i is offset by 1 due to slice
                     const delta = d.downloads - prevCount;
 
                     return { x: d.date, y: Math.max(0, delta) };
@@ -293,10 +347,12 @@ const seoDescription = "Real-time download statistics and growth metrics for Lic
             let data: ChartDataPoint[];
 
             if (range === "daily") {
-                // Daily data is already cumulative snapshots - use directly
+                // Daily data is already cumulative snapshots
+                // Sort and interpolate any missing days for smooth visualization
                 const sorted = [...release.daily].sort((a, b) => a.date - b.date);
+                const interpolated = interpolateMissingDays(sorted);
 
-                data = sorted.map((d) => ({ x: d.date, y: d.downloads }));
+                data = interpolated.map((d) => ({ x: d.date, y: d.downloads }));
             } else if (range === "weekly") {
                 // Weekly data is deltas - accumulate them
                 const sorted = [...release.weekly].sort((a, b) => a.week - b.week);

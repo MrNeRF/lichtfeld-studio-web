@@ -49,10 +49,20 @@ jobs:
 
       - name: Create db-backups branch if it doesn't exist
         if: steps.checkout-branch.outcome == 'failure'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git clone --depth 1 https://github.com/${{ github.repository }}.git .
+          # Clean up any files left by the failed checkout
+          rm -rf .git || true
+
+          # Initialize a fresh git repository with authentication
+          git init
+          git remote add origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git
+
+          # Create an orphan branch (no parent commits)
           git checkout --orphan db-backups
-          git rm -rf . || true
+
+          # Create initial content
           mkdir -p backups
           echo "# D1 Database Backups" > README.md
           echo "" >> README.md

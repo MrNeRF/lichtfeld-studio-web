@@ -8,11 +8,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import {
-    env,
-    createExecutionContext,
-    waitOnExecutionContext,
-} from "cloudflare:test";
+import { env, createExecutionContext, waitOnExecutionContext } from "cloudflare:test";
 import worker from "../src/index";
 
 // =============================================================================
@@ -28,12 +24,12 @@ type IncomingRequest = Request<unknown, IncomingRequestCfProperties>;
  * Mock GitHub release response.
  */
 interface MockRelease {
-    tag_name: string;
-    name: string | null;
-    draft: boolean;
-    prerelease: boolean;
-    published_at: string;
-    assets: Array<{ download_count: number }>;
+  tag_name: string;
+  name: string | null;
+  draft: boolean;
+  prerelease: boolean;
+  published_at: string;
+  assets: Array<{ download_count: number }>;
 }
 
 // =============================================================================
@@ -44,47 +40,46 @@ interface MockRelease {
  * Mock GitHub API releases response for testing.
  */
 const mockReleases: MockRelease[] = [
-    {
-        tag_name: "v1.0.0",
-        name: "Version 1.0.0",
-        draft: false,
-        prerelease: false,
-        published_at: "2024-01-15T12:00:00Z",
-        assets: [
-            { download_count: 1000 },
-            { download_count: 500 },
-        ],
-    },
-    {
-        tag_name: "v0.9.0",
-        name: "Version 0.9.0",
-        draft: false,
-        prerelease: false,
-        published_at: "2024-01-01T12:00:00Z",
-        assets: [
-            { download_count: 200 },
-        ],
-    },
-    {
-        tag_name: "v0.8.0-draft",
-        name: "Draft Release",
-        draft: true,
-        prerelease: false,
-        published_at: "2023-12-15T12:00:00Z",
-        assets: [
-            { download_count: 50 },
-        ],
-    },
-    {
-        tag_name: "v1.1.0-nightly",
-        name: "Nightly Build",
-        draft: false,
-        prerelease: true,
-        published_at: "2024-01-20T12:00:00Z",
-        assets: [
-            { download_count: 75 },
-        ],
-    },
+  {
+    tag_name: "v1.0.0",
+    name: "Version 1.0.0",
+    draft: false,
+    prerelease: false,
+    published_at: "2024-01-15T12:00:00Z",
+    assets: [{ download_count: 1000 }, { download_count: 500 }],
+  },
+  {
+    tag_name: "v0.9.0",
+    name: "Version 0.9.0",
+    draft: false,
+    prerelease: false,
+    published_at: "2024-01-01T12:00:00Z",
+    assets: [{ download_count: 200 }],
+  },
+  {
+    tag_name: "v0.8.0-draft",
+    name: "Draft Release",
+    draft: true,
+    prerelease: false,
+    published_at: "2023-12-15T12:00:00Z",
+    assets: [{ download_count: 50 }],
+  },
+  {
+    tag_name: "v1.1.0-beta",
+    name: "Beta Build",
+    draft: false,
+    prerelease: true,
+    published_at: "2024-01-20T12:00:00Z",
+    assets: [{ download_count: 75 }],
+  },
+  {
+    tag_name: "nightly",
+    name: "Nightly Build",
+    draft: false,
+    prerelease: true,
+    published_at: "2024-01-25T12:00:00Z",
+    assets: [{ download_count: 300 }, { download_count: 150 }],
+  },
 ];
 
 // =============================================================================
@@ -95,7 +90,7 @@ const mockReleases: MockRelease[] = [
  * Creates a fetch request with standard properties.
  */
 function createRequest(url: string, options?: RequestInit): IncomingRequest {
-    return new Request(url, options) as IncomingRequest;
+  return new Request(url, options) as IncomingRequest;
 }
 
 /**
@@ -103,7 +98,7 @@ function createRequest(url: string, options?: RequestInit): IncomingRequest {
  * Called before each test to ensure isolation.
  */
 async function clearDatabase(): Promise<void> {
-    await env.STATS_DB.exec(`
+  await env.STATS_DB.exec(`
         DELETE FROM downloads_monthly;
         DELETE FROM downloads_weekly;
         DELETE FROM downloads_daily;
@@ -115,25 +110,28 @@ async function clearDatabase(): Promise<void> {
  * Sets up the fetch mock to return mock GitHub release data.
  */
 function setupGitHubMock(): void {
-    // Mock the global fetch to intercept GitHub API calls
-    vi.stubGlobal("fetch", vi.fn(async (url: string) => {
-        // Parse the URL to determine the page
-        const urlObj = new URL(url);
-        const page = parseInt(urlObj.searchParams.get("page") || "1", 10);
+  // Mock the global fetch to intercept GitHub API calls
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (url: string) => {
+      // Parse the URL to determine the page
+      const urlObj = new URL(url);
+      const page = parseInt(urlObj.searchParams.get("page") || "1", 10);
 
-        // Return releases on page 1, empty array on subsequent pages
-        if (page === 1) {
-            return new Response(JSON.stringify(mockReleases), {
-                status: 200,
-                headers: { "Content-Type": "application/json" },
-            });
-        }
-
-        return new Response(JSON.stringify([]), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
+      // Return releases on page 1, empty array on subsequent pages
+      if (page === 1) {
+        return new Response(JSON.stringify(mockReleases), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
         });
-    }));
+      }
+
+      return new Response(JSON.stringify([]), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }),
+  );
 }
 
 // =============================================================================
@@ -141,524 +139,571 @@ function setupGitHubMock(): void {
 // =============================================================================
 
 describe("Stats Collector Worker", () => {
-    // -------------------------------------------------------------------------
-    // Setup and Teardown
-    // -------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
+  // Setup and Teardown
+  // -------------------------------------------------------------------------
 
-    beforeEach(async () => {
-        // Clear database before each test
-        await clearDatabase();
+  beforeEach(async () => {
+    // Clear database before each test
+    await clearDatabase();
+  });
+
+  afterEach(() => {
+    // Restore all mocks
+    vi.restoreAllMocks();
+  });
+
+  // -------------------------------------------------------------------------
+  // Health Endpoint Tests
+  // -------------------------------------------------------------------------
+
+  describe("GET /health", () => {
+    it("should return status ok", async () => {
+      // Arrange
+      const request = createRequest("http://localhost/health");
+      const ctx = createExecutionContext();
+
+      // Act
+      const response = await worker.fetch(request, env, ctx);
+      await waitOnExecutionContext(ctx);
+
+      // Assert
+      expect(response.status).toBe(200);
+
+      const body = (await response.json()) as { status: string };
+
+      expect(body.status).toBe("ok");
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // 404 Tests
+  // -------------------------------------------------------------------------
+
+  describe("Unknown routes", () => {
+    it("should return 404 for unknown paths", async () => {
+      // Arrange
+      const request = createRequest("http://localhost/unknown");
+      const ctx = createExecutionContext();
+
+      // Act
+      const response = await worker.fetch(request, env, ctx);
+      await waitOnExecutionContext(ctx);
+
+      // Assert
+      expect(response.status).toBe(404);
     });
 
-    afterEach(() => {
-        // Restore all mocks
-        vi.restoreAllMocks();
+    it("should return 404 for GET /collect", async () => {
+      // Arrange
+      const request = createRequest("http://localhost/collect", {
+        method: "GET",
+      });
+      const ctx = createExecutionContext();
+
+      // Act
+      const response = await worker.fetch(request, env, ctx);
+      await waitOnExecutionContext(ctx);
+
+      // Assert
+      expect(response.status).toBe(404);
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // Collect Endpoint Tests
+  // -------------------------------------------------------------------------
+
+  describe("POST /collect", () => {
+    it("should collect releases and store them in the database", async () => {
+      // Arrange
+      setupGitHubMock();
+
+      const request = createRequest("http://localhost/collect", {
+        method: "POST",
+      });
+      const ctx = createExecutionContext();
+
+      // Act
+      const response = await worker.fetch(request, env, ctx);
+      await waitOnExecutionContext(ctx);
+
+      // Assert
+      expect(response.status).toBe(200);
+
+      const body = (await response.json()) as {
+        status: string;
+        releasesFound: number;
+        releasesProcessed: number;
+      };
+
+      expect(body.status).toBe("collected");
+      expect(body.releasesFound).toBe(3); // Draft and non-nightly prereleases filtered out
+      expect(body.releasesProcessed).toBe(3);
     });
 
-    // -------------------------------------------------------------------------
-    // Health Endpoint Tests
-    // -------------------------------------------------------------------------
+    it("should store release metadata with lifetime stats", async () => {
+      // Arrange
+      setupGitHubMock();
 
-    describe("GET /health", () => {
-        it("should return status ok", async () => {
-            // Arrange
-            const request = createRequest("http://localhost/health");
-            const ctx = createExecutionContext();
+      const request = createRequest("http://localhost/collect", {
+        method: "POST",
+      });
+      const ctx = createExecutionContext();
 
-            // Act
-            const response = await worker.fetch(request, env, ctx);
-            await waitOnExecutionContext(ctx);
+      // Act
+      await worker.fetch(request, env, ctx);
+      await waitOnExecutionContext(ctx);
 
-            // Assert
-            expect(response.status).toBe(200);
+      // Assert: Check releases table
+      const releases = await env.STATS_DB.prepare(
+        "SELECT tag, name, total_downloads FROM releases ORDER BY total_downloads DESC",
+      ).all<{ tag: string; name: string; total_downloads: number }>();
 
-            const body = await response.json() as { status: string };
-
-            expect(body.status).toBe("ok");
-        });
+      expect(releases.results).toHaveLength(3);
+      expect(releases.results[0].tag).toBe("v1.0.0");
+      expect(releases.results[0].name).toBe("Version 1.0.0");
+      expect(releases.results[0].total_downloads).toBe(1500); // 1000 + 500
+      expect(releases.results[1].tag).toBe("nightly");
+      expect(releases.results[1].name).toBe("Nightly Build");
+      expect(releases.results[1].total_downloads).toBe(450); // 300 + 150
+      expect(releases.results[2].tag).toBe("v0.9.0");
+      expect(releases.results[2].total_downloads).toBe(200);
     });
 
-    // -------------------------------------------------------------------------
-    // 404 Tests
-    // -------------------------------------------------------------------------
+    it("should store daily download snapshots", async () => {
+      // Arrange
+      setupGitHubMock();
 
-    describe("Unknown routes", () => {
-        it("should return 404 for unknown paths", async () => {
-            // Arrange
-            const request = createRequest("http://localhost/unknown");
-            const ctx = createExecutionContext();
+      const request = createRequest("http://localhost/collect", {
+        method: "POST",
+      });
+      const ctx = createExecutionContext();
 
-            // Act
-            const response = await worker.fetch(request, env, ctx);
-            await waitOnExecutionContext(ctx);
+      // Act
+      await worker.fetch(request, env, ctx);
+      await waitOnExecutionContext(ctx);
 
-            // Assert
-            expect(response.status).toBe(404);
-        });
+      // Assert: Check daily snapshots
+      const daily = await env.STATS_DB.prepare("SELECT COUNT(*) as count FROM downloads_daily").first<{
+        count: number;
+      }>();
 
-        it("should return 404 for GET /collect", async () => {
-            // Arrange
-            const request = createRequest("http://localhost/collect", {
-                method: "GET",
-            });
-            const ctx = createExecutionContext();
-
-            // Act
-            const response = await worker.fetch(request, env, ctx);
-            await waitOnExecutionContext(ctx);
-
-            // Assert
-            expect(response.status).toBe(404);
-        });
+      expect(daily?.count).toBe(3); // One entry per release
     });
 
-    // -------------------------------------------------------------------------
-    // Collect Endpoint Tests
-    // -------------------------------------------------------------------------
+    it("should aggregate weekly downloads", async () => {
+      // Arrange
+      setupGitHubMock();
 
-    describe("POST /collect", () => {
-        it("should collect releases and store them in the database", async () => {
-            // Arrange
-            setupGitHubMock();
+      const request = createRequest("http://localhost/collect", {
+        method: "POST",
+      });
+      const ctx = createExecutionContext();
 
-            const request = createRequest("http://localhost/collect", {
-                method: "POST",
-            });
-            const ctx = createExecutionContext();
+      // Act
+      await worker.fetch(request, env, ctx);
+      await waitOnExecutionContext(ctx);
 
-            // Act
-            const response = await worker.fetch(request, env, ctx);
-            await waitOnExecutionContext(ctx);
+      // Assert: Check weekly aggregates
+      const weekly = await env.STATS_DB.prepare("SELECT COUNT(*) as count FROM downloads_weekly").first<{
+        count: number;
+      }>();
 
-            // Assert
-            expect(response.status).toBe(200);
-
-            const body = await response.json() as {
-                status: string;
-                releasesFound: number;
-                releasesProcessed: number;
-            };
-
-            expect(body.status).toBe("collected");
-            expect(body.releasesFound).toBe(2); // Draft and prerelease should be filtered out
-            expect(body.releasesProcessed).toBe(2);
-        });
-
-        it("should store release metadata with lifetime stats", async () => {
-            // Arrange
-            setupGitHubMock();
-
-            const request = createRequest("http://localhost/collect", {
-                method: "POST",
-            });
-            const ctx = createExecutionContext();
-
-            // Act
-            await worker.fetch(request, env, ctx);
-            await waitOnExecutionContext(ctx);
-
-            // Assert: Check releases table
-            const releases = await env.STATS_DB
-                .prepare("SELECT tag, name, total_downloads FROM releases ORDER BY total_downloads DESC")
-                .all<{ tag: string; name: string; total_downloads: number }>();
-
-            expect(releases.results).toHaveLength(2);
-            expect(releases.results[0].tag).toBe("v1.0.0");
-            expect(releases.results[0].name).toBe("Version 1.0.0");
-            expect(releases.results[0].total_downloads).toBe(1500); // 1000 + 500
-            expect(releases.results[1].tag).toBe("v0.9.0");
-            expect(releases.results[1].total_downloads).toBe(200);
-        });
-
-        it("should store daily download snapshots", async () => {
-            // Arrange
-            setupGitHubMock();
-
-            const request = createRequest("http://localhost/collect", {
-                method: "POST",
-            });
-            const ctx = createExecutionContext();
-
-            // Act
-            await worker.fetch(request, env, ctx);
-            await waitOnExecutionContext(ctx);
-
-            // Assert: Check daily snapshots
-            const daily = await env.STATS_DB
-                .prepare("SELECT COUNT(*) as count FROM downloads_daily")
-                .first<{ count: number }>();
-
-            expect(daily?.count).toBe(2); // One entry per release
-        });
-
-        it("should aggregate weekly downloads", async () => {
-            // Arrange
-            setupGitHubMock();
-
-            const request = createRequest("http://localhost/collect", {
-                method: "POST",
-            });
-            const ctx = createExecutionContext();
-
-            // Act
-            await worker.fetch(request, env, ctx);
-            await waitOnExecutionContext(ctx);
-
-            // Assert: Check weekly aggregates
-            const weekly = await env.STATS_DB
-                .prepare("SELECT COUNT(*) as count FROM downloads_weekly")
-                .first<{ count: number }>();
-
-            expect(weekly?.count).toBe(2); // One entry per release
-        });
-
-        it("should aggregate monthly downloads", async () => {
-            // Arrange
-            setupGitHubMock();
-
-            const request = createRequest("http://localhost/collect", {
-                method: "POST",
-            });
-            const ctx = createExecutionContext();
-
-            // Act
-            await worker.fetch(request, env, ctx);
-            await waitOnExecutionContext(ctx);
-
-            // Assert: Check monthly aggregates
-            const monthly = await env.STATS_DB
-                .prepare("SELECT COUNT(*) as count FROM downloads_monthly")
-                .first<{ count: number }>();
-
-            expect(monthly?.count).toBe(2); // One entry per release
-        });
-
-        it("should update existing releases on subsequent collections", async () => {
-            // Arrange: First collection
-            setupGitHubMock();
-
-            const request1 = createRequest("http://localhost/collect", {
-                method: "POST",
-            });
-            const ctx1 = createExecutionContext();
-
-            await worker.fetch(request1, env, ctx1);
-            await waitOnExecutionContext(ctx1);
-
-            // Update mock data for second collection
-            vi.restoreAllMocks();
-
-            const updatedReleases: MockRelease[] = [
-                {
-                    tag_name: "v1.0.0",
-                    name: "Version 1.0.0",
-                    draft: false,
-                    prerelease: false,
-                    published_at: "2024-01-15T12:00:00Z",
-                    assets: [
-                        { download_count: 1200 }, // Increased
-                        { download_count: 600 },  // Increased
-                    ],
-                },
-                {
-                    tag_name: "v0.9.0",
-                    name: "Version 0.9.0",
-                    draft: false,
-                    prerelease: false,
-                    published_at: "2024-01-01T12:00:00Z",
-                    assets: [
-                        { download_count: 250 }, // Increased
-                    ],
-                },
-            ];
-
-            vi.stubGlobal("fetch", vi.fn(async (url: string) => {
-                const urlObj = new URL(url);
-                const page = parseInt(urlObj.searchParams.get("page") || "1", 10);
-
-                if (page === 1) {
-                    return new Response(JSON.stringify(updatedReleases), {
-                        status: 200,
-                        headers: { "Content-Type": "application/json" },
-                    });
-                }
-
-                return new Response(JSON.stringify([]), {
-                    status: 200,
-                    headers: { "Content-Type": "application/json" },
-                });
-            }));
-
-            // Act: Second collection
-            const request2 = createRequest("http://localhost/collect", {
-                method: "POST",
-            });
-            const ctx2 = createExecutionContext();
-
-            await worker.fetch(request2, env, ctx2);
-            await waitOnExecutionContext(ctx2);
-
-            // Assert: Check updated totals
-            const releases = await env.STATS_DB
-                .prepare("SELECT tag, total_downloads FROM releases ORDER BY total_downloads DESC")
-                .all<{ tag: string; total_downloads: number }>();
-
-            expect(releases.results).toHaveLength(2); // No duplicates
-            expect(releases.results[0].total_downloads).toBe(1800); // 1200 + 600
-            expect(releases.results[1].total_downloads).toBe(250);
-        });
-
-        it("should return error on GitHub API failure", async () => {
-            // Arrange: Mock a failed GitHub API response
-            vi.stubGlobal("fetch", vi.fn(async () => {
-                return new Response("Internal Server Error", { status: 500 });
-            }));
-
-            const request = createRequest("http://localhost/collect", {
-                method: "POST",
-            });
-            const ctx = createExecutionContext();
-
-            // Act
-            const response = await worker.fetch(request, env, ctx);
-            await waitOnExecutionContext(ctx);
-
-            // Assert
-            expect(response.status).toBe(500);
-
-            const body = await response.json() as { status: string; message: string };
-
-            expect(body.status).toBe("error");
-            expect(body.message).toContain("GitHub API error");
-        });
+      expect(weekly?.count).toBe(3); // One entry per release
     });
 
-    // -------------------------------------------------------------------------
-    // Empty Repository Tests
-    // -------------------------------------------------------------------------
+    it("should aggregate monthly downloads", async () => {
+      // Arrange
+      setupGitHubMock();
 
-    describe("Empty Repository", () => {
-        it("should handle repository with no releases", async () => {
-            // Arrange: Mock GitHub returning empty releases array
-            vi.stubGlobal("fetch", vi.fn(async () => {
-                return new Response(JSON.stringify([]), {
-                    status: 200,
-                    headers: { "Content-Type": "application/json" },
-                });
-            }));
+      const request = createRequest("http://localhost/collect", {
+        method: "POST",
+      });
+      const ctx = createExecutionContext();
 
-            const request = createRequest("http://localhost/collect", {
-                method: "POST",
-            });
-            const ctx = createExecutionContext();
+      // Act
+      await worker.fetch(request, env, ctx);
+      await waitOnExecutionContext(ctx);
 
-            // Act
-            const response = await worker.fetch(request, env, ctx);
-            await waitOnExecutionContext(ctx);
+      // Assert: Check monthly aggregates
+      const monthly = await env.STATS_DB.prepare("SELECT COUNT(*) as count FROM downloads_monthly").first<{
+        count: number;
+      }>();
 
-            // Assert
-            expect(response.status).toBe(200);
-
-            const body = await response.json() as {
-                status: string;
-                releasesFound: number;
-                releasesProcessed: number;
-            };
-
-            expect(body.status).toBe("collected");
-            expect(body.releasesFound).toBe(0);
-            expect(body.releasesProcessed).toBe(0);
-
-            // Verify database is empty
-            const releases = await env.STATS_DB
-                .prepare("SELECT COUNT(*) as count FROM releases")
-                .first<{ count: number }>();
-
-            expect(releases?.count).toBe(0);
-        });
+      expect(monthly?.count).toBe(3); // One entry per release
     });
 
-    // -------------------------------------------------------------------------
-    // Data Integrity Tests
-    // -------------------------------------------------------------------------
+    it("should update existing releases on subsequent collections", async () => {
+      // Arrange: First collection
+      setupGitHubMock();
 
-    describe("Data Integrity", () => {
-        it("should correctly sum asset download counts", async () => {
-            // Arrange: Release with multiple assets
-            const multiAssetRelease: MockRelease[] = [
-                {
-                    tag_name: "v2.0.0",
-                    name: "Multi-asset Release",
-                    draft: false,
-                    prerelease: false,
-                    published_at: "2024-02-01T12:00:00Z",
-                    assets: [
-                        { download_count: 100 },
-                        { download_count: 200 },
-                        { download_count: 300 },
-                        { download_count: 400 },
-                    ],
-                },
-            ];
+      const request1 = createRequest("http://localhost/collect", {
+        method: "POST",
+      });
+      const ctx1 = createExecutionContext();
 
-            vi.stubGlobal("fetch", vi.fn(async (url: string) => {
-                const urlObj = new URL(url);
-                const page = parseInt(urlObj.searchParams.get("page") || "1", 10);
+      await worker.fetch(request1, env, ctx1);
+      await waitOnExecutionContext(ctx1);
 
-                if (page === 1) {
-                    return new Response(JSON.stringify(multiAssetRelease), {
-                        status: 200,
-                        headers: { "Content-Type": "application/json" },
-                    });
-                }
+      // Update mock data for second collection
+      vi.restoreAllMocks();
 
-                return new Response(JSON.stringify([]), {
-                    status: 200,
-                    headers: { "Content-Type": "application/json" },
-                });
-            }));
+      const updatedReleases: MockRelease[] = [
+        {
+          tag_name: "v1.0.0",
+          name: "Version 1.0.0",
+          draft: false,
+          prerelease: false,
+          published_at: "2024-01-15T12:00:00Z",
+          assets: [
+            { download_count: 1200 }, // Increased
+            { download_count: 600 }, // Increased
+          ],
+        },
+        {
+          tag_name: "v0.9.0",
+          name: "Version 0.9.0",
+          draft: false,
+          prerelease: false,
+          published_at: "2024-01-01T12:00:00Z",
+          assets: [
+            { download_count: 250 }, // Increased
+          ],
+        },
+      ];
 
-            const request = createRequest("http://localhost/collect", {
-                method: "POST",
+      vi.stubGlobal(
+        "fetch",
+        vi.fn(async (url: string) => {
+          const urlObj = new URL(url);
+          const page = parseInt(urlObj.searchParams.get("page") || "1", 10);
+
+          if (page === 1) {
+            return new Response(JSON.stringify(updatedReleases), {
+              status: 200,
+              headers: { "Content-Type": "application/json" },
             });
-            const ctx = createExecutionContext();
+          }
 
-            // Act
-            await worker.fetch(request, env, ctx);
-            await waitOnExecutionContext(ctx);
+          return new Response(JSON.stringify([]), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          });
+        }),
+      );
 
-            // Assert
-            const release = await env.STATS_DB
-                .prepare("SELECT total_downloads FROM releases WHERE tag = ?")
-                .bind("v2.0.0")
-                .first<{ total_downloads: number }>();
+      // Act: Second collection
+      const request2 = createRequest("http://localhost/collect", {
+        method: "POST",
+      });
+      const ctx2 = createExecutionContext();
 
-            expect(release?.total_downloads).toBe(1000); // 100 + 200 + 300 + 400
-        });
+      await worker.fetch(request2, env, ctx2);
+      await waitOnExecutionContext(ctx2);
 
-        it("should use tag_name as name when name is null", async () => {
-            // Arrange
-            const releaseWithNullName: MockRelease[] = [
-                {
-                    tag_name: "v3.0.0",
-                    name: null,
-                    draft: false,
-                    prerelease: false,
-                    published_at: "2024-03-01T12:00:00Z",
-                    assets: [{ download_count: 100 }],
-                },
-            ];
+      // Assert: Check updated totals
+      const releases = await env.STATS_DB.prepare(
+        "SELECT tag, total_downloads FROM releases ORDER BY total_downloads DESC",
+      ).all<{ tag: string; total_downloads: number }>();
 
-            vi.stubGlobal("fetch", vi.fn(async (url: string) => {
-                const urlObj = new URL(url);
-                const page = parseInt(urlObj.searchParams.get("page") || "1", 10);
-
-                if (page === 1) {
-                    return new Response(JSON.stringify(releaseWithNullName), {
-                        status: 200,
-                        headers: { "Content-Type": "application/json" },
-                    });
-                }
-
-                return new Response(JSON.stringify([]), {
-                    status: 200,
-                    headers: { "Content-Type": "application/json" },
-                });
-            }));
-
-            const request = createRequest("http://localhost/collect", {
-                method: "POST",
-            });
-            const ctx = createExecutionContext();
-
-            // Act
-            await worker.fetch(request, env, ctx);
-            await waitOnExecutionContext(ctx);
-
-            // Assert
-            const release = await env.STATS_DB
-                .prepare("SELECT name FROM releases WHERE tag = ?")
-                .bind("v3.0.0")
-                .first<{ name: string }>();
-
-            expect(release?.name).toBe("v3.0.0");
-        });
-
-        it("should handle releases with no assets", async () => {
-            // Arrange
-            const releaseWithNoAssets: MockRelease[] = [
-                {
-                    tag_name: "v4.0.0",
-                    name: "No Assets Release",
-                    draft: false,
-                    prerelease: false,
-                    published_at: "2024-04-01T12:00:00Z",
-                    assets: [],
-                },
-            ];
-
-            vi.stubGlobal("fetch", vi.fn(async (url: string) => {
-                const urlObj = new URL(url);
-                const page = parseInt(urlObj.searchParams.get("page") || "1", 10);
-
-                if (page === 1) {
-                    return new Response(JSON.stringify(releaseWithNoAssets), {
-                        status: 200,
-                        headers: { "Content-Type": "application/json" },
-                    });
-                }
-
-                return new Response(JSON.stringify([]), {
-                    status: 200,
-                    headers: { "Content-Type": "application/json" },
-                });
-            }));
-
-            const request = createRequest("http://localhost/collect", {
-                method: "POST",
-            });
-            const ctx = createExecutionContext();
-
-            // Act
-            await worker.fetch(request, env, ctx);
-            await waitOnExecutionContext(ctx);
-
-            // Assert
-            const release = await env.STATS_DB
-                .prepare("SELECT total_downloads FROM releases WHERE tag = ?")
-                .bind("v4.0.0")
-                .first<{ total_downloads: number }>();
-
-            expect(release?.total_downloads).toBe(0);
-        });
-
-        it("should record first_seen and last_updated timestamps", async () => {
-            // Arrange
-            setupGitHubMock();
-
-            const beforeCollection = Date.now();
-
-            const request = createRequest("http://localhost/collect", {
-                method: "POST",
-            });
-            const ctx = createExecutionContext();
-
-            // Act
-            await worker.fetch(request, env, ctx);
-            await waitOnExecutionContext(ctx);
-
-            const afterCollection = Date.now();
-
-            // Assert
-            const release = await env.STATS_DB
-                .prepare("SELECT first_seen, last_updated FROM releases WHERE tag = ?")
-                .bind("v1.0.0")
-                .first<{ first_seen: number; last_updated: number }>();
-
-            expect(release?.first_seen).toBeGreaterThanOrEqual(beforeCollection);
-            expect(release?.first_seen).toBeLessThanOrEqual(afterCollection);
-            expect(release?.last_updated).toBeGreaterThanOrEqual(beforeCollection);
-            expect(release?.last_updated).toBeLessThanOrEqual(afterCollection);
-        });
+      expect(releases.results).toHaveLength(3); // No duplicates
+      expect(releases.results[0].total_downloads).toBe(1800); // 1200 + 600
+      expect(releases.results[1].total_downloads).toBe(450); // nightly unchanged from first run
+      expect(releases.results[2].total_downloads).toBe(250);
     });
+
+    it("should return error on GitHub API failure", async () => {
+      // Arrange: Mock a failed GitHub API response
+      vi.stubGlobal(
+        "fetch",
+        vi.fn(async () => {
+          return new Response("Internal Server Error", { status: 500 });
+        }),
+      );
+
+      const request = createRequest("http://localhost/collect", {
+        method: "POST",
+      });
+      const ctx = createExecutionContext();
+
+      // Act
+      const response = await worker.fetch(request, env, ctx);
+      await waitOnExecutionContext(ctx);
+
+      // Assert
+      expect(response.status).toBe(500);
+
+      const body = (await response.json()) as { status: string; message: string };
+
+      expect(body.status).toBe("error");
+      expect(body.message).toContain("GitHub API error");
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // Empty Repository Tests
+  // -------------------------------------------------------------------------
+
+  describe("Empty Repository", () => {
+    it("should handle repository with no releases", async () => {
+      // Arrange: Mock GitHub returning empty releases array
+      vi.stubGlobal(
+        "fetch",
+        vi.fn(async () => {
+          return new Response(JSON.stringify([]), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          });
+        }),
+      );
+
+      const request = createRequest("http://localhost/collect", {
+        method: "POST",
+      });
+      const ctx = createExecutionContext();
+
+      // Act
+      const response = await worker.fetch(request, env, ctx);
+      await waitOnExecutionContext(ctx);
+
+      // Assert
+      expect(response.status).toBe(200);
+
+      const body = (await response.json()) as {
+        status: string;
+        releasesFound: number;
+        releasesProcessed: number;
+      };
+
+      expect(body.status).toBe("collected");
+      expect(body.releasesFound).toBe(0);
+      expect(body.releasesProcessed).toBe(0);
+
+      // Verify database is empty
+      const releases = await env.STATS_DB.prepare("SELECT COUNT(*) as count FROM releases").first<{ count: number }>();
+
+      expect(releases?.count).toBe(0);
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // Nightly Release Tests
+  // -------------------------------------------------------------------------
+
+  describe("Nightly Release Handling", () => {
+    it("should include nightly prerelease but exclude other prereleases", async () => {
+      // Arrange
+      setupGitHubMock();
+
+      const request = createRequest("http://localhost/collect", {
+        method: "POST",
+      });
+      const ctx = createExecutionContext();
+
+      // Act
+      await worker.fetch(request, env, ctx);
+      await waitOnExecutionContext(ctx);
+
+      // Assert: nightly tag should be present
+      const nightly = await env.STATS_DB.prepare("SELECT tag, name, total_downloads FROM releases WHERE tag = ?")
+        .bind("nightly")
+        .first<{ tag: string; name: string; total_downloads: number }>();
+
+      expect(nightly).not.toBeNull();
+      expect(nightly?.name).toBe("Nightly Build");
+      expect(nightly?.total_downloads).toBe(450);
+
+      // Assert: other prereleases should be excluded
+      const beta = await env.STATS_DB.prepare("SELECT tag FROM releases WHERE tag = ?")
+        .bind("v1.1.0-beta")
+        .first<{ tag: string }>();
+
+      expect(beta).toBeNull();
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // Data Integrity Tests
+  // -------------------------------------------------------------------------
+
+  describe("Data Integrity", () => {
+    it("should correctly sum asset download counts", async () => {
+      // Arrange: Release with multiple assets
+      const multiAssetRelease: MockRelease[] = [
+        {
+          tag_name: "v2.0.0",
+          name: "Multi-asset Release",
+          draft: false,
+          prerelease: false,
+          published_at: "2024-02-01T12:00:00Z",
+          assets: [{ download_count: 100 }, { download_count: 200 }, { download_count: 300 }, { download_count: 400 }],
+        },
+      ];
+
+      vi.stubGlobal(
+        "fetch",
+        vi.fn(async (url: string) => {
+          const urlObj = new URL(url);
+          const page = parseInt(urlObj.searchParams.get("page") || "1", 10);
+
+          if (page === 1) {
+            return new Response(JSON.stringify(multiAssetRelease), {
+              status: 200,
+              headers: { "Content-Type": "application/json" },
+            });
+          }
+
+          return new Response(JSON.stringify([]), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          });
+        }),
+      );
+
+      const request = createRequest("http://localhost/collect", {
+        method: "POST",
+      });
+      const ctx = createExecutionContext();
+
+      // Act
+      await worker.fetch(request, env, ctx);
+      await waitOnExecutionContext(ctx);
+
+      // Assert
+      const release = await env.STATS_DB.prepare("SELECT total_downloads FROM releases WHERE tag = ?")
+        .bind("v2.0.0")
+        .first<{ total_downloads: number }>();
+
+      expect(release?.total_downloads).toBe(1000); // 100 + 200 + 300 + 400
+    });
+
+    it("should use tag_name as name when name is null", async () => {
+      // Arrange
+      const releaseWithNullName: MockRelease[] = [
+        {
+          tag_name: "v3.0.0",
+          name: null,
+          draft: false,
+          prerelease: false,
+          published_at: "2024-03-01T12:00:00Z",
+          assets: [{ download_count: 100 }],
+        },
+      ];
+
+      vi.stubGlobal(
+        "fetch",
+        vi.fn(async (url: string) => {
+          const urlObj = new URL(url);
+          const page = parseInt(urlObj.searchParams.get("page") || "1", 10);
+
+          if (page === 1) {
+            return new Response(JSON.stringify(releaseWithNullName), {
+              status: 200,
+              headers: { "Content-Type": "application/json" },
+            });
+          }
+
+          return new Response(JSON.stringify([]), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          });
+        }),
+      );
+
+      const request = createRequest("http://localhost/collect", {
+        method: "POST",
+      });
+      const ctx = createExecutionContext();
+
+      // Act
+      await worker.fetch(request, env, ctx);
+      await waitOnExecutionContext(ctx);
+
+      // Assert
+      const release = await env.STATS_DB.prepare("SELECT name FROM releases WHERE tag = ?")
+        .bind("v3.0.0")
+        .first<{ name: string }>();
+
+      expect(release?.name).toBe("v3.0.0");
+    });
+
+    it("should handle releases with no assets", async () => {
+      // Arrange
+      const releaseWithNoAssets: MockRelease[] = [
+        {
+          tag_name: "v4.0.0",
+          name: "No Assets Release",
+          draft: false,
+          prerelease: false,
+          published_at: "2024-04-01T12:00:00Z",
+          assets: [],
+        },
+      ];
+
+      vi.stubGlobal(
+        "fetch",
+        vi.fn(async (url: string) => {
+          const urlObj = new URL(url);
+          const page = parseInt(urlObj.searchParams.get("page") || "1", 10);
+
+          if (page === 1) {
+            return new Response(JSON.stringify(releaseWithNoAssets), {
+              status: 200,
+              headers: { "Content-Type": "application/json" },
+            });
+          }
+
+          return new Response(JSON.stringify([]), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          });
+        }),
+      );
+
+      const request = createRequest("http://localhost/collect", {
+        method: "POST",
+      });
+      const ctx = createExecutionContext();
+
+      // Act
+      await worker.fetch(request, env, ctx);
+      await waitOnExecutionContext(ctx);
+
+      // Assert
+      const release = await env.STATS_DB.prepare("SELECT total_downloads FROM releases WHERE tag = ?")
+        .bind("v4.0.0")
+        .first<{ total_downloads: number }>();
+
+      expect(release?.total_downloads).toBe(0);
+    });
+
+    it("should record first_seen and last_updated timestamps", async () => {
+      // Arrange
+      setupGitHubMock();
+
+      const beforeCollection = Date.now();
+
+      const request = createRequest("http://localhost/collect", {
+        method: "POST",
+      });
+      const ctx = createExecutionContext();
+
+      // Act
+      await worker.fetch(request, env, ctx);
+      await waitOnExecutionContext(ctx);
+
+      const afterCollection = Date.now();
+
+      // Assert
+      const release = await env.STATS_DB.prepare("SELECT first_seen, last_updated FROM releases WHERE tag = ?")
+        .bind("v1.0.0")
+        .first<{ first_seen: number; last_updated: number }>();
+
+      expect(release?.first_seen).toBeGreaterThanOrEqual(beforeCollection);
+      expect(release?.first_seen).toBeLessThanOrEqual(afterCollection);
+      expect(release?.last_updated).toBeGreaterThanOrEqual(beforeCollection);
+      expect(release?.last_updated).toBeLessThanOrEqual(afterCollection);
+    });
+  });
 });

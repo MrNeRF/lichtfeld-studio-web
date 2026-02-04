@@ -19,13 +19,19 @@ export interface CollectorEnv {
 // Internal alias for backwards compatibility within this file
 type Env = CollectorEnv;
 
+interface GitHubAsset {
+  name: string;
+  download_count: number;
+  created_at: string;
+}
+
 interface GitHubRelease {
   tag_name: string;
   name: string | null;
   draft: boolean;
   prerelease: boolean;
   published_at: string;
-  assets: Array<{ download_count: number }>;
+  assets: GitHubAsset[];
 }
 
 // =============================================================================
@@ -130,12 +136,13 @@ async function batchUpsertReleases(db: D1Database, releases: ProcessedRelease[])
   const now = Date.now();
 
   // Prepare upsert statements for all releases
+  // Uses MAX for total_downloads to handle nightly asset deletions
   const upsertStmt = db.prepare(`
         INSERT INTO releases (tag, name, total_downloads, published_at, first_seen, last_updated)
         VALUES (?, ?, ?, ?, ?, ?)
         ON CONFLICT(tag) DO UPDATE SET
             name = excluded.name,
-            total_downloads = excluded.total_downloads,
+            total_downloads = MAX(releases.total_downloads, excluded.total_downloads),
             published_at = COALESCE(releases.published_at, excluded.published_at),
             last_updated = excluded.last_updated
     `);
@@ -165,6 +172,8 @@ async function batchUpsertReleases(db: D1Database, releases: ProcessedRelease[])
 
 /**
  * Batch inserts daily download snapshots for all releases.
+ * For nightly releases, ensures the stored count never decreases
+ * (old assets get deleted from GitHub, losing their download counts).
  */
 async function batchStoreDaily(
   db: D1Database,
@@ -176,10 +185,25 @@ async function batchStoreDaily(
     "INSERT INTO downloads_daily (date, release_id, count) VALUES (?, ?, ?) ON CONFLICT(date, release_id) DO UPDATE SET count = excluded.count",
   );
 
+  // For nightly: fetch the last known cumulative value so we never go backwards
+  const nightlyRelease = releases.find((r) => r.tag === "nightly");
+  let nightlyFloor = 0;
+
+  if (nightlyRelease) {
+    const nightlyId = tagToId.get("nightly")!;
+    const prev = await db
+      .prepare("SELECT MAX(count) as max_count FROM downloads_daily WHERE release_id = ?")
+      .bind(nightlyId)
+      .first<{ max_count: number | null }>();
+
+    nightlyFloor = prev?.max_count ?? 0;
+  }
+
   const statements = releases.map((r) => {
     const releaseId = tagToId.get(r.tag)!;
+    const count = r.tag === "nightly" ? Math.max(r.count, nightlyFloor) : r.count;
 
-    return dailyStmt.bind(date, releaseId, r.count);
+    return dailyStmt.bind(date, releaseId, count);
   });
 
   await db.batch(statements);
@@ -359,6 +383,143 @@ export async function collectWithStats(env: CollectorEnv): Promise<CollectResult
 }
 
 // =============================================================================
+// Nightly Backfill
+// =============================================================================
+
+interface BackfillResult {
+  daysBackfilled: number;
+  totalDownloads: number;
+  assetsProcessed: number;
+}
+
+/**
+ * Backfills daily snapshots for the nightly release using per-asset created_at dates.
+ * Groups assets by creation day and builds cumulative daily totals.
+ */
+async function backfillNightly(env: Env): Promise<BackfillResult> {
+  const headers: Record<string, string> = {
+    Accept: "application/vnd.github+json",
+    "X-GitHub-Api-Version": "2022-11-28",
+    "User-Agent": "LichtFeld-Stats/1.0",
+  };
+
+  if (env.GITHUB_TOKEN && !env.GITHUB_TOKEN.includes("your_")) {
+    headers.Authorization = `Bearer ${env.GITHUB_TOKEN}`;
+  }
+
+  const url = `${GITHUB_API}/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/releases/tags/nightly`;
+  const res = await fetch(url, { headers });
+
+  if (!res.ok) {
+    throw new Error(`GitHub API error: ${res.status}`);
+  }
+
+  const release: GitHubRelease = await res.json();
+  const publishedAt = new Date(release.published_at).getTime();
+
+  // Group asset downloads by day
+  const dailyMap = new Map<number, number>();
+
+  for (const asset of release.assets) {
+    const day = Math.floor(new Date(asset.created_at).getTime() / MS_PER_DAY) * MS_PER_DAY;
+    dailyMap.set(day, (dailyMap.get(day) ?? 0) + asset.download_count);
+  }
+
+  // Sort days and build cumulative snapshots
+  const days = [...dailyMap.keys()].sort((a, b) => a - b);
+  let cumulative = 0;
+  const snapshots: Array<{ date: number; count: number }> = [];
+
+  for (const day of days) {
+    cumulative += dailyMap.get(day)!;
+    snapshots.push({ date: day, count: cumulative });
+  }
+
+  if (snapshots.length === 0) {
+    return { daysBackfilled: 0, totalDownloads: 0, assetsProcessed: 0 };
+  }
+
+  // Upsert the nightly release
+  const now = Date.now();
+
+  await env.STATS_DB.prepare(
+    `INSERT INTO releases (tag, name, total_downloads, published_at, first_seen, last_updated)
+     VALUES (?, ?, ?, ?, ?, ?)
+     ON CONFLICT(tag) DO UPDATE SET
+       total_downloads = excluded.total_downloads,
+       last_updated = excluded.last_updated`,
+  )
+    .bind("nightly", release.name || "nightly", cumulative, publishedAt, now, now)
+    .run();
+
+  const idRow = await env.STATS_DB.prepare("SELECT id FROM releases WHERE tag = ?")
+    .bind("nightly")
+    .first<{ id: number }>();
+
+  if (!idRow) {
+    throw new Error("Failed to get nightly release ID");
+  }
+
+  const releaseId = idRow.id;
+
+  // Insert daily snapshots
+  const dailyStmt = env.STATS_DB.prepare(
+    "INSERT INTO downloads_daily (date, release_id, count) VALUES (?, ?, ?) ON CONFLICT(date, release_id) DO UPDATE SET count = excluded.count",
+  );
+
+  await env.STATS_DB.batch(snapshots.map((s) => dailyStmt.bind(s.date, releaseId, s.count)));
+
+  // Recompute weekly aggregates: sum of per-day downloads within each week
+  const weeks = new Set(snapshots.map((s) => weekTimestamp(s.date)));
+  const weeklyStmt = env.STATS_DB.prepare(
+    "INSERT INTO downloads_weekly (week, release_id, count) VALUES (?, ?, ?) ON CONFLICT(week, release_id) DO UPDATE SET count = excluded.count",
+  );
+
+  const weeklyStatements = [...weeks].map((week) => {
+    const weekEnd = week + 7 * MS_PER_DAY;
+    let delta = 0;
+
+    for (const [day, count] of dailyMap) {
+      if (day >= week && day < weekEnd) delta += count;
+    }
+
+    return weeklyStmt.bind(week, releaseId, delta);
+  });
+
+  if (weeklyStatements.length > 0) {
+    await env.STATS_DB.batch(weeklyStatements);
+  }
+
+  // Recompute monthly aggregates: sum of per-day downloads within each month
+  const months = new Set(snapshots.map((s) => monthTimestamp(s.date)));
+  const monthlyStmt = env.STATS_DB.prepare(
+    "INSERT INTO downloads_monthly (month, release_id, count) VALUES (?, ?, ?) ON CONFLICT(month, release_id) DO UPDATE SET count = excluded.count",
+  );
+
+  const monthlyStatements = [...months].map((month) => {
+    const nextMonth = new Date(month);
+    nextMonth.setUTCMonth(nextMonth.getUTCMonth() + 1);
+    let delta = 0;
+
+    for (const [day, count] of dailyMap) {
+      if (day >= month && day < nextMonth.getTime()) delta += count;
+    }
+
+    return monthlyStmt.bind(month, releaseId, delta);
+  });
+
+  if (monthlyStatements.length > 0) {
+    await env.STATS_DB.batch(monthlyStatements);
+  }
+
+  return {
+    daysBackfilled: snapshots.length,
+    totalDownloads: cumulative,
+    assetsProcessed: release.assets.length,
+  };
+}
+
+// =============================================================================
 // Worker Export
 // =============================================================================
 
@@ -379,6 +540,22 @@ export default {
         const result = await collectWithStats(env);
 
         return Response.json({ status: "collected", ...result });
+      } catch (error) {
+        return Response.json(
+          {
+            status: "error",
+            message: error instanceof Error ? error.message : String(error),
+          },
+          { status: 500 },
+        );
+      }
+    }
+
+    if (url.pathname === "/backfill-nightly" && request.method === "POST") {
+      try {
+        const result = await backfillNightly(env);
+
+        return Response.json({ status: "backfilled", ...result });
       } catch (error) {
         return Response.json(
           {

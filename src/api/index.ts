@@ -17,7 +17,7 @@
 
 import statsApi from "../../workers/stats-api/src/index";
 import type { StatsApiEnv } from "../../workers/stats-api/src/index";
-import { collectWithStats, backfillNightly } from "../../workers/stats-collector/src/index";
+import { collectWithStats } from "../../workers/stats-collector/src/index";
 import type { CollectorEnv } from "../../workers/stats-collector/src/index";
 
 // =============================================================================
@@ -45,18 +45,6 @@ export default {
       try {
         const result = await collectWithStats(env);
         return Response.json({ status: "collected", ...result });
-      } catch (error) {
-        return Response.json(
-          { status: "error", message: error instanceof Error ? error.message : String(error) },
-          { status: 500 },
-        );
-      }
-    }
-
-    if (url.pathname === "/api/backfill-nightly" && request.method === "POST") {
-      try {
-        const result = await backfillNightly(env);
-        return Response.json({ status: "backfilled", ...result });
       } catch (error) {
         return Response.json(
           { status: "error", message: error instanceof Error ? error.message : String(error) },

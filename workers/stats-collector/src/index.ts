@@ -396,7 +396,7 @@ interface BackfillResult {
  * Backfills daily snapshots for the nightly release using per-asset created_at dates.
  * Groups assets by creation day and builds cumulative daily totals.
  */
-async function backfillNightly(env: Env): Promise<BackfillResult> {
+export async function backfillNightly(env: CollectorEnv): Promise<BackfillResult> {
   const headers: Record<string, string> = {
     Accept: "application/vnd.github+json",
     "X-GitHub-Api-Version": "2022-11-28",

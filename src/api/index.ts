@@ -17,7 +17,7 @@
 
 import statsApi from "../../workers/stats-api/src/index";
 import type { StatsApiEnv } from "../../workers/stats-api/src/index";
-import { collectWithStats } from "../../workers/stats-collector/src/index";
+import { collectWithStats, backfillNightly } from "../../workers/stats-collector/src/index";
 import type { CollectorEnv } from "../../workers/stats-collector/src/index";
 
 // =============================================================================
@@ -35,20 +35,44 @@ export interface Env extends StatsApiEnv, CollectorEnv {}
 // =============================================================================
 
 export default {
-    /**
-     * Fetch handler - delegates to stats API.
-     */
-    fetch: statsApi.fetch,
+  /**
+   * Fetch handler - stats API routes + admin endpoints.
+   */
+  async fetch(request: Request, env: Env): Promise<Response> {
+    const url = new URL(request.url);
 
-    /**
-     * Scheduled handler for cron-triggered stats collection.
-     * Runs daily at 02:00 UTC per wrangler.toml [triggers].
-     */
-    async scheduled(
-        _controller: ScheduledController,
-        env: Env,
-        ctx: ExecutionContext
-    ): Promise<void> {
-        ctx.waitUntil(collectWithStats(env));
-    },
+    if (url.pathname === "/api/collect" && request.method === "POST") {
+      try {
+        const result = await collectWithStats(env);
+        return Response.json({ status: "collected", ...result });
+      } catch (error) {
+        return Response.json(
+          { status: "error", message: error instanceof Error ? error.message : String(error) },
+          { status: 500 },
+        );
+      }
+    }
+
+    if (url.pathname === "/api/backfill-nightly" && request.method === "POST") {
+      try {
+        const result = await backfillNightly(env);
+        return Response.json({ status: "backfilled", ...result });
+      } catch (error) {
+        return Response.json(
+          { status: "error", message: error instanceof Error ? error.message : String(error) },
+          { status: 500 },
+        );
+      }
+    }
+
+    return statsApi.fetch(request, env);
+  },
+
+  /**
+   * Scheduled handler for cron-triggered stats collection.
+   * Runs daily at 02:00 UTC per wrangler.toml [triggers].
+   */
+  async scheduled(_controller: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {
+    ctx.waitUntil(collectWithStats(env));
+  },
 };

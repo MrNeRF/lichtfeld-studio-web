@@ -20,6 +20,7 @@ import { SITE } from "@/config/site.config";
 import StatCard from "@/components/stats/StatCard.astro";
 import TimeRangeSelector from "@/components/stats/TimeRangeSelector.astro";
 import StackedAreaChart from "@/components/stats/StackedAreaChart.astro";
+import StackedBarChart from "@/components/stats/StackedBarChart.astro";
 import PieChart from "@/components/stats/PieChart.astro";
 import ReleaseTable from "@/components/stats/ReleaseTable.astro";
 
@@ -64,7 +65,7 @@ const seoDescription =
       </div>
 
       <div class="stats-grid__item">
-        <StackedAreaChart id="downloads-chart" height={380} title="Downloads by Day" />
+        <StackedBarChart id="downloads-chart" height={380} title="Downloads by Day" />
       </div>
     </div>
   </section>
@@ -256,6 +257,7 @@ const seoDescription =
    * Transforms release data into chart series format showing DELTAS (new downloads per period).
    * Sorts releases so older versions are at the bottom of the stack
    * and newer versions are at the top (latest on top).
+   * All series are aligned to the same set of x values so stacked bars render correctly.
    *
    * Note: Daily data is stored as cumulative snapshots, so we calculate deltas.
    * Weekly/monthly data is already stored as deltas.
@@ -269,33 +271,47 @@ const seoDescription =
       return compareVersions(versionA, versionB);
     });
 
-    return sortedReleases.map((release) => {
-      let data: ChartDataPoint[];
+    // Build per-release delta maps and collect all unique x values
+    const allXValues = new Set<number>();
+    const releaseMaps: Map<number, number>[] = [];
+
+    sortedReleases.forEach((release) => {
+      const deltaMap = new Map<number, number>();
 
       if (range === "daily") {
-        // Daily data is cumulative snapshots - calculate deltas
-        // First sort and interpolate any missing days
         const sorted = [...release.daily].sort((a, b) => a.date - b.date);
         const interpolated = interpolateMissingDays(sorted);
 
-        // Skip first data point since we can't calculate delta without previous reference
-        data = interpolated.slice(1).map((d, i) => {
-          const prevCount = interpolated[i].downloads; // i is offset by 1 due to slice
-          const delta = d.downloads - prevCount;
+        interpolated.slice(1).forEach((d, i) => {
+          const delta = Math.max(0, d.downloads - interpolated[i].downloads);
 
-          return { x: d.date, y: Math.max(0, delta) };
+          deltaMap.set(d.date, delta);
+          allXValues.add(d.date);
         });
       } else if (range === "weekly") {
-        // Weekly data is already deltas
-        data = release.weekly.map((d) => ({ x: d.week, y: d.downloads }));
+        release.weekly.forEach((d) => {
+          deltaMap.set(d.week, d.downloads);
+          allXValues.add(d.week);
+        });
       } else {
-        // Monthly data is already deltas
-        data = release.monthly.map((d) => ({ x: d.month, y: d.downloads }));
+        release.monthly.forEach((d) => {
+          deltaMap.set(d.month, d.downloads);
+          allXValues.add(d.month);
+        });
       }
+
+      releaseMaps.push(deltaMap);
+    });
+
+    // Align all series to the same sorted x values, filling gaps with 0
+    const sortedXValues = [...allXValues].sort((a, b) => a - b);
+
+    return sortedReleases.map((release, i) => {
+      const deltaMap = releaseMaps[i];
 
       return {
         name: release.tag,
-        data,
+        data: sortedXValues.map((x) => ({ x, y: deltaMap.get(x) ?? 0 })),
       };
     });
   }
@@ -375,14 +391,14 @@ const seoDescription =
     // Update downloads chart title based on range
     const downloadsChartTitle = document
       .querySelector("[data-chart-id='downloads-chart']")
-      ?.closest(".stacked-area-chart")
-      ?.querySelector(".stacked-area-chart__title");
+      ?.closest(".stacked-bar-chart")
+      ?.querySelector(".stacked-bar-chart__title");
 
     if (downloadsChartTitle) {
       downloadsChartTitle.textContent = `Downloads by ${RANGE_LABELS[range]}`;
     }
 
-    // Update downloads by version stacked area chart
+    // Update downloads by version stacked bar chart
     const downloadsChart = document.querySelector("[data-chart-id='downloads-chart']");
 
     if (downloadsChart) {

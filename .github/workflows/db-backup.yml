@@ -99,8 +99,20 @@ jobs:
           # Generate date for filename (one backup per day max)
           DATE=$(date -u +"%Y-%m-%d")
 
-          # Export the database to SQL
-          wrangler d1 export lichtfeld-stats --output="backups/lichtfeld-stats_${DATE}.sql"
+          # Create a minimal wrangler.toml so wrangler can resolve the database name.
+          # The db-backups branch has no config file, so we generate one on the fly.
+          cat > wrangler.toml << 'TOML'
+          [[d1_databases]]
+          binding = "STATS_DB"
+          database_name = "lichtfeld-stats"
+          database_id = "8e58f2af-6fff-4e6d-89b4-8aa02f719c01"
+          TOML
+
+          # Export the remote database to SQL
+          wrangler d1 export lichtfeld-stats --remote --output="backups/lichtfeld-stats_${DATE}.sql"
+
+          # Clean up temporary config
+          rm -f wrangler.toml
 
           # Show backup size
           echo "Backup created:"

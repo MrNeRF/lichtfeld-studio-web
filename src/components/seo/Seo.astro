@@ -83,7 +83,7 @@ const fullTitle = title === SITE.name ? title : `${title} | ${SITE.name}`;
  * Falls back to the default social card if no image is provided.
  * Uses the base path to ensure correct URLs in fork deployments.
  */
-const imagePath = image ?? `${base}static/social-card.jpg`;
+const imagePath = image ?? `${base}static/social-card.png`;
 const socialImageURL = new URL(imagePath, Astro.site).toString();
 
 /**

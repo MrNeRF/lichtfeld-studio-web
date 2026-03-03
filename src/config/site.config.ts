@@ -72,14 +72,14 @@ export const SITE = {
  */
 export const SOCIAL_IMAGE = {
   /** Relative path from site root */
-  path: "/static/social-card.jpg",
+  path: "/static/social-card.png",
 
   /** Image alt text for accessibility */
   alt: "LichtFeld Studio - 3D Gaussian Splatting Engine",
 
   /** Image dimensions (recommended: 1200x630 for OG, 1200x600 for Twitter) */
-  width: 1200,
-  height: 630,
+  width: 1280,
+  height: 640,
 } as const;
 
 // ============================================================================

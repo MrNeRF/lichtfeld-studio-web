@@ -72,7 +72,7 @@ const seoDescription = SITE.description;
               <span class="hero__proof-item">Python plugins</span>
               <span class="hero__proof-item">MCP-ready</span>
               <span class="hero__proof-item">Real-time editing</span>
-              <span class="hero__proof-item">2.4x faster rasterization</span>
+              <span class="hero__proof-item">2.4x faster training</span>
             </div>
 
             <div class="hero__actions">
@@ -150,7 +150,7 @@ const seoDescription = SITE.description;
             <svg class="bi" width="1em" height="1em" aria-hidden="true">
               <use href={`${base}static/bootstrap-icons.svg#lightning-charge-fill`}></use>
             </svg>
-            Faster rasterization
+            Faster training
           </span>
           <span class="intro-badge intro-badge--edit">
             <svg class="bi" width="1em" height="1em" aria-hidden="true">
@@ -297,7 +297,7 @@ const seoDescription = SITE.description;
         </div>
 
         <div class="platform-checklist">
-          <span>2.4x faster rasterization</span>
+          <span>2.4x faster training</span>
           <span>Mask support</span>
           <span>Save and resume</span>
           <span>3-point alignment</span>
@@ -362,8 +362,19 @@ const seoDescription = SITE.description;
 
           <article class="sponsor-tier-card sponsor-tier-card--bronze">
             <p class="sponsor-tier-card__name">Bronze</p>
-            <p class="sponsor-tier-card__amount">$600 - $2,999 / year</p>
+            <p class="sponsor-tier-card__amount">$500 - $2,999 / year</p>
             <p class="sponsor-tier-card__desc">Supportive sponsorship for companies backing the project and community.</p>
+            <div class="sponsor-tier-card__members">
+              <a
+                href="https://vincentwoo.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="sponsor-tier-card__member"
+                aria-label="Visit Vincent Woo website"
+              >
+                Vincent Woo
+              </a>
+            </div>
           </article>
         </div>
       </div>
@@ -1544,6 +1555,32 @@ const seoDescription = SITE.description;
     line-height: 1.6;
   }
 
+  .sponsor-tier-card__members {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1rem;
+  }
+
+  .sponsor-tier-card__member {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 0.8rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    color: #0f172a;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .sponsor-tier-card__member:hover {
+    color: #0b63f3;
+    border-color: rgba(37, 99, 235, 0.28);
+    background: rgba(255, 255, 255, 0.96);
+  }
+
   .sponsor-tier-card--platinum {
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(241, 245, 249, 0.95));
   }
@@ -1559,6 +1596,7 @@ const seoDescription = SITE.description;
   .sponsor-tier-card--bronze {
     background: linear-gradient(180deg, rgba(255, 250, 245, 0.98), rgba(251, 241, 230, 0.94));
   }
+
 
   /* ===========================
    * Bento Grid Feature Layout

@@ -237,9 +237,10 @@ const { id = "pie-chart", height = 350, title, donut = true } = Astro.props;
   .pie-chart__container {
     width: 100%;
     padding: 1rem 0.5rem 0.5rem;
-    background-color: #fff;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    border-radius: 1.25rem;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
   }
 
   .pie-chart__loading {
@@ -249,14 +250,14 @@ const { id = "pie-chart", height = 350, title, donut = true } = Astro.props;
     justify-content: center;
     height: 100%;
     gap: 1rem;
-    color: #6c757d;
+    color: #64748b;
   }
 
   .pie-chart__spinner {
     width: 2rem;
     height: 2rem;
-    border: 3px solid var(--border-color);
-    border-top-color: var(--color-primary);
+    border: 3px solid rgba(148, 163, 184, 0.18);
+    border-top-color: #2563eb;
     border-radius: 50%;
     animation: spin 1s linear infinite;
   }

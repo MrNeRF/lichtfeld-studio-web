@@ -7,10 +7,6 @@
  *
  * Behavior:
  *  - Highlights active items with a custom 'is-active' class.
- *  - Provides a split-button dropdown for "Contribute":
- *      • Left part (text) navigates to /contribute.
- *      • Right part (caret) toggles the submenu.
- *  - Submenu opens on hover for desktop and on click for mobile.
  */
 import { withBase } from "@/utils/navigation";
 import { GITHUB_REPO_URL, DISCORD_URL } from "@/constants/project";
@@ -28,10 +24,6 @@ const ROUTES = {
   statistics: withBase(base, "/statistics"),
 
   contribute: withBase(base, "/contribute"),
-
-  buildOnWindows: withBase(base, "/contribute/build-on-windows"),
-
-  createNewTools: withBase(base, "/contribute/create-new-tools"),
 } as const;
 
 /** Normalize a path to avoid trailing-slash mismatches when comparing. */
@@ -75,37 +67,15 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
     <a href={bountiesHref} class:list={["nav-menu__link", { "is-active": isBountiesActive }]}>Bounties</a>
   </li>
 
-  <!-- Contribute Dropdown -->
-  <li class="nav-menu__item nav-menu__dropdown">
-    <div class="nav-menu__dropdown-container">
-      <a
-        href={ROUTES.contribute}
-        class:list={["nav-menu__link", { "is-active": isContributeActive }]}
-        aria-current={isContributeActive ? "page" : undefined}
-      >
-        Contribute
-      </a>
-      <button
-        type="button"
-        class="nav-menu__dropdown-toggle"
-        aria-expanded="false"
-        aria-label="Toggle Contribute submenu"
-        aria-controls="contribute-submenu"
-      >
-      </button>
-    </div>
-
-    <ul class="nav-menu__submenu" id="contribute-submenu">
-      <li class="nav-menu__submenu-item">
-        <a class="nav-menu__submenu-link" href={ROUTES.contribute}>Get Involved!</a>
-      </li>
-      <li class="nav-menu__submenu-item">
-        <a class="nav-menu__submenu-link" href={ROUTES.buildOnWindows}>Build on Windows</a>
-      </li>
-      <li class="nav-menu__submenu-item">
-        <a class="nav-menu__submenu-link" href={ROUTES.createNewTools}>Create new Tools</a>
-      </li>
-    </ul>
+  <!-- Contribute -->
+  <li class="nav-menu__item">
+    <a
+      href={ROUTES.contribute}
+      class:list={["nav-menu__link", { "is-active": isContributeActive }]}
+      aria-current={isContributeActive ? "page" : undefined}
+    >
+      Contribute
+    </a>
   </li>
 
   <!-- External links (icon-only with screen-reader text for accessibility) -->

@@ -65,17 +65,17 @@ function formatNumber(num: number): string {
         text-align: center;
         gap: 0.5rem;
         padding: 1.5rem 1rem;
-        background-color: #fff;
-        border: 1px solid var(--border-color);
-        border-radius: var(--border-radius);
-        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        border-radius: 1.25rem;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
         transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
         min-height: 160px;
     }
 
     .stat-card:hover {
         transform: translateY(-2px);
-        box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+        box-shadow: 0 16px 36px rgba(15, 23, 42, 0.07);
     }
 
     /* Icon styling */
@@ -85,7 +85,7 @@ function formatNumber(num: number): string {
         justify-content: center;
         width: 3.5rem;
         height: 3.5rem;
-        background: linear-gradient(135deg, var(--color-primary), #6610f2);
+        background: linear-gradient(135deg, #2563eb, #0ea5e9);
         border-radius: 1rem;
         color: #fff;
         font-size: 1.5rem;
@@ -104,7 +104,7 @@ function formatNumber(num: number): string {
     .stat-card__label {
         font-size: 0.9rem;
         font-weight: 500;
-        color: #6c757d;
+        color: #64748b;
     }
 
     /* Loading state */
@@ -114,7 +114,7 @@ function formatNumber(num: number): string {
 
     .stat-card__value--skeleton .skeleton-text {
         display: inline-block;
-        background: linear-gradient(90deg, #e9ecef 25%, #f8f9fa 50%, #e9ecef 75%);
+        background: linear-gradient(90deg, #e2e8f0 25%, #f8fbff 50%, #e2e8f0 75%);
         background-size: 200% 100%;
         animation: skeleton-shimmer 1.5s infinite;
         border-radius: 4px;

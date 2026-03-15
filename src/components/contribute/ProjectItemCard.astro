@@ -1,0 +1,166 @@
+---
+import type { ContributionProjectItem } from "@/services/github";
+
+interface Props {
+  item: ContributionProjectItem;
+}
+
+const { item } = Astro.props;
+const updatedLabel = item.updatedAt
+  ? new Date(item.updatedAt).toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    })
+  : null;
+---
+
+<article class="project-item-card">
+  <div class="project-item-card__meta">
+    <span class="project-item-card__type">{item.itemType}</span>
+    {item.status && <span class="project-item-card__status">{item.status}</span>}
+  </div>
+
+  <h3 class="project-item-card__title">
+    <a href={item.link} target="_blank" rel="noopener noreferrer">
+      {item.title}
+    </a>
+  </h3>
+
+  <div class="project-item-card__content" set:html={item.bodyHtml} />
+
+  <div class="project-item-card__footer">
+    {item.repoLabel && <span class="project-item-card__repo">{item.repoLabel}</span>}
+    <div class="project-item-card__links">
+      {updatedLabel && <span class="project-item-card__updated">Updated {updatedLabel}</span>}
+      <a href={item.link} target="_blank" rel="noopener noreferrer" class="project-item-card__action">Open item</a>
+    </div>
+  </div>
+</article>
+
+<style>
+  .project-item-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 1.35rem;
+    border-radius: 1.25rem;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+    transition:
+      transform 0.18s ease,
+      box-shadow 0.18s ease,
+      border-color 0.18s ease;
+  }
+
+  .project-item-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(37, 99, 235, 0.22);
+    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
+  }
+
+  .project-item-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.9rem;
+  }
+
+  .project-item-card__type,
+  .project-item-card__status {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.8rem;
+    padding: 0.2rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .project-item-card__type {
+    background: rgba(37, 99, 235, 0.1);
+    color: #2563eb;
+  }
+
+  .project-item-card__status {
+    background: rgba(15, 23, 42, 0.06);
+    color: #475569;
+  }
+
+  .project-item-card__title {
+    margin: 0 0 0.75rem;
+    font-size: 1.2rem;
+    line-height: 1.3;
+  }
+
+  .project-item-card__title a {
+    color: #0f172a;
+    text-decoration: none;
+  }
+
+  .project-item-card__title a:hover {
+    color: #0b63f3;
+  }
+
+  .project-item-card__content {
+    color: #475569;
+    line-height: 1.6;
+    flex: 1;
+  }
+
+  .project-item-card__content :global(p:last-child) {
+    margin-bottom: 0;
+  }
+
+  .project-item-card__content :global(strong) {
+    color: #0f172a;
+  }
+
+  .project-item-card__footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.9rem;
+    align-items: flex-end;
+    margin-top: 1rem;
+    padding-top: 0.9rem;
+    border-top: 1px solid rgba(148, 163, 184, 0.14);
+  }
+
+  .project-item-card__repo,
+  .project-item-card__updated {
+    font-size: 0.82rem;
+    color: #64748b;
+  }
+
+  .project-item-card__links {
+    display: flex;
+    gap: 0.85rem;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .project-item-card__action {
+    color: #0b63f3;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .project-item-card__action:hover {
+    color: #084fc1;
+  }
+
+  @media (max-width: 575.98px) {
+    .project-item-card__footer {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .project-item-card__links {
+      justify-content: flex-start;
+    }
+  }
+</style>

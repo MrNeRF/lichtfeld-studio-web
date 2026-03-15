@@ -5,6 +5,9 @@ import {
   REPO_OWNER,
   REPO_NAME,
   CONTRIBUTION_IDEAS_REPO_NAME,
+  CONTRIBUTION_PROJECT_NUMBER,
+  CONTRIBUTION_PROJECT_VIEW_NUMBER,
+  CONTRIBUTION_PROJECT_VIEW_URL,
 } from "@/constants/project";
 
 // =================================================================================================
@@ -26,6 +29,18 @@ export interface ContributionIdea {
   order: number;
   bodyHtml: string; // Pre-parsed HTML from the issue's markdown body
   issueUrl: string; // Direct link to the GitHub issue for discussion
+}
+
+/** A card-ready project item from the public GitHub backlog view. */
+export interface ContributionProjectItem {
+  id: string;
+  title: string;
+  link: string;
+  bodyHtml: string;
+  status?: string;
+  itemType: string;
+  repoLabel?: string;
+  updatedAt?: string;
 }
 
 /**
@@ -114,6 +129,14 @@ const octokit = new Octokit({
   auth: import.meta.env.GITHUB_TOKEN,
 });
 
+/**
+ * Dedicated client for GitHub Projects endpoints.
+ * User project view endpoints require a classic PAT rather than the default GitHub Actions token.
+ */
+const octokitProjects = new Octokit({
+  auth: import.meta.env.GITHUB_PROJECTS_TOKEN ?? import.meta.env.GITHUB_TOKEN,
+});
+
 // =================================================================================================
 // HELPER FUNCTIONS
 // =================================================================================================
@@ -174,6 +197,34 @@ function parseIssueBody(
   };
 }
 
+function normalizeProjectItemType(content: Record<string, any> | null | undefined): string {
+  const rawType = content?.node_id ? String(content.node_id) : "";
+  if (rawType.startsWith("PR_")) return "Pull request";
+  if (rawType.startsWith("I_")) return "Issue";
+
+  const graphqlType = content?.__typename ? String(content.__typename) : "";
+  if (graphqlType === "PullRequest") return "Pull request";
+  if (graphqlType === "Issue") return "Issue";
+  if (graphqlType === "DraftIssue") return "Draft";
+
+  return "Project item";
+}
+
+function extractProjectItemStatus(fieldValues: unknown): string | undefined {
+  if (!Array.isArray(fieldValues)) return undefined;
+
+  for (const fieldValue of fieldValues) {
+    const value = fieldValue as Record<string, any>;
+    const fieldName = value?.field?.name ? String(value.field.name) : "";
+    if (fieldName.toLowerCase() !== "status") continue;
+
+    if (value?.option?.name) return String(value.option.name);
+    if (value?.name) return String(value.name);
+  }
+
+  return undefined;
+}
+
 // =================================================================================================
 // PUBLIC API
 // =================================================================================================
@@ -224,6 +275,80 @@ export async function getContributionIdeas(): Promise<ContributionIdea[]> {
     // Log the full error to the console for easier debugging during the build process.
     console.error("Failed to fetch contribution ideas from GitHub:", error);
     return []; // Return an empty array on error to prevent the build from failing.
+  }
+}
+
+/**
+ * Fetches the saved GitHub Projects view used for the contribute page and maps it to card-ready items.
+ */
+export async function getContributionProjectItems(): Promise<ContributionProjectItem[]> {
+  if (!import.meta.env.GITHUB_PROJECTS_TOKEN && !import.meta.env.GITHUB_TOKEN) {
+    console.error("ERROR: No GitHub token available. Cannot fetch contribution project items.");
+    return [];
+  }
+
+  try {
+    const items: Record<string, any>[] = [];
+    let page = 1;
+
+    while (true) {
+      const response = await octokitProjects.request(
+        "GET /users/{username}/projectsV2/{project_number}/views/{view_number}/items",
+        {
+          username: REPO_OWNER,
+          project_number: CONTRIBUTION_PROJECT_NUMBER,
+          view_number: CONTRIBUTION_PROJECT_VIEW_NUMBER,
+          per_page: 100,
+          page,
+          headers: {
+            "X-GitHub-Api-Version": "2022-11-28",
+          },
+        },
+      );
+
+      const pageItems = Array.isArray(response.data)
+        ? response.data
+        : Array.isArray((response.data as any)?.items)
+          ? (response.data as any).items
+          : Array.isArray((response.data as any)?.value)
+            ? (response.data as any).value
+            : [];
+
+      if (pageItems.length === 0) break;
+
+      items.push(...pageItems);
+
+      if (pageItems.length < 100) break;
+      page += 1;
+    }
+
+    const normalizedItems = await Promise.all(
+      items.map(async (item) => {
+        const content = (item.content ?? null) as Record<string, any> | null;
+        const title = content?.title ? String(content.title) : item.title ? String(item.title) : "Untitled item";
+        const body = content?.body ? String(content.body) : item.body ? String(item.body) : "";
+        const bodyHtml = await marked.parse(body || "No description yet.");
+        const link = content?.html_url ? String(content.html_url) : CONTRIBUTION_PROJECT_VIEW_URL;
+        const repoLabel = content?.repository?.full_name ? String(content.repository.full_name) : undefined;
+        const updatedAt = content?.updated_at ? String(content.updated_at) : undefined;
+
+        return {
+          id: item.id ? String(item.id) : title,
+          title,
+          link,
+          bodyHtml,
+          status: extractProjectItemStatus(item.field_values),
+          itemType: normalizeProjectItemType(content),
+          repoLabel,
+          updatedAt,
+        } satisfies ContributionProjectItem;
+      }),
+    );
+
+    return normalizedItems.filter((item) => item.title.trim().length > 0);
+  } catch (error) {
+    console.error("Failed to fetch contribution project items from GitHub Projects:", error);
+    return [];
   }
 }
 

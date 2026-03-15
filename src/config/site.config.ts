@@ -37,11 +37,11 @@ export const SITE = {
   shortName: "LFS",
 
   /** Primary tagline / slogan */
-  tagline: "All-in-One Open-Source 3D Gaussian Splatting Studio",
+  tagline: "Open-Source 3D Gaussian Splatting Studio for Training, Editing, Plugins, and MCP",
 
   /** Default meta description for pages without a custom description */
   description:
-    "Train, edit, and render 3D Gaussian Splats in a single desktop app. LichtFeld Studio is a free and open-source studio with a full editing suite, 2.4× faster training, and completely offline workflow. No cloud required.",
+    "Train, edit, automate, and render 3D Gaussian Splats in a single desktop app. LichtFeld Studio is an open-source 3DGS platform with Python plugins, MCP integration, a full editing suite, and a local-first workflow.",
 
   /** Production site URL (without trailing slash) */
   url: "https://lichtfeld.io",
@@ -127,13 +127,13 @@ export const SOFTWARE_APP = {
 
   /** Feature list for rich snippets (matches homepage features) */
   featureList: [
-    "2.4× faster training than reference implementations",
-    "Full editing suite with brush, lasso, and polygon selection",
-    "Completely offline workflow, no cloud required",
-    "Mask support with segment, ignore, and alpha modes",
-    "Splat composition and 3-point alignment",
+    "Python plugin system for panels, tools, overlays, and workflow extensions",
+    "MCP integration for controllable editor, camera, render, and sequencer workflows",
+    "High-performance C++23 and CUDA core for 3D Gaussian Splatting",
+    "Full editing suite with brush, lasso, polygon, masking, and alignment tools",
+    "Completely offline local-first workflow with no cloud requirement",
     "Save and resume training sessions",
-    "Modern, intuitive UI",
+    "Interactive desktop viewer and rendering modes",
     "GPL-3.0 open source license",
   ],
 

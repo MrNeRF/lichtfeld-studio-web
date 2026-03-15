@@ -1,0 +1,204 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import PluginCard from "@/components/plugins/PluginCard.astro";
+import { getPluginRegistry } from "@/services/plugin-registry";
+import { GITHUB_REPO_URL } from "@/constants/project";
+
+const plugins = await getPluginRegistry();
+
+const seoTitle = "Plugins";
+const seoDescription =
+  "Browse the LichtFeld Studio plugin registry: Python plugins for training workflows, scene tools, VR viewing, measurement, and automation.";
+---
+
+<Layout title={seoTitle} description={seoDescription}>
+  <section class="plugins-page">
+    <div class="container px-4 py-5">
+      <div class="plugins-shell plugins-shell--hero">
+        <p class="plugins-kicker">Plugin registry</p>
+        <h1 class="plugins-title">Python plugins for LichtFeld Studio</h1>
+        <p class="plugins-lead">
+          The plugin registry turns LichtFeld Studio into an extensible desktop platform. Install compatible plugins,
+          keep dependencies isolated per plugin, and extend the app with panels, operators, tools, overlays, and
+          workflow-specific capabilities.
+        </p>
+
+        <div class="plugins-stats">
+          <div class="plugins-stat">
+            <strong>Install in-app</strong>
+            <span>Plugins are meant to be discovered and installed through the marketplace.</span>
+          </div>
+          <div class="plugins-stat">
+            <strong>Compatibility-aware</strong>
+            <span>Registry versions can be matched against LichtFeld and plugin API versions.</span>
+          </div>
+          <div class="plugins-stat">
+            <strong>Plugin-local deps</strong>
+            <span>Each plugin can carry its own Python dependencies without polluting the host.</span>
+          </div>
+          <div class="plugins-stat">
+            <strong>Panels, operators, tools</strong>
+            <span>Extend the UI, workflow logic, scene tools, and automation surface.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="plugins-shell mt-4">
+        <div class="plugins-section-head">
+          <div>
+            <p class="plugins-kicker mb-2">Registry-backed listing</p>
+            <h2 class="plugins-section-title mb-2">Browse the current plugin catalog</h2>
+            <p class="plugins-section-copy mb-0">
+              These entries are seeded from the LichtFeld Studio plugin ecosystem and structured around the real
+              registry contract used by the application.
+            </p>
+          </div>
+          <a
+            href={`${GITHUB_REPO_URL}/tree/master/docs/plugins`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="plugins-section-link"
+          >
+            Plugin docs
+          </a>
+        </div>
+
+        <div class="plugins-grid mt-4">
+          {plugins.map((plugin) => <PluginCard plugin={plugin} />)}
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  :root {
+    --plugins-surface-bg:
+      radial-gradient(circle at top left, rgba(37, 99, 235, 0.07), transparent 24%),
+      linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+    --plugins-surface-border: rgba(148, 163, 184, 0.16);
+    --plugins-surface-shadow:
+      0 20px 50px rgba(15, 23, 42, 0.05),
+      inset 0 1px 0 rgba(255, 255, 255, 0.92);
+  }
+
+  .plugins-page {
+    background:
+      radial-gradient(circle at top left, rgba(37, 99, 235, 0.05), transparent 24%),
+      linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  }
+
+  .plugins-shell {
+    border-radius: 2rem;
+    padding: clamp(1.5rem, 3vw, 2.25rem);
+    background: var(--plugins-surface-bg);
+    border: 1px solid var(--plugins-surface-border);
+    box-shadow: var(--plugins-surface-shadow);
+  }
+
+  .plugins-kicker {
+    margin: 0 0 0.5rem;
+    color: #2563eb;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .plugins-title {
+    margin: 0 0 0.9rem;
+    color: #0f172a;
+    font-size: clamp(2.25rem, 4vw, 3.4rem);
+    line-height: 1.08;
+  }
+
+  .plugins-lead,
+  .plugins-section-copy {
+    margin: 0;
+    color: #475569;
+    font-size: 1.02rem;
+    line-height: 1.7;
+    max-width: 58rem;
+  }
+
+  .plugins-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .plugins-stat {
+    padding: 1rem 1.1rem;
+    border-radius: 1.25rem;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+  }
+
+  .plugins-stat strong {
+    display: block;
+    color: #0f172a;
+    font-size: 1.5rem;
+    line-height: 1.1;
+  }
+
+  .plugins-stat span {
+    display: block;
+    margin-top: 0.35rem;
+    color: #64748b;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .plugins-section-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .plugins-section-title {
+    margin: 0;
+    color: #0f172a;
+    font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+    line-height: 1.15;
+  }
+
+  .plugins-section-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0.7rem 1rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.86);
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    color: #0b63f3;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .plugins-section-link:hover {
+    color: #084fc1;
+  }
+
+  .plugins-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  @media (max-width: 991.98px) {
+    .plugins-stats,
+    .plugins-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    .plugins-section-head {
+      flex-direction: column;
+    }
+  }
+</style>

@@ -16,6 +16,8 @@ import core11Logo from "@/assets/core11-logo.svg";
 import { SmartVideo } from "@alos-no/astro-media";
 import Splat from "@/components/Splat.astro";
 import ContributorsWall from "@/components/contribute/ContributorsWall.astro";
+import PluginCard from "@/components/plugins/PluginCard.astro";
+import { getFeaturedPlugins } from "@/services/plugin-registry";
 
 // Centralized external links (avoid magic strings):
 import {
@@ -30,6 +32,7 @@ import {
 } from "@/constants/project";
 
 const base = import.meta.env.BASE_URL;
+const featuredPlugins = await getFeaturedPlugins(3);
 
 // SEO metadata for the homepage
 const seoTitle = SITE.name;
@@ -302,6 +305,53 @@ const seoDescription = SITE.description;
           <span>Save and resume</span>
           <span>3-point alignment</span>
           <span>Open-source GPLv3</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="plugins" class="plugins-preview-section" aria-labelledby="plugins-preview-heading">
+    <div class="container px-6 pt-6 pb-6">
+      <div class="plugins-preview-shell">
+        <div class="plugins-preview-intro">
+          <div>
+            <p class="section-kicker mb-3">Plugin registry</p>
+            <h2 id="plugins-preview-heading" class="text-4xl font-bold text-gray-900 mb-3">
+              Real plugins, real registry, real extensibility
+            </h2>
+            <p class="text-lg text-gray-500 mb-0">
+              LichtFeld Studio already has the foundations of an ecosystem: Python plugins, isolated dependencies,
+              registry installs, and compatibility checks against the host runtime.
+            </p>
+          </div>
+
+          <div class="plugins-preview-stats">
+            <div class="plugins-preview-stat">
+              <strong>Marketplace install flow</strong>
+              <span>Browse, evaluate, and install plugins inside LichtFeld Studio.</span>
+            </div>
+            <div class="plugins-preview-stat">
+              <strong>Compatibility-aware registry</strong>
+              <span>Versions can be resolved against the host runtime and plugin API.</span>
+            </div>
+            <div class="plugins-preview-stat">
+              <strong>Isolated Python dependencies</strong>
+              <span>Custom workflow code stays modular instead of forking the core app.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="plugins-preview-grid">
+          {featuredPlugins.map((plugin) => <PluginCard plugin={plugin} compact={true} />)}
+        </div>
+
+        <div class="plugins-preview-footer">
+          <p class="plugins-preview-note mb-0">
+            Registry installs can target specific compatible plugin versions instead of random GitHub clones.
+          </p>
+          <a class="platform-card__link" href={`${base}plugins/`}>
+            Browse all plugins
+          </a>
         </div>
       </div>
     </div>
@@ -1471,6 +1521,84 @@ const seoDescription = SITE.description;
     color: #334155;
     font-size: 0.9rem;
     font-weight: 600;
+  }
+
+  .plugins-preview-shell {
+    border-radius: 2rem;
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+    background: var(--home-surface-bg);
+    border: 1px solid var(--home-surface-border);
+    box-shadow: var(--home-surface-shadow);
+  }
+
+  .plugins-preview-intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(300px, 0.9fr);
+    gap: 1rem;
+    align-items: start;
+    margin-bottom: 1.5rem;
+  }
+
+  .plugins-preview-stats {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+
+  .plugins-preview-stat {
+    padding: 1rem 1.1rem;
+    border-radius: 1.25rem;
+    background: var(--home-card-bg);
+    border: 1px solid var(--home-card-border);
+    box-shadow: var(--home-card-shadow);
+  }
+
+  .plugins-preview-stat strong {
+    display: block;
+    color: #0f172a;
+    font-size: 1.45rem;
+    line-height: 1.1;
+  }
+
+  .plugins-preview-stat span {
+    display: block;
+    margin-top: 0.35rem;
+    color: #64748b;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .plugins-preview-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .plugins-preview-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.25rem;
+  }
+
+  .plugins-preview-note {
+    color: #64748b;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 991.98px) {
+    .plugins-preview-intro,
+    .plugins-preview-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    .plugins-preview-footer {
+      flex-direction: column;
+      align-items: flex-start;
+    }
   }
 
   .sponsors-section {

@@ -1,0 +1,186 @@
+---
+import type { PluginRegistryEntry } from "@/services/plugin-registry";
+
+interface Props {
+  plugin: PluginRegistryEntry;
+  compact?: boolean;
+}
+
+const { plugin, compact = false } = Astro.props;
+---
+
+<article class:list={["plugin-card", { "plugin-card--compact": compact }]}>
+  <div class="plugin-card__meta">
+    <div class="plugin-card__badges">
+      <span class="plugin-card__namespace">{plugin.namespace}</span>
+      <span class="plugin-card__stars">
+        <svg class="plugin-card__stars-icon" viewBox="0 0 16 16" aria-hidden="true">
+          <path
+            d="M8 1.2l2.02 4.1 4.53.66-3.28 3.2.77 4.51L8 11.56 3.96 13.67l.77-4.51-3.28-3.2 4.53-.66L8 1.2z"
+            fill="currentColor"
+          />
+        </svg>
+        {plugin.stars}
+      </span>
+    </div>
+    <span class="plugin-card__version">v{plugin.latestVersion}</span>
+  </div>
+
+  <h3 class="plugin-card__title">{plugin.displayName}</h3>
+  <p class="plugin-card__summary">{plugin.summary}</p>
+
+  {!compact && <p class="plugin-card__description">{plugin.description}</p>}
+
+  <div class="plugin-card__keywords">
+    {plugin.keywords.slice(0, compact ? 2 : 3).map((keyword) => <span>{keyword}</span>)}
+  </div>
+
+  <div class="plugin-card__details">
+    <span>{plugin.author}</span>
+    <span>{plugin.pluginApi}</span>
+    <span>{plugin.lichtfeldVersion}</span>
+  </div>
+
+  <div class="plugin-card__footer">
+    <span class="plugin-card__id">{plugin.id}</span>
+    <a href={plugin.repository} target="_blank" rel="noopener noreferrer" class="plugin-card__link">
+      View repo
+    </a>
+  </div>
+</article>
+
+<style>
+  .plugin-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 1.35rem;
+    border-radius: 1.25rem;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+  }
+
+  .plugin-card--compact {
+    padding: 1.2rem;
+  }
+
+  .plugin-card__meta,
+  .plugin-card__details,
+  .plugin-card__footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+  }
+
+  .plugin-card__badges {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .plugin-card__namespace,
+  .plugin-card__stars,
+  .plugin-card__version {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.8rem;
+    padding: 0.2rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .plugin-card__namespace {
+    background: rgba(37, 99, 235, 0.1);
+    color: #2563eb;
+  }
+
+  .plugin-card__version {
+    background: rgba(15, 23, 42, 0.06);
+    color: #475569;
+  }
+
+  .plugin-card__stars {
+    gap: 0.35rem;
+    background: rgba(245, 158, 11, 0.12);
+    color: #b45309;
+  }
+
+  .plugin-card__stars-icon {
+    width: 0.8rem;
+    height: 0.8rem;
+    flex-shrink: 0;
+  }
+
+  .plugin-card__title {
+    margin: 0.85rem 0 0.55rem;
+    color: #0f172a;
+    font-size: 1.25rem;
+    line-height: 1.25;
+  }
+
+  .plugin-card__summary,
+  .plugin-card__description {
+    margin: 0;
+    color: #475569;
+    line-height: 1.6;
+  }
+
+  .plugin-card__description {
+    margin-top: 0.7rem;
+  }
+
+  .plugin-card__keywords {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin-top: 1rem;
+  }
+
+  .plugin-card__keywords span {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.45rem 0.75rem;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.05);
+    color: #334155;
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+
+  .plugin-card__details {
+    margin-top: 1rem;
+    color: #64748b;
+    font-size: 0.85rem;
+    font-weight: 600;
+    justify-content: flex-start;
+  }
+
+  .plugin-card__footer {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(148, 163, 184, 0.14);
+    color: #64748b;
+    font-size: 0.82rem;
+  }
+
+  .plugin-card__id {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  }
+
+  .plugin-card__link {
+    color: #0b63f3;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .plugin-card__link:hover {
+    color: #084fc1;
+  }
+</style>

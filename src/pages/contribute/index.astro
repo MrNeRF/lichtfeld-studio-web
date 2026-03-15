@@ -9,15 +9,24 @@
  */
 import Layout from "@/layouts/Layout.astro";
 import ContributionCard from "@/components/contribute/ContributionCard.astro";
+import ProjectItemCard from "@/components/contribute/ProjectItemCard.astro";
 import ContributorsWall from "@/components/contribute/ContributorsWall.astro";
-import { getContributionIdeas } from "@/services/github";
-import { REPO_OWNER, CONTRIBUTION_IDEAS_REPO_NAME } from "@/constants/project";
+import { getContributionIdeas, getContributionProjectItems } from "@/services/github";
+import {
+  CONTRIBUTION_PROJECT_VIEW_URL,
+  GITHUB_REPO_URL,
+  GITHUB_SPONSORS_URL,
+  PAYPAL_URL,
+  DONORBOX_URL,
+  CRYPTO_WALLET_BITCOIN,
+} from "@/constants/project";
 
 // Fetch all required data from the GitHub API during the static build process.
 const ideas = await getContributionIdeas();
+const projectItems = await getContributionProjectItems();
 
 // Construct the URL to the correct GitHub issues page.
-const contributionIdeasRepoUrl = `https://github.com/${REPO_OWNER}/${CONTRIBUTION_IDEAS_REPO_NAME}/issues`;
+const contributionIdeasRepoUrl = `${GITHUB_REPO_URL}/issues`;
 
 // SEO metadata for the contribute page
 const seoTitle = "Contribute";
@@ -26,41 +35,307 @@ const seoDescription =
 ---
 
 <Layout title={seoTitle} description={seoDescription}>
-  <!-- Page Header / Hero Section -->
-  <div class="container px-4 py-5 text-center">
-    <h1 class="display-5 fw-bold text-body-emphasis">Get Involved</h1>
-    <div class="col-lg-8 mx-auto">
-      <p class="lead mb-4">
-        Join our community of developers and researchers! Whether you want to share a dataset, implement a new feature,
-        or fix a bug, your contributions are welcome. Here are a few ideas to get you started.
-      </p>
-    </div>
-  </div>
+  <section class="contribute-page">
+    <div class="container px-4 py-5">
+      <div class="contribute-shell contribute-shell--hero text-center">
+        <p class="contribute-kicker">Contribute</p>
+        <h1 class="contribute-title">Get involved in building LichtFeld Studio</h1>
+        <div class="col-lg-8 mx-auto">
+          <p class="contribute-lead mb-0">
+            Join the community of developers and researchers shipping the platform. Browse the live GitHub project
+            backlog, pick up contribution ideas, and help move the studio forward.
+          </p>
+        </div>
+      </div>
 
-  <!-- Contribution Ideas Grid Section -->
-  <div class="container px-4 py-5" id="contribution-ideas">
-    <h2 class="pb-2 border-bottom">How You Can Contribute</h2>
-    {
-      ideas.length > 0 ? (
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 py-5">
-          {ideas.map((idea) => (
-            <div class="col d-flex align-items-stretch">
-              <ContributionCard idea={idea} />
+      <div class="contribute-shell contribute-shell--support mt-4">
+        <div class="contribute-support__header">
+          <p class="contribute-kicker mb-2">Fund development</p>
+          <h2 class="contribute-section-title mb-2">Support the project directly</h2>
+          <p class="contribute-section-copy mb-0">
+            Donations help fund core development, bounties, releases, and platform work around LichtFeld Studio.
+          </p>
+        </div>
+
+        <div class="contribute-support__actions">
+          <a href={GITHUB_SPONSORS_URL} target="_blank" rel="noopener noreferrer" class="contribute-support__button">
+            GitHub Sponsors
+          </a>
+          <a href={PAYPAL_URL} target="_blank" rel="noopener noreferrer" class="contribute-support__button">
+            PayPal
+          </a>
+          <a href={DONORBOX_URL} target="_blank" rel="noopener noreferrer" class="contribute-support__button">
+            Donorbox
+          </a>
+        </div>
+
+        <p class="contribute-support__crypto mb-0">
+          Bitcoin: <code>{CRYPTO_WALLET_BITCOIN}</code>
+        </p>
+      </div>
+
+      <div class="contribute-shell mt-4" id="project-backlog">
+        <div class="contribute-section-head">
+          <div>
+            <p class="contribute-kicker mb-2">Live project view</p>
+            <h2 class="contribute-section-title mb-2">Current backlog from GitHub Projects</h2>
+            <p class="contribute-section-copy mb-0">
+              This section mirrors the saved GitHub project view for active contribution work.
+            </p>
+          </div>
+          <a
+            href={CONTRIBUTION_PROJECT_VIEW_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="contribute-section-link"
+          >
+            Open project view
+          </a>
+        </div>
+
+        {
+          projectItems.length > 0 ? (
+            <div class="contribute-grid contribute-grid--project mt-4">
+              {projectItems.map((item) => (
+                <ProjectItemCard item={item} />
+              ))}
             </div>
-          ))}
-        </div>
-      ) : (
-        <div class="alert alert-info mt-4" role="alert">
-          <strong>No contribution ideas found.</strong> Check the
-          <a href={contributionIdeasRepoUrl} class="alert-link" target="_blank">
-            GitHub repository
-          </a>{" "}
-          for active issues!
-        </div>
-      )
-    }
-  </div>
+          ) : (
+            <div class="contribute-empty mt-4" role="alert">
+              <strong>Project cards are not available right now.</strong> Add a `GITHUB_PROJECTS_TOKEN` repository
+              secret to fetch the saved GitHub Projects view during builds.
+            </div>
+          )
+        }
+      </div>
 
-  <!-- Contributor Wall Section -->
-  <ContributorsWall />
+      <div class="contribute-shell mt-4" id="contribution-ideas">
+        <div class="contribute-section-head">
+          <div>
+            <p class="contribute-kicker mb-2">Contribution ideas</p>
+            <h2 class="contribute-section-title mb-2">How you can contribute</h2>
+            <p class="contribute-section-copy mb-0">
+              Extra implementation ideas pulled from the contribution-ideas repository.
+            </p>
+          </div>
+          <a
+            href={contributionIdeasRepoUrl}
+            class="contribute-section-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Open issues
+          </a>
+        </div>
+
+        {
+          ideas.length > 0 ? (
+            <div class="contribute-grid mt-4">
+              {ideas.map((idea) => (
+                <div class="contribute-grid__item">
+                  <ContributionCard idea={idea} />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div class="contribute-empty mt-4" role="alert">
+              <strong>No contribution ideas found.</strong> Check the
+              <a href={contributionIdeasRepoUrl} class="contribute-empty__link" target="_blank" rel="noopener noreferrer">
+                GitHub repository
+              </a>{" "}
+              for active issues.
+            </div>
+          )
+        }
+      </div>
+    </div>
+
+    <section class="contribute-contributors">
+      <ContributorsWall />
+    </section>
+  </section>
 </Layout>
+
+<style>
+  :root {
+    --contribute-surface-bg:
+      radial-gradient(circle at top left, rgba(37, 99, 235, 0.07), transparent 24%),
+      linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+    --contribute-surface-border: rgba(148, 163, 184, 0.16);
+    --contribute-surface-shadow:
+      0 20px 50px rgba(15, 23, 42, 0.05),
+      inset 0 1px 0 rgba(255, 255, 255, 0.92);
+  }
+
+  .contribute-page {
+    background:
+      radial-gradient(circle at top left, rgba(37, 99, 235, 0.05), transparent 24%),
+      linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  }
+
+  .contribute-shell {
+    border-radius: 2rem;
+    padding: clamp(1.5rem, 3vw, 2.25rem);
+    background: var(--contribute-surface-bg);
+    border: 1px solid var(--contribute-surface-border);
+    box-shadow: var(--contribute-surface-shadow);
+  }
+
+  .contribute-shell--hero {
+    margin-bottom: 0;
+  }
+
+  .contribute-shell--support {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .contribute-kicker {
+    margin: 0 0 0.5rem;
+    color: #2563eb;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .contribute-title {
+    margin: 0 0 0.9rem;
+    color: #0f172a;
+    font-size: clamp(2.25rem, 4vw, 3.4rem);
+    line-height: 1.08;
+  }
+
+  .contribute-lead,
+  .contribute-section-copy {
+    color: #475569;
+    font-size: 1.02rem;
+    line-height: 1.7;
+  }
+
+  .contribute-section-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .contribute-section-title {
+    margin: 0;
+    color: #0f172a;
+    font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+    line-height: 1.15;
+  }
+
+  .contribute-section-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0.7rem 1rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.86);
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    color: #0b63f3;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .contribute-section-link:hover,
+  .contribute-empty__link:hover {
+    color: #084fc1;
+  }
+
+  .contribute-support__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .contribute-support__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.8rem;
+    padding: 0.7rem 1rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #2563eb, #0ea5e9);
+    color: #ffffff;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 12px 24px rgba(37, 99, 235, 0.16);
+  }
+
+  .contribute-support__button:hover {
+    color: #ffffff;
+    filter: brightness(0.96);
+  }
+
+  .contribute-support__crypto {
+    color: #64748b;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    word-break: break-all;
+  }
+
+  .contribute-support__crypto code {
+    color: #0f172a;
+    background: rgba(255, 255, 255, 0.76);
+    padding: 0.12rem 0.35rem;
+    border-radius: 0.4rem;
+  }
+
+  .contribute-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .contribute-grid--project {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .contribute-grid__item {
+    display: flex;
+  }
+
+  .contribute-empty {
+    padding: 1rem 1.1rem;
+    border-radius: 1.25rem;
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    color: #475569;
+  }
+
+  .contribute-empty__link {
+    color: #0b63f3;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .contribute-contributors :global(.container) {
+    border-radius: 2rem;
+    padding: clamp(1.75rem, 3vw, 2.5rem);
+    background: var(--contribute-surface-bg);
+    border: 1px solid var(--contribute-surface-border);
+    box-shadow: var(--contribute-surface-shadow);
+  }
+
+  @media (max-width: 991.98px) {
+    .contribute-grid,
+    .contribute-grid--project {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    .contribute-section-head {
+      flex-direction: column;
+    }
+
+    .contribute-grid,
+    .contribute-grid--project {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

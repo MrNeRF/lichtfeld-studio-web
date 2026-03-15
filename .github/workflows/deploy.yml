@@ -4,6 +4,8 @@ on:
   # Adjust if your default branch is not "main"
   push:
     branches: [main]
+  schedule:
+    - cron: "0 */12 * * *"
   workflow_dispatch:
 
 # Minimal permissions required for Pages deployments
@@ -46,6 +48,7 @@ jobs:
         run: pnpm run build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_PROJECTS_TOKEN: ${{ secrets.GITHUB_PROJECTS_TOKEN }}
           SITE_URL: https://lichtfeld.io/
           BASE_PATH: /
 
@@ -56,6 +59,7 @@ jobs:
         run: pnpm run build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_PROJECTS_TOKEN: ${{ secrets.GITHUB_PROJECTS_TOKEN }}
 
       # Upload the ./dist directory as the Pages artifact
       - name: Upload Pages artifact

@@ -30,8 +30,6 @@ import {
 } from "@/constants/project";
 
 const base = import.meta.env.BASE_URL;
-const exchangeRateDate = "March 11, 2026";
-const exchangeRateSource = "ECB EUR/USD reference rate";
 
 // SEO metadata for the homepage
 const seoTitle = SITE.name;
@@ -116,74 +114,76 @@ const seoDescription = SITE.description;
 
   <!-- Introduction -->
   <section class="intro-section container px-6 pt-14 pb-6">
-    <div class="row items-center g-5">
-      <div class="col-12 col-lg-6 order-2 order-lg-1">
-        <div class="intro-media">
-          <div class="intro-video-wrapper">
-            <SmartVideo
-              src={`${base}videos/viewer_demo`}
-              poster={`${base}videos/viewer_demo_poster.jpg`}
-              class="rounded-2xl"
-              sizeStrategy="fill"
-              fit="contain"
-            />
+    <div class="intro-shell">
+      <div class="row items-center g-5">
+        <div class="col-12 col-lg-6 order-2 order-lg-1">
+          <div class="intro-media">
+            <div class="intro-video-wrapper">
+              <SmartVideo
+                src={`${base}videos/viewer_demo`}
+                poster={`${base}videos/viewer_demo_poster.jpg`}
+                class="rounded-2xl"
+                sizeStrategy="fill"
+                fit="contain"
+              />
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="col-12 col-lg-6 order-1 order-lg-2">
-        <p class="section-kicker mb-3">Why teams switch</p>
-        <h2 class="text-3xl font-bold text-gray-900 leading-none mb-4">
-          One studio for the whole 3DGS workflow, not a pile of disconnected scripts
-        </h2>
-        <p class="text-lg text-gray-600 mb-4">
-          LichtFeld Studio combines training, interactive editing, real-time inspection, and rendering in one desktop
-          app. It is designed to feel like a production tool, not a research demo.
-        </p>
-        <p class="text-base text-gray-500 mb-6">
-          The current platform story is straightforward: fast C++/CUDA core, full editing suite, automation hooks,
-          and extensibility for teams building custom workflows.
-        </p>
+        <div class="col-12 col-lg-6 order-1 order-lg-2">
+          <p class="section-kicker mb-3">Why teams switch</p>
+          <h2 class="text-3xl font-bold text-gray-900 leading-none mb-4">
+            One studio for the whole 3DGS workflow, not a pile of disconnected scripts
+          </h2>
+          <p class="text-lg text-gray-600 mb-4">
+            LichtFeld Studio combines training, interactive editing, real-time inspection, and rendering in one desktop
+            app. It is designed to feel like a production tool, not a research demo.
+          </p>
+          <p class="text-base text-gray-500 mb-6">
+            The current platform story is straightforward: fast C++/CUDA core, full editing suite, automation hooks,
+            and extensibility for teams building custom workflows.
+          </p>
 
-        <div class="intro-badges">
-          <span class="intro-badge intro-badge--speed">
-            <svg class="bi" width="1em" height="1em" aria-hidden="true">
-              <use href={`${base}static/bootstrap-icons.svg#lightning-charge-fill`}></use>
-            </svg>
-            Faster training
-          </span>
-          <span class="intro-badge intro-badge--edit">
-            <svg class="bi" width="1em" height="1em" aria-hidden="true">
-              <use href={`${base}static/bootstrap-icons.svg#vector-pen`}></use>
-            </svg>
-            Precision editing
-          </span>
-          <span class="intro-badge intro-badge--offline">
-            <svg class="bi" width="1em" height="1em" aria-hidden="true">
-              <use href={`${base}static/bootstrap-icons.svg#cloud-slash`}></use>
-            </svg>
-            Local-first
-          </span>
-          <span class="intro-badge intro-badge--open">
-            <svg class="bi" width="1em" height="1em" aria-hidden="true">
-              <use href={`${base}static/bootstrap-icons.svg#unlock-fill`}></use>
-            </svg>
-            Open platform
-          </span>
-        </div>
-
-        <div class="workflow-inline mt-6" aria-label="Core workflow">
-          <div class="workflow-inline__item">
-            <strong>Train</strong>
-            <span>Modern 3DGS pipelines on a high-performance C++23 and CUDA core.</span>
+          <div class="intro-badges">
+            <span class="intro-badge intro-badge--speed">
+              <svg class="bi" width="1em" height="1em" aria-hidden="true">
+                <use href={`${base}static/bootstrap-icons.svg#lightning-charge-fill`}></use>
+              </svg>
+              Faster training
+            </span>
+            <span class="intro-badge intro-badge--edit">
+              <svg class="bi" width="1em" height="1em" aria-hidden="true">
+                <use href={`${base}static/bootstrap-icons.svg#vector-pen`}></use>
+              </svg>
+              Precision editing
+            </span>
+            <span class="intro-badge intro-badge--offline">
+              <svg class="bi" width="1em" height="1em" aria-hidden="true">
+                <use href={`${base}static/bootstrap-icons.svg#cloud-slash`}></use>
+              </svg>
+              Local-first
+            </span>
+            <span class="intro-badge intro-badge--open">
+              <svg class="bi" width="1em" height="1em" aria-hidden="true">
+                <use href={`${base}static/bootstrap-icons.svg#unlock-fill`}></use>
+              </svg>
+              Open platform
+            </span>
           </div>
-          <div class="workflow-inline__item">
-            <strong>Edit</strong>
-            <span>Brush, lasso, polygon, masking, composition, and alignment in one place.</span>
-          </div>
-          <div class="workflow-inline__item">
-            <strong>Automate</strong>
-            <span>Python plugins and MCP for custom workflows, assistants, and tools.</span>
+
+          <div class="workflow-inline mt-6" aria-label="Core workflow">
+            <div class="workflow-inline__item">
+              <strong>Train</strong>
+              <span>Modern 3DGS pipelines on a high-performance C++23 and CUDA core.</span>
+            </div>
+            <div class="workflow-inline__item">
+              <strong>Edit</strong>
+              <span>Brush, lasso, polygon, masking, composition, and alignment in one place.</span>
+            </div>
+            <div class="workflow-inline__item">
+              <strong>Automate</strong>
+              <span>Python plugins and MCP for custom workflows, assistants, and tools.</span>
+            </div>
           </div>
         </div>
       </div>
@@ -316,8 +316,7 @@ const seoDescription = SITE.description;
             Backed by organizations investing in the future of LichtFeld Studio
           </h2>
           <p class="text-lg text-gray-500 mb-0">
-            Foundational Sponsors are honored permanently for helping kickstart LichtFeld Studio. Active sponsor tiers
-            below are shown in USD and rounded from EUR using the {exchangeRateSource} on {exchangeRateDate}.
+            Foundational Sponsors are honored permanently for helping kickstart LichtFeld Studio.
           </p>
         </div>
 
@@ -1187,6 +1186,11 @@ const seoDescription = SITE.description;
       padding: 1.1rem;
     }
 
+    .intro-shell {
+      border-radius: 1.25rem;
+      padding: 1.1rem;
+    }
+
     .sponsors-shell {
       border-radius: 1.25rem;
       padding: 1.1rem;
@@ -1202,6 +1206,11 @@ const seoDescription = SITE.description;
 
     .sponsor-tier-grid {
       grid-template-columns: 1fr;
+    }
+
+    .contributors-section :global(.container) {
+      border-radius: 1.25rem;
+      padding-block: 1.5rem;
     }
 
   }
@@ -1220,11 +1229,24 @@ const seoDescription = SITE.description;
   .contributors-section :global(.container) {
     max-width: 1180px;
     text-align: center;
+    border-radius: 2rem;
+    padding-block: clamp(1.75rem, 3vw, 2.5rem);
+    background: var(--home-surface-bg);
+    border: 1px solid var(--home-surface-border);
+    box-shadow: var(--home-surface-shadow);
   }
 
   /* ===========================
    * Intro Section Enhancements
    * =========================== */
+
+  .intro-shell {
+    border-radius: 2rem;
+    padding: clamp(1.25rem, 2.6vw, 2rem);
+    background: var(--home-surface-bg);
+    border: 1px solid var(--home-surface-border);
+    box-shadow: var(--home-surface-shadow);
+  }
 
   /* Highlight badges row */
   .section-kicker {
@@ -1234,6 +1256,19 @@ const seoDescription = SITE.description;
     font-weight: 800;
     letter-spacing: 0.12em;
     text-transform: uppercase;
+  }
+
+  :root {
+    --home-surface-bg:
+      radial-gradient(circle at top left, rgba(37, 99, 235, 0.07), transparent 24%),
+      linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+    --home-surface-border: rgba(148, 163, 184, 0.16);
+    --home-surface-shadow:
+      0 20px 50px rgba(15, 23, 42, 0.05),
+      inset 0 1px 0 rgba(255, 255, 255, 0.92);
+    --home-card-bg: rgba(255, 255, 255, 0.9);
+    --home-card-border: rgba(148, 163, 184, 0.16);
+    --home-card-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
   }
 
   .intro-badges {
@@ -1343,13 +1378,9 @@ const seoDescription = SITE.description;
   .platform-shell {
     border-radius: 2rem;
     padding: clamp(1.5rem, 3vw, 2.5rem);
-    background:
-      radial-gradient(circle at top left, rgba(59, 130, 246, 0.1), transparent 30%),
-      linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
-    border: 1px solid rgba(148, 163, 184, 0.18);
-    box-shadow:
-      0 20px 50px rgba(15, 23, 42, 0.05),
-      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    background: var(--home-surface-bg);
+    border: 1px solid var(--home-surface-border);
+    box-shadow: var(--home-surface-shadow);
   }
 
   .platform-intro {
@@ -1367,14 +1398,14 @@ const seoDescription = SITE.description;
     grid-column: span 4;
     padding: 1.4rem;
     border-radius: 1.25rem;
-    background: rgba(255, 255, 255, 0.86);
-    border: 1px solid rgba(148, 163, 184, 0.18);
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+    background: var(--home-card-bg);
+    border: 1px solid var(--home-card-border);
+    box-shadow: var(--home-card-shadow);
   }
 
   .platform-card--featured {
     grid-column: span 6;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(239, 246, 255, 0.96));
+    background: rgba(255, 255, 255, 0.95);
   }
 
   .platform-card__icon {
@@ -1449,13 +1480,9 @@ const seoDescription = SITE.description;
   .sponsors-shell {
     border-radius: 2rem;
     padding: clamp(1.5rem, 3vw, 2.5rem);
-    background:
-      radial-gradient(circle at top right, rgba(251, 191, 36, 0.08), transparent 28%),
-      linear-gradient(180deg, #fffdf8 0%, #ffffff 100%);
-    border: 1px solid rgba(148, 163, 184, 0.16);
-    box-shadow:
-      0 20px 50px rgba(15, 23, 42, 0.05),
-      inset 0 1px 0 rgba(255, 255, 255, 0.92);
+    background: var(--home-surface-bg);
+    border: 1px solid var(--home-surface-border);
+    box-shadow: var(--home-surface-shadow);
   }
 
   .sponsors-intro {
@@ -1471,8 +1498,8 @@ const seoDescription = SITE.description;
     padding: 1.5rem;
     border-radius: 1.5rem;
     background:
-      linear-gradient(135deg, rgba(255, 248, 235, 0.95), rgba(255, 255, 255, 0.98)),
-      #fff;
+      radial-gradient(circle at top right, rgba(245, 158, 11, 0.08), transparent 26%),
+      rgba(255, 255, 255, 0.96);
     border: 1px solid rgba(217, 119, 6, 0.16);
     box-shadow:
       0 20px 40px rgba(15, 23, 42, 0.05),
@@ -1509,8 +1536,8 @@ const seoDescription = SITE.description;
     min-height: 180px;
     padding: 1.5rem;
     border-radius: 1.25rem;
-    background: rgba(255, 255, 255, 0.88);
-    border: 1px solid rgba(148, 163, 184, 0.16);
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid var(--home-card-border);
     text-decoration: none;
   }
 
@@ -1530,9 +1557,9 @@ const seoDescription = SITE.description;
   .sponsor-tier-card {
     padding: 1.35rem;
     border-radius: 1.25rem;
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(148, 163, 184, 0.16);
-    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.04);
+    background: var(--home-card-bg);
+    border: 1px solid var(--home-card-border);
+    box-shadow: var(--home-card-shadow);
   }
 
   .sponsor-tier-card__name {
@@ -1582,19 +1609,19 @@ const seoDescription = SITE.description;
   }
 
   .sponsor-tier-card--platinum {
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(241, 245, 249, 0.95));
+    background: rgba(255, 255, 255, 0.95);
   }
 
   .sponsor-tier-card--gold {
-    background: linear-gradient(180deg, rgba(255, 252, 240, 0.98), rgba(255, 247, 224, 0.92));
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 250, 240, 0.95));
   }
 
   .sponsor-tier-card--silver {
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.94));
+    background: rgba(255, 255, 255, 0.94);
   }
 
   .sponsor-tier-card--bronze {
-    background: linear-gradient(180deg, rgba(255, 250, 245, 0.98), rgba(251, 241, 230, 0.94));
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(252, 246, 241, 0.94));
   }
 
 
@@ -1965,15 +1992,12 @@ const seoDescription = SITE.description;
    * =========================== */
 
   .support-box {
-    background: linear-gradient(145deg, #ffffff 0%, #f0f4f8 100%);
-    border-radius: 1.5rem;
-    padding: 2.5rem;
-    margin-inline: 2rem;
-    border: 2px solid rgba(99, 102, 241, 0.2);
-    box-shadow:
-      0 4px 6px -1px rgba(0, 0, 0, 0.08),
-      0 2px 4px -2px rgba(0, 0, 0, 0.05),
-      0 12px 32px -8px rgba(99, 102, 241, 0.12);
+    background: var(--home-surface-bg);
+    border-radius: 2rem;
+    padding: clamp(1.5rem, 3vw, 2.25rem);
+    margin-inline: 0;
+    border: 1px solid var(--home-surface-border);
+    box-shadow: var(--home-surface-shadow);
   }
 
   .support-box__header {
@@ -1991,7 +2015,7 @@ const seoDescription = SITE.description;
     width: 2.5rem;
     height: 2.5rem;
     border-radius: 0.75rem;
-    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    background: linear-gradient(135deg, #2563eb, #0ea5e9);
     color: white;
   }
 
@@ -2033,7 +2057,7 @@ const seoDescription = SITE.description;
   @media (max-width: 767.98px) {
     .support-box {
       padding: 1.5rem;
-      border-radius: 1rem;
+      border-radius: 1.25rem;
     }
 
     .support-box__title {

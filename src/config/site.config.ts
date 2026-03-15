@@ -195,8 +195,6 @@ export const EXTERNAL_ORIGINS = {
 export const NAVIGATION = {
   "/": "Home",
   "/contribute/": "Contribute",
-  "/contribute/build-on-windows/": "Build on Windows",
-  "/contribute/create-new-tools/": "Create New Tools",
   "/bounty/": "Bounties",
 } as const;
 

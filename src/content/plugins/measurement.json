@@ -1,0 +1,16 @@
+{
+  "id": "community:measurement",
+  "namespace": "community",
+  "name": "measurement",
+  "displayName": "Measurement Plugin",
+  "summary": "Measurement and scene QA tooling for precision workflows.",
+  "description": "Adds measurement utilities for scene validation, QA, and spatial analysis inside the desktop workflow.",
+  "author": "Jacob van Beets",
+  "latestVersion": "0.1.0",
+  "lichtfeldVersion": ">=0.4.2",
+  "pluginApi": ">=1,<2",
+  "requiredFeatures": [],
+  "downloads": 0,
+  "keywords": ["measurement", "qa", "scene-tools"],
+  "repository": "https://github.com/jacobvanbeets/lichtfeld-measurement-plugin"
+}

@@ -1,0 +1,16 @@
+{
+  "id": "community:splat-vr-viewer",
+  "namespace": "community",
+  "name": "splat-vr-viewer",
+  "displayName": "Splat VR Viewer",
+  "summary": "VR-oriented viewing workflow for immersive scene inspection.",
+  "description": "Extends LichtFeld Studio with VR-focused viewing so scenes can be inspected and shared in a more immersive way.",
+  "author": "Jacob van Beets",
+  "latestVersion": "0.1.0",
+  "lichtfeldVersion": ">=0.4.2",
+  "pluginApi": ">=1,<2",
+  "requiredFeatures": [],
+  "downloads": 0,
+  "keywords": ["vr", "viewer", "delivery"],
+  "repository": "https://github.com/jacobvanbeets/splat-vr-viewer"
+}

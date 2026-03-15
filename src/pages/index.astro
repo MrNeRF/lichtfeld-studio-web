@@ -11,6 +11,7 @@
  */
 import Layout from "@/layouts/Layout.astro";
 import { SITE } from "@/config/site.config";
+import core11Logo from "@/assets/core11-logo.svg";
 
 import { SmartVideo } from "@alos-no/astro-media";
 import Splat from "@/components/Splat.astro";
@@ -29,6 +30,8 @@ import {
 } from "@/constants/project";
 
 const base = import.meta.env.BASE_URL;
+const exchangeRateDate = "March 11, 2026";
+const exchangeRateSource = "ECB EUR/USD reference rate";
 
 // SEO metadata for the homepage
 const seoTitle = SITE.name;
@@ -299,6 +302,69 @@ const seoDescription = SITE.description;
           <span>Save and resume</span>
           <span>3-point alignment</span>
           <span>Open-source GPLv3</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="sponsors" class="sponsors-section" aria-labelledby="sponsors-heading">
+    <div class="container px-6 pt-6 pb-6">
+      <div class="sponsors-shell">
+        <div class="sponsors-intro">
+          <p class="section-kicker mb-3">Sponsors</p>
+          <h2 id="sponsors-heading" class="text-4xl font-bold text-gray-900 mb-3">
+            Backed by organizations investing in the future of LichtFeld Studio
+          </h2>
+          <p class="text-lg text-gray-500 mb-0">
+            Foundational Sponsors are honored permanently for helping kickstart LichtFeld Studio. Active sponsor tiers
+            below are shown in USD and rounded from EUR using the {exchangeRateSource} on {exchangeRateDate}.
+          </p>
+        </div>
+
+        <article class="foundational-sponsor-card">
+          <div class="foundational-sponsor-card__meta">
+            <p class="foundational-sponsor-card__label">Foundational Sponsor</p>
+            <h3 class="foundational-sponsor-card__title">Permanent recognition for helping kickstart the platform</h3>
+            <p class="foundational-sponsor-card__desc">
+              Core11 helped establish the long-term foundation of LichtFeld Studio and is honored forever as a
+              Foundational Sponsor.
+            </p>
+          </div>
+          <a
+            href="https://www.core11.eu/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="foundational-sponsor-card__brand"
+            aria-label="Visit Core11 website"
+          >
+            <img src={core11Logo.src} alt="Core11" class="foundational-sponsor-card__logo" />
+          </a>
+        </article>
+
+        <div class="sponsor-tier-grid">
+          <article class="sponsor-tier-card sponsor-tier-card--platinum">
+            <p class="sponsor-tier-card__name">Platinum</p>
+            <p class="sponsor-tier-card__amount">$35,000+ / year</p>
+            <p class="sponsor-tier-card__desc">Top-tier annual sponsorship for organizations funding core development.</p>
+          </article>
+
+          <article class="sponsor-tier-card sponsor-tier-card--gold">
+            <p class="sponsor-tier-card__name">Gold</p>
+            <p class="sponsor-tier-card__amount">$12,000 - $34,999 / year</p>
+            <p class="sponsor-tier-card__desc">Major annual support for sustained product, tooling, and platform work.</p>
+          </article>
+
+          <article class="sponsor-tier-card sponsor-tier-card--silver">
+            <p class="sponsor-tier-card__name">Silver</p>
+            <p class="sponsor-tier-card__amount">$3,000 - $11,999 / year</p>
+            <p class="sponsor-tier-card__desc">Meaningful sponsorship that helps accelerate engineering and research.</p>
+          </article>
+
+          <article class="sponsor-tier-card sponsor-tier-card--bronze">
+            <p class="sponsor-tier-card__name">Bronze</p>
+            <p class="sponsor-tier-card__amount">$600 - $2,999 / year</p>
+            <p class="sponsor-tier-card__desc">Supportive sponsorship for companies backing the project and community.</p>
+          </article>
         </div>
       </div>
     </div>
@@ -1061,6 +1127,12 @@ const seoDescription = SITE.description;
     .platform-card--featured {
       grid-column: span 12;
     }
+    .foundational-sponsor-card {
+      grid-template-columns: 1fr;
+    }
+    .sponsor-tier-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
     /* The .hero__stack panel scales with content; no fixed viewport panel needed anymore. */
   }
 
@@ -1102,6 +1174,23 @@ const seoDescription = SITE.description;
     .platform-shell {
       border-radius: 1.25rem;
       padding: 1.1rem;
+    }
+
+    .sponsors-shell {
+      border-radius: 1.25rem;
+      padding: 1.1rem;
+    }
+
+    .foundational-sponsor-card {
+      padding: 1.1rem;
+    }
+
+    .foundational-sponsor-card__brand {
+      min-height: 140px;
+    }
+
+    .sponsor-tier-grid {
+      grid-template-columns: 1fr;
     }
 
   }
@@ -1340,6 +1429,135 @@ const seoDescription = SITE.description;
     color: #334155;
     font-size: 0.9rem;
     font-weight: 600;
+  }
+
+  .sponsors-section {
+    position: relative;
+  }
+
+  .sponsors-shell {
+    border-radius: 2rem;
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+    background:
+      radial-gradient(circle at top right, rgba(251, 191, 36, 0.08), transparent 28%),
+      linear-gradient(180deg, #fffdf8 0%, #ffffff 100%);
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    box-shadow:
+      0 20px 50px rgba(15, 23, 42, 0.05),
+      inset 0 1px 0 rgba(255, 255, 255, 0.92);
+  }
+
+  .sponsors-intro {
+    max-width: 56rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .foundational-sponsor-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+    gap: 1.25rem;
+    align-items: center;
+    padding: 1.5rem;
+    border-radius: 1.5rem;
+    background:
+      linear-gradient(135deg, rgba(255, 248, 235, 0.95), rgba(255, 255, 255, 0.98)),
+      #fff;
+    border: 1px solid rgba(217, 119, 6, 0.16);
+    box-shadow:
+      0 20px 40px rgba(15, 23, 42, 0.05),
+      inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  }
+
+  .foundational-sponsor-card__label {
+    margin: 0 0 0.5rem;
+    color: #b45309;
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .foundational-sponsor-card__title {
+    margin: 0 0 0.65rem;
+    color: #111827;
+    font-size: clamp(1.6rem, 2.5vw, 2.1rem);
+    line-height: 1.15;
+  }
+
+  .foundational-sponsor-card__desc {
+    margin: 0;
+    color: #475569;
+    line-height: 1.7;
+    max-width: 42rem;
+  }
+
+  .foundational-sponsor-card__brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 180px;
+    padding: 1.5rem;
+    border-radius: 1.25rem;
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    text-decoration: none;
+  }
+
+  .foundational-sponsor-card__logo {
+    width: min(100%, 250px);
+    height: auto;
+    display: block;
+  }
+
+  .sponsor-tier-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 1.25rem;
+  }
+
+  .sponsor-tier-card {
+    padding: 1.35rem;
+    border-radius: 1.25rem;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.04);
+  }
+
+  .sponsor-tier-card__name {
+    margin: 0 0 0.5rem;
+    color: #0f172a;
+    font-size: 1.1rem;
+    font-weight: 800;
+  }
+
+  .sponsor-tier-card__amount {
+    margin: 0 0 0.65rem;
+    color: #334155;
+    font-size: 0.95rem;
+    font-weight: 700;
+  }
+
+  .sponsor-tier-card__desc {
+    margin: 0;
+    color: #64748b;
+    line-height: 1.6;
+  }
+
+  .sponsor-tier-card--platinum {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(241, 245, 249, 0.95));
+  }
+
+  .sponsor-tier-card--gold {
+    background: linear-gradient(180deg, rgba(255, 252, 240, 0.98), rgba(255, 247, 224, 0.92));
+  }
+
+  .sponsor-tier-card--silver {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.94));
+  }
+
+  .sponsor-tier-card--bronze {
+    background: linear-gradient(180deg, rgba(255, 250, 245, 0.98), rgba(251, 241, 230, 0.94));
   }
 
   /* ===========================

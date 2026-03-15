@@ -6,12 +6,36 @@
   "summary": "Image enhancement and sharpening workflows for rendered outputs.",
   "description": "Adds post-processing and image enhancement tooling that can be embedded into LichtFeld Studio workflows instead of handled in a separate toolchain.",
   "author": "Shady Gmira",
-  "latestVersion": "0.1.0",
+  "latestVersion": "0.2.2",
   "lichtfeldVersion": ">=0.4.2",
   "pluginApi": ">=1,<2",
   "requiredFeatures": [],
   "downloads": 0,
   "keywords": ["rendering", "enhancement", "postprocess"],
   "repository": "https://github.com/shadygm/Lichtfeld-ml-sharp-Plugin",
-  "featured": true
+  "featured": true,
+  "versions": [
+    {
+      "version": "0.2.2",
+      "pluginApi": ">=1,<2",
+      "lichtfeldVersion": ">=0.5.0",
+      "requiredFeatures": [],
+      "dependencies": [
+        "numpy",
+        "torch>=2.2",
+        "torchvision>=0.23.0",
+        "timm",
+        "gsplat",
+        "imageio",
+        "imageio-ffmpeg",
+        "pillow-heif",
+        "plyfile",
+        "scipy",
+        "tqdm",
+        "click",
+        "sharp"
+      ],
+      "gitRef": "main"
+    }
+  ]
 }

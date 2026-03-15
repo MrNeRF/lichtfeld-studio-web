@@ -6,12 +6,33 @@
   "summary": "Alternative densification workflow for improving training quality.",
   "description": "Extends training iteration with densification-focused controls and experimentation around stronger initialization and scene refinement.",
   "author": "Shady Gmira",
-  "latestVersion": "0.1.0",
+  "latestVersion": "0.7.0",
   "lichtfeldVersion": ">=0.4.2",
   "pluginApi": ">=1,<2",
   "requiredFeatures": [],
   "downloads": 0,
   "keywords": ["training", "densification", "quality"],
   "repository": "https://github.com/shadygm/Lichtfeld-Densification-Plugin",
-  "featured": true
+  "featured": true,
+  "versions": [
+    {
+      "version": "0.7.0",
+      "pluginApi": ">=1,<2",
+      "lichtfeldVersion": ">=0.5.0",
+      "requiredFeatures": [],
+      "dependencies": [
+        "torch",
+        "torchvision",
+        "numpy==2.4.1",
+        "pycolmap",
+        "Pillow",
+        "scipy",
+        "tqdm",
+        "einops>=0.8.1",
+        "rich>=14.2.0",
+        "open3d"
+      ],
+      "gitRef": "main"
+    }
+  ]
 }

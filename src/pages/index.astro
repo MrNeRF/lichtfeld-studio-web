@@ -59,6 +59,18 @@ const seoDescription = SITE.description;
           <!-- inner animated wrapper to avoid multiplying parent/child opacities -->
           <div class="hero__stack-content">
             <h1 class="hero__title">LichtFeld Studio</h1>
+            <p class="hero__eyebrow">Desktop-native 3D Gaussian Splatting platform</p>
+            <p class="hero__lead">
+              Train, edit, automate, and ship splat workflows in one open-source studio. Built for teams who want a
+              serious desktop tool, Python extensibility, and MCP control without handing the pipeline to the cloud.
+            </p>
+
+            <div class="hero__proof">
+              <span class="hero__proof-item">Python plugins</span>
+              <span class="hero__proof-item">MCP-ready</span>
+              <span class="hero__proof-item">Real-time editing</span>
+              <span class="hero__proof-item">2.4x faster rasterization</span>
+            </div>
 
             <div class="hero__actions">
               <!-- Primary CTA: Download latest release -->
@@ -103,8 +115,6 @@ const seoDescription = SITE.description;
   <section class="intro-section container px-6 pt-14 pb-6">
     <div class="row items-center g-5">
       <div class="col-12 col-lg-6 order-2 order-lg-1">
-        <!-- SmartVideo replaces the GIF with an MP4 for smaller payload and better LCP -->
-        <!-- See: https://web.dev/articles/replace-gifs-with-videos -->
         <div class="intro-media">
           <div class="intro-video-wrapper">
             <SmartVideo
@@ -119,147 +129,176 @@ const seoDescription = SITE.description;
       </div>
 
       <div class="col-12 col-lg-6 order-1 order-lg-2">
-        <h2 class="text-3xl font-bold text-gray-900 leading-none mb-4">What is LichtFeld Studio?</h2>
-        <p class="text-lg text-gray-600 mb-6">
-          An all-in-one open-source studio for <b>3D Gaussian Splatting</b>. Train, edit, and render splats in a single
-          desktop app. No cloud required.
+        <p class="section-kicker mb-3">Why teams switch</p>
+        <h2 class="text-3xl font-bold text-gray-900 leading-none mb-4">
+          One studio for the whole 3DGS workflow, not a pile of disconnected scripts
+        </h2>
+        <p class="text-lg text-gray-600 mb-4">
+          LichtFeld Studio combines training, interactive editing, real-time inspection, and rendering in one desktop
+          app. It is designed to feel like a production tool, not a research demo.
+        </p>
+        <p class="text-base text-gray-500 mb-6">
+          The current platform story is straightforward: fast C++/CUDA core, full editing suite, automation hooks,
+          and extensibility for teams building custom workflows.
         </p>
 
-        <!-- Highlight badges -->
         <div class="intro-badges">
           <span class="intro-badge intro-badge--speed">
             <svg class="bi" width="1em" height="1em" aria-hidden="true">
               <use href={`${base}static/bootstrap-icons.svg#lightning-charge-fill`}></use>
             </svg>
-            2.4× Faster
+            Faster rasterization
           </span>
           <span class="intro-badge intro-badge--edit">
             <svg class="bi" width="1em" height="1em" aria-hidden="true">
               <use href={`${base}static/bootstrap-icons.svg#vector-pen`}></use>
             </svg>
-            Full Editing Suite
+            Precision editing
           </span>
           <span class="intro-badge intro-badge--offline">
             <svg class="bi" width="1em" height="1em" aria-hidden="true">
               <use href={`${base}static/bootstrap-icons.svg#cloud-slash`}></use>
             </svg>
-            Fully Offline
+            Local-first
           </span>
           <span class="intro-badge intro-badge--open">
             <svg class="bi" width="1em" height="1em" aria-hidden="true">
               <use href={`${base}static/bootstrap-icons.svg#unlock-fill`}></use>
             </svg>
-            100% Open Source
+            Open platform
           </span>
         </div>
 
-        <p class="text-base text-gray-500 mt-6">
-          Join the <a
-            href={DISCORD_URL}
-            class="link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-100-hover"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Open the Discord community in a new tab"
-          >
-            community
-          </a> and transform your 3D projects today!
-        </p>
+        <div class="workflow-inline mt-6" aria-label="Core workflow">
+          <div class="workflow-inline__item">
+            <strong>Train</strong>
+            <span>Modern 3DGS pipelines on a high-performance C++23 and CUDA core.</span>
+          </div>
+          <div class="workflow-inline__item">
+            <strong>Edit</strong>
+            <span>Brush, lasso, polygon, masking, composition, and alignment in one place.</span>
+          </div>
+          <div class="workflow-inline__item">
+            <strong>Automate</strong>
+            <span>Python plugins and MCP for custom workflows, assistants, and tools.</span>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Feature List: Bento Grid Layout -->
-  <section id="features">
+  <section id="features" class="platform-section">
     <div class="container px-6 pt-20 pb-12">
-      <div class="text-center mb-8">
-        <h2 class="text-4xl font-bold text-gray-900 mb-3">Features</h2>
-        <p class="text-lg text-gray-500">Powerful by design. Built for performance.</p>
-      </div>
+      <div class="platform-shell">
+        <div class="platform-intro">
+          <p class="section-kicker mb-3">Platform features</p>
+          <h2 class="text-4xl font-bold text-gray-900 mb-3">A production-ready 3DGS platform you can actually build on</h2>
+          <p class="text-lg text-gray-500">
+            High-performance rendering is only the start. LichtFeld Studio gives teams an extensible desktop platform
+            for editing, automation, and custom 3DGS workflows.
+          </p>
+        </div>
 
-      <div class="features-bento py-6">
-        <!-- Hero row: 2 large cards -->
-        <div class="bento-row bento-row--hero">
-          <article class="bento-card bento-card--large bento-card--kernel">
-            <div class="bento-card__icon" aria-hidden="true">
-              <svg class="bi" width="2em" height="2em">
+        <div class="platform-grid">
+          <article class="platform-card platform-card--featured">
+            <div class="platform-card__icon" aria-hidden="true">
+              <svg class="bi" width="1.75em" height="1.75em">
+                <use href={`${base}static/bootstrap-icons.svg#boxes`}></use>
+              </svg>
+            </div>
+            <p class="platform-card__eyebrow">Python plugins</p>
+            <h3 class="platform-card__title">Extend the studio without forking the core app</h3>
+            <p class="platform-card__desc">
+              Build panels, operators, tools, overlays, hooks, and plugin-local dependencies. Scaffold new plugins,
+              iterate in Python, and keep custom workflows isolated.
+            </p>
+            <a
+              class="platform-card__link"
+              href={`${GITHUB_REPO_URL}/tree/master/docs/plugins`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Explore plugin docs
+            </a>
+          </article>
+
+          <article class="platform-card platform-card--featured">
+            <div class="platform-card__icon" aria-hidden="true">
+              <svg class="bi" width="1.75em" height="1.75em">
+                <use href={`${base}static/bootstrap-icons.svg#command`}></use>
+              </svg>
+            </div>
+            <p class="platform-card__eyebrow">MCP integration</p>
+            <h3 class="platform-card__title">Expose the app as a controllable 3DGS tool surface</h3>
+            <p class="platform-card__desc">
+              Drive camera, render, sequencer, and editor workflows over MCP. That makes LichtFeld Studio usable by
+              assistants, scripts, and external tools instead of staying trapped inside the UI.
+            </p>
+            <a
+              class="platform-card__link"
+              href={`${GITHUB_REPO_URL}/tree/master/docs/docs/development/mcp`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Read the MCP guide
+            </a>
+          </article>
+
+          <article class="platform-card">
+            <div class="platform-card__icon" aria-hidden="true">
+              <svg class="bi" width="1.5em" height="1.5em">
                 <use href={`${base}static/bootstrap-icons.svg#cpu-fill`}></use>
               </svg>
             </div>
-            <h3 class="bento-card__title">Built for Performance</h3>
-            <p class="bento-card__desc">
-              Custom CUDA kernel purpose-built from scratch for maximum efficiency and optimized memory usage.
+            <h3 class="platform-card__title">Fast native core</h3>
+            <p class="platform-card__desc">
+              Modern C++23 and CUDA architecture built for high-performance 3D Gaussian Splatting workflows.
             </p>
           </article>
-          <article class="bento-card bento-card--large bento-card--editing">
-            <div class="bento-card__icon" aria-hidden="true">
-              <svg class="bi" width="2em" height="2em">
+
+          <article class="platform-card">
+            <div class="platform-card__icon" aria-hidden="true">
+              <svg class="bi" width="1.5em" height="1.5em">
                 <use href={`${base}static/bootstrap-icons.svg#vector-pen`}></use>
               </svg>
             </div>
-            <h3 class="bento-card__title">Full Editing Suite</h3>
-            <p class="bento-card__desc">
-              Move, rotate, scale, and crop splats with brush, lasso, and polygon selection tools.
+            <h3 class="platform-card__title">Full editing suite</h3>
+            <p class="platform-card__desc">
+              Move, rotate, scale, crop, mask, align, and compose splats without bouncing between separate tools.
+            </p>
+          </article>
+
+          <article class="platform-card">
+            <div class="platform-card__icon" aria-hidden="true">
+              <svg class="bi" width="1.5em" height="1.5em">
+                <use href={`${base}static/bootstrap-icons.svg#display`}></use>
+              </svg>
+            </div>
+            <h3 class="platform-card__title">Interactive viewer</h3>
+            <p class="platform-card__desc">
+              Inspect scenes in real time with multiple render modes and a desktop UI built for iteration.
+            </p>
+          </article>
+
+          <article class="platform-card">
+            <div class="platform-card__icon" aria-hidden="true">
+              <svg class="bi" width="1.5em" height="1.5em">
+                <use href={`${base}static/bootstrap-icons.svg#cloud-slash`}></use>
+              </svg>
+            </div>
+            <h3 class="platform-card__title">Offline by default</h3>
+            <p class="platform-card__desc">
+              Run locally, keep assets under your control, and avoid cloud lock-in for research and production work.
             </p>
           </article>
         </div>
 
-        <!-- Medium row: 3 cards -->
-        <div class="bento-row bento-row--medium">
-          <article class="bento-card bento-card--speed">
-            <div class="bento-card__icon" aria-hidden="true">
-              <svg class="bi" width="1.5em" height="1.5em">
-                <use href={`${base}static/bootstrap-icons.svg#speedometer2`}></use>
-              </svg>
-            </div>
-            <h3 class="bento-card__title">2.4× Faster</h3>
-            <p class="bento-card__desc">Optimized rendering pipeline that outperforms reference implementations.</p>
-          </article>
-          <article class="bento-card bento-card--opensource">
-            <div class="bento-card__icon" aria-hidden="true">
-              <svg class="bi" width="1.5em" height="1.5em">
-                <use href={`${base}static/bootstrap-icons.svg#heart-fill`}></use>
-              </svg>
-            </div>
-            <h3 class="bento-card__title">Free & Open Source</h3>
-            <p class="bento-card__desc">GPL-3.0 licensed with fully transparent development.</p>
-          </article>
-          <article class="bento-card bento-card--masking">
-            <div class="bento-card__icon" aria-hidden="true">
-              <svg class="bi" width="1.5em" height="1.5em">
-                <use href={`${base}static/bootstrap-icons.svg#layers-fill`}></use>
-              </svg>
-            </div>
-            <h3 class="bento-card__title">Mask Support</h3>
-            <p class="bento-card__desc">Isolate subjects with segment, ignore, and alpha modes.</p>
-          </article>
-        </div>
-
-        <!-- Feature checklist row (no cards) -->
-        <div class="bento-checklist">
-          <span class="bento-check-item">
-            <svg class="bi" width="1em" height="1em" aria-hidden="true">
-              <use href={`${base}static/bootstrap-icons.svg#intersect`}></use>
-            </svg>
-            Splat Composition
-          </span>
-          <span class="bento-check-item">
-            <svg class="bi" width="1em" height="1em" aria-hidden="true">
-              <use href={`${base}static/bootstrap-icons.svg#clock-history`}></use>
-            </svg>
-            Save & Resume
-          </span>
-          <span class="bento-check-item">
-            <svg class="bi" width="1em" height="1em" aria-hidden="true">
-              <use href={`${base}static/bootstrap-icons.svg#arrows-angle-contract`}></use>
-            </svg>
-            3-Point Align
-          </span>
-          <span class="bento-check-item">
-            <svg class="bi" width="1em" height="1em" aria-hidden="true">
-              <use href={`${base}static/bootstrap-icons.svg#palette`}></use>
-            </svg>
-            Modern UI
-          </span>
+        <div class="platform-checklist">
+          <span>2.4x faster rasterization</span>
+          <span>Mask support</span>
+          <span>Save and resume</span>
+          <span>3-point alignment</span>
+          <span>Open-source GPLv3</span>
         </div>
       </div>
     </div>
@@ -833,17 +872,72 @@ const seoDescription = SITE.description;
   .hero__title {
     font-size: clamp(2rem, 5vw, 3.25rem);
     position: relative; /* Establish a new stacking context */
+    margin-bottom: 0.5rem;
+  }
+
+  .hero__eyebrow {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.72);
+    position: relative;
+  }
+
+  .hero__lead {
+    max-width: 44rem;
+    margin: 0.85rem auto 0;
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.9);
+    position: relative;
+  }
+
+  .hero__proof {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+    position: relative;
+  }
+
+  .hero__proof-item {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.45rem 0.85rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 0.875rem;
+    font-weight: 600;
+    backdrop-filter: blur(8px);
   }
 
   .hero__actions {
     display: flex;
     gap: 0.75rem;
     flex-wrap: wrap;
+    align-items: stretch;
+    justify-content: center;
     margin-top: 1rem;
     position: relative; /* Establish a new stacking context */
     /* Re-enable pointer events for the buttons, as the parent `.hero__content`
        disables them to allow clicks to pass through to the splat canvas. */
     pointer-events: auto;
+  }
+
+  .hero__actions .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3.5rem;
+    padding: 0.875rem 1.5rem;
+    border-width: 1px;
+    line-height: 1;
+    white-space: nowrap;
   }
 
   /* When the viewer is active and the buttons are faded out, disable their pointer
@@ -963,6 +1057,10 @@ const seoDescription = SITE.description;
       align-items: center;
       text-align: center;
     }
+    .platform-card,
+    .platform-card--featured {
+      grid-column: span 12;
+    }
     /* The .hero__stack panel scales with content; no fixed viewport panel needed anymore. */
   }
 
@@ -988,10 +1086,24 @@ const seoDescription = SITE.description;
       padding-inline: clamp(0.75rem, 5vw, 1.5rem);
     }
 
+    .hero__proof {
+      gap: 0.5rem;
+    }
+
+    .hero__proof-item {
+      font-size: 0.8rem;
+    }
+
     .hero__actions .btn {
       padding: 0.5rem 1rem;
       font-size: 0.875rem;
     }
+
+    .platform-shell {
+      border-radius: 1.25rem;
+      padding: 1.1rem;
+    }
+
   }
 
   /* Narrower container for features section */
@@ -1015,6 +1127,15 @@ const seoDescription = SITE.description;
    * =========================== */
 
   /* Highlight badges row */
+  .section-kicker {
+    margin: 0;
+    color: #2563eb;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
   .intro-badges {
     display: flex;
     flex-wrap: wrap;
@@ -1082,6 +1203,143 @@ const seoDescription = SITE.description;
     display: block;
     width: 100%;
     height: auto;
+  }
+
+  .workflow-inline {
+    display: grid;
+    gap: 0.85rem;
+    padding-top: 0.25rem;
+  }
+
+  .workflow-inline__item {
+    display: flex;
+    gap: 0.75rem;
+    align-items: baseline;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+  }
+
+  .workflow-inline__item:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+
+  .workflow-inline__item strong {
+    min-width: 5.5rem;
+    color: #0f172a;
+    font-size: 0.98rem;
+    line-height: 1.4;
+  }
+
+  .workflow-inline__item span {
+    color: #475569;
+    line-height: 1.6;
+  }
+
+  .platform-section {
+    position: relative;
+  }
+
+  .platform-shell {
+    border-radius: 2rem;
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+    background:
+      radial-gradient(circle at top left, rgba(59, 130, 246, 0.1), transparent 30%),
+      linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    box-shadow:
+      0 20px 50px rgba(15, 23, 42, 0.05),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  }
+
+  .platform-intro {
+    max-width: 50rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .platform-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .platform-card {
+    grid-column: span 4;
+    padding: 1.4rem;
+    border-radius: 1.25rem;
+    background: rgba(255, 255, 255, 0.86);
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+  }
+
+  .platform-card--featured {
+    grid-column: span 6;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(239, 246, 255, 0.96));
+  }
+
+  .platform-card__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: 1rem;
+    border-radius: 0.95rem;
+    color: #0f172a;
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.14), rgba(14, 165, 233, 0.16));
+  }
+
+  .platform-card__eyebrow {
+    margin: 0 0 0.45rem;
+    color: #2563eb;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .platform-card__title {
+    margin: 0 0 0.65rem;
+    color: #0f172a;
+    font-size: 1.25rem;
+    line-height: 1.3;
+  }
+
+  .platform-card__desc {
+    margin: 0;
+    color: #475569;
+    line-height: 1.65;
+  }
+
+  .platform-card__link {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 1rem;
+    color: #0b63f3;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .platform-card__link:hover {
+    color: #084fc1;
+  }
+
+  .platform-checklist {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+
+  .platform-checklist span {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.55rem 0.85rem;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.04);
+    color: #334155;
+    font-size: 0.9rem;
+    font-weight: 600;
   }
 
   /* ===========================

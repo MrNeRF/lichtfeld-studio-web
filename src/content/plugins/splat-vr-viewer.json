@@ -12,5 +12,15 @@
   "requiredFeatures": [],
   "downloads": 0,
   "keywords": ["vr", "viewer", "delivery"],
-  "repository": "https://github.com/jacobvanbeets/splat-vr-viewer"
+  "repository": "https://github.com/jacobvanbeets/splat-vr-viewer",
+  "versions": [
+    {
+      "version": "0.1.0",
+      "pluginApi": ">=1,<2",
+      "lichtfeldVersion": ">=0.4.2",
+      "requiredFeatures": [],
+      "dependencies": [],
+      "gitRef": "main"
+    }
+  ]
 }

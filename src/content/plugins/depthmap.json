@@ -6,12 +6,24 @@
   "summary": "Depth-map generation and geometry-oriented inspection inside the studio.",
   "description": "Adds depth-oriented analysis and geometry inspection workflows directly to LichtFeld Studio for evaluation, debugging, and downstream tooling.",
   "author": "Jacob van Beets",
-  "latestVersion": "0.1.0",
+  "latestVersion": "1.0.0",
   "lichtfeldVersion": ">=0.4.2",
   "pluginApi": ">=1,<2",
   "requiredFeatures": [],
   "downloads": 0,
   "keywords": ["depth", "geometry", "analysis"],
   "repository": "https://github.com/jacobvanbeets/lichtfeld-depthmap-plugin",
-  "featured": true
+  "featured": true,
+  "versions": [
+    {
+      "version": "1.0.0",
+      "pluginApi": ">=1,<2",
+      "lichtfeldVersion": ">=0.4.2",
+      "requiredFeatures": [],
+      "dependencies": [
+        "numpy"
+      ],
+      "gitRef": "main"
+    }
+  ]
 }

@@ -1,4 +1,4 @@
-import { getCollection } from "astro:content";
+import { getWebsitePluginEntries } from "@/services/plugin-registry-data";
 
 export interface PluginRegistryEntry {
   id: string;
@@ -20,11 +20,7 @@ export interface PluginRegistryEntry {
 }
 
 async function getRegisteredPluginEntries(): Promise<Omit<PluginRegistryEntry, "stars">[]> {
-  const entries = await getCollection("plugins");
-
-  return entries
-    .map((entry) => entry.data)
-    .sort((left, right) => left.displayName.localeCompare(right.displayName));
+  return await getWebsitePluginEntries();
 }
 
 function parseGitHubRepo(repositoryUrl: string): { owner: string; repo: string } | null {

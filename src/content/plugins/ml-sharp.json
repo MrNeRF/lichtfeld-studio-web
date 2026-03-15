@@ -1,0 +1,17 @@
+{
+  "id": "community:ml-sharp",
+  "namespace": "community",
+  "name": "ml-sharp",
+  "displayName": "ML Sharp Plugin",
+  "summary": "Image enhancement and sharpening workflows for rendered outputs.",
+  "description": "Adds post-processing and image enhancement tooling that can be embedded into LichtFeld Studio workflows instead of handled in a separate toolchain.",
+  "author": "Shady Gmira",
+  "latestVersion": "0.1.0",
+  "lichtfeldVersion": ">=0.4.2",
+  "pluginApi": ">=1,<2",
+  "requiredFeatures": [],
+  "downloads": 0,
+  "keywords": ["rendering", "enhancement", "postprocess"],
+  "repository": "https://github.com/shadygm/Lichtfeld-ml-sharp-Plugin",
+  "featured": true
+}

@@ -1,0 +1,16 @@
+{
+  "id": "community:record-360",
+  "namespace": "community",
+  "name": "record-360",
+  "displayName": "360 Record",
+  "summary": "360 capture workflow support for scene acquisition and dataset prep.",
+  "description": "Provides capture-oriented helpers for 360 workflows so teams can move more directly from acquisition into reconstruction and inspection.",
+  "author": "Jacob van Beets",
+  "latestVersion": "0.1.0",
+  "lichtfeldVersion": ">=0.4.2",
+  "pluginApi": ">=1,<2",
+  "requiredFeatures": [],
+  "downloads": 0,
+  "keywords": ["capture", "360", "dataset"],
+  "repository": "https://github.com/jacobvanbeets/360_record"
+}

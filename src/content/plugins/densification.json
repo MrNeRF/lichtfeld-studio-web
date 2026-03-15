@@ -1,0 +1,17 @@
+{
+  "id": "community:densification",
+  "namespace": "community",
+  "name": "densification",
+  "displayName": "Densification Plugin",
+  "summary": "Alternative densification workflow for improving training quality.",
+  "description": "Extends training iteration with densification-focused controls and experimentation around stronger initialization and scene refinement.",
+  "author": "Shady Gmira",
+  "latestVersion": "0.1.0",
+  "lichtfeldVersion": ">=0.4.2",
+  "pluginApi": ">=1,<2",
+  "requiredFeatures": [],
+  "downloads": 0,
+  "keywords": ["training", "densification", "quality"],
+  "repository": "https://github.com/shadygm/Lichtfeld-Densification-Plugin",
+  "featured": true
+}

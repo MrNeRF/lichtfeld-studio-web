@@ -3,8 +3,10 @@ title: 'Automatic Per-Scene Hyperparameter Optimization'
 date: 2025-09-14
 deadline: 2025-11-09
 summary: 'Build a system that automatically finds optimal hyperparameters for each scene.'
-winner: ''
+winner: 'No qualifying submissions. No payout.'
 ---
+**Status:** No qualifying submissions were received for this bounty, so **no payout was made**.
+
 **Build a system that automatically finds optimal hyperparameters for each scene.**
 
 **Challenge.** Different scenes need different hyperparameters. Create an automatic optimization system (RL-based or other approaches) that discovers the best settings *per scene* during training without manual tuning and scales to new scenes.
@@ -103,10 +105,7 @@ Your PR must include:
 
 ## 💰 Prize Distribution
 
-* **70%** to the **winning PR**
-* **30%** shared among strong qualifying submissions that meet all requirements
-
-Organizers reserve the right to adjust awards for ties or extraordinary contributions.
+No payout was made because no qualifying submissions were received.
 
 ---
 

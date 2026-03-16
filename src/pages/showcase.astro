@@ -10,24 +10,24 @@
  *
  * @module pages/showcase
  */
-import Layout from '@/layouts/Layout.astro';
-import Splat from '@/components/Splat.astro';
-import SceneCard from '@/components/showcase/SceneCard.astro';
-import { SHOWCASE_SCENES, DEFAULT_SCENE_ID } from '@/constants/scenes';
-import type { ControlScheme, IdleAnimationType } from '@/constants/scenes';
+import Layout from "@/layouts/Layout.astro";
+import Splat from "@/components/Splat.astro";
+import SceneCard from "@/components/showcase/SceneCard.astro";
+import { SHOWCASE_SCENES, DEFAULT_SCENE_ID } from "@/constants/scenes";
+import type { ControlScheme, IdleAnimationType } from "@/constants/scenes";
 
 // Base path for asset URLs
 const base = import.meta.env.BASE_URL;
 
 // SEO metadata
-const seoTitle = 'Showcase | LichtFeld Studio';
+const seoTitle = "Showcase | LichtFeld Studio";
 const seoDescription =
-  'Explore interactive 3D Gaussian Splatting demos. View high-fidelity neural radiance field renders directly in your browser.';
+  "Explore interactive 3D Gaussian Splatting demos. View high-fidelity neural radiance field renders directly in your browser.";
 
 // Get the default scene for initial display
 const defaultScene = SHOWCASE_SCENES.find((s) => s.id === DEFAULT_SCENE_ID) ?? SHOWCASE_SCENES[0];
-const defaultControlScheme = defaultScene?.controlScheme ?? 'both';
-const defaultIdleAnimation = defaultScene?.idleAnimation ?? 'none';
+const defaultControlScheme = defaultScene?.controlScheme ?? "both";
+const defaultIdleAnimation = defaultScene?.idleAnimation ?? "none";
 
 // Build a JSON map of scene data for client-side use
 const sceneDataMap = Object.fromEntries(
@@ -35,13 +35,13 @@ const sceneDataMap = Object.fromEntries(
     s.id,
     {
       folder: s.folderName,
-      controlScheme: s.controlScheme ?? 'both',
-      idleAnimation: s.idleAnimation ?? 'none',
+      controlScheme: s.controlScheme ?? "both",
+      idleAnimation: s.idleAnimation ?? "none",
       name: s.name,
       description: s.description,
       attribution: s.attribution,
     },
-  ])
+  ]),
 );
 
 /**
@@ -49,13 +49,13 @@ const sceneDataMap = Object.fromEntries(
  */
 function getControlHints(scheme: ControlScheme): string {
   switch (scheme) {
-    case 'orbit':
-      return 'Left-drag: Orbit • Scroll: Zoom';
-    case 'fly':
-      return 'WASD: Move • Right-drag: Look';
-    case 'both':
+    case "orbit":
+      return "Left-drag: Orbit • Scroll: Zoom";
+    case "fly":
+      return "WASD: Move • Right-drag: Look";
+    case "both":
     default:
-      return 'Left-drag: Orbit • WASD: Move • Scroll: Zoom';
+      return "Left-drag: Orbit • WASD: Move • Scroll: Zoom";
   }
 }
 
@@ -96,7 +96,17 @@ const defaultControlHints = getControlHints(defaultControlScheme);
               aria-expanded="false"
               aria-controls="help-panel"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 <circle cx="12" cy="12" r="10"></circle>
                 <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
                 <line x1="12" y1="17" x2="12.01" y2="17"></line>
@@ -104,19 +114,37 @@ const defaultControlHints = getControlHints(defaultControlScheme);
             </button>
 
             <!-- Fullscreen button - always visible -->
-            <button
-              type="button"
-              class="showcase-player__btn"
-              id="fullscreen-toggle"
-              aria-label="Toggle fullscreen"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="fullscreen-icon">
+            <button type="button" class="showcase-player__btn" id="fullscreen-toggle" aria-label="Toggle fullscreen">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                id="fullscreen-icon"
+              >
                 <polyline points="15 3 21 3 21 9"></polyline>
                 <polyline points="9 21 3 21 3 15"></polyline>
                 <line x1="21" y1="3" x2="14" y2="10"></line>
                 <line x1="3" y1="21" x2="10" y2="14"></line>
               </svg>
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="exit-fullscreen-icon" style="display: none;">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                id="exit-fullscreen-icon"
+                style="display: none;"
+              >
                 <polyline points="4 14 10 14 10 20"></polyline>
                 <polyline points="20 10 14 10 14 4"></polyline>
                 <line x1="14" y1="10" x2="21" y2="3"></line>
@@ -167,15 +195,24 @@ const defaultControlHints = getControlHints(defaultControlScheme);
     <section class="showcase-description">
       <div class="showcase-description__header">
         <div class="showcase-description__meta" id="scene-meta">
-          {defaultScene.attribution && <span class="showcase-description__attribution">Source: {defaultScene.attribution}</span>}
+          {
+            defaultScene.attribution && (
+              <span class="showcase-description__attribution">Source: {defaultScene.attribution}</span>
+            )
+          }
         </div>
-        <button
-          type="button"
-          class="showcase-description__share"
-          id="share-btn"
-          aria-label="Share scene"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <button type="button" class="showcase-description__share" id="share-btn" aria-label="Share scene">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <circle cx="18" cy="5" r="3"></circle>
             <circle cx="6" cy="12" r="3"></circle>
             <circle cx="18" cy="19" r="3"></circle>
@@ -193,31 +230,23 @@ const defaultControlHints = getControlHints(defaultControlScheme);
     <!-- ====================================================================
          Scene Gallery
          ==================================================================== -->
-    {SHOWCASE_SCENES.length > 1 && (
-      <section class="showcase-gallery">
-        <h2 class="showcase-gallery__title">More Scenes</h2>
-        <div class="showcase-gallery__grid" role="list" aria-label="Available scenes">
-          {SHOWCASE_SCENES.map((scene) => (
-            <div
-              class="showcase-gallery__item"
-              role="listitem"
-              data-scene-wrapper={scene.id}
-            >
-              <SceneCard
-                scene={scene}
-                isSelected={scene.id === DEFAULT_SCENE_ID}
-                basePath={base}
-              />
-            </div>
-          ))}
-        </div>
-      </section>
-    )}
+    {
+      SHOWCASE_SCENES.length > 1 && (
+        <section class="showcase-gallery">
+          <h2 class="showcase-gallery__title">More Scenes</h2>
+          <div class="showcase-gallery__grid" role="list" aria-label="Available scenes">
+            {SHOWCASE_SCENES.map((scene) => (
+              <div class="showcase-gallery__item" role="listitem" data-scene-wrapper={scene.id}>
+                <SceneCard scene={scene} isSelected={scene.id === DEFAULT_SCENE_ID} basePath={base} />
+              </div>
+            ))}
+          </div>
+        </section>
+      )
+    }
 
     <!-- Toast notification for share -->
-    <div class="showcase-toast" id="share-toast" aria-live="polite" aria-hidden="true">
-      Link copied to clipboard!
-    </div>
+    <div class="showcase-toast" id="share-toast" aria-live="polite" aria-hidden="true">Link copied to clipboard!</div>
   </div>
 </Layout>
 
@@ -227,24 +256,24 @@ const defaultControlHints = getControlHints(defaultControlScheme);
    *
    * Manages fullscreen, help panel, share, and scene switching.
    */
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener("DOMContentLoaded", () => {
     // =========================================================================
     // Element references
     // =========================================================================
-    const playerContainer = document.getElementById('player-container');
-    const helpToggle = document.getElementById('help-toggle');
-    const helpClose = document.getElementById('help-close');
-    const helpPanel = document.getElementById('help-panel');
-    const fullscreenToggle = document.getElementById('fullscreen-toggle');
-    const fullscreenIcon = document.getElementById('fullscreen-icon');
-    const exitFullscreenIcon = document.getElementById('exit-fullscreen-icon');
-    const shareBtn = document.getElementById('share-btn');
-    const shareToast = document.getElementById('share-toast');
-    const sceneTitle = document.getElementById('scene-title');
-    const sceneDescription = document.getElementById('scene-description');
-    const sceneMeta = document.getElementById('scene-meta');
-    const controlHints = document.getElementById('control-hints');
-    const sceneCards = document.querySelectorAll('.scene-card');
+    const playerContainer = document.getElementById("player-container");
+    const helpToggle = document.getElementById("help-toggle");
+    const helpClose = document.getElementById("help-close");
+    const helpPanel = document.getElementById("help-panel");
+    const fullscreenToggle = document.getElementById("fullscreen-toggle");
+    const fullscreenIcon = document.getElementById("fullscreen-icon");
+    const exitFullscreenIcon = document.getElementById("exit-fullscreen-icon");
+    const shareBtn = document.getElementById("share-btn");
+    const shareToast = document.getElementById("share-toast");
+    const sceneTitle = document.getElementById("scene-title");
+    const sceneDescription = document.getElementById("scene-description");
+    const sceneMeta = document.getElementById("scene-meta");
+    const controlHints = document.getElementById("control-hints");
+    const sceneCards = document.querySelectorAll(".scene-card");
 
     // Track state
     let selectedSceneId = defaultSceneId;
@@ -258,18 +287,18 @@ const defaultControlHints = getControlHints(defaultControlScheme);
       if (!helpPanel || !helpToggle) return;
 
       isHelpOpen = true;
-      helpPanel.classList.add('is-open');
-      helpPanel.setAttribute('aria-hidden', 'false');
-      helpToggle.setAttribute('aria-expanded', 'true');
+      helpPanel.classList.add("is-open");
+      helpPanel.setAttribute("aria-hidden", "false");
+      helpToggle.setAttribute("aria-expanded", "true");
     }
 
     function closeHelp() {
       if (!helpPanel || !helpToggle) return;
 
       isHelpOpen = false;
-      helpPanel.classList.remove('is-open');
-      helpPanel.setAttribute('aria-hidden', 'true');
-      helpToggle.setAttribute('aria-expanded', 'false');
+      helpPanel.classList.remove("is-open");
+      helpPanel.setAttribute("aria-hidden", "true");
+      helpToggle.setAttribute("aria-expanded", "false");
     }
 
     // =========================================================================
@@ -280,8 +309,8 @@ const defaultControlHints = getControlHints(defaultControlScheme);
       const isFullscreen = !!document.fullscreenElement;
 
       if (fullscreenIcon && exitFullscreenIcon) {
-        fullscreenIcon.style.display = isFullscreen ? 'none' : 'block';
-        exitFullscreenIcon.style.display = isFullscreen ? 'block' : 'none';
+        fullscreenIcon.style.display = isFullscreen ? "none" : "block";
+        exitFullscreenIcon.style.display = isFullscreen ? "block" : "none";
       }
     }
 
@@ -302,7 +331,7 @@ const defaultControlHints = getControlHints(defaultControlScheme);
     function shareScene() {
       const url = new URL(window.location.href);
 
-      url.searchParams.set('scene', selectedSceneId);
+      url.searchParams.set("scene", selectedSceneId);
       navigator.clipboard.writeText(url.toString()).then(() => {
         showToast();
       });
@@ -311,11 +340,11 @@ const defaultControlHints = getControlHints(defaultControlScheme);
     function showToast() {
       if (!shareToast) return;
 
-      shareToast.classList.add('is-visible');
-      shareToast.setAttribute('aria-hidden', 'false');
+      shareToast.classList.add("is-visible");
+      shareToast.setAttribute("aria-hidden", "false");
       setTimeout(() => {
-        shareToast.classList.remove('is-visible');
-        shareToast.setAttribute('aria-hidden', 'true');
+        shareToast.classList.remove("is-visible");
+        shareToast.setAttribute("aria-hidden", "true");
       }, 2000);
     }
 
@@ -325,13 +354,13 @@ const defaultControlHints = getControlHints(defaultControlScheme);
 
     function getControlHints(scheme) {
       switch (scheme) {
-        case 'orbit':
-          return 'Left-drag: Orbit • Scroll: Zoom';
-        case 'fly':
-          return 'WASD: Move • Right-drag: Look';
-        case 'both':
+        case "orbit":
+          return "Left-drag: Orbit • Scroll: Zoom";
+        case "fly":
+          return "WASD: Move • Right-drag: Look";
+        case "both":
         default:
-          return 'Left-drag: Orbit • WASD: Move • Scroll: Zoom';
+          return "Left-drag: Orbit • WASD: Move • Scroll: Zoom";
       }
     }
 
@@ -340,13 +369,13 @@ const defaultControlHints = getControlHints(defaultControlScheme);
         const sceneId = card.dataset.sceneId;
         const isSelected = sceneId === newSelectedId;
 
-        card.classList.toggle('scene-card--selected', isSelected);
-        card.setAttribute('aria-pressed', String(isSelected));
+        card.classList.toggle("scene-card--selected", isSelected);
+        card.setAttribute("aria-pressed", String(isSelected));
       });
     }
 
     function loadScene(sceneId) {
-      const splatViewer = document.querySelector('astro-splat');
+      const splatViewer = document.querySelector("astro-splat");
 
       if (!splatViewer) return;
 
@@ -369,7 +398,7 @@ const defaultControlHints = getControlHints(defaultControlScheme);
       if (sceneMeta) {
         sceneMeta.innerHTML = attribution
           ? `<span class="showcase-description__attribution">Source: ${attribution}</span>`
-          : '';
+          : "";
       }
 
       if (controlHints) {
@@ -377,7 +406,7 @@ const defaultControlHints = getControlHints(defaultControlScheme);
       }
 
       // Dispatch scene change event
-      const event = new CustomEvent('splatviewer:load-scene', {
+      const event = new CustomEvent("splatviewer:load-scene", {
         detail: {
           scene: folder,
           controlScheme: controlScheme,
@@ -390,8 +419,8 @@ const defaultControlHints = getControlHints(defaultControlScheme);
       // Update browser URL without reload
       const url = new URL(window.location.href);
 
-      url.searchParams.set('scene', sceneId);
-      window.history.replaceState({}, '', url.toString());
+      url.searchParams.set("scene", sceneId);
+      window.history.replaceState({}, "", url.toString());
     }
 
     // =========================================================================
@@ -400,7 +429,7 @@ const defaultControlHints = getControlHints(defaultControlScheme);
 
     function loadSceneFromUrl() {
       const params = new URLSearchParams(window.location.search);
-      const sceneId = params.get('scene');
+      const sceneId = params.get("scene");
 
       if (sceneId && sceneDataMap[sceneId] && sceneId !== selectedSceneId) {
         selectedSceneId = sceneId;
@@ -414,7 +443,7 @@ const defaultControlHints = getControlHints(defaultControlScheme);
     // =========================================================================
 
     // Help toggle
-    helpToggle?.addEventListener('click', () => {
+    helpToggle?.addEventListener("click", () => {
       if (isHelpOpen) {
         closeHelp();
       } else {
@@ -422,25 +451,25 @@ const defaultControlHints = getControlHints(defaultControlScheme);
       }
     });
 
-    helpClose?.addEventListener('click', closeHelp);
+    helpClose?.addEventListener("click", closeHelp);
 
     // Click outside help panel to close
-    helpPanel?.addEventListener('click', (e) => {
+    helpPanel?.addEventListener("click", (e) => {
       if (e.target === helpPanel) {
         closeHelp();
       }
     });
 
     // Fullscreen toggle
-    fullscreenToggle?.addEventListener('click', toggleFullscreen);
-    document.addEventListener('fullscreenchange', updateFullscreenIcon);
+    fullscreenToggle?.addEventListener("click", toggleFullscreen);
+    document.addEventListener("fullscreenchange", updateFullscreenIcon);
 
     // Share button
-    shareBtn?.addEventListener('click', shareScene);
+    shareBtn?.addEventListener("click", shareScene);
 
     // Scene card clicks
     sceneCards.forEach((card) => {
-      card.addEventListener('click', () => {
+      card.addEventListener("click", () => {
         const sceneId = card.dataset.sceneId;
 
         if (!sceneId || sceneId === selectedSceneId) return;
@@ -452,8 +481,8 @@ const defaultControlHints = getControlHints(defaultControlScheme);
     });
 
     // Keyboard handling
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && isHelpOpen) {
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && isHelpOpen) {
         closeHelp();
       }
     });
@@ -464,27 +493,11 @@ const defaultControlHints = getControlHints(defaultControlScheme);
 </script>
 
 <style>
-  :root {
-    --page-surface-bg:
-      radial-gradient(circle at top left, rgba(37, 99, 235, 0.07), transparent 24%),
-      linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
-    --page-surface-border: rgba(148, 163, 184, 0.16);
-    --page-surface-shadow:
-      0 20px 50px rgba(15, 23, 42, 0.05),
-      inset 0 1px 0 rgba(255, 255, 255, 0.92);
-  }
-
-  /* ============================================================================
-   * Page Container
-   * ============================================================================ */
-
   .showcase-page {
     max-width: 1280px;
     margin: 0 auto;
     padding: 1rem;
-    background:
-      radial-gradient(circle at top left, rgba(37, 99, 235, 0.05), transparent 24%),
-      linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    background: var(--page-bg);
   }
 
   @media (min-width: 768px) {
@@ -701,10 +714,10 @@ const defaultControlHints = getControlHints(defaultControlScheme);
     margin-bottom: 0.75rem;
     padding: 1.5rem 1.5rem 1rem;
     border-radius: 2rem 2rem 1.25rem 1.25rem;
-    background: var(--page-surface-bg);
-    border: 1px solid var(--page-surface-border);
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
     border-bottom: 0;
-    box-shadow: var(--page-surface-shadow);
+    box-shadow: var(--surface-shadow);
   }
 
   .showcase-title h1 {
@@ -727,12 +740,12 @@ const defaultControlHints = getControlHints(defaultControlScheme);
 
   .showcase-description {
     padding: 1.25rem 1.5rem 1.5rem;
-    background: var(--page-surface-bg);
-    border: 1px solid var(--page-surface-border);
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
     border-top: 0;
     border-radius: 0 0 2rem 2rem;
     margin-bottom: 1.5rem;
-    box-shadow: var(--page-surface-shadow);
+    box-shadow: var(--surface-shadow);
   }
 
   .showcase-description__header {
@@ -794,9 +807,9 @@ const defaultControlHints = getControlHints(defaultControlScheme);
     margin-bottom: 2rem;
     padding: 1.5rem;
     border-radius: 2rem;
-    background: var(--page-surface-bg);
-    border: 1px solid var(--page-surface-border);
-    box-shadow: var(--page-surface-shadow);
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    box-shadow: var(--surface-shadow);
   }
 
   .showcase-gallery__title {

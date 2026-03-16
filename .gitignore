@@ -1,5 +1,6 @@
 # build output
 dist/
+dist.stale.*/
 
 # generated types
 .astro/
@@ -12,6 +13,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+test-results/
 
 # environment variables
 .env
@@ -31,3 +33,6 @@ pnpm-debug.log*
 .claude/
 CLAUDE.md
 nul
+cloudflare.png
+stats.png
+lichtfeld-studio

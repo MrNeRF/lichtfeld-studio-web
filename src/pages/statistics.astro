@@ -767,33 +767,16 @@ const seoDescription =
 </script>
 
 <style>
-  :root {
-    --page-surface-bg:
-      radial-gradient(circle at top left, rgba(37, 99, 235, 0.07), transparent 24%),
-      linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
-    --page-surface-border: rgba(148, 163, 184, 0.16);
-    --page-surface-shadow:
-      0 20px 50px rgba(15, 23, 42, 0.05),
-      inset 0 1px 0 rgba(255, 255, 255, 0.92);
-  }
-
-  /**
-     * Statistics Page Styles
-     */
-
-  /* Hero Section */
   .stats-hero {
-    background:
-      radial-gradient(circle at top left, rgba(37, 99, 235, 0.05), transparent 24%),
-      linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    background: var(--page-bg);
   }
 
   .stats-shell {
     border-radius: 2rem;
     padding: clamp(1.5rem, 3vw, 2.25rem);
-    background: var(--page-surface-bg);
-    border: 1px solid var(--page-surface-border);
-    box-shadow: var(--page-surface-shadow);
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    box-shadow: var(--surface-shadow);
   }
 
   .stats-shell--compact {
@@ -814,7 +797,7 @@ const seoDescription =
 
   .stats-hero__subtitle {
     font-size: 1.125rem;
-    color: #64748b;
+    color: var(--color-muted);
     max-width: 600px;
     margin: 0 auto;
   }
@@ -919,9 +902,9 @@ const seoDescription =
   .stats-contributors :global(.container) {
     border-radius: 2rem;
     padding: clamp(1.75rem, 3vw, 2.5rem);
-    background: var(--page-surface-bg);
-    border: 1px solid var(--page-surface-border);
-    box-shadow: var(--page-surface-shadow);
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    box-shadow: var(--surface-shadow);
   }
 
   /* Responsive Adjustments */

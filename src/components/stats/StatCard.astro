@@ -13,10 +13,10 @@
  */
 
 interface Props {
-    label: string;
-    value?: number;
-    icon?: string;
-    loading?: boolean;
+  label: string;
+  value?: number;
+  icon?: string;
+  loading?: boolean;
 }
 
 const { label, value, icon, loading = false } = Astro.props;
@@ -25,126 +25,130 @@ const { label, value, icon, loading = false } = Astro.props;
  * Formats a number with locale-aware thousand separators.
  */
 function formatNumber(num: number): string {
-    return new Intl.NumberFormat().format(num);
+  return new Intl.NumberFormat().format(num);
 }
 ---
 
 <div class="stat-card" class:list={{ "stat-card--loading": loading }}>
-    {/* Icon */}
-    {icon && (
-        <div class="stat-card__icon">
-            <i class={`bi ${icon}`}></i>
-        </div>
-    )}
+  {/* Icon */}
+  {
+    icon && (
+      <div class="stat-card__icon">
+        <i class={`bi ${icon}`} />
+      </div>
+    )
+  }
 
-    {/* Value - the hero number */}
-    {loading ? (
-        <span class="stat-card__value stat-card__value--skeleton">
-            <span class="skeleton-text">00,000</span>
-        </span>
+  {/* Value - the hero number */}
+  {
+    loading ? (
+      <span class="stat-card__value stat-card__value--skeleton">
+        <span class="skeleton-text">00,000</span>
+      </span>
     ) : (
-        <span class="stat-card__value">
-            {value !== undefined ? formatNumber(value) : "—"}
-        </span>
-    )}
+      <span class="stat-card__value">{value !== undefined ? formatNumber(value) : "—"}</span>
+    )
+  }
 
-    {/* Label */}
-    <span class="stat-card__label">{label}</span>
+  {/* Label */}
+  <span class="stat-card__label">{label}</span>
 </div>
 
 <style>
-    /**
+  /**
      * Stat Card Component Styles
      * Clean, centered design for maximum visual impact.
      */
+  .stat-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 0.5rem;
+    padding: 1.5rem 1rem;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--card-radius);
+    box-shadow: var(--card-shadow);
+    transition:
+      box-shadow 0.2s ease-in-out,
+      transform 0.2s ease-in-out;
+    min-height: 160px;
+  }
+
+  .stat-card:hover {
+    transform: translateY(var(--card-hover-lift));
+    box-shadow: var(--card-shadow-hover);
+  }
+
+  /* Icon styling */
+  .stat-card__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    background: linear-gradient(135deg, #2563eb, #0ea5e9);
+    border-radius: 1rem;
+    color: #fff;
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+  }
+
+  /* Value styling - the hero number */
+  .stat-card__value {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: var(--color-text);
+    line-height: 1.1;
+  }
+
+  /* Label styling */
+  .stat-card__label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--color-muted);
+  }
+
+  /* Loading state */
+  .stat-card--loading {
+    pointer-events: none;
+  }
+
+  .stat-card__value--skeleton .skeleton-text {
+    display: inline-block;
+    background: linear-gradient(90deg, #e2e8f0 25%, #f8fbff 50%, #e2e8f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.5s infinite;
+    border-radius: 4px;
+    color: transparent;
+  }
+
+  @keyframes skeleton-shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 576px) {
     .stat-card {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        gap: 0.5rem;
-        padding: 1.5rem 1rem;
-        background: rgba(255, 255, 255, 0.92);
-        border: 1px solid rgba(148, 163, 184, 0.16);
-        border-radius: 1.25rem;
-        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
-        transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
-        min-height: 160px;
+      padding: 1.25rem 1rem;
+      min-height: 140px;
     }
 
-    .stat-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 16px 36px rgba(15, 23, 42, 0.07);
-    }
-
-    /* Icon styling */
     .stat-card__icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 3.5rem;
-        height: 3.5rem;
-        background: linear-gradient(135deg, #2563eb, #0ea5e9);
-        border-radius: 1rem;
-        color: #fff;
-        font-size: 1.5rem;
-        margin-bottom: 0.25rem;
+      width: 3rem;
+      height: 3rem;
+      font-size: 1.25rem;
     }
 
-    /* Value styling - the hero number */
     .stat-card__value {
-        font-size: 2.25rem;
-        font-weight: 700;
-        color: var(--color-text);
-        line-height: 1.1;
+      font-size: 1.75rem;
     }
-
-    /* Label styling */
-    .stat-card__label {
-        font-size: 0.9rem;
-        font-weight: 500;
-        color: #64748b;
-    }
-
-    /* Loading state */
-    .stat-card--loading {
-        pointer-events: none;
-    }
-
-    .stat-card__value--skeleton .skeleton-text {
-        display: inline-block;
-        background: linear-gradient(90deg, #e2e8f0 25%, #f8fbff 50%, #e2e8f0 75%);
-        background-size: 200% 100%;
-        animation: skeleton-shimmer 1.5s infinite;
-        border-radius: 4px;
-        color: transparent;
-    }
-
-    @keyframes skeleton-shimmer {
-        0% {
-            background-position: 200% 0;
-        }
-        100% {
-            background-position: -200% 0;
-        }
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 576px) {
-        .stat-card {
-            padding: 1.25rem 1rem;
-            min-height: 140px;
-        }
-
-        .stat-card__icon {
-            width: 3rem;
-            height: 3rem;
-            font-size: 1.25rem;
-        }
-
-        .stat-card__value {
-            font-size: 1.75rem;
-        }
-    }
+  }
 </style>

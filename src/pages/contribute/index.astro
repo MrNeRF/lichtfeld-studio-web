@@ -37,8 +37,8 @@ const seoDescription =
 <Layout title={seoTitle} description={seoDescription}>
   <section class="contribute-page">
     <div class="container px-4 py-5">
-      <div class="contribute-shell contribute-shell--hero text-center">
-        <p class="contribute-kicker">Contribute</p>
+      <div class="shell contribute-shell--hero text-center">
+        <p class="kicker">Contribute</p>
         <h1 class="contribute-title">Get involved in building LichtFeld Studio</h1>
         <div class="col-lg-8 mx-auto">
           <p class="contribute-lead mb-0">
@@ -48,11 +48,11 @@ const seoDescription =
         </div>
       </div>
 
-      <div class="contribute-shell contribute-shell--support mt-4">
+      <div class="shell contribute-shell--support mt-4">
         <div class="contribute-support__header">
-          <p class="contribute-kicker mb-2">Fund development</p>
-          <h2 class="contribute-section-title mb-2">Support the project directly</h2>
-          <p class="contribute-section-copy mb-0">
+          <p class="kicker mb-2">Fund development</p>
+          <h2 class="section-title mb-2">Support the project directly</h2>
+          <p class="section-copy mb-0">
             Donations help fund core development, bounties, releases, and platform work around LichtFeld Studio.
           </p>
         </div>
@@ -61,9 +61,7 @@ const seoDescription =
           <a href={GITHUB_SPONSORS_URL} target="_blank" rel="noopener noreferrer" class="contribute-support__button">
             GitHub Sponsors
           </a>
-          <a href={PAYPAL_URL} target="_blank" rel="noopener noreferrer" class="contribute-support__button">
-            PayPal
-          </a>
+          <a href={PAYPAL_URL} target="_blank" rel="noopener noreferrer" class="contribute-support__button">PayPal</a>
           <a href={DONORBOX_URL} target="_blank" rel="noopener noreferrer" class="contribute-support__button">
             Donorbox
           </a>
@@ -74,21 +72,16 @@ const seoDescription =
         </p>
       </div>
 
-      <div class="contribute-shell mt-4" id="project-backlog">
-        <div class="contribute-section-head">
+      <div class="shell mt-4" id="project-backlog">
+        <div class="section-head">
           <div>
-            <p class="contribute-kicker mb-2">Live project view</p>
-            <h2 class="contribute-section-title mb-2">Current backlog from GitHub Projects</h2>
-            <p class="contribute-section-copy mb-0">
+            <p class="kicker mb-2">Live project view</p>
+            <h2 class="section-title mb-2">Current backlog from GitHub Projects</h2>
+            <p class="section-copy mb-0">
               This section mirrors the saved GitHub project view for active contribution work.
             </p>
           </div>
-          <a
-            href={CONTRIBUTION_PROJECT_VIEW_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="contribute-section-link"
-          >
+          <a href={CONTRIBUTION_PROJECT_VIEW_URL} target="_blank" rel="noopener noreferrer" class="section-link">
             Open project view
           </a>
         </div>
@@ -109,21 +102,14 @@ const seoDescription =
         }
       </div>
 
-      <div class="contribute-shell mt-4" id="contribution-ideas">
-        <div class="contribute-section-head">
+      <div class="shell mt-4" id="contribution-ideas">
+        <div class="section-head">
           <div>
-            <p class="contribute-kicker mb-2">Contribution ideas</p>
-            <h2 class="contribute-section-title mb-2">How you can contribute</h2>
-            <p class="contribute-section-copy mb-0">
-              Extra implementation ideas pulled from the contribution-ideas repository.
-            </p>
+            <p class="kicker mb-2">Contribution ideas</p>
+            <h2 class="section-title mb-2">How you can contribute</h2>
+            <p class="section-copy mb-0">Extra implementation ideas pulled from the contribution-ideas repository.</p>
           </div>
-          <a
-            href={contributionIdeasRepoUrl}
-            class="contribute-section-link"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a href={contributionIdeasRepoUrl} class="section-link" target="_blank" rel="noopener noreferrer">
             Open issues
           </a>
         </div>
@@ -140,7 +126,12 @@ const seoDescription =
           ) : (
             <div class="contribute-empty mt-4" role="alert">
               <strong>No contribution ideas found.</strong> Check the
-              <a href={contributionIdeasRepoUrl} class="contribute-empty__link" target="_blank" rel="noopener noreferrer">
+              <a
+                href={contributionIdeasRepoUrl}
+                class="contribute-empty__link"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 GitHub repository
               </a>{" "}
               for active issues.
@@ -157,28 +148,8 @@ const seoDescription =
 </Layout>
 
 <style>
-  :root {
-    --contribute-surface-bg:
-      radial-gradient(circle at top left, rgba(37, 99, 235, 0.07), transparent 24%),
-      linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
-    --contribute-surface-border: rgba(148, 163, 184, 0.16);
-    --contribute-surface-shadow:
-      0 20px 50px rgba(15, 23, 42, 0.05),
-      inset 0 1px 0 rgba(255, 255, 255, 0.92);
-  }
-
   .contribute-page {
-    background:
-      radial-gradient(circle at top left, rgba(37, 99, 235, 0.05), transparent 24%),
-      linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-  }
-
-  .contribute-shell {
-    border-radius: 2rem;
-    padding: clamp(1.5rem, 3vw, 2.25rem);
-    background: var(--contribute-surface-bg);
-    border: 1px solid var(--contribute-surface-border);
-    box-shadow: var(--contribute-surface-shadow);
+    background: var(--page-bg);
   }
 
   .contribute-shell--hero {
@@ -190,60 +161,28 @@ const seoDescription =
     gap: 1rem;
   }
 
-  .contribute-kicker {
-    margin: 0 0 0.5rem;
-    color: #2563eb;
-    font-size: 0.8rem;
-    font-weight: 800;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
   .contribute-title {
     margin: 0 0 0.9rem;
-    color: #0f172a;
+    color: var(--color-heading);
     font-size: clamp(2.25rem, 4vw, 3.4rem);
     line-height: 1.08;
   }
 
-  .contribute-lead,
-  .contribute-section-copy {
-    color: #475569;
+  .contribute-lead {
+    color: var(--color-body);
     font-size: 1.02rem;
     line-height: 1.7;
   }
 
-  .contribute-section-head {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 1rem;
-  }
-
-  .contribute-section-title {
-    margin: 0;
-    color: #0f172a;
-    font-size: clamp(1.6rem, 2.8vw, 2.2rem);
-    line-height: 1.15;
-  }
-
-  .contribute-section-link {
-    display: inline-flex;
-    align-items: center;
-    min-height: 2.75rem;
-    padding: 0.7rem 1rem;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.86);
-    border: 1px solid rgba(148, 163, 184, 0.16);
-    color: #0b63f3;
-    font-weight: 700;
-    text-decoration: none;
-    white-space: nowrap;
-  }
-
-  .contribute-section-link:hover,
   .contribute-empty__link:hover {
-    color: #084fc1;
+    color: var(--color-primary-link-hover);
+  }
+
+  .contribute-empty__link:focus-visible {
+    outline: none;
+    color: var(--color-primary-link-hover);
+    border-radius: 0.4rem;
+    box-shadow: var(--focus-shadow);
   }
 
   .contribute-support__actions {
@@ -264,22 +203,36 @@ const seoDescription =
     font-weight: 700;
     text-decoration: none;
     box-shadow: 0 12px 24px rgba(37, 99, 235, 0.16);
+    transition:
+      filter 0.18s ease,
+      transform 0.18s ease,
+      box-shadow 0.18s ease;
   }
 
   .contribute-support__button:hover {
+    transform: translateY(-1px);
     color: #ffffff;
     filter: brightness(0.96);
   }
 
+  .contribute-support__button:focus-visible {
+    outline: none;
+    transform: translateY(-1px);
+    color: #ffffff;
+    box-shadow:
+      var(--focus-shadow),
+      0 12px 24px rgba(37, 99, 235, 0.16);
+  }
+
   .contribute-support__crypto {
-    color: #64748b;
+    color: var(--color-muted);
     font-size: 0.92rem;
     line-height: 1.6;
     word-break: break-all;
   }
 
   .contribute-support__crypto code {
-    color: #0f172a;
+    color: var(--color-heading);
     background: rgba(255, 255, 255, 0.76);
     padding: 0.12rem 0.35rem;
     border-radius: 0.4rem;
@@ -301,14 +254,14 @@ const seoDescription =
 
   .contribute-empty {
     padding: 1rem 1.1rem;
-    border-radius: 1.25rem;
+    border-radius: var(--card-radius);
     background: rgba(255, 255, 255, 0.88);
-    border: 1px solid rgba(148, 163, 184, 0.16);
-    color: #475569;
+    border: 1px solid var(--color-border-subtle);
+    color: var(--color-body);
   }
 
   .contribute-empty__link {
-    color: #0b63f3;
+    color: var(--color-primary-link);
     font-weight: 700;
     text-decoration: none;
   }
@@ -316,9 +269,9 @@ const seoDescription =
   .contribute-contributors :global(.container) {
     border-radius: 2rem;
     padding: clamp(1.75rem, 3vw, 2.5rem);
-    background: var(--contribute-surface-bg);
-    border: 1px solid var(--contribute-surface-border);
-    box-shadow: var(--contribute-surface-shadow);
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    box-shadow: var(--surface-shadow);
   }
 
   @media (max-width: 991.98px) {
@@ -329,10 +282,6 @@ const seoDescription =
   }
 
   @media (max-width: 767.98px) {
-    .contribute-section-head {
-      flex-direction: column;
-    }
-
     .contribute-grid,
     .contribute-grid--project {
       grid-template-columns: 1fr;

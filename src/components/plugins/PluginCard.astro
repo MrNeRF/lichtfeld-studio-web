@@ -18,7 +18,8 @@ const { plugin, compact = false } = Astro.props;
           <path
             d="M8 1.2l2.02 4.1 4.53.66-3.28 3.2.77 4.51L8 11.56 3.96 13.67l.77-4.51-3.28-3.2 4.53-.66L8 1.2z"
             fill="currentColor"
-          />
+          >
+          </path>
         </svg>
         {plugin.stars}
       </span>
@@ -43,9 +44,7 @@ const { plugin, compact = false } = Astro.props;
 
   <div class="plugin-card__footer">
     <span class="plugin-card__id">{plugin.id}</span>
-    <a href={plugin.repository} target="_blank" rel="noopener noreferrer" class="plugin-card__link">
-      View repo
-    </a>
+    <a href={plugin.repository} target="_blank" rel="noopener noreferrer" class="plugin-card__link">View repo</a>
   </div>
 </article>
 
@@ -55,14 +54,30 @@ const { plugin, compact = false } = Astro.props;
     flex-direction: column;
     height: 100%;
     padding: 1.35rem;
-    border-radius: 1.25rem;
-    background: rgba(255, 255, 255, 0.92);
-    border: 1px solid rgba(148, 163, 184, 0.16);
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+    border-radius: var(--card-radius);
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--card-shadow);
+    transition:
+      transform 0.18s ease,
+      box-shadow 0.18s ease,
+      border-color 0.18s ease;
   }
 
   .plugin-card--compact {
     padding: 1.2rem;
+  }
+
+  .plugin-card:hover {
+    transform: translateY(var(--card-hover-lift));
+    border-color: var(--color-border-hover);
+    box-shadow: var(--card-shadow-hover);
+  }
+
+  .plugin-card:focus-within {
+    transform: translateY(var(--card-hover-lift));
+    border-color: var(--color-primary-link);
+    box-shadow: var(--focus-shadow), var(--card-shadow-hover);
   }
 
   .plugin-card__meta,
@@ -120,7 +135,7 @@ const { plugin, compact = false } = Astro.props;
 
   .plugin-card__title {
     margin: 0.85rem 0 0.55rem;
-    color: #0f172a;
+    color: var(--color-heading);
     font-size: 1.25rem;
     line-height: 1.25;
   }
@@ -128,7 +143,7 @@ const { plugin, compact = false } = Astro.props;
   .plugin-card__summary,
   .plugin-card__description {
     margin: 0;
-    color: #475569;
+    color: var(--color-body);
     line-height: 1.6;
   }
 
@@ -156,7 +171,7 @@ const { plugin, compact = false } = Astro.props;
 
   .plugin-card__details {
     margin-top: 1rem;
-    color: #64748b;
+    color: var(--color-muted);
     font-size: 0.85rem;
     font-weight: 600;
     justify-content: flex-start;
@@ -165,8 +180,8 @@ const { plugin, compact = false } = Astro.props;
   .plugin-card__footer {
     margin-top: auto;
     padding-top: 1rem;
-    border-top: 1px solid rgba(148, 163, 184, 0.14);
-    color: #64748b;
+    border-top: 1px solid var(--color-border-subtle);
+    color: var(--color-muted);
     font-size: 0.82rem;
   }
 
@@ -175,12 +190,19 @@ const { plugin, compact = false } = Astro.props;
   }
 
   .plugin-card__link {
-    color: #0b63f3;
+    color: var(--color-primary-link);
     font-weight: 700;
     text-decoration: none;
+    transition: color 0.18s ease, box-shadow 0.18s ease;
   }
 
   .plugin-card__link:hover {
-    color: #084fc1;
+    color: var(--color-primary-link-hover);
+  }
+
+  .plugin-card__link:focus-visible {
+    outline: none;
+    border-radius: 0.4rem;
+    box-shadow: var(--focus-shadow);
   }
 </style>

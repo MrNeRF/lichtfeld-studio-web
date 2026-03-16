@@ -183,6 +183,18 @@ const seoDescription = SITE.description;
             <p class="hero__subline">Windows and Linux • Runs locally on your GPU • GPLv3 open source</p>
           </div>
         </div>
+
+        <div class="hero__scene-cue" role="note" aria-label="Interactive scene. Click and drag to inspect it.">
+          <span class="hero__scene-cue-label">
+            <svg class="bi" width="0.95em" height="0.95em" aria-hidden="true">
+              <use href={`${base}static/bootstrap-icons.svg#arrows-move`} />
+            </svg>
+            <span>Drag scene</span>
+          </span>
+          <span class="hero__scene-cue-rail" aria-hidden="true">
+            <span class="hero__scene-cue-orb"></span>
+          </span>
+        </div>
       </div>
     </div>
   </header>
@@ -861,6 +873,7 @@ const seoDescription = SITE.description;
     width: 100%;
     position: relative;
     height: 100%;
+    cursor: grab;
 
     canvas {
       position: absolute;
@@ -874,6 +887,11 @@ const seoDescription = SITE.description;
       cursor: grab;
       pointer-events: auto;
     }
+  }
+
+  .splat-wrapper:active,
+  .splat-wrapper:active canvas {
+    cursor: grabbing;
   }
 
   .hero {
@@ -915,6 +933,7 @@ const seoDescription = SITE.description;
 
   /* Prevent the bootstrap .container from re-enabling hit-testing */
   .hero__content .container {
+    position: relative;
     pointer-events: none;
     text-align: left;
   }
@@ -1108,6 +1127,150 @@ const seoDescription = SITE.description;
     position: relative;
   }
 
+  .hero__scene-cue {
+    position: absolute;
+    right: clamp(1rem, 3.4vw, 2.4rem);
+    bottom: clamp(1rem, 2.2vw, 1.6rem);
+    display: inline-grid;
+    gap: 0.55rem;
+    width: min(13rem, calc(100% - 2rem));
+    pointer-events: none;
+    z-index: 4;
+    transform-origin: right bottom;
+    isolation: isolate;
+    animation: heroSceneCueFloat 6.2s ease-in-out infinite;
+    transition:
+      opacity 320ms ease,
+      transform 320ms ease;
+  }
+
+  .hero__scene-cue::before {
+    content: "";
+    position: absolute;
+    inset: auto 0 -0.4rem;
+    height: 2.6rem;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(191, 219, 254, 0.22), transparent 68%);
+    filter: blur(10px);
+    z-index: -1;
+  }
+
+  .hero__content.is-viewer-active .hero__scene-cue {
+    opacity: 0;
+    transform: translateY(0.7rem) scale(0.96);
+  }
+
+  .hero__scene-cue-label {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.44rem 0.72rem;
+    border-radius: 999px;
+    background:
+      linear-gradient(180deg, rgba(9, 16, 28, 0.54), rgba(9, 16, 28, 0.36)),
+      radial-gradient(circle at top left, rgba(255, 255, 255, 0.16), transparent 46%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    backdrop-filter: blur(14px) saturate(132%);
+    box-shadow:
+      0 14px 30px rgba(0, 0, 0, 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  .hero__scene-cue-label .bi {
+    margin-right: 0;
+    opacity: 0.82;
+  }
+
+  .hero__scene-cue-rail {
+    position: relative;
+    display: block;
+    height: 1.05rem;
+    border-radius: 999px;
+    background:
+      linear-gradient(90deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.08)),
+      linear-gradient(180deg, rgba(9, 16, 28, 0.58), rgba(9, 16, 28, 0.42));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+    box-shadow:
+      0 12px 24px rgba(0, 0, 0, 0.16),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .hero__scene-cue-rail::before,
+  .hero__scene-cue-rail::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 0.36rem;
+    height: 0.36rem;
+    border-top: 1.5px solid rgba(255, 255, 255, 0.48);
+    border-right: 1.5px solid rgba(255, 255, 255, 0.48);
+    transform: translateY(-50%) rotate(45deg);
+  }
+
+  .hero__scene-cue-rail::before {
+    left: 0.7rem;
+    transform: translateY(-50%) rotate(-135deg);
+  }
+
+  .hero__scene-cue-rail::after {
+    right: 0.7rem;
+  }
+
+  .hero__scene-cue-orb {
+    position: absolute;
+    top: 50%;
+    left: 18%;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 999px;
+    background:
+      radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.98), rgba(214, 228, 255, 0.92) 55%, rgba(163, 191, 255, 0.9));
+    box-shadow:
+      0 0 0 8px rgba(191, 219, 254, 0.08),
+      0 8px 20px rgba(191, 219, 254, 0.35);
+    transform: translate(-50%, -50%);
+    animation: heroSceneCueDrag 2.8s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  }
+
+  @keyframes heroSceneCueFloat {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-0.3rem);
+    }
+  }
+
+  @keyframes heroSceneCueDrag {
+    0% {
+      left: 18%;
+    }
+
+    50% {
+      left: 82%;
+    }
+
+    100% {
+      left: 18%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero__scene-cue,
+    .hero__scene-cue-orb {
+      animation: none;
+    }
+  }
+
   .hero__get-started-link {
     border-color: rgba(255, 255, 255, 0.18);
     color: #fff;
@@ -1191,6 +1354,11 @@ const seoDescription = SITE.description;
     .hero__stack {
       align-items: flex-start;
       text-align: left;
+    }
+    .hero__scene-cue {
+      right: 1rem;
+      bottom: 0.85rem;
+      width: min(11.5rem, calc(100% - 2rem));
     }
     .story-section {
       margin-top: 0;
@@ -2843,6 +3011,23 @@ const seoDescription = SITE.description;
       letter-spacing: 0.12em;
     }
 
+    .hero__scene-cue {
+      position: static;
+      width: min(100%, 11.5rem);
+      margin-top: 0.9rem;
+      margin-left: 0;
+      animation: none;
+    }
+
+    .hero__scene-cue-label {
+      padding: 0.4rem 0.68rem;
+      font-size: 0.64rem;
+    }
+
+    .hero__scene-cue-rail {
+      height: 0.95rem;
+    }
+
     .story-header-grid {
       gap: 1.2rem;
     }
@@ -3086,6 +3271,14 @@ const seoDescription = SITE.description;
 
     .hero__proof-item {
       font-size: 0.72rem;
+    }
+
+    .hero__scene-cue {
+      width: 100%;
+    }
+
+    .hero__scene-cue-label {
+      font-size: 0.62rem;
     }
 
     .story-media,

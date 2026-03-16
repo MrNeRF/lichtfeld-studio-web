@@ -44,10 +44,10 @@ const updatedLabel = item.updatedAt
     flex-direction: column;
     height: 100%;
     padding: 1.35rem;
-    border-radius: 1.25rem;
-    background: rgba(255, 255, 255, 0.92);
-    border: 1px solid rgba(148, 163, 184, 0.16);
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+    border-radius: var(--card-radius);
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--card-shadow);
     transition:
       transform 0.18s ease,
       box-shadow 0.18s ease,
@@ -55,9 +55,15 @@ const updatedLabel = item.updatedAt
   }
 
   .project-item-card:hover {
-    transform: translateY(-3px);
-    border-color: rgba(37, 99, 235, 0.22);
-    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
+    transform: translateY(var(--card-hover-lift));
+    border-color: var(--color-border-hover);
+    box-shadow: var(--card-shadow-hover);
+  }
+
+  .project-item-card:focus-within {
+    transform: translateY(var(--card-hover-lift));
+    border-color: var(--color-primary-link);
+    box-shadow: var(--focus-shadow), var(--card-shadow-hover);
   }
 
   .project-item-card__meta {
@@ -76,7 +82,7 @@ const updatedLabel = item.updatedAt
     border-radius: 999px;
     font-size: 0.75rem;
     font-weight: 800;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
   }
 
@@ -97,16 +103,17 @@ const updatedLabel = item.updatedAt
   }
 
   .project-item-card__title a {
-    color: #0f172a;
+    color: var(--color-heading);
     text-decoration: none;
+    transition: color 0.18s ease, box-shadow 0.18s ease;
   }
 
   .project-item-card__title a:hover {
-    color: #0b63f3;
+    color: var(--color-primary-link);
   }
 
   .project-item-card__content {
-    color: #475569;
+    color: var(--color-body);
     line-height: 1.6;
     flex: 1;
   }
@@ -116,7 +123,7 @@ const updatedLabel = item.updatedAt
   }
 
   .project-item-card__content :global(strong) {
-    color: #0f172a;
+    color: var(--color-heading);
   }
 
   .project-item-card__footer {
@@ -126,13 +133,13 @@ const updatedLabel = item.updatedAt
     align-items: flex-end;
     margin-top: 1rem;
     padding-top: 0.9rem;
-    border-top: 1px solid rgba(148, 163, 184, 0.14);
+    border-top: 1px solid var(--color-border-subtle);
   }
 
   .project-item-card__repo,
   .project-item-card__updated {
     font-size: 0.82rem;
-    color: #64748b;
+    color: var(--color-muted);
   }
 
   .project-item-card__links {
@@ -144,13 +151,21 @@ const updatedLabel = item.updatedAt
   }
 
   .project-item-card__action {
-    color: #0b63f3;
+    color: var(--color-primary-link);
     font-weight: 700;
     text-decoration: none;
+    transition: color 0.18s ease, box-shadow 0.18s ease;
   }
 
   .project-item-card__action:hover {
-    color: #084fc1;
+    color: var(--color-primary-link-hover);
+  }
+
+  .project-item-card__title a:focus-visible,
+  .project-item-card__action:focus-visible {
+    outline: none;
+    border-radius: 0.4rem;
+    box-shadow: var(--focus-shadow);
   }
 
   @media (max-width: 575.98px) {

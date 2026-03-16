@@ -63,22 +63,28 @@ const { idea } = Astro.props;
     display: flex;
     flex-direction: column;
     width: 100%;
-    height: 100%; /* Ensures cards in a row have equal height */
-    background: rgba(255, 255, 255, 0.92);
-    border: 1px solid rgba(148, 163, 184, 0.16);
-    border-radius: 1.25rem;
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+    height: 100%;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--card-radius);
+    box-shadow: var(--card-shadow);
     transition:
       box-shadow 0.2s ease-in-out,
-      transform 0.2s ease-in-out;
-    overflow: hidden; /* Ensures child elements like the image conform to border-radius */
+      transform 0.2s ease-in-out,
+      border-color 0.2s ease-in-out;
+    overflow: hidden;
   }
 
-  /* Enhance the card on hover to provide user feedback. */
   .contribution-card:hover {
-    transform: translateY(-5px);
-    border-color: rgba(37, 99, 235, 0.22);
-    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
+    transform: translateY(var(--card-hover-lift));
+    border-color: var(--color-border-hover);
+    box-shadow: var(--card-shadow-hover);
+  }
+
+  .contribution-card:focus-within {
+    transform: translateY(var(--card-hover-lift));
+    border-color: var(--color-primary-link);
+    box-shadow: var(--focus-shadow), var(--card-shadow-hover);
   }
 
   /* The link overlay sits behind other interactive elements (links, buttons) */
@@ -124,7 +130,7 @@ const { idea } = Astro.props;
 
   /* Ensure the title's link is clickable above the overlay. */
   .contribution-card__title a {
-    color: var(--color-text);
+    color: var(--color-heading);
     text-decoration: none;
     position: relative;
     z-index: 2;
@@ -135,7 +141,7 @@ const { idea } = Astro.props;
   }
 
   .contribution-card__content {
-    color: #475569;
+    color: var(--color-body);
     line-height: 1.6;
   }
 
@@ -149,21 +155,35 @@ const { idea } = Astro.props;
     z-index: 2;
   }
 
+  .contribution-card__link-overlay:focus-visible,
+  .contribution-card__title a:focus-visible,
+  .contribution-card__content a:focus-visible,
+  .contribution-card__issue-link:focus-visible {
+    outline: none;
+  }
+
+  .contribution-card__title a:focus-visible,
+  .contribution-card__content a:focus-visible,
+  .contribution-card__issue-link:focus-visible {
+    border-radius: 0.4rem;
+    box-shadow: var(--focus-shadow);
+  }
+
   .contribution-card__footer {
     padding: 0.75rem 1.25rem;
     background-color: rgba(248, 250, 252, 0.72);
-    border-top: 1px solid rgba(148, 163, 184, 0.16);
+    border-top: 1px solid var(--card-border);
     text-align: right;
-    margin-top: auto; /* Pushes the footer to the bottom of the card */
+    margin-top: auto;
   }
 
   .contribution-card__issue-link {
     font-size: 0.875rem;
-    color: #0b63f3;
+    color: var(--color-primary-link);
     text-decoration: none;
     font-weight: 700;
     position: relative;
-    z-index: 2; /* Ensure link is clickable */
+    z-index: 2;
   }
 
   .contribution-card__issue-link:hover {

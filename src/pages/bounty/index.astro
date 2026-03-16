@@ -30,8 +30,8 @@ const seoDescription =
 <Layout title={seoTitle} description={seoDescription}>
   <section class="bounty-hub">
     <div class="container px-4 py-5">
-      <div class="bounty-hub__hero">
-        <p class="bounty-hub__kicker">Bounties</p>
+      <div class="shell bounty-hub__hero">
+        <p class="kicker">Bounties</p>
         <h1 class="bounty-hub__title">Bounties funded by the LichtFeld Studio community</h1>
         <p class="bounty-hub__lead">
           This page is the starting point for bounty work: who funded payouts, which challenges are open, and which
@@ -39,10 +39,12 @@ const seoDescription =
         </p>
       </div>
 
-      <section class="bounty-sponsors-shell" aria-labelledby="bounty-sponsors-heading">
+      <section class="shell shell--compact bounty-sponsors-shell" aria-labelledby="bounty-sponsors-heading">
         <div class="bounty-sponsors-intro">
-          <p class="bounty-hub__kicker">Bounty sponsors</p>
-          <h2 id="bounty-sponsors-heading" class="bounty-sponsors-intro__title">Bounty sponsors by cumulative payout</h2>
+          <p class="kicker">Bounty sponsors</p>
+          <h2 id="bounty-sponsors-heading" class="bounty-sponsors-intro__title">
+            Bounty sponsors by cumulative payout
+          </h2>
           <p class="bounty-sponsors-intro__copy">
             Ordered by cumulative paid bounty funding. Bounties 3 and 4 had no payout.
           </p>
@@ -68,9 +70,9 @@ const seoDescription =
         </div>
       </section>
 
-      <section class="bounty-listing" aria-labelledby="bounty-listing-heading">
+      <section class="shell shell--compact bounty-listing" aria-labelledby="bounty-listing-heading">
         <div class="bounty-listing__intro">
-          <p class="bounty-hub__kicker">All bounties</p>
+          <p class="kicker">All bounties</p>
           <h2 id="bounty-listing-heading" class="bounty-listing__title">Browse current and past challenges</h2>
         </div>
 
@@ -95,65 +97,27 @@ const seoDescription =
 </Layout>
 
 <style>
-  :root {
-    --page-surface-bg:
-      radial-gradient(circle at top left, rgba(37, 99, 235, 0.07), transparent 24%),
-      linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
-    --page-surface-border: rgba(148, 163, 184, 0.16);
-    --page-surface-shadow:
-      0 20px 50px rgba(15, 23, 42, 0.05),
-      inset 0 1px 0 rgba(255, 255, 255, 0.92);
-    --page-card-bg: rgba(255, 255, 255, 0.9);
-    --page-card-border: rgba(148, 163, 184, 0.16);
-    --page-card-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
-  }
-
   .bounty-hub {
-    background:
-      radial-gradient(circle at top left, rgba(37, 99, 235, 0.05), transparent 24%),
-      linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    background: var(--page-bg);
   }
 
   .bounty-hub__hero {
-    padding: clamp(1.5rem, 3vw, 2.25rem);
-    border-radius: 2rem;
-    background: var(--page-surface-bg);
-    border: 1px solid var(--page-surface-border);
-    box-shadow: var(--page-surface-shadow);
     max-width: 54rem;
     margin-bottom: 1.25rem;
   }
 
-  .bounty-hub__kicker {
-    margin: 0 0 0.5rem;
-    color: #2563eb;
-    font-size: 0.8rem;
-    font-weight: 800;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
   .bounty-hub__title {
     margin: 0 0 0.75rem;
-    color: #0f172a;
+    color: var(--color-heading);
     font-size: clamp(2rem, 4vw, 3rem);
     line-height: 1.08;
   }
 
   .bounty-hub__lead {
     margin: 0;
-    color: #475569;
+    color: var(--color-body);
     font-size: 1.05rem;
     line-height: 1.7;
-  }
-
-  .bounty-sponsors-shell,
-  .bounty-listing {
-    border-radius: 2rem;
-    padding: clamp(1rem, 2vw, 1.35rem);
-    background: var(--page-surface-bg);
-    border: 1px solid var(--page-surface-border);
-    box-shadow: var(--page-surface-shadow);
   }
 
   .bounty-listing {
@@ -168,14 +132,14 @@ const seoDescription =
   .bounty-sponsors-intro__title,
   .bounty-listing__title {
     margin: 0 0 0.25rem;
-    color: #0f172a;
+    color: var(--color-heading);
     font-size: 1.6rem;
     line-height: 1.15;
   }
 
   .bounty-sponsors-intro__copy {
     margin: 0;
-    color: #64748b;
+    color: var(--color-muted);
     font-size: 0.92rem;
     line-height: 1.45;
   }
@@ -192,17 +156,30 @@ const seoDescription =
     align-items: center;
     padding: 0.42rem 0.65rem;
     border-radius: 0.7rem;
-    background: var(--page-card-bg);
-    border: 1px solid var(--page-card-border);
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid var(--card-border);
     color: inherit;
     text-decoration: none;
-    box-shadow: var(--page-card-shadow);
+    box-shadow: var(--card-shadow);
+    transition:
+      transform 0.18s ease,
+      border-color 0.18s ease,
+      box-shadow 0.18s ease;
   }
 
   .bounty-sponsor-list__item:hover,
   .bounty-entry:hover {
-    border-color: rgba(37, 99, 235, 0.24);
+    transform: translateY(-2px);
+    border-color: var(--color-border-hover);
     box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
+  }
+
+  .bounty-sponsor-list__item:focus-visible,
+  .bounty-entry:focus-visible {
+    outline: none;
+    transform: translateY(-2px);
+    border-color: var(--color-primary-link);
+    box-shadow: var(--focus-shadow), 0 8px 18px rgba(15, 23, 42, 0.04);
   }
 
   .bounty-sponsor-list__rank {
@@ -219,7 +196,7 @@ const seoDescription =
   }
 
   .bounty-sponsor-list__name {
-    color: #0f172a;
+    color: var(--color-heading);
     font-size: 0.88rem;
     font-weight: 700;
     line-height: 1.25;
@@ -242,39 +219,43 @@ const seoDescription =
     display: grid;
     gap: 0.55rem;
     padding: 1rem;
-    border-radius: 1.25rem;
-    background: var(--page-card-bg);
-    border: 1px solid var(--page-card-border);
+    border-radius: var(--card-radius);
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid var(--card-border);
     color: inherit;
     text-decoration: none;
-    box-shadow: var(--page-card-shadow);
+    box-shadow: var(--card-shadow);
+    transition:
+      transform 0.18s ease,
+      border-color 0.18s ease,
+      box-shadow 0.18s ease;
   }
 
   .bounty-entry__meta {
     display: flex;
     justify-content: space-between;
     gap: 0.75rem;
-    color: #64748b;
+    color: var(--color-muted);
     font-size: 0.82rem;
     font-weight: 600;
   }
 
   .bounty-entry__title {
     margin: 0;
-    color: #0f172a;
+    color: var(--color-heading);
     font-size: 1.1rem;
     line-height: 1.25;
   }
 
   .bounty-entry__summary {
     margin: 0;
-    color: #475569;
+    color: var(--color-body);
     line-height: 1.55;
   }
 
   .bounty-entry__winner {
     margin: 0;
-    color: #0b63f3;
+    color: var(--color-primary-link);
     font-size: 0.9rem;
     font-weight: 700;
   }

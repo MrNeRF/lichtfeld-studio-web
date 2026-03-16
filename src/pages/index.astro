@@ -117,7 +117,7 @@ const seoDescription = SITE.description;
 
   <!-- Introduction -->
   <section class="intro-section container px-6 pt-14 pb-6">
-    <div class="intro-shell">
+    <div class="shell intro-shell">
       <div class="row items-center g-5">
         <div class="col-12 col-lg-6 order-2 order-lg-1">
           <div class="intro-media">
@@ -134,7 +134,7 @@ const seoDescription = SITE.description;
         </div>
 
         <div class="col-12 col-lg-6 order-1 order-lg-2">
-          <p class="section-kicker mb-3">Why teams switch</p>
+          <p class="kicker mb-3">Why teams switch</p>
           <h2 class="text-3xl font-bold text-gray-900 leading-none mb-4">
             One studio for the whole 3DGS workflow, not a pile of disconnected scripts
           </h2>
@@ -143,8 +143,8 @@ const seoDescription = SITE.description;
             app. It is designed to feel like a production tool, not a research demo.
           </p>
           <p class="text-base text-gray-500 mb-6">
-            The current platform story is straightforward: fast C++/CUDA core, full editing suite, automation hooks,
-            and extensibility for teams building custom workflows.
+            The current platform story is straightforward: fast C++/CUDA core, full editing suite, automation hooks, and
+            extensibility for teams building custom workflows.
           </p>
 
           <div class="intro-badges">
@@ -195,10 +195,12 @@ const seoDescription = SITE.description;
 
   <section id="features" class="platform-section">
     <div class="container px-6 pt-20 pb-12">
-      <div class="platform-shell">
+      <div class="shell shell--spacious platform-shell">
         <div class="platform-intro">
-          <p class="section-kicker mb-3">Platform features</p>
-          <h2 class="text-4xl font-bold text-gray-900 mb-3">A production-ready 3DGS platform you can actually build on</h2>
+          <p class="kicker mb-3">Platform features</p>
+          <h2 class="text-4xl font-bold text-gray-900 mb-3">
+            A production-ready 3DGS platform you can actually build on
+          </h2>
           <p class="text-lg text-gray-500">
             High-performance rendering is only the start. LichtFeld Studio gives teams an extensible desktop platform
             for editing, automation, and custom 3DGS workflows.
@@ -312,10 +314,10 @@ const seoDescription = SITE.description;
 
   <section id="plugins" class="plugins-preview-section" aria-labelledby="plugins-preview-heading">
     <div class="container px-6 pt-6 pb-6">
-      <div class="plugins-preview-shell">
+      <div class="shell shell--spacious plugins-preview-shell">
         <div class="plugins-preview-intro">
           <div>
-            <p class="section-kicker mb-3">Plugin registry</p>
+            <p class="kicker mb-3">Plugin registry</p>
             <h2 id="plugins-preview-heading" class="text-4xl font-bold text-gray-900 mb-3">
               Real plugins, real registry, real extensibility
             </h2>
@@ -326,15 +328,15 @@ const seoDescription = SITE.description;
           </div>
 
           <div class="plugins-preview-stats">
-            <div class="plugins-preview-stat">
+            <div class="stat-block plugins-preview-stat">
               <strong>Marketplace install flow</strong>
               <span>Browse, evaluate, and install plugins inside LichtFeld Studio.</span>
             </div>
-            <div class="plugins-preview-stat">
+            <div class="stat-block plugins-preview-stat">
               <strong>Compatibility-aware registry</strong>
               <span>Versions can be resolved against the host runtime and plugin API.</span>
             </div>
-            <div class="plugins-preview-stat">
+            <div class="stat-block plugins-preview-stat">
               <strong>Isolated Python dependencies</strong>
               <span>Custom workflow code stays modular instead of forking the core app.</span>
             </div>
@@ -349,9 +351,7 @@ const seoDescription = SITE.description;
           <p class="plugins-preview-note mb-0">
             Registry installs can target specific compatible plugin versions instead of random GitHub clones.
           </p>
-          <a class="platform-card__link" href={`${base}plugins/`}>
-            Browse all plugins
-          </a>
+          <a class="platform-card__link" href={`${base}plugins/`}>Browse all plugins</a>
         </div>
       </div>
     </div>
@@ -359,9 +359,9 @@ const seoDescription = SITE.description;
 
   <section id="sponsors" class="sponsors-section" aria-labelledby="sponsors-heading">
     <div class="container px-6 pt-6 pb-6">
-      <div class="sponsors-shell">
+      <div class="shell shell--spacious sponsors-shell">
         <div class="sponsors-intro">
-          <p class="section-kicker mb-3">Sponsors</p>
+          <p class="kicker mb-3">Sponsors</p>
           <h2 id="sponsors-heading" class="text-4xl font-bold text-gray-900 mb-3">
             Backed by organizations investing in the future of LichtFeld Studio
           </h2>
@@ -394,25 +394,33 @@ const seoDescription = SITE.description;
           <article class="sponsor-tier-card sponsor-tier-card--platinum">
             <p class="sponsor-tier-card__name">Platinum</p>
             <p class="sponsor-tier-card__amount">$35,000+ / year</p>
-            <p class="sponsor-tier-card__desc">Top-tier annual sponsorship for organizations funding core development.</p>
+            <p class="sponsor-tier-card__desc">
+              Top-tier annual sponsorship for organizations funding core development.
+            </p>
           </article>
 
           <article class="sponsor-tier-card sponsor-tier-card--gold">
             <p class="sponsor-tier-card__name">Gold</p>
             <p class="sponsor-tier-card__amount">$12,000 - $34,999 / year</p>
-            <p class="sponsor-tier-card__desc">Major annual support for sustained product, tooling, and platform work.</p>
+            <p class="sponsor-tier-card__desc">
+              Major annual support for sustained product, tooling, and platform work.
+            </p>
           </article>
 
           <article class="sponsor-tier-card sponsor-tier-card--silver">
             <p class="sponsor-tier-card__name">Silver</p>
             <p class="sponsor-tier-card__amount">$3,000 - $11,999 / year</p>
-            <p class="sponsor-tier-card__desc">Meaningful sponsorship that helps accelerate engineering and research.</p>
+            <p class="sponsor-tier-card__desc">
+              Meaningful sponsorship that helps accelerate engineering and research.
+            </p>
           </article>
 
           <article class="sponsor-tier-card sponsor-tier-card--bronze">
             <p class="sponsor-tier-card__name">Bronze</p>
             <p class="sponsor-tier-card__amount">$500 - $2,999 / year</p>
-            <p class="sponsor-tier-card__desc">Supportive sponsorship for companies backing the project and community.</p>
+            <p class="sponsor-tier-card__desc">
+              Supportive sponsorship for companies backing the project and community.
+            </p>
             <div class="sponsor-tier-card__members">
               <a
                 href="https://vincentwoo.com/"
@@ -476,7 +484,7 @@ const seoDescription = SITE.description;
   <!-- Support / Donations (deeplink target) -->
   <section id="support-the-project" aria-labelledby="support-the-project-heading">
     <div class="container px-6 pt-12 pb-12">
-      <div class="support-box">
+      <div class="shell support-box">
         <div class="support-box__header">
           <div class="support-box__icon" aria-hidden="true">
             <svg class="bi" width="1.5em" height="1.5em">
@@ -1231,16 +1239,17 @@ const seoDescription = SITE.description;
       font-size: 0.875rem;
     }
 
-    .platform-shell {
-      border-radius: 1.25rem;
-      padding: 1.1rem;
-    }
-
     .intro-shell {
       border-radius: 1.25rem;
       padding: 1.1rem;
     }
 
+    .platform-shell {
+      border-radius: 1.25rem;
+      padding: 1.1rem;
+    }
+
+    .plugins-preview-shell,
     .sponsors-shell {
       border-radius: 1.25rem;
       padding: 1.1rem;
@@ -1262,7 +1271,6 @@ const seoDescription = SITE.description;
       border-radius: 1.25rem;
       padding-block: 1.5rem;
     }
-
   }
 
   /* Narrower container for features section */
@@ -1281,9 +1289,9 @@ const seoDescription = SITE.description;
     text-align: center;
     border-radius: 2rem;
     padding-block: clamp(1.75rem, 3vw, 2.5rem);
-    background: var(--home-surface-bg);
-    border: 1px solid var(--home-surface-border);
-    box-shadow: var(--home-surface-shadow);
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    box-shadow: var(--surface-shadow);
   }
 
   /* ===========================
@@ -1291,34 +1299,7 @@ const seoDescription = SITE.description;
    * =========================== */
 
   .intro-shell {
-    border-radius: 2rem;
     padding: clamp(1.25rem, 2.6vw, 2rem);
-    background: var(--home-surface-bg);
-    border: 1px solid var(--home-surface-border);
-    box-shadow: var(--home-surface-shadow);
-  }
-
-  /* Highlight badges row */
-  .section-kicker {
-    margin: 0;
-    color: #2563eb;
-    font-size: 0.8rem;
-    font-weight: 800;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
-  :root {
-    --home-surface-bg:
-      radial-gradient(circle at top left, rgba(37, 99, 235, 0.07), transparent 24%),
-      linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
-    --home-surface-border: rgba(148, 163, 184, 0.16);
-    --home-surface-shadow:
-      0 20px 50px rgba(15, 23, 42, 0.05),
-      inset 0 1px 0 rgba(255, 255, 255, 0.92);
-    --home-card-bg: rgba(255, 255, 255, 0.9);
-    --home-card-border: rgba(148, 163, 184, 0.16);
-    --home-card-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
   }
 
   .intro-badges {
@@ -1411,26 +1392,18 @@ const seoDescription = SITE.description;
 
   .workflow-inline__item strong {
     min-width: 5.5rem;
-    color: #0f172a;
+    color: var(--color-heading);
     font-size: 0.98rem;
     line-height: 1.4;
   }
 
   .workflow-inline__item span {
-    color: #475569;
+    color: var(--color-body);
     line-height: 1.6;
   }
 
   .platform-section {
     position: relative;
-  }
-
-  .platform-shell {
-    border-radius: 2rem;
-    padding: clamp(1.5rem, 3vw, 2.5rem);
-    background: var(--home-surface-bg);
-    border: 1px solid var(--home-surface-border);
-    box-shadow: var(--home-surface-shadow);
   }
 
   .platform-intro {
@@ -1448,9 +1421,9 @@ const seoDescription = SITE.description;
     grid-column: span 4;
     padding: 1.4rem;
     border-radius: 1.25rem;
-    background: var(--home-card-bg);
-    border: 1px solid var(--home-card-border);
-    box-shadow: var(--home-card-shadow);
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--card-shadow);
   }
 
   .platform-card--featured {
@@ -1481,28 +1454,48 @@ const seoDescription = SITE.description;
 
   .platform-card__title {
     margin: 0 0 0.65rem;
-    color: #0f172a;
+    color: var(--color-heading);
     font-size: 1.25rem;
     line-height: 1.3;
   }
 
   .platform-card__desc {
     margin: 0;
-    color: #475569;
+    color: var(--color-body);
     line-height: 1.65;
   }
 
   .platform-card__link {
     display: inline-flex;
     align-items: center;
+    width: fit-content;
     margin-top: 1rem;
-    color: #0b63f3;
+    margin-left: -0.3rem;
+    padding: 0.25rem 0.45rem;
+    border: 1px solid transparent;
+    border-radius: 0.75rem;
+    background: rgba(37, 99, 235, 0.02);
+    color: var(--color-primary-link);
     font-weight: 700;
     text-decoration: none;
+    transition:
+      color 0.18s ease,
+      background-color 0.18s ease,
+      border-color 0.18s ease,
+      box-shadow 0.18s ease;
   }
 
   .platform-card__link:hover {
-    color: #084fc1;
+    background: rgba(37, 99, 235, 0.08);
+    color: var(--color-primary-link-hover);
+  }
+
+  .platform-card__link:focus-visible {
+    outline: none;
+    background: rgba(37, 99, 235, 0.08);
+    color: var(--color-primary-link-hover);
+    border-color: var(--color-primary-link);
+    box-shadow: var(--focus-shadow);
   }
 
   .platform-checklist {
@@ -1523,14 +1516,6 @@ const seoDescription = SITE.description;
     font-weight: 600;
   }
 
-  .plugins-preview-shell {
-    border-radius: 2rem;
-    padding: clamp(1.5rem, 3vw, 2.5rem);
-    background: var(--home-surface-bg);
-    border: 1px solid var(--home-surface-border);
-    box-shadow: var(--home-surface-shadow);
-  }
-
   .plugins-preview-intro {
     display: grid;
     grid-template-columns: minmax(0, 1.5fr) minmax(300px, 0.9fr);
@@ -1545,27 +1530,8 @@ const seoDescription = SITE.description;
     gap: 0.85rem;
   }
 
-  .plugins-preview-stat {
-    padding: 1rem 1.1rem;
-    border-radius: 1.25rem;
-    background: var(--home-card-bg);
-    border: 1px solid var(--home-card-border);
-    box-shadow: var(--home-card-shadow);
-  }
-
   .plugins-preview-stat strong {
-    display: block;
-    color: #0f172a;
     font-size: 1.45rem;
-    line-height: 1.1;
-  }
-
-  .plugins-preview-stat span {
-    display: block;
-    margin-top: 0.35rem;
-    color: #64748b;
-    font-size: 0.9rem;
-    font-weight: 600;
   }
 
   .plugins-preview-grid {
@@ -1583,7 +1549,7 @@ const seoDescription = SITE.description;
   }
 
   .plugins-preview-note {
-    color: #64748b;
+    color: var(--color-muted);
     line-height: 1.6;
   }
 
@@ -1605,14 +1571,6 @@ const seoDescription = SITE.description;
     position: relative;
   }
 
-  .sponsors-shell {
-    border-radius: 2rem;
-    padding: clamp(1.5rem, 3vw, 2.5rem);
-    background: var(--home-surface-bg);
-    border: 1px solid var(--home-surface-border);
-    box-shadow: var(--home-surface-shadow);
-  }
-
   .sponsors-intro {
     max-width: 56rem;
     margin-bottom: 1.75rem;
@@ -1626,8 +1584,7 @@ const seoDescription = SITE.description;
     padding: 1.5rem;
     border-radius: 1.5rem;
     background:
-      radial-gradient(circle at top right, rgba(245, 158, 11, 0.08), transparent 26%),
-      rgba(255, 255, 255, 0.96);
+      radial-gradient(circle at top right, rgba(245, 158, 11, 0.08), transparent 26%), rgba(255, 255, 255, 0.96);
     border: 1px solid rgba(217, 119, 6, 0.16);
     box-shadow:
       0 20px 40px rgba(15, 23, 42, 0.05),
@@ -1645,14 +1602,14 @@ const seoDescription = SITE.description;
 
   .foundational-sponsor-card__title {
     margin: 0 0 0.65rem;
-    color: #111827;
+    color: var(--color-heading);
     font-size: clamp(1.6rem, 2.5vw, 2.1rem);
     line-height: 1.15;
   }
 
   .foundational-sponsor-card__desc {
     margin: 0;
-    color: #475569;
+    color: var(--color-body);
     line-height: 1.7;
     max-width: 42rem;
   }
@@ -1665,8 +1622,25 @@ const seoDescription = SITE.description;
     padding: 1.5rem;
     border-radius: 1.25rem;
     background: rgba(255, 255, 255, 0.94);
-    border: 1px solid var(--home-card-border);
+    border: 1px solid var(--card-border);
     text-decoration: none;
+    transition:
+      border-color 0.18s ease,
+      box-shadow 0.18s ease,
+      transform 0.18s ease;
+  }
+
+  .foundational-sponsor-card__brand:hover {
+    transform: translateY(-2px);
+    border-color: var(--color-border-hover);
+    box-shadow: var(--card-shadow-hover);
+  }
+
+  .foundational-sponsor-card__brand:focus-visible {
+    outline: none;
+    transform: translateY(-2px);
+    border-color: var(--color-primary-link);
+    box-shadow: var(--focus-shadow), var(--card-shadow-hover);
   }
 
   .foundational-sponsor-card__logo {
@@ -1685,14 +1659,14 @@ const seoDescription = SITE.description;
   .sponsor-tier-card {
     padding: 1.35rem;
     border-radius: 1.25rem;
-    background: var(--home-card-bg);
-    border: 1px solid var(--home-card-border);
-    box-shadow: var(--home-card-shadow);
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--card-shadow);
   }
 
   .sponsor-tier-card__name {
     margin: 0 0 0.5rem;
-    color: #0f172a;
+    color: var(--color-heading);
     font-size: 1.1rem;
     font-weight: 800;
   }
@@ -1706,7 +1680,7 @@ const seoDescription = SITE.description;
 
   .sponsor-tier-card__desc {
     margin: 0;
-    color: #64748b;
+    color: var(--color-muted);
     line-height: 1.6;
   }
 
@@ -1728,12 +1702,28 @@ const seoDescription = SITE.description;
     font-size: 0.9rem;
     font-weight: 700;
     text-decoration: none;
+    transition:
+      color 0.18s ease,
+      background-color 0.18s ease,
+      border-color 0.18s ease,
+      box-shadow 0.18s ease,
+      transform 0.18s ease;
   }
 
   .sponsor-tier-card__member:hover {
-    color: #0b63f3;
+    transform: translateY(-1px);
+    color: var(--color-primary-link);
     border-color: rgba(37, 99, 235, 0.28);
     background: rgba(255, 255, 255, 0.96);
+  }
+
+  .sponsor-tier-card__member:focus-visible {
+    outline: none;
+    transform: translateY(-1px);
+    color: var(--color-primary-link);
+    border-color: var(--color-primary-link);
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: var(--focus-shadow);
   }
 
   .sponsor-tier-card--platinum {
@@ -1751,7 +1741,6 @@ const seoDescription = SITE.description;
   .sponsor-tier-card--bronze {
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(252, 246, 241, 0.94));
   }
-
 
   /* ===========================
    * Bento Grid Feature Layout
@@ -2120,12 +2109,7 @@ const seoDescription = SITE.description;
    * =========================== */
 
   .support-box {
-    background: var(--home-surface-bg);
-    border-radius: 2rem;
-    padding: clamp(1.5rem, 3vw, 2.25rem);
     margin-inline: 0;
-    border: 1px solid var(--home-surface-border);
-    box-shadow: var(--home-surface-shadow);
   }
 
   .support-box__header {

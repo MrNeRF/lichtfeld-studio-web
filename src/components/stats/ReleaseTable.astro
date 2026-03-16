@@ -10,146 +10,146 @@
  */
 
 interface Props {
-    title?: string;
+  title?: string;
 }
 
 const { title } = Astro.props;
 ---
 
 <div class="release-table">
-    {title && <h3 class="release-table__title">{title}</h3>}
+  {title && <h3 class="release-table__title">{title}</h3>}
 
-    <div class="release-table__container">
-        <table class="release-table__table">
-            <thead>
-                <tr>
-                    <th class="release-table__th">Version</th>
-                    <th class="release-table__th release-table__th--center">Released</th>
-                    <th class="release-table__th release-table__th--right">Downloads</th>
-                    <th class="release-table__th release-table__th--right">% of Total</th>
-                    <th class="release-table__th release-table__th--right">Last 30 Days</th>
-                </tr>
-            </thead>
-            <tbody class="release-table__body" data-table-body>
-                <tr>
-                    <td colspan="5" class="release-table__loading">
-                        <div class="release-table__spinner"></div>
-                        <span>Loading releases...</span>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+  <div class="release-table__container">
+    <table class="release-table__table">
+      <thead>
+        <tr>
+          <th class="release-table__th">Version</th>
+          <th class="release-table__th release-table__th--center">Released</th>
+          <th class="release-table__th release-table__th--right">Downloads</th>
+          <th class="release-table__th release-table__th--right">% of Total</th>
+          <th class="release-table__th release-table__th--right">Last 30 Days</th>
+        </tr>
+      </thead>
+      <tbody class="release-table__body" data-table-body>
+        <tr>
+          <td colspan="5" class="release-table__loading">
+            <div class="release-table__spinner"></div>
+            <span>Loading releases...</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
 
 <script>
-    /**
-     * Client-side JavaScript for populating the release table.
-     */
+  /**
+   * Client-side JavaScript for populating the release table.
+   */
 
-    /**
-     * Release data structure from the API.
-     */
-    interface ReleaseData {
-        tag: string;
-        name: string;
-        downloads: number;
-        publishedAt: number | null;
-        daily: Array<{ date: number; downloads: number }>;
-        monthly: Array<{ month: number; downloads: number }>;
+  /**
+   * Release data structure from the API.
+   */
+  interface ReleaseData {
+    tag: string;
+    name: string;
+    downloads: number;
+    publishedAt: number | null;
+    daily: Array<{ date: number; downloads: number }>;
+    monthly: Array<{ month: number; downloads: number }>;
+  }
+
+  /**
+   * One day in milliseconds.
+   */
+  const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
+  /**
+   * Formats a number with locale-aware separators.
+   */
+  function formatNumber(num: number): string {
+    return new Intl.NumberFormat().format(num);
+  }
+
+  /**
+   * Formats a Unix timestamp as a short date string.
+   */
+  function formatDate(timestamp: number | null): string {
+    if (!timestamp) return "—";
+
+    return new Date(timestamp).toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  }
+
+  /**
+   * Calculates percentage of total.
+   */
+  function calculatePercentage(value: number, total: number): string {
+    if (total === 0) return "0%";
+
+    return ((value / total) * 100).toFixed(1) + "%";
+  }
+
+  /**
+   * Calculates downloads in the last 30 days from daily cumulative data.
+   * Returns the difference between the latest value and the value from ~30 days ago.
+   *
+   * @param daily - Array of daily cumulative download snapshots
+   * @param publishedAt - Unix timestamp when the release was published (optional)
+   */
+  function getLast30DaysDownloads(
+    daily: Array<{ date: number; downloads: number }>,
+    publishedAt?: number | null,
+  ): number {
+    if (daily.length < 1) return 0;
+
+    const now = Date.now();
+    const thirtyDaysAgo = now - 30 * ONE_DAY_MS;
+
+    // Sort by date ascending
+    const sorted = [...daily].sort((a, b) => a.date - b.date);
+
+    // Get the latest cumulative value
+    const latestValue = sorted[sorted.length - 1].downloads;
+
+    // Find the value closest to 30 days ago (but not after it)
+    let valueThirtyDaysAgo = 0;
+    let foundDataPoint = false;
+
+    for (let i = sorted.length - 1; i >= 0; i--) {
+      if (sorted[i].date <= thirtyDaysAgo) {
+        valueThirtyDaysAgo = sorted[i].downloads;
+        foundDataPoint = true;
+        break;
+      }
     }
 
-    /**
-     * One day in milliseconds.
-     */
-    const ONE_DAY_MS = 24 * 60 * 60 * 1000;
-
-    /**
-     * Formats a number with locale-aware separators.
-     */
-    function formatNumber(num: number): string {
-        return new Intl.NumberFormat().format(num);
+    // If no data point before 30 days ago
+    if (!foundDataPoint) {
+      // If the release was published within the last 30 days, all downloads are within this period
+      if (publishedAt && publishedAt > thirtyDaysAgo) {
+        valueThirtyDaysAgo = 0; // No downloads before the release existed
+      } else {
+        // Release is older than 30 days but we don't have data going back that far
+        // Use the earliest available data point as a conservative estimate
+        valueThirtyDaysAgo = sorted[0].downloads;
+      }
     }
 
-    /**
-     * Formats a Unix timestamp as a short date string.
-     */
-    function formatDate(timestamp: number | null): string {
-        if (!timestamp) return "—";
+    return latestValue - valueThirtyDaysAgo;
+  }
 
-        return new Date(timestamp).toLocaleDateString(undefined, {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-        });
-    }
+  /**
+   * Creates a table row for a release.
+   */
+  function createReleaseRow(release: ReleaseData, totalDownloads: number): HTMLTableRowElement {
+    const row = document.createElement("tr");
+    const last30DaysDownloads = getLast30DaysDownloads(release.daily, release.publishedAt);
 
-    /**
-     * Calculates percentage of total.
-     */
-    function calculatePercentage(value: number, total: number): string {
-        if (total === 0) return "0%";
-
-        return (value / total * 100).toFixed(1) + "%";
-    }
-
-    /**
-     * Calculates downloads in the last 30 days from daily cumulative data.
-     * Returns the difference between the latest value and the value from ~30 days ago.
-     *
-     * @param daily - Array of daily cumulative download snapshots
-     * @param publishedAt - Unix timestamp when the release was published (optional)
-     */
-    function getLast30DaysDownloads(
-        daily: Array<{ date: number; downloads: number }>,
-        publishedAt?: number | null
-    ): number {
-        if (daily.length < 1) return 0;
-
-        const now = Date.now();
-        const thirtyDaysAgo = now - 30 * ONE_DAY_MS;
-
-        // Sort by date ascending
-        const sorted = [...daily].sort((a, b) => a.date - b.date);
-
-        // Get the latest cumulative value
-        const latestValue = sorted[sorted.length - 1].downloads;
-
-        // Find the value closest to 30 days ago (but not after it)
-        let valueThirtyDaysAgo = 0;
-        let foundDataPoint = false;
-
-        for (let i = sorted.length - 1; i >= 0; i--) {
-            if (sorted[i].date <= thirtyDaysAgo) {
-                valueThirtyDaysAgo = sorted[i].downloads;
-                foundDataPoint = true;
-                break;
-            }
-        }
-
-        // If no data point before 30 days ago
-        if (!foundDataPoint) {
-            // If the release was published within the last 30 days, all downloads are within this period
-            if (publishedAt && publishedAt > thirtyDaysAgo) {
-                valueThirtyDaysAgo = 0; // No downloads before the release existed
-            } else {
-                // Release is older than 30 days but we don't have data going back that far
-                // Use the earliest available data point as a conservative estimate
-                valueThirtyDaysAgo = sorted[0].downloads;
-            }
-        }
-
-        return latestValue - valueThirtyDaysAgo;
-    }
-
-    /**
-     * Creates a table row for a release.
-     */
-    function createReleaseRow(release: ReleaseData, totalDownloads: number): HTMLTableRowElement {
-        const row = document.createElement("tr");
-        const last30DaysDownloads = getLast30DaysDownloads(release.daily, release.publishedAt);
-
-        row.innerHTML = `
+    row.innerHTML = `
             <td class="release-table__td">
                 <div class="release-table__version">
                     <span class="release-table__tag">${release.tag}</span>
@@ -164,7 +164,7 @@ const { title } = Astro.props;
             </td>
             <td class="release-table__td release-table__td--right">
                 <div class="release-table__percentage">
-                    <div class="release-table__percentage-bar" style="width: ${totalDownloads > 0 ? (release.downloads / totalDownloads * 100) : 0}%"></div>
+                    <div class="release-table__percentage-bar" style="width: ${totalDownloads > 0 ? (release.downloads / totalDownloads) * 100 : 0}%"></div>
                     <span>${calculatePercentage(release.downloads, totalDownloads)}</span>
                 </div>
             </td>
@@ -175,29 +175,29 @@ const { title } = Astro.props;
             </td>
         `;
 
-        return row;
-    }
+    return row;
+  }
 
-    /**
-     * Initializes the release table with data.
-     */
-    document.addEventListener("DOMContentLoaded", () => {
-        const tables = document.querySelectorAll(".release-table");
+  /**
+   * Initializes the release table with data.
+   */
+  document.addEventListener("DOMContentLoaded", () => {
+    const tables = document.querySelectorAll(".release-table");
 
-        tables.forEach((table) => {
-            const tbody = table.querySelector("[data-table-body]");
+    tables.forEach((table) => {
+      const tbody = table.querySelector("[data-table-body]");
 
-            if (!tbody) return;
+      if (!tbody) return;
 
-            // Listen for data updates
-            table.addEventListener("tabledata", ((event: CustomEvent) => {
-                const { releases, totalDownloads } = event.detail;
+      // Listen for data updates
+      table.addEventListener("tabledata", ((event: CustomEvent) => {
+        const { releases, totalDownloads } = event.detail;
 
-                // Clear loading state
-                tbody.innerHTML = "";
+        // Clear loading state
+        tbody.innerHTML = "";
 
-                if (releases.length === 0) {
-                    tbody.innerHTML = `
+        if (releases.length === 0) {
+          tbody.innerHTML = `
                         <tr>
                             <td colspan="5" class="release-table__empty">
                                 No releases found
@@ -205,195 +205,195 @@ const { title } = Astro.props;
                         </tr>
                     `;
 
-                    return;
-                }
+          return;
+        }
 
-                // Add rows for each release
-                releases.forEach((release: ReleaseData) => {
-                    const row = createReleaseRow(release, totalDownloads);
+        // Add rows for each release
+        releases.forEach((release: ReleaseData) => {
+          const row = createReleaseRow(release, totalDownloads);
 
-                    tbody.appendChild(row);
-                });
-            }) as EventListener);
+          tbody.appendChild(row);
         });
+      }) as EventListener);
     });
+  });
 </script>
 
 <style>
-    /**
+  /**
      * Release Table Styles
      */
-    .release-table {
-        width: 100%;
-    }
+  .release-table {
+    width: 100%;
+  }
 
-    .release-table__title {
-        margin-bottom: 1rem;
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: var(--color-text);
-    }
+  .release-table__title {
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-text);
+  }
 
-    .release-table__container {
-        background: rgba(255, 255, 255, 0.92);
-        border: 1px solid rgba(148, 163, 184, 0.16);
-        border-radius: 1.25rem;
-        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
-        overflow: hidden;
-    }
+  .release-table__container {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--card-radius);
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+  }
 
-    .release-table__table {
-        width: 100%;
-        border-collapse: collapse;
-    }
+  .release-table__table {
+    width: 100%;
+    border-collapse: collapse;
+  }
 
-    .release-table__th {
-        padding: 0.75rem 1rem;
-        text-align: left;
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: #64748b;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        background-color: rgba(248, 250, 252, 0.82);
-        border-bottom: 1px solid rgba(148, 163, 184, 0.16);
-    }
+  .release-table__th {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background-color: rgba(248, 250, 252, 0.82);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+  }
 
-    .release-table__th--right {
-        text-align: right;
-    }
+  .release-table__th--right {
+    text-align: right;
+  }
 
-    .release-table__th--center {
-        text-align: center;
-    }
+  .release-table__th--center {
+    text-align: center;
+  }
 
+  .release-table :global(.release-table__td) {
+    padding: 0.875rem 1rem;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+    vertical-align: middle;
+  }
+
+  .release-table :global(.release-table__td--right) {
+    text-align: right;
+  }
+
+  .release-table :global(.release-table__td--center) {
+    text-align: center;
+  }
+
+  .release-table :global(tbody tr:last-child .release-table__td) {
+    border-bottom: none;
+  }
+
+  .release-table :global(tbody tr:hover) {
+    background-color: rgba(37, 99, 235, 0.035);
+  }
+
+  /* Version cell */
+  .release-table :global(.release-table__version) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  .release-table :global(.release-table__tag) {
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .release-table :global(.release-table__name) {
+    font-size: 0.8125rem;
+    color: #64748b;
+  }
+
+  /* Date cell */
+  .release-table :global(.release-table__date) {
+    font-size: 0.875rem;
+    color: #64748b;
+    white-space: nowrap;
+  }
+
+  /* Downloads cell */
+  .release-table :global(.release-table__downloads) {
+    font-weight: 600;
+    font-size: 1rem;
+  }
+
+  /* Percentage cell with bar */
+  .release-table :global(.release-table__percentage) {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+
+  .release-table :global(.release-table__percentage-bar) {
+    height: 0.5rem;
+    background: linear-gradient(90deg, #2563eb, #0ea5e9);
+    border-radius: 0.25rem;
+    min-width: 2px;
+    max-width: 100px;
+  }
+
+  /* Monthly change cell */
+  .release-table :global(.release-table__monthly) {
+    font-weight: 500;
+    color: #64748b;
+  }
+
+  .release-table :global(.release-table__monthly--positive) {
+    color: #198754;
+  }
+
+  /* Loading state */
+  .release-table__loading {
+    padding: 2rem 1rem;
+    text-align: center;
+  }
+
+  .release-table__loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    color: #64748b;
+  }
+
+  .release-table__spinner {
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 2px solid var(--border-color);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* Empty state */
+  .release-table :global(.release-table__empty) {
+    padding: 2rem 1rem;
+    text-align: center;
+    color: #6c757d;
+  }
+
+  /* Responsive */
+  @media (max-width: 576px) {
+    .release-table__th,
     .release-table :global(.release-table__td) {
-        padding: 0.875rem 1rem;
-        border-bottom: 1px solid rgba(148, 163, 184, 0.14);
-        vertical-align: middle;
+      padding: 0.625rem 0.75rem;
     }
 
-    .release-table :global(.release-table__td--right) {
-        text-align: right;
+    /* Hide Released and % of Total columns on small screens */
+    .release-table__th:nth-child(2),
+    .release-table :global(.release-table__td:nth-child(2)),
+    .release-table__th:nth-child(4),
+    .release-table :global(.release-table__td:nth-child(4)) {
+      display: none;
     }
-
-    .release-table :global(.release-table__td--center) {
-        text-align: center;
-    }
-
-    .release-table :global(tbody tr:last-child .release-table__td) {
-        border-bottom: none;
-    }
-
-    .release-table :global(tbody tr:hover) {
-        background-color: rgba(37, 99, 235, 0.035);
-    }
-
-    /* Version cell */
-    .release-table :global(.release-table__version) {
-        display: flex;
-        flex-direction: column;
-        gap: 0.125rem;
-    }
-
-    .release-table :global(.release-table__tag) {
-        font-weight: 600;
-        color: var(--color-text);
-    }
-
-    .release-table :global(.release-table__name) {
-        font-size: 0.8125rem;
-        color: #64748b;
-    }
-
-    /* Date cell */
-    .release-table :global(.release-table__date) {
-        font-size: 0.875rem;
-        color: #64748b;
-        white-space: nowrap;
-    }
-
-    /* Downloads cell */
-    .release-table :global(.release-table__downloads) {
-        font-weight: 600;
-        font-size: 1rem;
-    }
-
-    /* Percentage cell with bar */
-    .release-table :global(.release-table__percentage) {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        gap: 0.5rem;
-    }
-
-    .release-table :global(.release-table__percentage-bar) {
-        height: 0.5rem;
-        background: linear-gradient(90deg, #2563eb, #0ea5e9);
-        border-radius: 0.25rem;
-        min-width: 2px;
-        max-width: 100px;
-    }
-
-    /* Monthly change cell */
-    .release-table :global(.release-table__monthly) {
-        font-weight: 500;
-        color: #64748b;
-    }
-
-    .release-table :global(.release-table__monthly--positive) {
-        color: #198754;
-    }
-
-    /* Loading state */
-    .release-table__loading {
-        padding: 2rem 1rem;
-        text-align: center;
-    }
-
-    .release-table__loading {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.5rem;
-        color: #64748b;
-    }
-
-    .release-table__spinner {
-        width: 1.5rem;
-        height: 1.5rem;
-        border: 2px solid var(--border-color);
-        border-top-color: var(--color-primary);
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-        to {
-            transform: rotate(360deg);
-        }
-    }
-
-    /* Empty state */
-    .release-table :global(.release-table__empty) {
-        padding: 2rem 1rem;
-        text-align: center;
-        color: #6c757d;
-    }
-
-    /* Responsive */
-    @media (max-width: 576px) {
-        .release-table__th,
-        .release-table :global(.release-table__td) {
-            padding: 0.625rem 0.75rem;
-        }
-
-        /* Hide Released and % of Total columns on small screens */
-        .release-table__th:nth-child(2),
-        .release-table :global(.release-table__td:nth-child(2)),
-        .release-table__th:nth-child(4),
-        .release-table :global(.release-table__td:nth-child(4)) {
-            display: none;
-        }
-    }
+  }
 </style>

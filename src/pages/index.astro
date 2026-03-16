@@ -25,7 +25,6 @@ import {
   GITHUB_RELEASES_URL,
   GITHUB_WIKI_URL,
   GITHUB_SPONSORS_URL,
-  DISCORD_URL,
   PAYPAL_URL,
   DONORBOX_URL,
   CRYPTO_WALLET_BITCOIN,
@@ -33,6 +32,81 @@ import {
 
 const base = import.meta.env.BASE_URL;
 const featuredPlugins = await getFeaturedPlugins(3);
+const heroProofItems = ["Native training", "Scene editing", "Python + MCP automation"];
+const workflowSteps = [
+  {
+    title: "Train on a native core",
+    description:
+      "Run current 3DGS pipelines on a C++23 and CUDA foundation with save-and-resume instead of loose scripts and disconnected viewers.",
+  },
+  {
+    title: "Edit in context",
+    description:
+      "Brush, lasso, polygon, crop, align, and compose splats while looking at the actual scene, not a pile of exported snapshots.",
+  },
+  {
+    title: "Automate the workflow",
+    description:
+      "Use Python plugins and MCP endpoints to build team-specific panels, operators, batch tools, and assistant-driven flows.",
+  },
+];
+const platformPillars = [
+  {
+    tone: "core",
+    icon: "cpu-fill",
+    eyebrow: "Core runtime",
+    title: "Native performance on the same runtime the team uses",
+    description:
+      "The training engine, scene viewer, and editing workflow live on one runtime, so performance work directly improves the desktop tool your team uses every day.",
+    bullets: [
+      "Modern C++23 and CUDA foundation",
+      "Save and resume long-running training",
+      "Interactive viewer tied to live scene data",
+    ],
+    href: GITHUB_RELEASES_URL,
+    label: "See current releases",
+    external: true,
+  },
+  {
+    tone: "workspace",
+    icon: "vector-pen",
+    eyebrow: "Editing workspace",
+    title: "Editing happens where the scene already lives",
+    description:
+      "Artists and researchers can manipulate, inspect, and compare splats in the same desktop workspace instead of bouncing between utilities.",
+    bullets: [
+      "Brush, lasso, polygon, masking, and composition",
+      "Alignment, crop, transform, and scene cleanup",
+      "Real-time inspection with multiple render modes",
+    ],
+    href: `${base}showcase/`,
+    label: "Explore the showcase",
+    external: false,
+  },
+  {
+    tone: "automation",
+    icon: "command",
+    eyebrow: "Extensibility",
+    title: "Plugins and MCP make the app a real tool surface",
+    description:
+      "Extend the studio in Python and connect it to assistants or external systems over MCP instead of trapping workflow logic inside the UI.",
+    bullets: [
+      "Panels, operators, tools, overlays, and hooks",
+      "Compatibility-aware plugin registry",
+      "External control for camera, render, and editor workflows",
+    ],
+    href: `${GITHUB_REPO_URL}/tree/master/docs/plugins`,
+    label: "Read the extension docs",
+    external: true,
+  },
+];
+const platformProof = [
+  { value: "2.4x faster", label: "training uplift on the current stack benchmark" },
+  { value: "Mask + crop", label: "cleanup tools built into the scene editor" },
+  { value: "Save / resume", label: "long-running jobs survive interruptions" },
+  { value: "Registry installs", label: "plugins can target compatible host versions" },
+];
+const pluginHighlights = ["Registry installs", "Version-aware compatibility", "Plugin-local Python dependencies"];
 
 // SEO metadata for the homepage
 const seoTitle = SITE.name;
@@ -58,22 +132,19 @@ const seoDescription = SITE.description;
     <!-- Value proposition and CTAs overlayed above the splat -->
     <div class="hero__content">
       <!-- Backdrop panel -->
-      <div class="container px-4">
+      <div class="container content-frame px-4">
         <div class="hero__stack">
           <!-- inner animated wrapper to avoid multiplying parent/child opacities -->
           <div class="hero__stack-content">
-            <h1 class="hero__title">LichtFeld Studio</h1>
-            <p class="hero__eyebrow">Desktop-native 3D Gaussian Splatting platform</p>
+            <p class="hero__eyebrow">Open-source 3D Gaussian Splatting platform</p>
+            <h1 class="hero__title">Train, edit, and automate splat workflows in one desktop studio</h1>
             <p class="hero__lead">
-              Train, edit, automate, and ship splat workflows in one open-source studio. Built for teams who want a
-              serious desktop tool, Python extensibility, and MCP control without handing the pipeline to the cloud.
+              LichtFeld Studio brings training, editing, inspection, plugins, and MCP control into one local-first
+              application for teams building real 3DGS pipelines.
             </p>
 
             <div class="hero__proof">
-              <span class="hero__proof-item">Python plugins</span>
-              <span class="hero__proof-item">MCP-ready</span>
-              <span class="hero__proof-item">Real-time editing</span>
-              <span class="hero__proof-item">2.4x faster training</span>
+              {heroProofItems.map((item) => <span class="hero__proof-item">{item}</span>)}
             </div>
 
             <div class="hero__actions">
@@ -99,29 +170,56 @@ const seoDescription = SITE.description;
                 <i class="bi bi-book mr-2" aria-hidden="true"></i>
                 Get Started
               </a>
-              <!-- Tertiary CTA: Donate (scrolls to support section) -->
               <a
-                class="btn btn-outline-light btn-lg hero__support-link"
-                href="#support-the-project"
-                aria-label="Scroll to support the project section"
+                class="btn btn-outline-light btn-lg hero__browse-link"
+                href={`${base}plugins/`}
+                aria-label="Browse the LichtFeld Studio plugin registry"
               >
-                <i class="bi bi-heart-fill mr-2" aria-hidden="true"></i>
-                Donate
+                <i class="bi bi-grid mr-2" aria-hidden="true"></i>
+                Browse plugins
               </a>
             </div>
+
+            <p class="hero__subline">Windows and Linux • Local-first • GPLv3 open source</p>
           </div>
         </div>
       </div>
     </div>
   </header>
 
-  <!-- Introduction -->
-  <section class="intro-section container px-6 pt-14 pb-6">
-    <div class="shell intro-shell">
-      <div class="row items-center g-5">
-        <div class="col-12 col-lg-6 order-2 order-lg-1">
-          <div class="intro-media">
-            <div class="intro-video-wrapper">
+  <section class="story-section">
+    <div class="container content-frame px-6 pt-14 pb-8">
+      <div class="story-grid">
+        <div class="story-copy">
+          <p class="kicker mb-3">Workflow</p>
+          <h2 class="story-title">From training run to finished scene in one app</h2>
+          <p class="story-lead">
+            LichtFeld Studio replaces the usual chain of notebooks, scripts, viewers, and cleanup utilities with one
+            desktop workspace built around 3D Gaussian Splatting.
+          </p>
+          <p class="story-body">
+            The result is simpler handoffs, faster iteration, and a pipeline your team can actually extend without
+            rebuilding the whole stack every time requirements change.
+          </p>
+
+          <div class="story-steps" aria-label="Core workflow">
+            {
+              workflowSteps.map((step, index) => (
+                <article class="story-step">
+                  <span class="story-step__index">0{index + 1}</span>
+                  <div>
+                    <h3 class="story-step__title">{step.title}</h3>
+                    <p class="story-step__desc">{step.description}</p>
+                  </div>
+                </article>
+              ))
+            }
+          </div>
+        </div>
+
+        <div class="story-media-panel">
+          <div class="story-media">
+            <div class="story-video-wrapper">
               <SmartVideo
                 src={`${base}videos/viewer_demo`}
                 poster={`${base}videos/viewer_demo_poster.jpg`}
@@ -131,241 +229,114 @@ const seoDescription = SITE.description;
               />
             </div>
           </div>
-        </div>
-
-        <div class="col-12 col-lg-6 order-1 order-lg-2">
-          <p class="kicker mb-3">Why teams switch</p>
-          <h2 class="text-3xl font-bold text-gray-900 leading-none mb-4">
-            One studio for the whole 3DGS workflow, not a pile of disconnected scripts
-          </h2>
-          <p class="text-lg text-gray-600 mb-4">
-            LichtFeld Studio combines training, interactive editing, real-time inspection, and rendering in one desktop
-            app. It is designed to feel like a production tool, not a research demo.
+          <p class="story-media__caption">
+            The same application handles training output, scene editing, and high-speed inspection.
           </p>
-          <p class="text-base text-gray-500 mb-6">
-            The current platform story is straightforward: fast C++/CUDA core, full editing suite, automation hooks, and
-            extensibility for teams building custom workflows.
-          </p>
-
-          <div class="intro-badges">
-            <span class="intro-badge intro-badge--speed">
-              <svg class="bi" width="1em" height="1em" aria-hidden="true">
-                <use href={`${base}static/bootstrap-icons.svg#lightning-charge-fill`}></use>
-              </svg>
-              Faster training
-            </span>
-            <span class="intro-badge intro-badge--edit">
-              <svg class="bi" width="1em" height="1em" aria-hidden="true">
-                <use href={`${base}static/bootstrap-icons.svg#vector-pen`}></use>
-              </svg>
-              Precision editing
-            </span>
-            <span class="intro-badge intro-badge--offline">
-              <svg class="bi" width="1em" height="1em" aria-hidden="true">
-                <use href={`${base}static/bootstrap-icons.svg#cloud-slash`}></use>
-              </svg>
-              Local-first
-            </span>
-            <span class="intro-badge intro-badge--open">
-              <svg class="bi" width="1em" height="1em" aria-hidden="true">
-                <use href={`${base}static/bootstrap-icons.svg#unlock-fill`}></use>
-              </svg>
-              Open platform
-            </span>
-          </div>
-
-          <div class="workflow-inline mt-6" aria-label="Core workflow">
-            <div class="workflow-inline__item">
-              <strong>Train</strong>
-              <span>Modern 3DGS pipelines on a high-performance C++23 and CUDA core.</span>
-            </div>
-            <div class="workflow-inline__item">
-              <strong>Edit</strong>
-              <span>Brush, lasso, polygon, masking, composition, and alignment in one place.</span>
-            </div>
-            <div class="workflow-inline__item">
-              <strong>Automate</strong>
-              <span>Python plugins and MCP for custom workflows, assistants, and tools.</span>
-            </div>
-          </div>
         </div>
       </div>
     </div>
   </section>
 
   <section id="features" class="platform-section">
-    <div class="container px-6 pt-20 pb-12">
+    <div class="container content-frame px-6 pt-8 pb-10">
       <div class="shell shell--spacious platform-shell">
-        <div class="platform-intro">
+        <div class="platform-header">
           <p class="kicker mb-3">Platform features</p>
-          <h2 class="text-4xl font-bold text-gray-900 mb-3">
-            A production-ready 3DGS platform you can actually build on
-          </h2>
-          <p class="text-lg text-gray-500">
-            High-performance rendering is only the start. LichtFeld Studio gives teams an extensible desktop platform
-            for editing, automation, and custom 3DGS workflows.
+          <h2 class="platform-title">Three pillars that keep the workflow in one studio</h2>
+          <p class="platform-copy">
+            Each pillar removes a handoff. Compute, editing, and automation all live in the same environment, so the
+            product scales with the workflow instead of fragmenting it.
           </p>
         </div>
 
-        <div class="platform-grid">
-          <article class="platform-card platform-card--featured">
-            <div class="platform-card__icon" aria-hidden="true">
-              <svg class="bi" width="1.75em" height="1.75em">
-                <use href={`${base}static/bootstrap-icons.svg#boxes`}></use>
-              </svg>
-            </div>
-            <p class="platform-card__eyebrow">Python plugins</p>
-            <h3 class="platform-card__title">Extend the studio without forking the core app</h3>
-            <p class="platform-card__desc">
-              Build panels, operators, tools, overlays, hooks, and plugin-local dependencies. Scaffold new plugins,
-              iterate in Python, and keep custom workflows isolated.
-            </p>
-            <a
-              class="platform-card__link"
-              href={`${GITHUB_REPO_URL}/tree/master/docs/plugins`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Explore plugin docs
-            </a>
-          </article>
-
-          <article class="platform-card platform-card--featured">
-            <div class="platform-card__icon" aria-hidden="true">
-              <svg class="bi" width="1.75em" height="1.75em">
-                <use href={`${base}static/bootstrap-icons.svg#command`}></use>
-              </svg>
-            </div>
-            <p class="platform-card__eyebrow">MCP integration</p>
-            <h3 class="platform-card__title">Expose the app as a controllable 3DGS tool surface</h3>
-            <p class="platform-card__desc">
-              Drive camera, render, sequencer, and editor workflows over MCP. That makes LichtFeld Studio usable by
-              assistants, scripts, and external tools instead of staying trapped inside the UI.
-            </p>
-            <a
-              class="platform-card__link"
-              href={`${GITHUB_REPO_URL}/tree/master/docs/docs/development/mcp`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Read the MCP guide
-            </a>
-          </article>
-
-          <article class="platform-card">
-            <div class="platform-card__icon" aria-hidden="true">
-              <svg class="bi" width="1.5em" height="1.5em">
-                <use href={`${base}static/bootstrap-icons.svg#cpu-fill`}></use>
-              </svg>
-            </div>
-            <h3 class="platform-card__title">Fast native core</h3>
-            <p class="platform-card__desc">
-              Modern C++23 and CUDA architecture built for high-performance 3D Gaussian Splatting workflows.
-            </p>
-          </article>
-
-          <article class="platform-card">
-            <div class="platform-card__icon" aria-hidden="true">
-              <svg class="bi" width="1.5em" height="1.5em">
-                <use href={`${base}static/bootstrap-icons.svg#vector-pen`}></use>
-              </svg>
-            </div>
-            <h3 class="platform-card__title">Full editing suite</h3>
-            <p class="platform-card__desc">
-              Move, rotate, scale, crop, mask, align, and compose splats without bouncing between separate tools.
-            </p>
-          </article>
-
-          <article class="platform-card">
-            <div class="platform-card__icon" aria-hidden="true">
-              <svg class="bi" width="1.5em" height="1.5em">
-                <use href={`${base}static/bootstrap-icons.svg#display`}></use>
-              </svg>
-            </div>
-            <h3 class="platform-card__title">Interactive viewer</h3>
-            <p class="platform-card__desc">
-              Inspect scenes in real time with multiple render modes and a desktop UI built for iteration.
-            </p>
-          </article>
-
-          <article class="platform-card">
-            <div class="platform-card__icon" aria-hidden="true">
-              <svg class="bi" width="1.5em" height="1.5em">
-                <use href={`${base}static/bootstrap-icons.svg#cloud-slash`}></use>
-              </svg>
-            </div>
-            <h3 class="platform-card__title">Offline by default</h3>
-            <p class="platform-card__desc">
-              Run locally, keep assets under your control, and avoid cloud lock-in for research and production work.
-            </p>
-          </article>
+        <div class="pillar-grid">
+          {
+            platformPillars.map((pillar) => (
+              <article class:list={["pillar-card", `pillar-card--${pillar.tone}`]}>
+                <div class="pillar-card__header">
+                  <div class="pillar-card__icon" aria-hidden="true">
+                    <svg class="bi" width="1.4em" height="1.4em">
+                      <use href={`${base}static/bootstrap-icons.svg#${pillar.icon}`} />
+                    </svg>
+                  </div>
+                  <p class="pillar-card__eyebrow">{pillar.eyebrow}</p>
+                </div>
+                <h3 class="pillar-card__title">{pillar.title}</h3>
+                <p class="pillar-card__desc">{pillar.description}</p>
+                <ul class="pillar-card__list">
+                  {pillar.bullets.map((bullet) => (
+                    <li>{bullet}</li>
+                  ))}
+                </ul>
+                <a
+                  class="platform-card__link"
+                  href={pillar.href}
+                  target={pillar.external ? "_blank" : undefined}
+                  rel={pillar.external ? "noopener noreferrer" : undefined}
+                >
+                  {pillar.label}
+                </a>
+              </article>
+            ))
+          }
         </div>
 
-        <div class="platform-checklist">
-          <span>2.4x faster training</span>
-          <span>Mask support</span>
-          <span>Save and resume</span>
-          <span>3-point alignment</span>
-          <span>Open-source GPLv3</span>
+        <div class="platform-proof-grid">
+          {
+            platformProof.map((item) => (
+              <div class="platform-proof-item">
+                <strong>{item.value}</strong>
+                <span>{item.label}</span>
+              </div>
+            ))
+          }
         </div>
       </div>
     </div>
   </section>
 
   <section id="plugins" class="plugins-preview-section" aria-labelledby="plugins-preview-heading">
-    <div class="container px-6 pt-6 pb-6">
-      <div class="shell shell--spacious plugins-preview-shell">
-        <div class="plugins-preview-intro">
+    <div class="container content-frame px-6 pt-6 pb-6">
+      <div class="shell shell--spacious plugins-shell">
+        <div class="plugins-preview-header">
           <div>
-            <p class="kicker mb-3">Plugin registry</p>
-            <h2 id="plugins-preview-heading" class="text-4xl font-bold text-gray-900 mb-3">
-              Real plugins, real registry, real extensibility
-            </h2>
-            <p class="text-lg text-gray-500 mb-0">
-              LichtFeld Studio already has the foundations of an ecosystem: Python plugins, isolated dependencies,
-              registry installs, and compatibility checks against the host runtime.
+            <p class="kicker mb-3">Plugin ecosystem</p>
+            <h2 id="plugins-preview-heading" class="plugins-preview-title">An extension system teams can use today</h2>
+            <p class="plugins-preview-copy">
+              The registry, compatibility model, and plugin-local dependencies already support custom panels, tools,
+              overlays, and workflow logic without forking the core app.
             </p>
           </div>
 
-          <div class="plugins-preview-stats">
-            <div class="stat-block plugins-preview-stat">
-              <strong>Marketplace install flow</strong>
-              <span>Browse, evaluate, and install plugins inside LichtFeld Studio.</span>
-            </div>
-            <div class="stat-block plugins-preview-stat">
-              <strong>Compatibility-aware registry</strong>
-              <span>Versions can be resolved against the host runtime and plugin API.</span>
-            </div>
-            <div class="stat-block plugins-preview-stat">
-              <strong>Isolated Python dependencies</strong>
-              <span>Custom workflow code stays modular instead of forking the core app.</span>
-            </div>
+          <div class="plugins-highlight-list" aria-label="Plugin platform highlights">
+            {pluginHighlights.map((item) => <span class="plugins-highlight-pill">{item}</span>)}
           </div>
         </div>
 
         <div class="plugins-preview-grid">
-          {featuredPlugins.map((plugin) => <PluginCard plugin={plugin} compact={true} />)}
+          {featuredPlugins.map((plugin) => <PluginCard plugin={plugin} />)}
         </div>
 
         <div class="plugins-preview-footer">
           <p class="plugins-preview-note mb-0">
-            Registry installs can target specific compatible plugin versions instead of random GitHub clones.
+            Registry installs can target compatible plugin versions instead of random GitHub clones or ad-hoc setup
+            docs.
           </p>
-          <a class="platform-card__link" href={`${base}plugins/`}>Browse all plugins</a>
+          <a class="section-link" href={`${base}plugins/`}>Browse all plugins</a>
         </div>
       </div>
     </div>
   </section>
 
   <section id="sponsors" class="sponsors-section" aria-labelledby="sponsors-heading">
-    <div class="container px-6 pt-6 pb-6">
+    <div class="container content-frame px-6 pt-6 pb-6">
       <div class="shell shell--spacious sponsors-shell">
         <div class="sponsors-intro">
           <p class="kicker mb-3">Sponsors</p>
-          <h2 id="sponsors-heading" class="text-4xl font-bold text-gray-900 mb-3">
+          <h2 id="sponsors-heading" class="sponsors-title">
             Backed by organizations investing in the future of LichtFeld Studio
           </h2>
-          <p class="text-lg text-gray-500 mb-0">
+          <p class="sponsors-copy">
             Foundational Sponsors are honored permanently for helping kickstart LichtFeld Studio.
           </p>
         </div>
@@ -483,95 +454,103 @@ const seoDescription = SITE.description;
 
   <!-- Support / Donations (deeplink target) -->
   <section id="support-the-project" aria-labelledby="support-the-project-heading">
-    <div class="container px-6 pt-12 pb-12">
-      <div class="shell support-box">
-        <div class="support-box__header">
-          <div class="support-box__icon" aria-hidden="true">
-            <svg class="bi" width="1.5em" height="1.5em">
-              <use href={`${base}static/bootstrap-icons.svg#heart-fill`}></use>
-            </svg>
+    <div class="container content-frame px-6 pt-12 pb-12">
+      <div class="shell shell--spacious support-box">
+        <div class="support-box__layout">
+          <div class="support-box__intro">
+            <div class="support-box__header">
+              <div class="support-box__icon" aria-hidden="true">
+                <svg class="bi" width="1.5em" height="1.5em">
+                  <use href={`${base}static/bootstrap-icons.svg#heart-fill`}></use>
+                </svg>
+              </div>
+              <h2 id="support-the-project-heading" class="support-box__title">Support the Project</h2>
+            </div>
+            <p class="support-box__desc">
+              Fund development and maintenance through your preferred platform. Every contribution helps keep the
+              project alive and fund further research and development.
+            </p>
           </div>
-          <h2 id="support-the-project-heading" class="support-box__title">Support the Project</h2>
-        </div>
-        <p class="support-box__desc">
-          Fund development and maintenance through your preferred platform. Every contribution helps keep the project
-          alive and fund further research and development.
-        </p>
 
-        <!-- Amount Selection -->
-        <div class="donate-amounts" role="radiogroup" aria-label="Select donation amount">
-          <button type="button" class="donate-amount" data-amount="5" aria-pressed="false">$5</button>
-          <button type="button" class="donate-amount" data-amount="10" aria-pressed="true">$10</button>
-          <button type="button" class="donate-amount" data-amount="25" aria-pressed="false">$25</button>
-          <button type="button" class="donate-amount" data-amount="100" aria-pressed="false">$100</button>
-          <div class="donate-amount-custom">
-            <span class="donate-amount-custom__prefix">$</span>
-            <input
-              type="number"
-              class="donate-amount-custom__input"
-              id="custom-amount"
-              placeholder="Other"
-              min="1"
-              aria-label="Enter custom donation amount"
-            />
+          <div class="support-box__panel">
+            <p class="support-box__label">Choose an amount and funding path</p>
+
+            <!-- Amount Selection -->
+            <div class="donate-amounts" role="radiogroup" aria-label="Select donation amount">
+              <button type="button" class="donate-amount" data-amount="5" aria-pressed="false">$5</button>
+              <button type="button" class="donate-amount" data-amount="10" aria-pressed="true">$10</button>
+              <button type="button" class="donate-amount" data-amount="25" aria-pressed="false">$25</button>
+              <button type="button" class="donate-amount" data-amount="100" aria-pressed="false">$100</button>
+              <div class="donate-amount-custom">
+                <span class="donate-amount-custom__prefix">$</span>
+                <input
+                  type="number"
+                  class="donate-amount-custom__input"
+                  id="custom-amount"
+                  placeholder="Other"
+                  min="1"
+                  aria-label="Enter custom donation amount"
+                />
+              </div>
+            </div>
+
+            <!-- Provider Buttons -->
+            <div class="donate-providers">
+              <a
+                class="donate-provider donate-provider--paypal"
+                href={PAYPAL_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-provider="paypal"
+                data-base-url={PAYPAL_URL}
+                aria-label="Donate via PayPal"
+              >
+                <svg class="bi" width="1.25em" height="1.25em" aria-hidden="true">
+                  <use href={`${base}static/bootstrap-icons.svg#paypal`}></use>
+                </svg>
+                PayPal
+              </a>
+              <a
+                class="donate-provider donate-provider--donorbox"
+                href={DONORBOX_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-provider="donorbox"
+                data-base-url={DONORBOX_URL}
+                aria-label="Donate via DonorBox"
+              >
+                <svg class="bi" width="1.25em" height="1.25em" aria-hidden="true">
+                  <use href={`${base}static/bootstrap-icons.svg#gift-fill`}></use>
+                </svg>
+                DonorBox
+              </a>
+              <a
+                class="donate-provider donate-provider--github"
+                href={GITHUB_SPONSORS_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-provider="github"
+                aria-label="Sponsor on GitHub"
+              >
+                <svg class="bi" width="1.25em" height="1.25em" aria-hidden="true">
+                  <use href={`${base}static/bootstrap-icons.svg#github`}></use>
+                </svg>
+                GitHub Sponsors
+              </a>
+              <button
+                type="button"
+                class="donate-provider donate-provider--bitcoin"
+                data-provider="bitcoin"
+                data-wallet={CRYPTO_WALLET_BITCOIN}
+                aria-label="Copy Bitcoin wallet address"
+              >
+                <svg class="bi" width="1.25em" height="1.25em" aria-hidden="true">
+                  <use href={`${base}static/bootstrap-icons.svg#currency-bitcoin`}></use>
+                </svg>
+                Bitcoin
+              </button>
+            </div>
           </div>
-        </div>
-
-        <!-- Provider Buttons -->
-        <div class="donate-providers">
-          <a
-            class="donate-provider donate-provider--paypal"
-            href={PAYPAL_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            data-provider="paypal"
-            data-base-url={PAYPAL_URL}
-            aria-label="Donate via PayPal"
-          >
-            <svg class="bi" width="1.25em" height="1.25em" aria-hidden="true">
-              <use href={`${base}static/bootstrap-icons.svg#paypal`}></use>
-            </svg>
-            PayPal
-          </a>
-          <a
-            class="donate-provider donate-provider--donorbox"
-            href={DONORBOX_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            data-provider="donorbox"
-            data-base-url={DONORBOX_URL}
-            aria-label="Donate via DonorBox"
-          >
-            <svg class="bi" width="1.25em" height="1.25em" aria-hidden="true">
-              <use href={`${base}static/bootstrap-icons.svg#gift-fill`}></use>
-            </svg>
-            DonorBox
-          </a>
-          <a
-            class="donate-provider donate-provider--github"
-            href={GITHUB_SPONSORS_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            data-provider="github"
-            aria-label="Sponsor on GitHub"
-          >
-            <svg class="bi" width="1.25em" height="1.25em" aria-hidden="true">
-              <use href={`${base}static/bootstrap-icons.svg#github`}></use>
-            </svg>
-            GitHub Sponsors
-          </a>
-          <button
-            type="button"
-            class="donate-provider donate-provider--bitcoin"
-            data-provider="bitcoin"
-            data-wallet={CRYPTO_WALLET_BITCOIN}
-            aria-label="Copy Bitcoin wallet address"
-          >
-            <svg class="bi" width="1.25em" height="1.25em" aria-hidden="true">
-              <use href={`${base}static/bootstrap-icons.svg#currency-bitcoin`}></use>
-            </svg>
-            Bitcoin
-          </button>
         </div>
 
         <!-- Bitcoin wallet popup (hidden by default) -->
@@ -1093,17 +1072,27 @@ const seoDescription = SITE.description;
     background: #3d8bfd;
   }
 
-  /* Ensure the secondary CTA is visible over dark gradients */
-  .hero__support-link {
-    background: rgba(99, 102, 241, 0.25);
-    border-color: rgba(165, 180, 252, 0.5);
+  /* Keep the secondary CTA legible over the hero gradients */
+  .hero__browse-link {
+    background: rgba(15, 23, 42, 0.25);
+    border-color: rgba(191, 219, 254, 0.34);
     color: #fff;
   }
 
-  .hero__support-link:hover {
-    background: rgba(99, 102, 241, 0.4);
-    border-color: rgba(165, 180, 252, 0.8);
+  .hero__browse-link:hover {
+    background: rgba(15, 23, 42, 0.4);
+    border-color: rgba(191, 219, 254, 0.62);
     color: #fff;
+  }
+
+  .hero__subline {
+    margin: 1rem 0 0;
+    color: rgba(255, 255, 255, 0.68);
+    font-size: 0.84rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    position: relative;
   }
 
   /* Get Started button with semi-transparent green background */
@@ -1191,9 +1180,21 @@ const seoDescription = SITE.description;
       align-items: center;
       text-align: center;
     }
-    .platform-card,
-    .platform-card--featured {
-      grid-column: span 12;
+    .story-grid {
+      grid-template-columns: 1fr;
+    }
+    .story-copy {
+      max-width: none;
+    }
+    .pillar-grid,
+    .plugins-preview-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .platform-proof-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .plugins-highlight-list {
+      justify-content: flex-start;
     }
     .foundational-sponsor-card {
       grid-template-columns: 1fr;
@@ -1239,17 +1240,9 @@ const seoDescription = SITE.description;
       font-size: 0.875rem;
     }
 
-    .intro-shell {
-      border-radius: 1.25rem;
-      padding: 1.1rem;
-    }
-
-    .platform-shell {
-      border-radius: 1.25rem;
-      padding: 1.1rem;
-    }
-
-    .plugins-preview-shell,
+    .story-media,
+    .platform-shell,
+    .plugins-shell,
     .sponsors-shell {
       border-radius: 1.25rem;
       padding: 1.1rem;
@@ -1273,132 +1266,132 @@ const seoDescription = SITE.description;
     }
   }
 
-  /* Narrower container for features section */
-  #features .container {
-    max-width: 1180px;
-  }
-
-  /* Match support section container width to features section */
-  #support-the-project .container {
-    max-width: 1180px;
-  }
-
   /* Match contributors section container width to features section */
   .contributors-section :global(.container) {
-    max-width: 1180px;
-    text-align: center;
+    max-width: var(--content-frame-max);
+    text-align: left;
     border-radius: 2rem;
     padding-block: clamp(1.75rem, 3vw, 2.5rem);
-    background: var(--surface-bg);
+    background:
+      radial-gradient(circle at top left, rgba(37, 99, 235, 0.06), transparent 30%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.94));
     border: 1px solid var(--surface-border);
     box-shadow: var(--surface-shadow);
   }
 
-  /* ===========================
-   * Intro Section Enhancements
-   * =========================== */
-
-  .intro-shell {
-    padding: clamp(1.25rem, 2.6vw, 2rem);
+  .story-section {
+    position: relative;
   }
 
-  .intro-badges {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.625rem;
+  .story-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    gap: clamp(1.5rem, 4vw, 3.25rem);
+    align-items: center;
   }
 
-  .intro-badge {
+  .story-copy {
+    max-width: 44rem;
+  }
+
+  .story-title {
+    margin: 0;
+    color: var(--color-heading);
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+  }
+
+  .story-lead {
+    margin: 1rem 0 0;
+    color: #334155;
+    font-size: 1.1rem;
+    line-height: 1.75;
+  }
+
+  .story-body {
+    margin: 0.9rem 0 0;
+    color: var(--color-body);
+    line-height: 1.72;
+  }
+
+  .story-steps {
+    display: grid;
+    gap: 0.9rem;
+    margin-top: 1.75rem;
+  }
+
+  .story-step {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1rem;
+    align-items: start;
+    padding: 1rem 1.1rem;
+    border-radius: 1.35rem;
+    background: rgba(255, 255, 255, 0.82);
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    box-shadow:
+      0 14px 28px rgba(15, 23, 42, 0.05),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  }
+
+  .story-step__index {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
-    padding: 0.375rem 0.75rem;
-    font-size: 0.8125rem;
-    font-weight: 600;
-    border-radius: 9999px;
-    white-space: nowrap;
+    justify-content: center;
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+    border-radius: 999px;
+    background: rgba(14, 165, 233, 0.12);
+    color: #0369a1;
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
   }
 
-  .intro-badge .bi {
-    font-size: 0.9rem;
-  }
-
-  /* Badge color variants */
-  .intro-badge--speed {
-    background: linear-gradient(135deg, rgba(255, 193, 7, 0.15), rgba(255, 152, 0, 0.15));
-    color: #b86e00;
-    border: 1px solid rgba(255, 152, 0, 0.3);
-  }
-
-  .intro-badge--edit {
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(99, 102, 241, 0.12));
-    color: #6d28d9;
-    border: 1px solid rgba(139, 92, 246, 0.25);
-  }
-
-  .intro-badge--offline {
-    background: linear-gradient(135deg, rgba(100, 116, 139, 0.12), rgba(71, 85, 105, 0.12));
-    color: #475569;
-    border: 1px solid rgba(100, 116, 139, 0.25);
-  }
-
-  .intro-badge--open {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(14, 165, 233, 0.12));
-    color: #1d4ed8;
-    border: 1px solid rgba(59, 130, 246, 0.25);
-  }
-
-  /* Intro media wrapper with subtle styling */
-  .intro-media {
-    position: relative;
-    border-radius: 1rem;
-    overflow: hidden;
-    box-shadow:
-      0 20px 40px rgba(0, 0, 0, 0.08),
-      0 8px 16px rgba(0, 0, 0, 0.04);
-  }
-
-  .intro-video-wrapper {
-    position: relative;
-    width: 100%;
-    /* Aspect ratio matches viewer_demo.mp4 (1116x720 = 31:20) */
-    aspect-ratio: 31 / 20;
-  }
-
-  .intro-media img {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-
-  .workflow-inline {
-    display: grid;
-    gap: 0.85rem;
-    padding-top: 0.25rem;
-  }
-
-  .workflow-inline__item {
-    display: flex;
-    gap: 0.75rem;
-    align-items: baseline;
-    padding-bottom: 0.85rem;
-    border-bottom: 1px solid rgba(148, 163, 184, 0.22);
-  }
-
-  .workflow-inline__item:last-child {
-    padding-bottom: 0;
-    border-bottom: 0;
-  }
-
-  .workflow-inline__item strong {
-    min-width: 5.5rem;
+  .story-step__title {
+    margin: 0;
     color: var(--color-heading);
-    font-size: 0.98rem;
-    line-height: 1.4;
+    font-size: 1.05rem;
+    line-height: 1.35;
   }
 
-  .workflow-inline__item span {
+  .story-step__desc {
+    margin: 0.35rem 0 0;
     color: var(--color-body);
+    line-height: 1.65;
+  }
+
+  .story-media-panel {
+    position: relative;
+  }
+
+  .story-media {
+    padding: clamp(1rem, 2vw, 1.35rem);
+    border-radius: 2rem;
+    background:
+      radial-gradient(circle at top left, rgba(14, 165, 233, 0.12), transparent 34%),
+      radial-gradient(circle at bottom right, rgba(37, 99, 235, 0.1), transparent 36%), rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    box-shadow: var(--surface-shadow);
+  }
+
+  .story-video-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 31 / 20;
+    overflow: hidden;
+    border-radius: 1.45rem;
+    background: #0f172a;
+    box-shadow:
+      0 22px 44px rgba(15, 23, 42, 0.18),
+      0 8px 16px rgba(15, 23, 42, 0.08);
+  }
+
+  .story-media__caption {
+    margin: 1rem 0 0;
+    color: var(--color-muted);
+    font-size: 0.95rem;
     line-height: 1.6;
   }
 
@@ -1406,132 +1399,250 @@ const seoDescription = SITE.description;
     position: relative;
   }
 
-  .platform-intro {
-    max-width: 50rem;
-    margin-bottom: 1.75rem;
+  .platform-header {
+    max-width: 52rem;
+    margin-bottom: 2rem;
   }
 
-  .platform-grid {
+  .platform-title {
+    margin: 0;
+    color: var(--color-heading);
+    font-size: clamp(1.9rem, 4vw, 2.7rem);
+    line-height: 1.04;
+    letter-spacing: -0.03em;
+  }
+
+  .platform-copy {
+    margin: 1rem 0 0;
+    color: var(--color-body);
+    font-size: 1.06rem;
+    line-height: 1.72;
+  }
+
+  .pillar-grid {
     display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1rem;
   }
 
-  .platform-card {
-    grid-column: span 4;
-    padding: 1.4rem;
-    border-radius: 1.25rem;
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    box-shadow: var(--card-shadow);
+  .pillar-card {
+    --pillar-accent: 37, 99, 235;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    padding: 1.5rem;
+    border-radius: 1.5rem;
+    background: linear-gradient(
+      180deg,
+      rgba(var(--pillar-accent), 0.1) 0%,
+      rgba(255, 255, 255, 0.98) 28%,
+      rgba(248, 250, 252, 0.95) 100%
+    );
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    box-shadow:
+      0 18px 32px rgba(15, 23, 42, 0.05),
+      inset 0 1px 0 rgba(255, 255, 255, 0.92);
   }
 
-  .platform-card--featured {
-    grid-column: span 6;
-    background: rgba(255, 255, 255, 0.95);
+  .pillar-card--core {
+    --pillar-accent: 37, 99, 235;
   }
 
-  .platform-card__icon {
+  .pillar-card--workspace {
+    --pillar-accent: 8, 145, 178;
+  }
+
+  .pillar-card--automation {
+    --pillar-accent: 124, 58, 237;
+  }
+
+  .pillar-card__header {
+    display: flex;
+    align-items: center;
+    gap: 0.95rem;
+    margin-bottom: 1rem;
+  }
+
+  .pillar-card__icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 3rem;
-    height: 3rem;
-    margin-bottom: 1rem;
-    border-radius: 0.95rem;
-    color: #0f172a;
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.14), rgba(14, 165, 233, 0.16));
+    width: 3.2rem;
+    height: 3.2rem;
+    border-radius: 1rem;
+    background: rgba(var(--pillar-accent), 0.14);
+    color: rgb(var(--pillar-accent));
+    box-shadow: inset 0 0 0 1px rgba(var(--pillar-accent), 0.14);
   }
 
-  .platform-card__eyebrow {
-    margin: 0 0 0.45rem;
-    color: #2563eb;
-    font-size: 0.85rem;
-    font-weight: 700;
+  .pillar-card__eyebrow {
+    margin: 0;
+    color: rgb(var(--pillar-accent));
+    font-size: 0.79rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
   }
 
-  .platform-card__title {
-    margin: 0 0 0.65rem;
+  .pillar-card__title {
+    margin: 0;
     color: var(--color-heading);
-    font-size: 1.25rem;
-    line-height: 1.3;
+    font-size: 1.32rem;
+    line-height: 1.2;
   }
 
-  .platform-card__desc {
+  .pillar-card__desc {
     margin: 0;
     color: var(--color-body);
-    line-height: 1.65;
+    line-height: 1.68;
+  }
+
+  .pillar-card__list {
+    display: grid;
+    gap: 0.7rem;
+    margin: 1.1rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .pillar-card__list li {
+    position: relative;
+    padding-left: 1.1rem;
+    color: #334155;
+    font-weight: 600;
+    line-height: 1.55;
+  }
+
+  .pillar-card__list li::before {
+    content: "";
+    position: absolute;
+    top: 0.55rem;
+    left: 0;
+    width: 0.42rem;
+    height: 0.42rem;
+    border-radius: 999px;
+    background: rgba(var(--pillar-accent), 0.8);
   }
 
   .platform-card__link {
     display: inline-flex;
     align-items: center;
     width: fit-content;
-    margin-top: 1rem;
-    margin-left: -0.3rem;
-    padding: 0.25rem 0.45rem;
+    margin-top: 1.2rem;
+    padding: 0.4rem 0.55rem;
     border: 1px solid transparent;
-    border-radius: 0.75rem;
-    background: rgba(37, 99, 235, 0.02);
+    border-radius: 0.8rem;
+    background: rgba(37, 99, 235, 0.04);
     color: var(--color-primary-link);
     font-weight: 700;
     text-decoration: none;
     transition:
       color 0.18s ease,
+      transform 0.18s ease,
       background-color 0.18s ease,
       border-color 0.18s ease,
       box-shadow 0.18s ease;
   }
 
+  .pillar-card .platform-card__link {
+    margin-top: auto;
+    align-self: flex-start;
+  }
+
   .platform-card__link:hover {
-    background: rgba(37, 99, 235, 0.08);
+    transform: translateY(-1px);
+    background: rgba(37, 99, 235, 0.09);
     color: var(--color-primary-link-hover);
   }
 
   .platform-card__link:focus-visible {
     outline: none;
-    background: rgba(37, 99, 235, 0.08);
+    background: rgba(37, 99, 235, 0.09);
     color: var(--color-primary-link-hover);
     border-color: var(--color-primary-link);
     box-shadow: var(--focus-shadow);
   }
 
-  .platform-checklist {
+  .platform-proof-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.9rem;
+    margin-top: 1.25rem;
+  }
+
+  .platform-proof-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 1rem 1.1rem;
+    border-radius: 1.2rem;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(148, 163, 184, 0.18);
+  }
+
+  .platform-proof-item strong {
+    color: var(--color-heading);
+    font-size: 1rem;
+    line-height: 1.35;
+  }
+
+  .platform-proof-item span {
+    color: var(--color-muted);
+    line-height: 1.55;
+  }
+
+  .plugins-preview-section {
+    position: relative;
+  }
+
+  .plugins-shell,
+  .sponsors-shell,
+  .support-box {
+    background:
+      radial-gradient(circle at top left, rgba(37, 99, 235, 0.06), transparent 30%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.94));
+  }
+
+  .plugins-preview-header {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .plugins-preview-title {
+    margin: 0;
+    color: var(--color-heading);
+    font-size: clamp(1.9rem, 4vw, 2.7rem);
+    line-height: 1.04;
+    letter-spacing: -0.03em;
+  }
+
+  .plugins-preview-copy {
+    margin: 1rem 0 0;
+    color: var(--color-body);
+    font-size: 1.04rem;
+    line-height: 1.72;
+    max-width: 44rem;
+  }
+
+  .plugins-highlight-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
-    margin-top: 1.5rem;
+    gap: 0.7rem;
+    justify-content: flex-start;
   }
 
-  .platform-checklist span {
+  .plugins-highlight-pill {
     display: inline-flex;
     align-items: center;
-    padding: 0.55rem 0.85rem;
+    padding: 0.55rem 0.8rem;
     border-radius: 999px;
-    background: rgba(15, 23, 42, 0.04);
+    background: rgba(15, 23, 42, 0.05);
+    border: 1px solid rgba(148, 163, 184, 0.18);
     color: #334155;
-    font-size: 0.9rem;
-    font-weight: 600;
-  }
-
-  .plugins-preview-intro {
-    display: grid;
-    grid-template-columns: minmax(0, 1.5fr) minmax(300px, 0.9fr);
-    gap: 1rem;
-    align-items: start;
-    margin-bottom: 1.5rem;
-  }
-
-  .plugins-preview-stats {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 0.85rem;
-  }
-
-  .plugins-preview-stat strong {
-    font-size: 1.45rem;
+    font-size: 0.85rem;
+    font-weight: 700;
   }
 
   .plugins-preview-grid {
@@ -1545,22 +1656,27 @@ const seoDescription = SITE.description;
     justify-content: space-between;
     align-items: center;
     gap: 1rem;
-    margin-top: 1.25rem;
+    margin-top: 1.35rem;
   }
 
   .plugins-preview-note {
+    max-width: 42rem;
     color: var(--color-muted);
-    line-height: 1.6;
-  }
-
-  @media (max-width: 991.98px) {
-    .plugins-preview-intro,
-    .plugins-preview-grid {
-      grid-template-columns: 1fr;
-    }
+    line-height: 1.65;
   }
 
   @media (max-width: 767.98px) {
+    .story-step {
+      grid-template-columns: 1fr;
+      gap: 0.85rem;
+    }
+
+    .pillar-grid,
+    .platform-proof-grid,
+    .plugins-preview-grid {
+      grid-template-columns: 1fr;
+    }
+
     .plugins-preview-footer {
       flex-direction: column;
       align-items: flex-start;
@@ -1576,18 +1692,34 @@ const seoDescription = SITE.description;
     margin-bottom: 1.75rem;
   }
 
+  .sponsors-title {
+    margin: 0;
+    color: var(--color-heading);
+    font-size: clamp(1.9rem, 4vw, 2.7rem);
+    line-height: 1.04;
+    letter-spacing: -0.03em;
+  }
+
+  .sponsors-copy {
+    margin: 1rem 0 0;
+    color: var(--color-body);
+    font-size: 1.04rem;
+    line-height: 1.72;
+    max-width: 44rem;
+  }
+
   .foundational-sponsor-card {
     display: grid;
-    grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
-    gap: 1.25rem;
+    grid-template-columns: minmax(0, 1.2fr) minmax(240px, 0.8fr);
+    gap: 1rem;
     align-items: center;
-    padding: 1.5rem;
-    border-radius: 1.5rem;
+    padding: 1.35rem;
+    border-radius: 1.35rem;
     background:
       radial-gradient(circle at top right, rgba(245, 158, 11, 0.08), transparent 26%), rgba(255, 255, 255, 0.96);
     border: 1px solid rgba(217, 119, 6, 0.16);
     box-shadow:
-      0 20px 40px rgba(15, 23, 42, 0.05),
+      0 16px 30px rgba(15, 23, 42, 0.05),
       inset 0 1px 0 rgba(255, 255, 255, 0.95);
   }
 
@@ -1603,23 +1735,22 @@ const seoDescription = SITE.description;
   .foundational-sponsor-card__title {
     margin: 0 0 0.65rem;
     color: var(--color-heading);
-    font-size: clamp(1.6rem, 2.5vw, 2.1rem);
-    line-height: 1.15;
+    font-size: clamp(1.35rem, 2.2vw, 1.75rem);
+    line-height: 1.12;
   }
 
   .foundational-sponsor-card__desc {
     margin: 0;
     color: var(--color-body);
-    line-height: 1.7;
-    max-width: 42rem;
+    line-height: 1.65;
   }
 
   .foundational-sponsor-card__brand {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 180px;
-    padding: 1.5rem;
+    min-height: 150px;
+    padding: 1.25rem;
     border-radius: 1.25rem;
     background: rgba(255, 255, 255, 0.94);
     border: 1px solid var(--card-border);
@@ -1644,24 +1775,39 @@ const seoDescription = SITE.description;
   }
 
   .foundational-sponsor-card__logo {
-    width: min(100%, 250px);
+    width: min(100%, 220px);
     height: auto;
     display: block;
   }
 
   .sponsor-tier-grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1rem;
-    margin-top: 1.25rem;
+    margin-top: 1rem;
   }
 
   .sponsor-tier-card {
-    padding: 1.35rem;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    padding: 1.45rem;
     border-radius: 1.25rem;
     background: var(--card-bg);
     border: 1px solid var(--card-border);
     box-shadow: var(--card-shadow);
+    overflow: hidden;
+  }
+
+  .sponsor-tier-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 0.24rem;
+    background: var(--tier-accent, rgba(37, 99, 235, 0.4));
   }
 
   .sponsor-tier-card__name {
@@ -1681,14 +1827,15 @@ const seoDescription = SITE.description;
   .sponsor-tier-card__desc {
     margin: 0;
     color: var(--color-muted);
-    line-height: 1.6;
+    line-height: 1.65;
   }
 
   .sponsor-tier-card__members {
     display: flex;
     flex-wrap: wrap;
     gap: 0.6rem;
-    margin-top: 1rem;
+    margin-top: auto;
+    padding-top: 1rem;
   }
 
   .sponsor-tier-card__member {
@@ -1727,18 +1874,22 @@ const seoDescription = SITE.description;
   }
 
   .sponsor-tier-card--platinum {
+    --tier-accent: linear-gradient(90deg, #94a3b8, #cbd5e1);
     background: rgba(255, 255, 255, 0.95);
   }
 
   .sponsor-tier-card--gold {
+    --tier-accent: linear-gradient(90deg, #f59e0b, #fbbf24);
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 250, 240, 0.95));
   }
 
   .sponsor-tier-card--silver {
+    --tier-accent: linear-gradient(90deg, #94a3b8, #cbd5e1);
     background: rgba(255, 255, 255, 0.94);
   }
 
   .sponsor-tier-card--bronze {
+    --tier-accent: linear-gradient(90deg, #c08457, #d6a67c);
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(252, 246, 241, 0.94));
   }
 
@@ -2112,10 +2263,21 @@ const seoDescription = SITE.description;
     margin-inline: 0;
   }
 
+  .support-box__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  .support-box__intro {
+    max-width: 32rem;
+  }
+
   .support-box__header {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 0.75rem;
     margin-bottom: 0.75rem;
   }
@@ -2136,7 +2298,7 @@ const seoDescription = SITE.description;
   }
 
   .support-box__title {
-    font-size: 1.5rem;
+    font-size: clamp(1.75rem, 3vw, 2.3rem);
     font-weight: 700;
     color: #1e293b;
     margin: 0;
@@ -2145,10 +2307,28 @@ const seoDescription = SITE.description;
   .support-box__desc {
     color: #475569;
     font-size: 1rem;
-    margin-bottom: 1.5rem;
-    max-width: 600px;
-    margin-inline: auto;
-    text-align: center;
+    margin: 0;
+    max-width: 34rem;
+    text-align: left;
+    line-height: 1.72;
+  }
+
+  .support-box__panel {
+    padding: 1.25rem;
+    border-radius: 1.35rem;
+    background: rgba(255, 255, 255, 0.84);
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    box-shadow:
+      0 16px 30px rgba(15, 23, 42, 0.04),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  }
+
+  .support-box__label {
+    margin: 0 0 1rem;
+    color: #475569;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
   }
 
   /* Override card styles inside support box */
@@ -2172,6 +2352,11 @@ const seoDescription = SITE.description;
       border-radius: 1.25rem;
     }
 
+    .support-box__layout {
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+    }
+
     .support-box__title {
       font-size: 1.25rem;
     }
@@ -2184,7 +2369,7 @@ const seoDescription = SITE.description;
   .donate-amounts {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 0.75rem;
     margin-bottom: 1.5rem;
   }
@@ -2270,7 +2455,7 @@ const seoDescription = SITE.description;
   .donate-providers {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 0.75rem;
   }
 
@@ -2455,34 +2640,44 @@ const seoDescription = SITE.description;
    * =========================== */
 
   @media (max-width: 767.98px) {
-    /* Reduce gap between intro content and video */
-    .intro-section {
+    .story-section .container {
       padding-top: 2.5rem;
-      padding-bottom: 1rem;
+      padding-bottom: 0.75rem;
     }
 
-    /* Reduce gap before Features section */
     #features .container {
       padding-top: 3rem;
       padding-bottom: 2rem;
     }
 
-    /* Reduce gap around Support section */
+    #plugins .container {
+      padding-top: 2rem;
+      padding-bottom: 2rem;
+    }
+
     #support-the-project .container {
       padding-top: 2rem;
       padding-bottom: 2rem;
     }
 
-    /* Reduce horizontal margin on tablet */
     .support-box {
       margin-inline: 1rem;
     }
   }
 
   @media (max-width: 575.98px) {
-    /* Further reduce spacing on smallest screens */
+    .story-section .container {
+      padding-top: 2rem;
+      padding-bottom: 0.5rem;
+    }
+
     #features .container {
       padding-top: 2rem;
+      padding-bottom: 1.5rem;
+    }
+
+    #plugins .container {
+      padding-top: 1.5rem;
       padding-bottom: 1.5rem;
     }
 

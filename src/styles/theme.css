@@ -98,6 +98,7 @@
   --nav-height: 60px;
   --nav-padding-x: 16px;
   --container-padding: 1rem;
+  --content-frame-max: 1180px;
 
   /* Breakpoints */
   --breakpoint-lg: 992px;
@@ -976,6 +977,10 @@ section.py-5 > .container {
   background: var(--surface-bg);
   border: 1px solid var(--surface-border);
   box-shadow: var(--surface-shadow);
+}
+
+.content-frame {
+  max-width: var(--content-frame-max) !important;
 }
 
 .shell--spacious {

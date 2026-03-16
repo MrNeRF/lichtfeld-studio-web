@@ -77,7 +77,7 @@ This is the second idea without an image.`,
       number: 3,
       title: "Invalid Issue",
       html_url: "https://github.com/test/repo/issues/3",
-      body: "This issue has no frontmatter and should be skipped.",
+      body: "This issue has no frontmatter and should render as a generic issue card.",
     },
   ];
 
@@ -291,14 +291,17 @@ describe("GitHub Service", () => {
       const { getContributionIdeas } = await import("@/services/github");
       const ideas = await getContributionIdeas();
 
-      // Assert: Should have 2 valid ideas (one invalid issue filtered out)
-      expect(ideas).toHaveLength(2);
+      // Assert: frontmatter-backed issues are parsed and plain issues fall back to generic cards
+      expect(ideas).toHaveLength(3);
 
       // Should be sorted by order (idea 2 has order: 1, idea 1 has order: 2)
       expect(ideas[0].title).toBe("Second Contribution Idea");
       expect(ideas[0].order).toBe(1);
       expect(ideas[1].title).toBe("First Contribution Idea");
       expect(ideas[1].order).toBe(2);
+      expect(ideas[2].title).toBe("Invalid Issue");
+      expect(ideas[2].link).toBe("https://github.com/test/repo/issues/3");
+      expect(ideas[2].issueUrl).toBe("https://github.com/test/repo/issues/3");
     });
 
     it("should include the issue URL in each idea", async () => {
@@ -520,12 +523,12 @@ describe("GitHub Service", () => {
       expect(REPO_OWNER).toBe("MrNeRF");
     });
 
-    it("should export the contribution ideas repository name from project constants", async () => {
+    it("should export the public GitHub Projects view URL from project constants", async () => {
       // Act
-      const { CONTRIBUTION_IDEAS_REPO_NAME } = await import("@/constants/project");
+      const { CONTRIBUTION_PROJECT_VIEW_URL } = await import("@/constants/project");
 
       // Assert
-      expect(CONTRIBUTION_IDEAS_REPO_NAME).toBe("LichtFeld-Studio-Contribution-Ideas");
+      expect(CONTRIBUTION_PROJECT_VIEW_URL).toBe("https://github.com/users/MrNeRF/projects/1/views/6");
     });
   });
 

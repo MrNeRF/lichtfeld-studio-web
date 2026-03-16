@@ -37,17 +37,17 @@ const workflowSteps = [
   {
     title: "Train on a native core",
     description:
-      "Run current 3DGS pipelines on a C++23 and CUDA foundation with save-and-resume instead of loose scripts and disconnected viewers.",
+      "Run 3DGS pipelines on a C++23 and CUDA foundation with save-and-resume built into the same desktop workflow.",
   },
   {
     title: "Edit in context",
     description:
-      "Brush, lasso, polygon, crop, align, and compose splats while looking at the actual scene, not a pile of exported snapshots.",
+      "Brush, lasso, polygon, crop, align, and compose splats while working against the live scene.",
   },
   {
     title: "Automate the workflow",
     description:
-      "Use Python plugins and MCP endpoints to build team-specific panels, operators, batch tools, and assistant-driven flows.",
+      "Use Python plugins and MCP endpoints to build custom panels, operators, batch tools, and external workflows.",
   },
 ];
 const platformPillars = [
@@ -57,7 +57,7 @@ const platformPillars = [
     eyebrow: "Core runtime",
     title: "Native performance on the same runtime the team uses",
     description:
-      "The training engine, scene viewer, and editing workflow live on one runtime, so performance work directly improves the desktop tool your team uses every day.",
+      "Training, viewing, and editing share one runtime, so the desktop tool benefits directly from core performance work.",
     bullets: [
       "Modern C++23 and CUDA foundation",
       "Save and resume long-running training",
@@ -73,7 +73,7 @@ const platformPillars = [
     eyebrow: "Editing workspace",
     title: "Editing happens where the scene already lives",
     description:
-      "Artists and researchers can manipulate, inspect, and compare splats in the same desktop workspace instead of bouncing between utilities.",
+      "Artists and researchers can manipulate, inspect, and clean up splats in the same desktop workspace with live scene context.",
     bullets: [
       "Brush, lasso, polygon, masking, and composition",
       "Alignment, crop, transform, and scene cleanup",
@@ -89,7 +89,7 @@ const platformPillars = [
     eyebrow: "Extensibility",
     title: "Plugins and MCP make the app a real tool surface",
     description:
-      "Extend the studio in Python and connect it to assistants or external systems over MCP instead of trapping workflow logic inside the UI.",
+      "Extend the studio in Python and expose camera, render, editor, and scene workflows over MCP.",
     bullets: [
       "Panels, operators, tools, overlays, and hooks",
       "Compatibility-aware plugin registry",
@@ -101,7 +101,7 @@ const platformPillars = [
   },
 ];
 const platformProof = [
-  { value: "2.4x faster", label: "training uplift on the current stack benchmark" },
+  { value: "2.4x faster", label: "training speedup merged from bounty 001" },
   { value: "Mask + crop", label: "cleanup tools built into the scene editor" },
   { value: "Save / resume", label: "long-running jobs survive interruptions" },
   { value: "Registry installs", label: "plugins can target compatible host versions" },
@@ -139,8 +139,8 @@ const seoDescription = SITE.description;
             <p class="hero__eyebrow">Open-source 3D Gaussian Splatting platform</p>
             <h1 class="hero__title">Train, edit, and automate splat workflows in one desktop studio</h1>
             <p class="hero__lead">
-              LichtFeld Studio brings training, editing, inspection, plugins, and MCP control into one local-first
-              application for teams building real 3DGS pipelines.
+              LichtFeld Studio brings training, editing, inspection, plugins, and MCP control into one desktop
+              application that runs locally on your GPU.
             </p>
 
             <div class="hero__proof">
@@ -180,7 +180,7 @@ const seoDescription = SITE.description;
               </a>
             </div>
 
-            <p class="hero__subline">Windows and Linux • Local-first • GPLv3 open source</p>
+            <p class="hero__subline">Windows and Linux • Runs locally on your GPU • GPLv3 open source</p>
           </div>
         </div>
       </div>
@@ -194,12 +194,12 @@ const seoDescription = SITE.description;
           <p class="kicker mb-3">Workflow</p>
           <h2 class="story-title">From training run to finished scene in one app</h2>
           <p class="story-lead">
-            LichtFeld Studio replaces the usual chain of notebooks, scripts, viewers, and cleanup utilities with one
+            LichtFeld Studio brings training runs, live inspection, scene editing, plugins, and MCP control into one
             desktop workspace built around 3D Gaussian Splatting.
           </p>
           <p class="story-body">
-            The result is simpler handoffs, faster iteration, and a pipeline your team can actually extend without
-            rebuilding the whole stack every time requirements change.
+            The same runtime handles compute, scene state, and tool extensions, so teams can work inside one
+            consistent environment instead of maintaining a disconnected stack.
           </p>
 
           <div class="story-steps" aria-label="Core workflow">
@@ -230,7 +230,7 @@ const seoDescription = SITE.description;
             </div>
           </div>
           <p class="story-media__caption">
-            The same application handles training output, scene editing, and high-speed inspection.
+            The same application handles training output, scene editing, and live inspection.
           </p>
         </div>
       </div>
@@ -244,8 +244,8 @@ const seoDescription = SITE.description;
           <p class="kicker mb-3">Platform features</p>
           <h2 class="platform-title">Three pillars that keep the workflow in one studio</h2>
           <p class="platform-copy">
-            Each pillar removes a handoff. Compute, editing, and automation all live in the same environment, so the
-            product scales with the workflow instead of fragmenting it.
+            Compute, editing, and automation all live in the same environment, with shared runtime, shared scene state,
+            and shared extension points.
           </p>
         </div>
 
@@ -334,20 +334,19 @@ const seoDescription = SITE.description;
         <div class="sponsors-intro">
           <p class="kicker mb-3">Sponsors</p>
           <h2 id="sponsors-heading" class="sponsors-title">
-            Backed by organizations investing in the future of LichtFeld Studio
+            Backed by sponsors accelerating LichtFeld Studio
           </h2>
           <p class="sponsors-copy">
-            Foundational Sponsors are honored permanently for helping kickstart LichtFeld Studio.
+            Sponsor tiers reflect the current annual support program behind long-term platform work.
           </p>
         </div>
 
         <article class="foundational-sponsor-card">
           <div class="foundational-sponsor-card__meta">
             <p class="foundational-sponsor-card__label">Foundational Sponsor</p>
-            <h3 class="foundational-sponsor-card__title">Permanent recognition for helping kickstart the platform</h3>
+            <h3 class="foundational-sponsor-card__title">Recognized for helping kickstart the platform</h3>
             <p class="foundational-sponsor-card__desc">
-              Core11 helped establish the long-term foundation of LichtFeld Studio and is honored forever as a
-              Foundational Sponsor.
+              Core11 backed LichtFeld Studio early and is recognized here as a Foundational Sponsor.
             </p>
           </div>
           <a
@@ -364,7 +363,7 @@ const seoDescription = SITE.description;
         <div class="sponsor-tier-grid">
           <article class="sponsor-tier-card sponsor-tier-card--platinum">
             <p class="sponsor-tier-card__name">Platinum</p>
-            <p class="sponsor-tier-card__amount">$35,000+ / year</p>
+            <p class="sponsor-tier-card__amount">$50,000+ / year</p>
             <p class="sponsor-tier-card__desc">
               Top-tier annual sponsorship for organizations funding core development.
             </p>
@@ -372,7 +371,7 @@ const seoDescription = SITE.description;
 
           <article class="sponsor-tier-card sponsor-tier-card--gold">
             <p class="sponsor-tier-card__name">Gold</p>
-            <p class="sponsor-tier-card__amount">$12,000 - $34,999 / year</p>
+            <p class="sponsor-tier-card__amount">$15,000 - $49,999 / year</p>
             <p class="sponsor-tier-card__desc">
               Major annual support for sustained product, tooling, and platform work.
             </p>
@@ -380,7 +379,7 @@ const seoDescription = SITE.description;
 
           <article class="sponsor-tier-card sponsor-tier-card--silver">
             <p class="sponsor-tier-card__name">Silver</p>
-            <p class="sponsor-tier-card__amount">$3,000 - $11,999 / year</p>
+            <p class="sponsor-tier-card__amount">$5,000 - $14,999 / year</p>
             <p class="sponsor-tier-card__desc">
               Meaningful sponsorship that helps accelerate engineering and research.
             </p>
@@ -388,7 +387,7 @@ const seoDescription = SITE.description;
 
           <article class="sponsor-tier-card sponsor-tier-card--bronze">
             <p class="sponsor-tier-card__name">Bronze</p>
-            <p class="sponsor-tier-card__amount">$500 - $2,999 / year</p>
+            <p class="sponsor-tier-card__amount">$500 - $4,999 / year</p>
             <p class="sponsor-tier-card__desc">
               Supportive sponsorship for companies backing the project and community.
             </p>
@@ -467,8 +466,7 @@ const seoDescription = SITE.description;
               <h2 id="support-the-project-heading" class="support-box__title">Support the Project</h2>
             </div>
             <p class="support-box__desc">
-              Fund development and maintenance through your preferred platform. Every contribution helps keep the
-              project alive and fund further research and development.
+              Support ongoing LichtFeld Studio development through the platform you prefer.
             </p>
           </div>
 

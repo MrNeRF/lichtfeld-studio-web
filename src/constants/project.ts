@@ -15,9 +15,6 @@ export const REPO_OWNER = "MrNeRF";
 /** Main repository name */
 export const REPO_NAME = "LichtFeld-Studio";
 
-/** Repository for contribution ideas (issues-based) */
-export const CONTRIBUTION_IDEAS_REPO_NAME = "LichtFeld-Studio-Contribution-Ideas";
-
 /** GitHub user project backing the public contribute backlog */
 export const CONTRIBUTION_PROJECT_NUMBER = 1;
 

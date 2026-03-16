@@ -41,7 +41,7 @@ export const SITE = {
 
   /** Default meta description for pages without a custom description */
   description:
-    "Train, edit, automate, and render 3D Gaussian Splats in a single desktop app. LichtFeld Studio is an open-source 3DGS platform with Python plugins, MCP integration, a full editing suite, and a local-first workflow.",
+    "Train, edit, automate, and render 3D Gaussian Splats in a single desktop app. LichtFeld Studio is an open-source 3DGS platform with Python plugins, MCP integration, a full editing suite, and a workflow that runs locally on your GPU.",
 
   /** Production site URL (without trailing slash) */
   url: "https://lichtfeld.io",
@@ -131,7 +131,7 @@ export const SOFTWARE_APP = {
     "MCP integration for controllable editor, camera, render, and sequencer workflows",
     "High-performance C++23 and CUDA core for 3D Gaussian Splatting",
     "Full editing suite with brush, lasso, polygon, masking, and alignment tools",
-    "Completely offline local-first workflow with no cloud requirement",
+    "Desktop workflow that runs locally on your GPU",
     "Save and resume training sessions",
     "Interactive desktop viewer and rendering modes",
     "GPL-3.0 open source license",

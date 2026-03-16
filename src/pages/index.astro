@@ -189,49 +189,51 @@ const seoDescription = SITE.description;
 
   <section class="story-section">
     <div class="container content-frame px-6 pt-14 pb-8">
-      <div class="story-grid">
-        <div class="story-copy">
-          <p class="kicker mb-3">Workflow</p>
-          <h2 class="story-title">From training run to finished scene in one app</h2>
-          <p class="story-lead">
-            LichtFeld Studio brings training runs, live inspection, scene editing, plugins, and MCP control into one
-            desktop workspace built around 3D Gaussian Splatting.
-          </p>
-          <p class="story-body">
-            The same runtime handles compute, scene state, and tool extensions, so teams can work inside one
-            consistent environment instead of maintaining a disconnected stack.
-          </p>
+      <div class="shell shell--spacious story-surface">
+        <div class="story-header-grid">
+          <div class="story-copy">
+            <p class="kicker mb-3">Workflow</p>
+            <h2 class="story-title">From training run to finished scene in one app</h2>
+            <p class="story-lead">
+              LichtFeld Studio brings training runs, live inspection, scene editing, plugins, and MCP control into one
+              desktop workspace built around 3D Gaussian Splatting.
+            </p>
+            <p class="story-body">
+              The same runtime handles compute, scene state, and tool extensions, so teams can work inside one
+              consistent environment instead of maintaining a disconnected stack.
+            </p>
+          </div>
 
-          <div class="story-steps" aria-label="Core workflow">
-            {
-              workflowSteps.map((step, index) => (
-                <article class="story-step">
-                  <span class="story-step__index">0{index + 1}</span>
-                  <div>
-                    <h3 class="story-step__title">{step.title}</h3>
-                    <p class="story-step__desc">{step.description}</p>
-                  </div>
-                </article>
-              ))
-            }
+          <div class="story-media-panel">
+            <div class="story-media">
+              <div class="story-video-wrapper">
+                <SmartVideo
+                  src={`${base}videos/viewer_demo`}
+                  poster={`${base}videos/viewer_demo_poster.jpg`}
+                  class="rounded-2xl"
+                  sizeStrategy="fill"
+                  fit="contain"
+                />
+              </div>
+            </div>
+            <p class="story-media__caption">
+              The same application handles training output, scene editing, and live inspection.
+            </p>
           </div>
         </div>
 
-        <div class="story-media-panel">
-          <div class="story-media">
-            <div class="story-video-wrapper">
-              <SmartVideo
-                src={`${base}videos/viewer_demo`}
-                poster={`${base}videos/viewer_demo_poster.jpg`}
-                class="rounded-2xl"
-                sizeStrategy="fill"
-                fit="contain"
-              />
-            </div>
-          </div>
-          <p class="story-media__caption">
-            The same application handles training output, scene editing, and live inspection.
-          </p>
+        <div class="story-steps" aria-label="Core workflow">
+          {
+            workflowSteps.map((step, index) => (
+              <article class="story-step">
+                <span class="story-step__index">0{index + 1}</span>
+                <div>
+                  <h3 class="story-step__title">{step.title}</h3>
+                  <p class="story-step__desc">{step.description}</p>
+                </div>
+              </article>
+            ))
+          }
         </div>
       </div>
     </div>
@@ -874,7 +876,7 @@ const seoDescription = SITE.description;
   .hero {
     position: relative;
     isolation: isolate; /* Ensure overlay stacking is predictable */
-    min-height: clamp(420px, 55vh, 720px);
+    min-height: clamp(300px, 40vh, 520px);
     display: grid;
     align-items: center;
     overflow: clip; /* Contain the canvas */
@@ -921,11 +923,11 @@ const seoDescription = SITE.description;
     display: inline-flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.7rem;
-    max-width: 48rem;
+    gap: 0.6rem;
+    max-width: 45rem;
 
     /* Make spacing responsive so it fits phones and large screens without overflow. */
-    padding-block: clamp(2rem, 8vh, 5rem);
+    padding-block: clamp(0.8rem, 3.8vh, 2.15rem);
     padding-inline: clamp(1rem, 1vw, 1.5rem);
   }
 
@@ -947,7 +949,7 @@ const seoDescription = SITE.description;
   .hero__stack::before {
     content: "";
     position: absolute;
-    inset: -2.5rem -3.5rem;
+    inset: -1.45rem -2.35rem;
     background:
       linear-gradient(180deg, rgba(9, 16, 28, 0.62), rgba(9, 16, 28, 0.36)),
       radial-gradient(circle at top left, rgba(255, 255, 255, 0.14), transparent 42%);
@@ -979,7 +981,7 @@ const seoDescription = SITE.description;
   .hero__title {
     max-width: 12ch;
     margin: 0;
-    font-size: clamp(2.6rem, 7vw, 5rem);
+    font-size: clamp(2.25rem, 5.8vw, 4.25rem);
     line-height: 0.94;
     position: relative; /* Establish a new stacking context */
   }
@@ -1006,9 +1008,9 @@ const seoDescription = SITE.description;
 
   .hero__lead {
     max-width: 41rem;
-    margin: 0.35rem 0 0;
-    font-size: clamp(1.05rem, 2vw, 1.24rem);
-    line-height: 1.72;
+    margin: 0.2rem 0 0;
+    font-size: clamp(0.98rem, 1.25vw, 1.08rem);
+    line-height: 1.55;
     color: rgba(255, 255, 255, 0.84);
     position: relative;
   }
@@ -1018,7 +1020,7 @@ const seoDescription = SITE.description;
     flex-wrap: wrap;
     justify-content: flex-start;
     gap: 0.75rem;
-    margin-top: 1.25rem;
+    margin-top: 0.6rem;
     position: relative;
   }
 
@@ -1042,7 +1044,7 @@ const seoDescription = SITE.description;
     flex-wrap: wrap;
     align-items: stretch;
     justify-content: flex-start;
-    margin-top: 1rem;
+    margin-top: 0.55rem;
     position: relative; /* Establish a new stacking context */
     /* Re-enable pointer events for the buttons, as the parent `.hero__content`
        disables them to allow clicks to pass through to the splat canvas. */
@@ -1053,8 +1055,8 @@ const seoDescription = SITE.description;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 3.5rem;
-    padding: 0.9rem 1.4rem;
+    min-height: 3.1rem;
+    padding: 0.74rem 1.18rem;
     border-width: 1px;
     border-radius: 999px;
     font-weight: 700;
@@ -1094,7 +1096,7 @@ const seoDescription = SITE.description;
   }
 
   .hero__subline {
-    margin: 1rem 0 0;
+    margin: 0.45rem 0 0;
     color: rgba(255, 255, 255, 0.56);
     font-size: 0.78rem;
     font-weight: 700;
@@ -1187,11 +1189,17 @@ const seoDescription = SITE.description;
       align-items: flex-start;
       text-align: left;
     }
-    .story-grid {
+    .story-section {
+      margin-top: 0;
+    }
+    .story-header-grid {
       grid-template-columns: 1fr;
     }
     .story-copy {
       max-width: none;
+    }
+    .story-steps {
+      grid-template-columns: 1fr;
     }
     .pillar-grid,
     .plugins-preview-grid {
@@ -1291,23 +1299,36 @@ const seoDescription = SITE.description;
 
   .story-section {
     position: relative;
+    z-index: 4;
+    margin-top: clamp(-2.75rem, -3.5vw, -1.1rem);
   }
 
-  .story-grid {
+  .story-section .container {
+    padding-top: clamp(1rem, 2vw, 1.5rem);
+    padding-bottom: clamp(1.5rem, 2.8vw, 2rem);
+  }
+
+  .story-surface {
+    background:
+      radial-gradient(circle at top left, rgba(20, 87, 255, 0.1), transparent 34%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.82));
+  }
+
+  .story-header-grid {
     display: grid;
     grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-    gap: clamp(1.5rem, 4vw, 3.25rem);
-    align-items: start;
+    gap: clamp(1.4rem, 3.4vw, 2.6rem);
+    align-items: center;
   }
 
   .story-copy {
-    max-width: 44rem;
+    max-width: 38rem;
   }
 
   .story-title {
     margin: 0;
     color: var(--color-heading);
-    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    font-size: clamp(2.05rem, 4.5vw, 3.35rem);
     line-height: 0.98;
     letter-spacing: -0.03em;
   }
@@ -1327,17 +1348,24 @@ const seoDescription = SITE.description;
 
   .story-steps {
     display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.9rem;
-    margin-top: 1.75rem;
+    margin-top: 1.6rem;
+    padding-top: 1.35rem;
+    border-top: 1px solid rgba(15, 23, 42, 0.08);
   }
 
   .story-step {
     display: grid;
     grid-template-columns: auto 1fr;
-    gap: 1rem;
+    gap: 0.85rem;
     align-items: start;
-    padding: 0 0 0 1.25rem;
-    border-left: 1px solid rgba(15, 23, 42, 0.12);
+    min-height: 100%;
+    padding: 1.1rem 1.05rem;
+    border-radius: 1.2rem;
+    background: rgba(255, 255, 255, 0.68);
+    border: 1px solid rgba(15, 23, 42, 0.07);
+    box-shadow: 0 14px 22px rgba(15, 23, 42, 0.04);
   }
 
   .story-step__index {
@@ -1395,10 +1423,29 @@ const seoDescription = SITE.description;
   }
 
   .story-media__caption {
-    margin: 1rem 0 0;
+    max-width: 32rem;
+    margin: 0.9rem 0 0;
     color: var(--color-muted);
     font-size: 0.95rem;
     line-height: 1.6;
+  }
+
+  @media (min-width: 992px) and (max-height: 840px) {
+    .hero {
+      min-height: min(410px, calc(100svh - var(--nav-height) - 1.4rem));
+    }
+
+    .hero__stack {
+      padding-block: 0.7rem 1.1rem;
+    }
+
+    .hero__title {
+      font-size: clamp(2.05rem, 4.6vw, 3.55rem);
+    }
+
+    .story-section .container {
+      padding-top: 0.9rem;
+    }
   }
 
   .platform-section {
@@ -2793,7 +2840,7 @@ const seoDescription = SITE.description;
       letter-spacing: 0.12em;
     }
 
-    .story-grid {
+    .story-header-grid {
       gap: 1.2rem;
     }
 
@@ -2817,8 +2864,10 @@ const seoDescription = SITE.description;
     }
 
     .story-steps {
+      grid-template-columns: 1fr;
       margin-top: 1.25rem;
       gap: 0.75rem;
+      padding-top: 1rem;
     }
 
     .story-step {

@@ -609,6 +609,24 @@ const seoDescription = SITE.description;
     // This prevents scroll/wheel events from triggering the fade-out.
     let userClickedOnViewer = false;
 
+    const FADE_IN_DELAY_MS = 3000;
+
+    function scheduleHeroRestore(reason: string) {
+      if (fadeInTimerId) {
+        clearTimeout(fadeInTimerId);
+      }
+
+      console.debug(`[Hero] Scheduling fade-in in ${FADE_IN_DELAY_MS}ms (${reason}).`);
+
+      fadeInTimerId = window.setTimeout(() => {
+        heroContent.classList.remove("is-viewer-active");
+        userClickedOnViewer = false;
+        fadeInTimerId = null;
+
+        console.debug("[Hero] Fade-in completed. Hero content is now visible.");
+      }, FADE_IN_DELAY_MS);
+    }
+
     // Listen for pointerdown on the splat wrapper to detect explicit clicks.
     if (splatWrapper) {
       splatWrapper.addEventListener("pointerdown", () => {
@@ -629,16 +647,11 @@ const seoDescription = SITE.description;
         return;
       }
 
-      // If a fade-in was scheduled, cancel it because the user is active again.
-      if (fadeInTimerId) {
-        clearTimeout(fadeInTimerId);
-        fadeInTimerId = null;
-      }
-
       console.debug("[Hero] hiding hero content");
 
       // Apply the CSS class to fade out the hero content.
       heroContent.classList.add("is-viewer-active");
+      scheduleHeroRestore("viewer activity");
     });
 
     // Timer for debouncing the userClickedOnViewer reset.
@@ -664,17 +677,7 @@ const seoDescription = SITE.description;
         clickResetTimerId = null;
       }, 50);
 
-      // Schedule the hero content to fade back in after a 10-second delay.
-      const FADE_IN_DELAY_MS = 10000;
-
-      console.debug(`[Hero] Scheduling fade-in in ${FADE_IN_DELAY_MS}ms.`);
-
-      fadeInTimerId = window.setTimeout(() => {
-        heroContent.classList.remove("is-viewer-active");
-
-        console.debug("Fade-in completed. Hero content is now visible.");
-        fadeInTimerId = null; // Clear the timer ID after it has run.
-      }, FADE_IN_DELAY_MS);
+      scheduleHeroRestore("viewer idle");
     });
 
     /**

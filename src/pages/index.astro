@@ -199,13 +199,20 @@ const seoDescription = SITE.description;
     </div>
   </header>
 
-  <section class="story-section">
+  <section id="workflow" class="story-section hash-section">
     <div class="container content-frame px-6 pt-14 pb-8">
       <div class="shell shell--spacious story-surface">
         <div class="story-header-grid">
           <div class="story-copy">
             <p class="kicker mb-3">Workflow</p>
-            <h2 class="story-title">From training run to finished scene in one app</h2>
+            <div class="section-heading">
+              <h2 id="workflow-heading" class="story-title">From training run to finished scene in one app</h2>
+              <a class="section-anchor" href="#workflow" aria-label="Link to workflow section">
+                <svg class="bi" width="1em" height="1em" aria-hidden="true">
+                  <use href={`${base}static/bootstrap-icons.svg#link-45deg`} />
+                </svg>
+              </a>
+            </div>
             <p class="story-lead">
               LichtFeld Studio brings training runs, live inspection, scene editing, plugins, and MCP control into one
               desktop workspace built around 3D Gaussian Splatting.
@@ -251,12 +258,19 @@ const seoDescription = SITE.description;
     </div>
   </section>
 
-  <section id="features" class="platform-section">
+  <section id="features" class="platform-section hash-section">
     <div class="container content-frame px-6 pt-8 pb-10">
       <div class="shell shell--spacious platform-shell">
         <div class="platform-header">
           <p class="kicker mb-3">Platform features</p>
-          <h2 class="platform-title">Three pillars that keep the workflow in one studio</h2>
+          <div class="section-heading">
+            <h2 id="features-heading" class="platform-title">Three pillars that keep the workflow in one studio</h2>
+            <a class="section-anchor" href="#features" aria-label="Link to platform features section">
+              <svg class="bi" width="1em" height="1em" aria-hidden="true">
+                <use href={`${base}static/bootstrap-icons.svg#link-45deg`} />
+              </svg>
+            </a>
+          </div>
           <p class="platform-copy">
             Compute, editing, and automation all live in the same environment, with shared runtime, shared scene state,
             and shared extension points.
@@ -309,13 +323,20 @@ const seoDescription = SITE.description;
     </div>
   </section>
 
-  <section id="plugins" class="plugins-preview-section" aria-labelledby="plugins-preview-heading">
+  <section id="plugins" class="plugins-preview-section hash-section" aria-labelledby="plugins-preview-heading">
     <div class="container content-frame px-6 pt-6 pb-6">
       <div class="shell shell--spacious plugins-shell">
         <div class="plugins-preview-header">
           <div>
             <p class="kicker mb-3">Plugin ecosystem</p>
-            <h2 id="plugins-preview-heading" class="plugins-preview-title">An extension system teams can use today</h2>
+            <div class="section-heading">
+              <h2 id="plugins-preview-heading" class="plugins-preview-title">An extension system teams can use today</h2>
+              <a class="section-anchor" href="#plugins" aria-label="Link to plugin ecosystem section">
+                <svg class="bi" width="1em" height="1em" aria-hidden="true">
+                  <use href={`${base}static/bootstrap-icons.svg#link-45deg`} />
+                </svg>
+              </a>
+            </div>
             <p class="plugins-preview-copy">
               The registry, compatibility model, and plugin-local dependencies already support custom panels, tools,
               overlays, and workflow logic without forking the core app.
@@ -342,14 +363,21 @@ const seoDescription = SITE.description;
     </div>
   </section>
 
-  <section id="sponsors" class="sponsors-section" aria-labelledby="sponsors-heading">
+  <section id="sponsors" class="sponsors-section hash-section" aria-labelledby="sponsors-heading">
     <div class="container content-frame px-6 pt-6 pb-6">
       <div class="shell shell--spacious sponsors-shell">
         <div class="sponsors-intro">
           <p class="kicker mb-3">Sponsors</p>
-          <h2 id="sponsors-heading" class="sponsors-title">
-            Backed by sponsors accelerating LichtFeld Studio
-          </h2>
+          <div class="section-heading">
+            <h2 id="sponsors-heading" class="sponsors-title">
+              Backed by sponsors accelerating LichtFeld Studio
+            </h2>
+            <a class="section-anchor" href="#sponsors" aria-label="Link to sponsors section">
+              <svg class="bi" width="1em" height="1em" aria-hidden="true">
+                <use href={`${base}static/bootstrap-icons.svg#link-45deg`} />
+              </svg>
+            </a>
+          </div>
           <p class="sponsors-copy">
             Sponsor tiers reflect the current annual support program behind long-term platform work.
           </p>
@@ -487,7 +515,7 @@ const seoDescription = SITE.description;
   -->
 
   <!-- Support / Donations (deeplink target) -->
-  <section id="support-the-project" aria-labelledby="support-the-project-heading">
+  <section id="support-the-project" class="hash-section" aria-labelledby="support-the-project-heading">
     <div class="container content-frame px-6 pt-12 pb-12">
       <div class="shell shell--spacious support-box">
         <div class="support-box__layout">
@@ -498,7 +526,14 @@ const seoDescription = SITE.description;
                   <use href={`${base}static/bootstrap-icons.svg#heart-fill`}></use>
                 </svg>
               </div>
-              <h2 id="support-the-project-heading" class="support-box__title">Support the Project</h2>
+              <div class="section-heading section-heading--support">
+                <h2 id="support-the-project-heading" class="support-box__title">Support the Project</h2>
+                <a class="section-anchor" href="#support-the-project" aria-label="Link to support section">
+                  <svg class="bi" width="1em" height="1em" aria-hidden="true">
+                    <use href={`${base}static/bootstrap-icons.svg#link-45deg`} />
+                  </svg>
+                </a>
+              </div>
             </div>
             <p class="support-box__desc">
               Support ongoing LichtFeld Studio development through the platform you prefer.
@@ -1304,6 +1339,78 @@ const seoDescription = SITE.description;
     background: rgba(255, 255, 255, 0.14);
   }
 
+  .hash-section {
+    scroll-margin-top: calc(var(--nav-height) + 1rem);
+  }
+
+  .hash-section .shell {
+    transition:
+      border-color 0.18s ease,
+      box-shadow 0.18s ease;
+  }
+
+  .hash-section:target .shell {
+    border-color: rgba(20, 87, 255, 0.2);
+    box-shadow:
+      0 0 0 1px rgba(20, 87, 255, 0.08),
+      var(--surface-shadow);
+  }
+
+  .section-heading {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+    max-width: fit-content;
+  }
+
+  .section-heading > :first-child {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .section-heading--support {
+    align-items: center;
+  }
+
+  .section-anchor {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 2rem;
+    height: 2rem;
+    margin-top: 0.15rem;
+    border-radius: 999px;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    background: rgba(255, 255, 255, 0.72);
+    color: #64748b;
+    text-decoration: none;
+    box-shadow: 0 10px 18px rgba(15, 23, 42, 0.04);
+    transition:
+      transform 0.18s ease,
+      color 0.18s ease,
+      background-color 0.18s ease,
+      border-color 0.18s ease,
+      box-shadow 0.18s ease;
+  }
+
+  .section-anchor:hover {
+    transform: translateY(-1px);
+    color: var(--color-primary-link);
+    background: rgba(255, 255, 255, 0.96);
+    border-color: rgba(37, 99, 235, 0.24);
+    box-shadow: 0 14px 24px rgba(15, 23, 42, 0.07);
+  }
+
+  .section-anchor:focus-visible {
+    outline: none;
+    transform: translateY(-1px);
+    color: var(--color-primary-link);
+    background: rgba(255, 255, 255, 0.96);
+    border-color: var(--color-primary-link);
+    box-shadow: var(--focus-shadow);
+  }
+
   /* Consistent spacing for inline Bootstrap Icons in buttons/links */
   .bi {
     vertical-align: -0.125em;
@@ -1380,6 +1487,13 @@ const seoDescription = SITE.description;
       right: 1rem;
       bottom: 0.85rem;
       width: min(11.5rem, calc(100% - 2rem));
+    }
+    .section-heading {
+      gap: 0.55rem;
+    }
+    .section-anchor {
+      width: 1.9rem;
+      height: 1.9rem;
     }
     .story-section {
       margin-top: 0;
@@ -3117,6 +3231,12 @@ const seoDescription = SITE.description;
       margin-top: 0.9rem;
       margin-left: 0;
       animation: none;
+    }
+
+    .section-anchor {
+      width: 1.8rem;
+      height: 1.8rem;
+      margin-top: 0.05rem;
     }
 
     .hero__scene-cue-label {

@@ -1039,6 +1039,45 @@ section.py-5 > .container {
   padding: clamp(1rem, 2vw, 1.35rem);
 }
 
+@media (max-width: 767.98px) {
+  .content-frame {
+    padding-inline: 1rem !important;
+  }
+
+  .shell {
+    border-radius: 1.45rem;
+    padding: 1.15rem;
+  }
+
+  .shell--spacious {
+    padding: 1.2rem;
+  }
+
+  .shell--compact {
+    padding: 0.95rem;
+  }
+
+  .stat-block {
+    padding: 0.95rem 1rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .content-frame {
+    padding-inline: 0.8rem !important;
+  }
+
+  .shell {
+    border-radius: 1.2rem;
+    padding: 1rem;
+  }
+
+  .shell--spacious,
+  .shell--compact {
+    padding: 0.9rem;
+  }
+}
+
 .stat-block {
   padding: 1.1rem 1.15rem;
   border-radius: var(--card-radius);

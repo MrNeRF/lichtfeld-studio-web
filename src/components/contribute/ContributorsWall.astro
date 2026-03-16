@@ -100,13 +100,16 @@ const contributors: Contributor[] = providedContributors ?? (await getContributo
     flex-wrap: wrap;
     gap: 0.9rem;
     padding-top: 1.75rem;
-    justify-content: flex-start;
+    justify-content: center;
   }
 
   .contributor-avatar {
+    --contributor-avatar-size: 64px;
     display: block;
-    width: 64px;
-    height: 64px;
+    flex: 0 0 var(--contributor-avatar-size);
+    width: var(--contributor-avatar-size);
+    height: var(--contributor-avatar-size);
+    box-sizing: border-box;
     border-radius: 50%;
     overflow: hidden;
     border: 2px solid rgba(255, 255, 255, 0.88);

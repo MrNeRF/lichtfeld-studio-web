@@ -123,11 +123,35 @@ const seoDescription =
   @media (max-width: 991.98px) {
     .plugins-shell--hero {
       grid-template-columns: 1fr;
+      gap: 1.4rem;
+    }
+
+    .plugins-title,
+    .plugins-lead,
+    .plugins-stats {
+      grid-column: 1;
+    }
+
+    .plugins-stats {
+      grid-row: auto;
+      margin-top: 0.25rem;
     }
 
     .plugins-stats,
     .plugins-grid {
       grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .plugins-title {
+      max-width: 12ch;
+      font-size: clamp(2.15rem, 10vw, 3rem);
+    }
+
+    .plugins-lead {
+      font-size: 0.98rem;
+      line-height: 1.7;
     }
   }
 </style>

@@ -137,10 +137,9 @@ const seoDescription = SITE.description;
           <!-- inner animated wrapper to avoid multiplying parent/child opacities -->
           <div class="hero__stack-content">
             <p class="hero__eyebrow">Open-source 3D Gaussian Splatting platform</p>
-            <h1 class="hero__title">Train, edit, and automate splat workflows in one desktop studio</h1>
+            <h1 class="hero__title">Train, edit, and automate splats on your desktop</h1>
             <p class="hero__lead">
-              LichtFeld Studio brings training, editing, inspection, plugins, and MCP control into one desktop
-              application that runs locally on your GPU.
+              LichtFeld Studio is a desktop app for training, editing, and inspecting splats on your local GPU.
             </p>
 
             <div class="hero__proof">
@@ -2021,6 +2020,21 @@ const seoDescription = SITE.description;
     line-height: 1.65;
   }
 
+  @media (max-width: 991.98px) {
+    .plugins-preview-header {
+      grid-template-columns: 1fr;
+      align-items: start;
+    }
+
+    .plugins-preview-copy {
+      max-width: none;
+    }
+
+    .plugins-highlight-list {
+      justify-items: start;
+    }
+  }
+
   @media (max-width: 767.98px) {
     .story-step {
       grid-template-columns: 1fr;
@@ -2140,6 +2154,19 @@ const seoDescription = SITE.description;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1rem;
     margin-top: 1rem;
+  }
+
+  @media (max-width: 991.98px) {
+    .foundational-sponsor-card {
+      grid-template-columns: 1fr;
+      align-items: start;
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    .sponsor-tier-grid {
+      grid-template-columns: 1fr;
+    }
   }
 
   .sponsor-tier-card {
@@ -3141,7 +3168,7 @@ const seoDescription = SITE.description;
    * =========================== */
   @media (max-width: 767.98px) {
     .hero {
-      min-height: min(680px, calc(100svh - var(--nav-height) + 3rem));
+      min-height: min(620px, calc(100svh - var(--nav-height) + 1rem));
       align-items: end;
     }
 
@@ -3157,9 +3184,9 @@ const seoDescription = SITE.description;
     .hero__stack {
       width: 100%;
       max-width: none;
-      gap: 0.55rem;
-      padding-block: 1.25rem 1.5rem;
-      padding-inline: 0;
+      gap: 0.5rem;
+      padding-block: 1rem 1.2rem;
+      padding-inline: 0.55rem;
     }
 
     .hero__stack::before {
@@ -3172,16 +3199,16 @@ const seoDescription = SITE.description;
     }
 
     .hero__title {
-      max-width: 9.4ch;
-      font-size: clamp(2.15rem, 10.5vw, 3.25rem);
+      max-width: 13.5ch;
+      font-size: clamp(1.78rem, 8.2vw, 2.5rem);
       line-height: 0.95;
       text-wrap: balance;
     }
 
     .hero__lead {
-      margin-top: 0.4rem;
-      font-size: 0.98rem;
-      line-height: 1.62;
+      margin-top: 0.32rem;
+      font-size: 0.95rem;
+      line-height: 1.56;
     }
 
     .hero__eyebrow {
@@ -3195,8 +3222,8 @@ const seoDescription = SITE.description;
     }
 
     .hero__proof {
-      gap: 0.45rem;
-      margin-top: 0.9rem;
+      gap: 0.4rem;
+      margin-top: 0.75rem;
     }
 
     .hero__proof-item {
@@ -3237,6 +3264,11 @@ const seoDescription = SITE.description;
       width: 1.8rem;
       height: 1.8rem;
       margin-top: 0.05rem;
+    }
+
+    .section-heading {
+      width: 100%;
+      max-width: 100%;
     }
 
     .hero__scene-cue-label {
@@ -3463,7 +3495,7 @@ const seoDescription = SITE.description;
 
   @media (max-width: 575.98px) {
     .hero {
-      min-height: min(620px, calc(100svh - var(--nav-height) + 2rem));
+      min-height: min(560px, calc(100svh - var(--nav-height) + 0.5rem));
     }
 
     .hero__content .container,
@@ -3481,8 +3513,8 @@ const seoDescription = SITE.description;
     }
 
     .hero__title {
-      max-width: 8.6ch;
-      font-size: clamp(1.95rem, 11.5vw, 2.9rem);
+      max-width: 14ch;
+      font-size: clamp(1.56rem, 7.9vw, 2.02rem);
     }
 
     .hero__proof {

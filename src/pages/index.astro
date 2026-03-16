@@ -376,36 +376,57 @@ const seoDescription = SITE.description;
 
         <div class="sponsor-tier-grid">
           <article class="sponsor-tier-card sponsor-tier-card--platinum">
-            <p class="sponsor-tier-card__name">Platinum</p>
-            <p class="sponsor-tier-card__amount">$50,000+ / year</p>
+            <div class="sponsor-tier-card__header">
+              <p class="sponsor-tier-card__name">Platinum</p>
+            </div>
+            <p class="sponsor-tier-card__amount">
+              $50,000+
+              <span class="sponsor-tier-card__amount-note">per year</span>
+            </p>
             <p class="sponsor-tier-card__desc">
               Top-tier annual sponsorship for organizations funding core development.
             </p>
           </article>
 
           <article class="sponsor-tier-card sponsor-tier-card--gold">
-            <p class="sponsor-tier-card__name">Gold</p>
-            <p class="sponsor-tier-card__amount">$15,000 - $49,999 / year</p>
+            <div class="sponsor-tier-card__header">
+              <p class="sponsor-tier-card__name">Gold</p>
+            </div>
+            <p class="sponsor-tier-card__amount">
+              $15,000 - $49,999
+              <span class="sponsor-tier-card__amount-note">per year</span>
+            </p>
             <p class="sponsor-tier-card__desc">
               Major annual support for sustained product, tooling, and platform work.
             </p>
           </article>
 
           <article class="sponsor-tier-card sponsor-tier-card--silver">
-            <p class="sponsor-tier-card__name">Silver</p>
-            <p class="sponsor-tier-card__amount">$5,000 - $14,999 / year</p>
+            <div class="sponsor-tier-card__header">
+              <p class="sponsor-tier-card__name">Silver</p>
+            </div>
+            <p class="sponsor-tier-card__amount">
+              $5,000 - $14,999
+              <span class="sponsor-tier-card__amount-note">per year</span>
+            </p>
             <p class="sponsor-tier-card__desc">
               Meaningful sponsorship that helps accelerate engineering and research.
             </p>
           </article>
 
           <article class="sponsor-tier-card sponsor-tier-card--bronze">
-            <p class="sponsor-tier-card__name">Bronze</p>
-            <p class="sponsor-tier-card__amount">$500 - $4,999 / year</p>
+            <div class="sponsor-tier-card__header">
+              <p class="sponsor-tier-card__name">Bronze</p>
+            </div>
+            <p class="sponsor-tier-card__amount">
+              $500 - $4,999
+              <span class="sponsor-tier-card__amount-note">per year</span>
+            </p>
             <p class="sponsor-tier-card__desc">
               Supportive sponsorship for companies backing the project and community.
             </p>
             <div class="sponsor-tier-card__members">
+              <p class="sponsor-tier-card__members-label">Current sponsor</p>
               <a
                 href="https://vincentwoo.com/"
                 target="_blank"
@@ -2008,63 +2029,130 @@ const seoDescription = SITE.description;
   }
 
   .sponsor-tier-card {
+    --tier-rgb: 148, 163, 184;
+    --tier-chip-bg: rgba(var(--tier-rgb), 0.1);
+    --tier-chip-color: rgb(var(--tier-rgb));
     position: relative;
     display: flex;
     flex-direction: column;
+    gap: 0.85rem;
     min-height: 100%;
     padding: 1.45rem;
-    border-radius: 1.25rem;
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    box-shadow: 0 14px 22px rgba(15, 23, 42, 0.04);
+    border-radius: 1.35rem;
+    background:
+      radial-gradient(circle at top right, rgba(var(--tier-rgb), 0.14), transparent 40%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(252, 252, 253, 0.88));
+    border: 1px solid rgba(var(--tier-rgb), 0.2);
+    box-shadow: 0 16px 28px rgba(15, 23, 42, 0.05);
     overflow: hidden;
+    transition:
+      transform 0.18s ease,
+      border-color 0.18s ease,
+      box-shadow 0.18s ease;
   }
 
   .sponsor-tier-card::before {
     content: "";
     position: absolute;
-    top: 0;
-    right: 0;
-    left: 0;
-    height: 0.24rem;
-    background: var(--tier-accent, rgba(37, 99, 235, 0.4));
+    inset: 1px;
+    border-radius: calc(1.35rem - 1px);
+    border: 1px solid rgba(255, 255, 255, 0.52);
+    pointer-events: none;
+  }
+
+  .sponsor-tier-card::after {
+    content: "";
+    position: absolute;
+    top: -3.5rem;
+    right: -2.5rem;
+    width: 10rem;
+    height: 10rem;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(var(--tier-rgb), 0.22), transparent 72%);
+    filter: blur(12px);
+    pointer-events: none;
+    opacity: 0.9;
+  }
+
+  .sponsor-tier-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(var(--tier-rgb), 0.28);
+    box-shadow: 0 20px 34px rgba(15, 23, 42, 0.07);
+  }
+
+  .sponsor-tier-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
   }
 
   .sponsor-tier-card__name {
-    margin: 0 0 0.5rem;
-    color: var(--color-heading);
-    font-size: 1.1rem;
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    margin: 0;
+    padding: 0.42rem 0.78rem;
+    border-radius: 999px;
+    background: var(--tier-chip-bg);
+    color: var(--tier-chip-color);
+    font-size: 0.78rem;
     font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
   }
 
   .sponsor-tier-card__amount {
-    margin: 0 0 0.65rem;
-    color: #334155;
-    font-size: 0.95rem;
+    margin: 0;
+    color: var(--color-heading);
+    font-size: clamp(1.45rem, 2.2vw, 1.8rem);
+    font-weight: 800;
+    line-height: 1.06;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+  }
+
+  .sponsor-tier-card__amount-note {
+    display: block;
+    margin-top: 0.28rem;
+    color: rgba(71, 85, 105, 0.82);
+    font-size: 0.75rem;
     font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
   }
 
   .sponsor-tier-card__desc {
     margin: 0;
-    color: var(--color-muted);
-    line-height: 1.65;
+    color: #526073;
+    line-height: 1.7;
   }
 
   .sponsor-tier-card__members {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.6rem;
+    display: grid;
+    gap: 0.55rem;
     margin-top: auto;
     padding-top: 1rem;
+    border-top: 1px solid rgba(var(--tier-rgb), 0.12);
+  }
+
+  .sponsor-tier-card__members-label {
+    margin: 0;
+    color: rgba(71, 85, 105, 0.76);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
   }
 
   .sponsor-tier-card__member {
     display: inline-flex;
     align-items: center;
+    width: fit-content;
     padding: 0.5rem 0.8rem;
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.8);
-    border: 1px solid rgba(148, 163, 184, 0.16);
+    background: rgba(var(--tier-rgb), 0.08);
+    border: 1px solid rgba(var(--tier-rgb), 0.18);
     color: #0f172a;
     font-size: 0.9rem;
     font-weight: 700;
@@ -2080,8 +2168,8 @@ const seoDescription = SITE.description;
   .sponsor-tier-card__member:hover {
     transform: translateY(-1px);
     color: var(--color-primary-link);
-    border-color: rgba(37, 99, 235, 0.28);
-    background: rgba(255, 255, 255, 0.96);
+    border-color: rgba(var(--tier-rgb), 0.3);
+    background: rgba(255, 255, 255, 0.94);
   }
 
   .sponsor-tier-card__member:focus-visible {
@@ -2094,23 +2182,35 @@ const seoDescription = SITE.description;
   }
 
   .sponsor-tier-card--platinum {
-    --tier-accent: linear-gradient(90deg, #94a3b8, #cbd5e1);
-    background: rgba(255, 255, 255, 0.95);
+    --tier-rgb: 71, 85, 105;
+    --tier-chip-bg: linear-gradient(180deg, rgba(71, 85, 105, 0.12), rgba(226, 232, 240, 0.55));
+    --tier-chip-color: #475569;
+    background:
+      radial-gradient(circle at top right, rgba(203, 213, 225, 0.7), transparent 42%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(241, 245, 249, 0.92));
   }
 
   .sponsor-tier-card--gold {
-    --tier-accent: linear-gradient(90deg, #f59e0b, #fbbf24);
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 250, 240, 0.95));
+    --tier-rgb: 245, 158, 11;
+    background:
+      radial-gradient(circle at top right, rgba(253, 230, 138, 0.42), transparent 38%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(255, 251, 235, 0.92));
   }
 
   .sponsor-tier-card--silver {
-    --tier-accent: linear-gradient(90deg, #94a3b8, #cbd5e1);
-    background: rgba(255, 255, 255, 0.94);
+    --tier-rgb: 148, 163, 184;
+    --tier-chip-bg: linear-gradient(180deg, rgba(226, 232, 240, 0.72), rgba(248, 250, 252, 0.96));
+    --tier-chip-color: #64748b;
+    background:
+      radial-gradient(circle at top right, rgba(226, 232, 240, 0.44), transparent 40%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.95));
   }
 
   .sponsor-tier-card--bronze {
-    --tier-accent: linear-gradient(90deg, #c08457, #d6a67c);
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(252, 246, 241, 0.94));
+    --tier-rgb: 192, 132, 87;
+    background:
+      radial-gradient(circle at top right, rgba(234, 211, 194, 0.4), transparent 38%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(252, 246, 241, 0.92));
   }
 
   /* ===========================

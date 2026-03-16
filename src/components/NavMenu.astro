@@ -423,6 +423,7 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
       text-align: left;
       margin-bottom: 0;
       border-radius: 1rem;
+      font-size: 0.92rem;
     }
 
     .nav-menu__link.is-active {
@@ -471,6 +472,35 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
       padding-left: 0.55rem;
       min-width: auto;
       width: 100%;
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .nav-menu {
+      gap: 0.28rem;
+    }
+
+    .nav-menu__link {
+      padding: 0.72rem 0.85rem;
+      border-radius: 0.9rem;
+      font-size: 0.9rem;
+    }
+
+    .nav-menu__link--icon-only {
+      min-width: 2.35rem;
+      min-height: 2.35rem;
+      padding: 0.35rem;
+    }
+
+    .nav-menu__dropdown-container {
+      padding: 0.72rem 0.85rem;
+      border-radius: 0.9rem;
+    }
+
+    .nav-menu__submenu-link {
+      padding: 0.62rem 0.75rem;
+      border-radius: 0.75rem;
+      font-size: 0.9rem;
     }
   }
 </style>

@@ -135,8 +135,17 @@ const latestBountyPath = `${base}bounty/`;
    * Responsive styles for screens smaller than the large breakpoint.
    */
   @media (max-width: 991.98px) {
+    .site-header__container {
+      padding-inline: 0.9rem;
+    }
+
+    .site-header__brand img {
+      height: 20px;
+    }
+
     .site-header__toggle {
       display: block; /* Show the hamburger on mobile */
+      padding: 0.38rem 0.72rem;
     }
 
     .site-header__nav-container {
@@ -150,7 +159,11 @@ const latestBountyPath = `${base}bounty/`;
       width: 100%;
       border-top: 1px solid rgba(15, 23, 42, 0.08);
       box-shadow: 0 20px 36px rgba(15, 23, 42, 0.08);
-      padding: 1rem;
+      border-bottom-left-radius: 1.25rem;
+      border-bottom-right-radius: 1.25rem;
+      padding: 0.85rem;
+      max-height: calc(100svh - var(--nav-height) - 0.5rem);
+      overflow: auto;
     }
 
     /**
@@ -158,6 +171,22 @@ const latestBountyPath = `${base}bounty/`;
      */
     .site-header__nav-container.is-open {
       display: block;
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .site-header__container {
+      padding-inline: 0.75rem;
+    }
+
+    .site-header__brand img {
+      height: 18px;
+    }
+
+    .site-header__nav-container {
+      padding: 0.75rem;
+      border-bottom-left-radius: 1rem;
+      border-bottom-right-radius: 1rem;
     }
   }
 </style>

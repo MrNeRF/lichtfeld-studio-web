@@ -15,7 +15,7 @@ winner: 'No qualifying submissions. No payout.'
 
 * [Auki](https://x.com/auki): $1,000
 * [Vincent Woo](https://vincentwoo.com/): $500
-* [MrNeRF](https://x.com/janusch_patas): $300
+* [Janusch Patas](https://x.com/janusch_patas): $300
 * [Yehe Liu](https://x.com/YeheLiu): $280
 * [Kenneth Lynne](https://kenneth.ly/nne): $200
 * [Florian Hahlbohm](https://fhahlbohm.github.io): $100

@@ -5,12 +5,12 @@ import { getCollection } from "astro:content";
 const bountySponsors = [
   { name: "Martin Casado", href: "https://x.com/martin_casado", total: 1000 },
   { name: "Nils Pihl", href: "https://x.com/broodsugar", total: 1000 },
-  { name: "Janusch Patas", href: "https://x.com/janusch_patas", total: 800 },
-  { name: "Vincent Woo", href: "https://vincentwoo.com/", total: 600 },
+  { name: "Janusch Patas", href: "https://x.com/janusch_patas", total: 600 },
+  { name: "Mazeyar Moeini", href: "https://x.com/mazy1998", total: 400 },
+  { name: "Vincent Woo", href: "https://vincentwoo.com/", total: 300 },
   { name: "Anton Obukhov", href: "https://github.com/toshas", total: 200 },
   { name: "Chris at KIRI", href: "https://x.com/ChrisAtKIRI", total: 200 },
   { name: "Florian Hahlbohm", href: "https://x.com/fhahlbohm", total: 100 },
-  { name: "Mazeyar Moeini", href: "https://x.com/mazy1998", total: 100 },
   { name: "Yehe Liu", href: "https://x.com/YeheLiu", total: 100 },
   {
     name: "Drew Moffitt",
@@ -21,6 +21,43 @@ const bountySponsors = [
 ];
 
 const bounties = (await getCollection("bounty")).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+type BountyEntry = (typeof bounties)[number];
+
+const totalSponsorFunding = bountySponsors.reduce((sum, sponsor) => sum + sponsor.total, 0);
+const paidBountyCount = bounties.filter((bounty) => {
+  const winner = bounty.data.winner?.toLowerCase() ?? "";
+
+  return winner.length > 0 && !winner.includes("no qualifying");
+}).length;
+
+const bountyHeroStats = [
+  { value: bounties.length.toString(), label: "public bounty briefs" },
+  { value: paidBountyCount.toString(), label: "bounties that paid out" },
+  { value: `$${totalSponsorFunding.toLocaleString()}`, label: "paid bounty pool" },
+  { value: bountySponsors.length.toString(), label: "named backers" },
+];
+
+function formatBountyLabel(slug: string): string {
+  const match = slug.match(/(\d+)/);
+
+  return match ? `Bounty ${match[1].padStart(3, "0")}` : "Bounty";
+}
+
+function getBountyState(bounty: BountyEntry): { label: string; tone: "awarded" | "closed" | "open" } {
+  const winner = bounty.data.winner?.toLowerCase() ?? "";
+
+  if (winner.includes("no qualifying")) {
+    return { label: "Closed without payout", tone: "closed" };
+  }
+
+  if (winner.length > 0) {
+    return { label: "Awarded", tone: "awarded" };
+  }
+
+  const isOpen = !bounty.data.deadline || bounty.data.deadline.getTime() >= Date.now();
+
+  return { label: isOpen ? "Open" : "Closed", tone: isOpen ? "open" : "closed" };
+}
 
 const seoTitle = "Bounties";
 const seoDescription =
@@ -30,65 +67,95 @@ const seoDescription =
 <Layout title={seoTitle} description={seoDescription}>
   <section class="bounty-hub">
     <div class="container content-frame px-4 py-5">
-      <div class="shell bounty-hub__hero">
-        <p class="kicker">Bounties</p>
-        <h1 class="bounty-hub__title">Bounties funded by the LichtFeld Studio community</h1>
-        <p class="bounty-hub__lead">
-          This page is the starting point for bounty work: who funded payouts, which challenges are open, and which
-          bounties already produced results.
-        </p>
+      <div class="bounty-hub__top-grid">
+        <div class="shell bounty-hub__hero">
+          <p class="kicker">Bounties</p>
+          <h1 class="bounty-hub__title">Community-funded bounties for LichtFeld Studio</h1>
+          <p class="bounty-hub__lead">
+            This page tracks the four public bounty briefs, the two challenges that actually paid out, and the named
+            backers attached to those paid pools.
+          </p>
+
+          <div class="bounty-hub__stats" aria-label="Bounty program highlights">
+            {
+              bountyHeroStats.map((stat) => (
+                <div class="bounty-hub__stat">
+                  <strong>{stat.value}</strong>
+                  <span>{stat.label}</span>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+
+        <section class="shell shell--compact bounty-sponsors-shell" aria-labelledby="bounty-sponsors-heading">
+          <div class="bounty-sponsors-intro">
+            <p class="kicker">Sponsor board</p>
+            <h2 id="bounty-sponsors-heading" class="bounty-sponsors-intro__title">
+              Named backers on paid bounties
+            </h2>
+            <p class="bounty-sponsors-intro__copy">
+              Manual tally from the bounty 001 update notes and the paid base pool of bounty 002.
+            </p>
+          </div>
+
+          <div class="bounty-sponsor-list" role="list" aria-label="Named backers ordered by cumulative contribution">
+            {
+              bountySponsors.map((sponsor, index) => (
+                <a
+                  href={sponsor.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="bounty-sponsor-row"
+                  role="listitem"
+                  aria-label={`Open ${sponsor.name}`}
+                >
+                  <span class="bounty-sponsor-row__rank">#{index + 1}</span>
+                  <span class="bounty-sponsor-row__name" title={sponsor.name}>{sponsor.name}</span>
+                  <span class="bounty-sponsor-row__total">${sponsor.total.toLocaleString()}</span>
+                </a>
+              ))
+            }
+          </div>
+          <p class="bounty-sponsors-note">
+            Bounties 003 and 004 closed without payout. The unpaid $500 bonus on bounty 002 is excluded from these
+            totals.
+          </p>
+        </section>
       </div>
 
-      <section class="shell shell--compact bounty-sponsors-shell" aria-labelledby="bounty-sponsors-heading">
-        <div class="bounty-sponsors-intro">
-          <p class="kicker">Bounty sponsors</p>
-          <h2 id="bounty-sponsors-heading" class="bounty-sponsors-intro__title">
-            Bounty sponsors by cumulative payout
-          </h2>
-          <p class="bounty-sponsors-intro__copy">
-            Ordered by cumulative paid bounty funding. Bounties 3 and 4 had no payout.
-          </p>
-        </div>
-
-        <div class="bounty-sponsor-list" role="list" aria-label="Bounty sponsors ordered by cumulative contribution">
-          {
-            bountySponsors.map((sponsor, index) => (
-              <a
-                href={sponsor.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="bounty-sponsor-list__item"
-                role="listitem"
-                aria-label={`Open ${sponsor.name}`}
-              >
-                <span class="bounty-sponsor-list__rank">{index + 1}</span>
-                <span class="bounty-sponsor-list__name">{sponsor.name}</span>
-                <span class="bounty-sponsor-list__total">${sponsor.total.toLocaleString()}</span>
-              </a>
-            ))
-          }
-        </div>
-      </section>
-
-      <section class="shell shell--compact bounty-listing" aria-labelledby="bounty-listing-heading">
-        <div class="bounty-listing__intro">
-          <p class="kicker">All bounties</p>
-          <h2 id="bounty-listing-heading" class="bounty-listing__title">Browse current and past challenges</h2>
+      <section class="shell bounty-listing" aria-labelledby="bounty-listing-heading">
+        <div class="section-head bounty-listing__head">
+          <div>
+            <p class="kicker">All bounties</p>
+            <h2 id="bounty-listing-heading" class="bounty-listing__title">Browse current and past challenges</h2>
+            <p class="section-copy mb-0">
+              Each card captures the brief, archive dates, and outcome so people can scan the full program quickly.
+            </p>
+          </div>
         </div>
 
         <div class="bounty-listing__grid">
           {
-            bounties.map((bounty) => (
-              <a href={`/bounty/${bounty.slug}`} class="bounty-entry">
-                <div class="bounty-entry__meta">
-                  <span>{bounty.data.date.toLocaleDateString()}</span>
-                  <span>{bounty.data.deadline?.toLocaleDateString() ?? "Open deadline"}</span>
-                </div>
-                <h3 class="bounty-entry__title">{bounty.data.title}</h3>
-                <p class="bounty-entry__summary">{bounty.data.summary}</p>
-                {bounty.data.winner && <p class="bounty-entry__winner">{bounty.data.winner}</p>}
-              </a>
-            ))
+            bounties.map((bounty) => {
+              const state = getBountyState(bounty);
+
+              return (
+                <a href={`/bounty/${bounty.slug}`} class="bounty-entry">
+                  <div class="bounty-entry__top">
+                    <span class="bounty-entry__eyebrow">{formatBountyLabel(bounty.slug)}</span>
+                    <span class:list={["bounty-entry__state", `bounty-entry__state--${state.tone}`]}>{state.label}</span>
+                  </div>
+                  <h3 class="bounty-entry__title">{bounty.data.title}</h3>
+                  <p class="bounty-entry__summary">{bounty.data.summary}</p>
+                  <div class="bounty-entry__meta">
+                    <span>Started {bounty.data.date.toLocaleDateString()}</span>
+                    <span>{bounty.data.deadline?.toLocaleDateString() ?? "No fixed deadline"}</span>
+                  </div>
+                  {bounty.data.winner && <p class="bounty-entry__winner">{bounty.data.winner}</p>}
+                </a>
+              );
+            })
           }
         </div>
       </section>
@@ -101,40 +168,80 @@ const seoDescription =
     background: var(--page-bg);
   }
 
+  .bounty-hub__top-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+    gap: 1rem;
+    align-items: stretch;
+  }
+
   .bounty-hub__hero {
-    max-width: 54rem;
-    margin-bottom: 1.25rem;
+    min-height: 100%;
   }
 
   .bounty-hub__title {
     margin: 0 0 0.75rem;
     color: var(--color-heading);
-    font-size: clamp(2rem, 4vw, 3rem);
-    line-height: 1.08;
+    font-size: clamp(2.9rem, 5.1vw, 4.5rem);
+    line-height: 0.95;
+    max-width: 11ch;
+    text-wrap: balance;
   }
 
   .bounty-hub__lead {
     margin: 0;
-    color: var(--color-body);
-    font-size: 1.05rem;
-    line-height: 1.7;
+    color: #344054;
+    font-size: 1.08rem;
+    line-height: 1.78;
+    max-width: 42rem;
   }
 
-  .bounty-listing {
-    margin-top: 1rem;
+  .bounty-hub__stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem;
+    margin-top: 1.5rem;
   }
 
-  .bounty-sponsors-intro,
-  .bounty-listing__intro {
+  .bounty-hub__stat {
+    padding: 1rem 1.1rem;
+    border-radius: 1.3rem;
+    background: rgba(255, 255, 255, 0.62);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0 12px 20px rgba(15, 23, 42, 0.03);
+  }
+
+  .bounty-hub__stat strong {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 1.7rem;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    color: var(--color-heading);
+  }
+
+  .bounty-hub__stat span {
+    display: block;
+    margin-top: 0.35rem;
+    color: var(--color-muted);
+    font-size: 0.86rem;
+    font-weight: 700;
+  }
+
+  .bounty-sponsors-intro {
     margin-bottom: 0.7rem;
+  }
+
+  .bounty-sponsors-shell {
+    height: 100%;
   }
 
   .bounty-sponsors-intro__title,
   .bounty-listing__title {
     margin: 0 0 0.25rem;
     color: var(--color-heading);
-    font-size: 1.6rem;
-    line-height: 1.15;
+    font-size: clamp(1.7rem, 2.6vw, 2.1rem);
+    line-height: 1.02;
   }
 
   .bounty-sponsors-intro__copy {
@@ -144,85 +251,111 @@ const seoDescription =
     line-height: 1.45;
   }
 
-  .bounty-sponsor-list {
-    display: grid;
-    gap: 0.35rem;
+  .bounty-sponsors-note {
+    margin: 0.85rem 0 0;
+    color: var(--color-muted);
+    font-size: 0.83rem;
+    line-height: 1.5;
   }
 
-  .bounty-sponsor-list__item {
+  .bounty-sponsor-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    align-content: start;
+  }
+
+  .bounty-sponsor-row {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) auto;
-    gap: 0.55rem;
+    gap: 0.75rem;
     align-items: center;
-    padding: 0.42rem 0.65rem;
-    border-radius: 0.7rem;
-    background: rgba(255, 255, 255, 0.9);
+    min-height: 4rem;
+    padding: 0.85rem 0.95rem;
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.82);
     border: 1px solid var(--card-border);
     color: inherit;
     text-decoration: none;
-    box-shadow: var(--card-shadow);
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.035);
     transition:
       transform 0.18s ease,
       border-color 0.18s ease,
-      box-shadow 0.18s ease;
+      box-shadow 0.18s ease,
+      background-color 0.18s ease;
   }
 
-  .bounty-sponsor-list__item:hover,
+  .bounty-sponsor-row:hover,
   .bounty-entry:hover {
     transform: translateY(-2px);
     border-color: var(--color-border-hover);
-    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
+    box-shadow: 0 18px 28px rgba(15, 23, 42, 0.06);
+    background: rgba(255, 255, 255, 0.92);
   }
 
-  .bounty-sponsor-list__item:focus-visible,
+  .bounty-sponsor-row:focus-visible,
   .bounty-entry:focus-visible {
     outline: none;
     transform: translateY(-2px);
     border-color: var(--color-primary-link);
-    box-shadow:
-      var(--focus-shadow),
-      0 8px 18px rgba(15, 23, 42, 0.04);
+    box-shadow: var(--focus-shadow);
   }
 
-  .bounty-sponsor-list__rank {
+  .bounty-sponsor-row__rank {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 1.35rem;
-    height: 1.35rem;
+    width: 1.7rem;
+    height: 1.7rem;
     border-radius: 999px;
-    background: rgba(37, 99, 235, 0.1);
-    color: #2563eb;
+    background: rgba(20, 87, 255, 0.08);
+    color: var(--color-primary);
     font-size: 0.7rem;
     font-weight: 800;
   }
 
-  .bounty-sponsor-list__name {
+  .bounty-sponsor-row__name {
+    min-width: 0;
     color: var(--color-heading);
-    font-size: 0.88rem;
+    font-size: 0.92rem;
     font-weight: 700;
     line-height: 1.25;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  .bounty-sponsor-list__total {
-    color: #334155;
-    font-size: 0.84rem;
+  .bounty-sponsor-row__total {
+    color: var(--color-heading);
+    font-family: var(--font-display);
+    font-size: 1rem;
+    letter-spacing: -0.03em;
     font-weight: 800;
     white-space: nowrap;
+  }
+
+  .bounty-listing {
+    margin-top: 1rem;
+  }
+
+  .bounty-listing__head {
+    margin-bottom: 1.15rem;
   }
 
   .bounty-listing__grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.85rem;
+    gap: 1rem;
   }
 
   .bounty-entry {
-    display: grid;
-    gap: 0.55rem;
-    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-height: 100%;
+    padding: 1.35rem;
     border-radius: var(--card-radius);
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.84);
     border: 1px solid var(--card-border);
     color: inherit;
     text-decoration: none;
@@ -231,6 +364,50 @@ const seoDescription =
       transform 0.18s ease,
       border-color 0.18s ease,
       box-shadow 0.18s ease;
+  }
+
+  .bounty-entry__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .bounty-entry__eyebrow {
+    color: #9a5d26;
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .bounty-entry__state {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.8rem;
+    padding: 0.25rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .bounty-entry__state--awarded {
+    background: rgba(20, 87, 255, 0.08);
+    color: var(--color-primary-link);
+  }
+
+  .bounty-entry__state--closed {
+    background: rgba(15, 23, 42, 0.06);
+    color: var(--color-muted);
+  }
+
+  .bounty-entry__state--open {
+    background: rgba(5, 150, 105, 0.1);
+    color: #047857;
   }
 
   .bounty-entry__meta {
@@ -238,44 +415,68 @@ const seoDescription =
     justify-content: space-between;
     gap: 0.75rem;
     color: var(--color-muted);
-    font-size: 0.82rem;
-    font-weight: 600;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-top: auto;
   }
 
   .bounty-entry__title {
     margin: 0;
     color: var(--color-heading);
-    font-size: 1.1rem;
-    line-height: 1.25;
+    font-size: 1.35rem;
+    line-height: 1.14;
   }
 
   .bounty-entry__summary {
     margin: 0;
     color: var(--color-body);
-    line-height: 1.55;
+    line-height: 1.62;
   }
 
   .bounty-entry__winner {
+    display: inline-flex;
+    width: fit-content;
+    align-items: center;
+    padding: 0.4rem 0.7rem;
+    border-radius: 999px;
+    background: rgba(20, 87, 255, 0.08);
     margin: 0;
     color: var(--color-primary-link);
-    font-size: 0.9rem;
+    font-size: 0.82rem;
     font-weight: 700;
   }
 
   @media (max-width: 991.98px) {
+    .bounty-hub__top-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .bounty-hub__title {
+      max-width: 12ch;
+    }
+
     .bounty-listing__grid {
       grid-template-columns: 1fr;
     }
   }
 
   @media (max-width: 575.98px) {
-    .bounty-sponsor-list__item {
+    .bounty-hub__stats,
+    .bounty-sponsor-list {
+      grid-template-columns: 1fr;
+    }
+
+    .bounty-sponsor-row {
       grid-template-columns: 1fr;
       gap: 0.35rem;
       align-items: flex-start;
     }
 
-    .bounty-sponsor-list__total {
+    .bounty-sponsor-row__name {
+      white-space: normal;
+    }
+
+    .bounty-sponsor-row__total {
       white-space: normal;
     }
 

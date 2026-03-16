@@ -81,17 +81,17 @@ const contributors: Contributor[] = providedContributors ?? (await getContributo
    */
   .contributors-wall__title {
     margin: 0;
-    color: #0f172a;
-    font-size: clamp(1.7rem, 3vw, 2.2rem);
+    color: var(--color-heading);
+    font-size: clamp(1.9rem, 3vw, 2.5rem);
     font-weight: 700;
-    line-height: 1.08;
-    letter-spacing: -0.02em;
+    line-height: 1.02;
+    letter-spacing: -0.03em;
   }
 
   .contributors-wall__desc {
     margin: 0.9rem 0 0;
-    color: #475569;
-    line-height: 1.65;
+    color: var(--color-body);
+    line-height: 1.72;
     max-width: 42rem;
   }
 
@@ -109,15 +109,16 @@ const contributors: Contributor[] = providedContributors ?? (await getContributo
     height: 64px;
     border-radius: 50%;
     overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.88);
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
     transition:
       transform 0.2s ease,
       box-shadow 0.2s ease;
   }
 
   .contributor-avatar:hover {
-    transform: scale(1.1);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transform: translateY(-3px) scale(1.04);
+    box-shadow: 0 16px 28px rgba(15, 23, 42, 0.12);
     z-index: 10;
     position: relative;
   }

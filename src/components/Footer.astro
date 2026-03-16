@@ -11,7 +11,7 @@ import core11Logo from '../assets/core11-logo.svg';
 const base = import.meta.env.BASE_URL;
 ---
 
-<div class="container">
+<div class="container content-frame px-4">
   <footer class="site-footer py-3 my-4">
     <!-- Supported by section -->
     <div class="d-flex flex-column align-items-center mb-3 pb-3 border-bottom">
@@ -46,16 +46,19 @@ const base = import.meta.env.BASE_URL;
    * Footer styling with theme-aware colors.
    */
   .site-footer {
-    border-color: var(--border-default, #e5e7eb) !important;
+    padding-top: 2rem !important;
+    border-top: 1px solid rgba(15, 23, 42, 0.08) !important;
+    border-color: transparent !important;
   }
 
   .site-footer__copyright {
-    color: var(--text-tertiary, #94a3b8);
+    color: var(--color-muted);
+    font-weight: 600;
   }
 
   .site-footer__logo {
     height: 20px;
-    opacity: 0.7;
+    opacity: 0.78;
     transition: opacity var(--transition-fast, 150ms) ease-out;
   }
 
@@ -72,7 +75,7 @@ const base = import.meta.env.BASE_URL;
   }
 
   .sponsor-logo__image {
-    height: 32px;
+    height: 30px;
     opacity: 0.85;
   }
 </style>

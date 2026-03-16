@@ -40,6 +40,7 @@ const updatedLabel = item.updatedAt
 
 <style>
   .project-item-card {
+    position: relative;
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -52,6 +53,15 @@ const updatedLabel = item.updatedAt
       transform 0.18s ease,
       box-shadow 0.18s ease,
       border-color 0.18s ease;
+  }
+
+  .project-item-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(20, 87, 255, 0.24), rgba(20, 87, 255, 0));
+    pointer-events: none;
   }
 
   .project-item-card:hover {
@@ -80,26 +90,26 @@ const updatedLabel = item.updatedAt
     min-height: 1.8rem;
     padding: 0.2rem 0.7rem;
     border-radius: 999px;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 800;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
   }
 
   .project-item-card__type {
-    background: rgba(37, 99, 235, 0.1);
-    color: #2563eb;
+    background: rgba(20, 87, 255, 0.08);
+    color: var(--color-primary-link);
   }
 
   .project-item-card__status {
     background: rgba(15, 23, 42, 0.06);
-    color: #475569;
+    color: #475467;
   }
 
   .project-item-card__title {
     margin: 0 0 0.75rem;
-    font-size: 1.2rem;
-    line-height: 1.3;
+    font-size: 1.3rem;
+    line-height: 1.18;
   }
 
   .project-item-card__title a {

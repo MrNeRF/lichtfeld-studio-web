@@ -36,14 +36,14 @@ const fundingOptions = [
 
 const contributionLanes = [
   { title: "Live backlog", copy: "Pull active platform work directly from the saved GitHub Projects view." },
-  { title: "Issue-sized ideas", copy: "Pick up smaller additions from the contribution ideas repository." },
-  { title: "Funding", copy: "Back releases, maintenance, and the next round of bounties." },
+  { title: "Open issues", copy: "Browse open work on the main GitHub issue tracker." },
+  { title: "Funding", copy: "Back the ongoing development of LichtFeld Studio." },
 ];
 
 // SEO metadata for the contribute page
 const seoTitle = "Contribute";
 const seoDescription =
-  "Join the LichtFeld Studio community! Contribute code, share datasets, implement features, or fix bugs. See open contribution ideas and become a contributor.";
+  "Join LichtFeld Studio development. Browse the live GitHub Projects backlog, pick up open issues, support the project, and meet the contributors shipping the platform.";
 ---
 
 <Layout title={seoTitle} description={seoDescription}>
@@ -52,10 +52,10 @@ const seoDescription =
       <div class="contribute-top-grid">
         <div class="shell contribute-shell--hero">
           <p class="kicker">Contribute</p>
-          <h1 class="contribute-title">Build features, fix problems, and fund the next release</h1>
+          <h1 class="contribute-title">Build features, fix problems, and support the project</h1>
           <p class="contribute-lead mb-0">
-            Join the developers and researchers pushing LichtFeld Studio forward. Pick work from the live backlog,
-            start from a scoped idea, or directly support the platform.
+            Pick work from the live GitHub Projects backlog, jump into open issues on the main tracker, or directly
+            support the platform.
           </p>
 
           <div class="contribute-hero__lanes" aria-label="Contribution paths">
@@ -74,7 +74,7 @@ const seoDescription =
           <p class="kicker">Fund development</p>
           <h2 class="contribute-support__title">Support core development directly</h2>
           <p class="contribute-support__copy">
-            Donations help fund releases, maintenance, bounties, and the infrastructure around LichtFeld Studio.
+            Direct funding supports ongoing development, maintenance, and releases.
           </p>
 
           <div class="contribute-support__grid">
@@ -99,10 +99,10 @@ const seoDescription =
         <div class="section-head contribute-workbench__head">
           <div>
             <p class="kicker mb-2">Contribution lanes</p>
-            <h2 class="section-title mb-2">Choose live platform work or start from an idea</h2>
+            <h2 class="section-title mb-2">Choose live platform work or pick from open issues</h2>
             <p class="section-copy mb-0">
-              Use the GitHub Projects view for current roadmap work. Use the contribution ideas repo for smaller,
-              self-contained additions.
+              Use the GitHub Projects view for active roadmap work and the main GitHub issue tracker for issue-sized
+              tasks you can pick up right away.
             </p>
           </div>
         </div>
@@ -141,10 +141,10 @@ const seoDescription =
           <section class="contribute-panel" id="contribution-ideas">
             <div class="contribute-panel__head">
               <div>
-                <p class="kicker mb-2">Contribution ideas</p>
-                <h3 class="contribute-panel__title">How you can contribute</h3>
+                <p class="kicker mb-2">Issue tracker</p>
+                <h3 class="contribute-panel__title">Open issues worth picking up</h3>
                 <p class="contribute-panel__copy">
-                  Additional implementation ideas pulled from the contribution-ideas repository.
+                  Recent open issues from the main GitHub issue tracker.
                 </p>
               </div>
               <a href={contributionIdeasRepoUrl} class="section-link" target="_blank" rel="noopener noreferrer">
@@ -161,7 +161,7 @@ const seoDescription =
                 </div>
               ) : (
                 <div class="contribute-empty" role="alert">
-                  <strong>No contribution ideas were returned right now.</strong>
+                  <strong>No open issues were returned right now.</strong>
                   <span>
                     Check the
                     <a
@@ -172,7 +172,7 @@ const seoDescription =
                     >
                       GitHub issue tracker
                     </a>{" "}
-                    for active work items.
+                    for current work items.
                   </span>
                 </div>
               )

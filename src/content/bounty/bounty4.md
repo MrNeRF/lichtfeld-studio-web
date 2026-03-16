@@ -99,7 +99,7 @@ Your PR must include:
 
 ## 🗓️ Deadline
 
-**October 12, 2025 at 11:59 PM PST**
+**November 9, 2025 at 11:59 PM PST**
 
 ---
 

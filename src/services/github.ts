@@ -4,7 +4,6 @@ import { marked } from "marked";
 import {
   REPO_OWNER,
   REPO_NAME,
-  CONTRIBUTION_IDEAS_REPO_NAME,
   CONTRIBUTION_PROJECT_NUMBER,
   CONTRIBUTION_PROJECT_VIEW_NUMBER,
   CONTRIBUTION_PROJECT_VIEW_URL,
@@ -197,6 +196,25 @@ function parseIssueBody(
   };
 }
 
+function stripIssueFrontmatter(body: string): string {
+  return body.replace(/^---\s*\r?\n[\s\S]+?\r?\n---\s*(\r?\n|$)/, "").trim();
+}
+
+function buildIssueExcerpt(body: string): string {
+  const plain = stripIssueFrontmatter(body)
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/!\[[^\]]*]\([^)]*\)/g, " ")
+    .replace(/\[([^\]]+)]\([^)]*\)/g, "$1")
+    .replace(/[`>#*_~-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (!plain) return "Open the issue on GitHub for details and discussion.";
+
+  const excerpt = plain.length > 220 ? `${plain.slice(0, 217).trimEnd()}...` : plain;
+  return excerpt;
+}
+
 function normalizeProjectItemType(content: Record<string, any> | null | undefined): string {
   const rawType = content?.node_id ? String(content.node_id) : "";
   if (rawType.startsWith("PR_")) return "Pull request";
@@ -230,51 +248,51 @@ function extractProjectItemStatus(fieldValues: unknown): string | undefined {
 // =================================================================================================
 
 /**
- * Fetches and parses contribution ideas from all open GitHub issues in the dedicated ideas repository.
+ * Fetches contribution ideas from open issues in the main GitHub issue tracker.
  * @returns A promise that resolves to a sorted array of contribution ideas.
  */
 export async function getContributionIdeas(): Promise<ContributionIdea[]> {
-  // Defensive check for the GitHub token to provide a clear error during build.
-  if (!import.meta.env.GITHUB_TOKEN) {
-    console.error("ERROR: GITHUB_TOKEN environment variable is not set. Cannot fetch contribution ideas.");
-    return [];
-  }
-
   try {
     const { data: issues } = await octokit.issues.listForRepo({
       owner: REPO_OWNER,
-      repo: CONTRIBUTION_IDEAS_REPO_NAME,
+      repo: REPO_NAME,
       state: "open",
+      sort: "updated",
+      direction: "desc",
+      per_page: 24,
     });
 
     if (issues.length === 0) {
-      console.log("No open issues found in the contribution ideas repository.");
+      console.log("No open issues found in the main issue tracker.");
     }
 
-    const ideas: ContributionIdea[] = [];
-    for (const issue of issues) {
-      // An issue must have a body to be considered a contribution idea.
-      if (issue.body) {
-        const parsed = parseIssueBody(issue.body);
-        if (parsed) {
-          ideas.push({
-            ...parsed,
-            bodyHtml: await marked.parse(parsed.body),
+    const ideas = await Promise.all(
+      issues
+        .filter((issue) => !issue.pull_request)
+        .slice(0, 6)
+        .map(async (issue, index) => {
+          const parsed = issue.body ? parseIssueBody(issue.body) : null;
+          const bodyHtml = await marked.parse(parsed ? parsed.body : buildIssueExcerpt(issue.body ?? ""));
+
+          return {
+            title: parsed?.title ?? issue.title,
+            link: parsed?.link ?? issue.html_url,
+            image: parsed?.image,
+            order: parsed?.order ?? index,
+            bodyHtml,
             issueUrl: issue.html_url,
-          });
-        } else {
-          // Add logging for issues that are skipped to make debugging easier.
-          console.warn(`Skipping issue #${issue.number} ("${issue.title}") due to invalid or missing frontmatter.`);
-        }
-      }
+          } satisfies ContributionIdea;
+        }),
+    );
+
+    if (ideas.length === 0) {
+      console.log("No issue cards were produced from the main issue tracker.");
     }
 
-    // Sort ideas based on the 'order' field from the metadata.
     return ideas.sort((a, b) => a.order - b.order);
   } catch (error) {
-    // Log the full error to the console for easier debugging during the build process.
-    console.error("Failed to fetch contribution ideas from GitHub:", error);
-    return []; // Return an empty array on error to prevent the build from failing.
+    console.error("Failed to fetch contribution issues from GitHub:", error);
+    return [];
   }
 }
 

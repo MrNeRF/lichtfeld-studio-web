@@ -47,9 +47,9 @@ const contributors: Contributor[] = providedContributors ?? (await getContributo
 
 {
   contributors.length > 0 && (
-    <div class="container px-6 py-12" id={sectionId}>
-      {showHeading && <h2 class="text-2xl font-semibold text-black pb-2">{title}</h2>}
-      <p class="mt-4">A huge thank you to everyone who has contributed to the project.</p>
+    <div class="container content-frame px-6 py-12" id={sectionId}>
+      {showHeading && <h2 class="contributors-wall__title">{title}</h2>}
+      <p class="contributors-wall__desc">A huge thank you to everyone who has contributed to the project.</p>
 
       <div class="contributor-wall">
         {contributors.map((contributor: Contributor) => (
@@ -79,12 +79,28 @@ const contributors: Contributor[] = providedContributors ?? (await getContributo
    * Styles for the contributor "face wall", scoped to this component.
    * These rules do not leak to other components per Astro's default scoping.
    */
+  .contributors-wall__title {
+    margin: 0;
+    color: #0f172a;
+    font-size: clamp(1.7rem, 3vw, 2.2rem);
+    font-weight: 700;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+  }
+
+  .contributors-wall__desc {
+    margin: 0.9rem 0 0;
+    color: #475569;
+    line-height: 1.65;
+    max-width: 42rem;
+  }
+
   .contributor-wall {
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem;
-    padding-top: 2.5rem;
-    justify-content: center;
+    gap: 0.9rem;
+    padding-top: 1.75rem;
+    justify-content: flex-start;
   }
 
   .contributor-avatar {

@@ -29,7 +29,7 @@ const seoDescription =
 
 <Layout title={seoTitle} description={seoDescription}>
   <section class="bounty-hub">
-    <div class="container px-4 py-5">
+    <div class="container content-frame px-4 py-5">
       <div class="shell bounty-hub__hero">
         <p class="kicker">Bounties</p>
         <h1 class="bounty-hub__title">Bounties funded by the LichtFeld Studio community</h1>
@@ -179,7 +179,9 @@ const seoDescription =
     outline: none;
     transform: translateY(-2px);
     border-color: var(--color-primary-link);
-    box-shadow: var(--focus-shadow), 0 8px 18px rgba(15, 23, 42, 0.04);
+    box-shadow:
+      var(--focus-shadow),
+      0 8px 18px rgba(15, 23, 42, 0.04);
   }
 
   .bounty-sponsor-list__rank {

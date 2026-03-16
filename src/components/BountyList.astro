@@ -9,31 +9,105 @@ const bounties = (await getCollection("bounty")).sort((a, b) => b.data.date.getT
 const bountyPath = `${base}bounty/`;
 ---
 
-<style>
-  #bounty-list {
-    top: 92px;
-    /* Set a z-index lower than the site header (1000) to ensure the header's
-       dropdowns appear above this sticky element. */
-    z-index: 1;
-  }
-</style>
-
-<div id="bounty-list" class="list-group sticky-top">
+<div id="bounty-list" class="bounty-list">
   {
     bounties.map((bounty) => (
       <a
         href={bountyPath + bounty.slug}
-        class={`list-group-item list-group-item-action ${currentPath.startsWith(bountyPath + bounty.slug) ? "active" : ""}`}
+        class:list={[
+          "bounty-list__item",
+          { "is-active": currentPath.startsWith(bountyPath + bounty.slug) },
+        ]}
       >
-        <div class="w-100 justify-content-between">
-          <h5 class="mb-1">{bounty.data.title}</h5>
-          <small>
-            {bounty.data.date.toLocaleDateString()} - {bounty.data.deadline?.toLocaleDateString() ?? 'open'}
-          </small>
+        <div class="bounty-list__meta">
+          <span>{bounty.data.date.toLocaleDateString()}</span>
+          <span>{bounty.data.deadline?.toLocaleDateString() ?? "open"}</span>
         </div>
-        <p class="mb-1 p-2">{bounty.data.summary}</p>
-        <small>{bounty.data.winner}</small>
+        <h3 class="bounty-list__title">{bounty.data.title}</h3>
+        <p class="bounty-list__summary">{bounty.data.summary}</p>
+        {bounty.data.winner && <span class="bounty-list__winner">{bounty.data.winner}</span>}
       </a>
     ))
   }
 </div>
+
+<style>
+  .bounty-list {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .bounty-list__item {
+    display: grid;
+    gap: 0.55rem;
+    padding: 1rem 1.05rem;
+    border-radius: 1.15rem;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    color: inherit;
+    text-decoration: none;
+    box-shadow: 0 12px 20px rgba(15, 23, 42, 0.04);
+    transition:
+      transform 0.18s ease,
+      border-color 0.18s ease,
+      box-shadow 0.18s ease,
+      background-color 0.18s ease;
+  }
+
+  .bounty-list__item:hover {
+    transform: translateY(-2px);
+    border-color: rgba(20, 87, 255, 0.18);
+    box-shadow: 0 18px 28px rgba(15, 23, 42, 0.06);
+    background: rgba(255, 255, 255, 0.9);
+  }
+
+  .bounty-list__item:focus-visible {
+    outline: none;
+    transform: translateY(-2px);
+    border-color: var(--color-primary-link);
+    box-shadow: var(--focus-shadow);
+  }
+
+  .bounty-list__item.is-active {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(239, 245, 255, 0.88)),
+      rgba(255, 255, 255, 0.9);
+    border-color: rgba(20, 87, 255, 0.18);
+    box-shadow: 0 18px 30px rgba(20, 87, 255, 0.08);
+  }
+
+  .bounty-list__meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    color: var(--color-muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  .bounty-list__title {
+    margin: 0;
+    font-size: 1.05rem;
+    line-height: 1.2;
+  }
+
+  .bounty-list__summary {
+    margin: 0;
+    color: var(--color-body);
+    line-height: 1.6;
+  }
+
+  .bounty-list__winner {
+    display: inline-flex;
+    width: fit-content;
+    align-items: center;
+    padding: 0.35rem 0.6rem;
+    border-radius: 999px;
+    background: rgba(20, 87, 255, 0.08);
+    color: var(--color-primary-link);
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+</style>

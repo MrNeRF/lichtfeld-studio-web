@@ -227,6 +227,7 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
     margin: 0;
     padding: 0;
     align-items: center;
+    gap: 0.2rem;
   }
 
   .nav-menu__item {
@@ -236,25 +237,33 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
   .nav-menu__link {
     display: flex;
     align-items: center;
-    padding: 0.5rem var(--nav-padding-x);
-    color: var(--color-text);
+    gap: 0.35rem;
+    padding: 0.55rem 0.9rem;
+    color: var(--color-body);
+    font-size: 0.95rem;
+    font-weight: 700;
     text-decoration: none;
     white-space: nowrap;
     transition:
       color 0.15s ease-in-out,
-      border-color 0.15s ease-in-out;
-    border-bottom: 2px solid transparent; /* Reserve space for the indicator */
+      background-color 0.15s ease-in-out,
+      box-shadow 0.15s ease-in-out,
+      transform 0.15s ease-in-out;
+    border-radius: 999px;
   }
 
   .nav-menu__link:hover {
     color: var(--color-text-hover);
+    background: rgba(255, 255, 255, 0.56);
   }
 
   /* Icon-only links (Discord, GitHub) */
   .nav-menu__link--icon-only {
-    padding: 0.5rem 0.75rem;
-    font-size: 1.25rem;
-    border-bottom: none; /* No underline indicator for social icons */
+    justify-content: center;
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+    padding: 0.45rem;
+    font-size: 1.15rem;
   }
 
   /* Discord brand color */
@@ -278,7 +287,7 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
 
   /* Add spacing before the first social icon */
   .nav-menu__item:has(.nav-menu__link--icon-only) {
-    margin-left: 0.75rem;
+    margin-left: 0.35rem;
   }
 
   /* Reset margin for consecutive social icons */
@@ -299,29 +308,30 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
     border: 0;
   }
 
-  /* Active state styling - bottom border indicator */
   .nav-menu__link.is-active {
-    color: var(--color-primary);
-    border-bottom-color: var(--color-primary);
+    color: var(--color-heading);
+    background: rgba(20, 87, 255, 0.08);
+    box-shadow: inset 0 0 0 1px rgba(20, 87, 255, 0.14);
   }
 
   /* Container for the split-button dropdown parts */
   .nav-menu__dropdown-container {
     display: flex;
     align-items: center;
-    border-bottom: 2px solid transparent; /* Single underline spanning both link and toggle */
-    transition: border-color 0.15s ease-in-out;
+    border-radius: 999px;
+    transition:
+      background-color 0.15s ease-in-out,
+      box-shadow 0.15s ease-in-out;
   }
 
-  /* Active state for the entire dropdown container */
   .nav-menu__dropdown-container:has(.nav-menu__link.is-active) {
-    border-bottom-color: var(--color-primary);
+    background: rgba(20, 87, 255, 0.08);
+    box-shadow: inset 0 0 0 1px rgba(20, 87, 255, 0.14);
   }
 
   /* Adjust padding for the link part of the split button */
   .nav-menu__dropdown-container .nav-menu__link {
     padding-right: 0.25rem;
-    border-bottom: none; /* Remove individual border, container handles it */
   }
 
   /* The caret/toggle button part of the split button */
@@ -332,8 +342,8 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
     border: none;
     cursor: pointer;
     padding: 0.5rem 0.5rem 0.5rem 0;
-    color: var(--color-text);
-    transition: color 0.15s ease-in-out;
+    color: var(--color-body);
+    transition: color 0.15s ease-in-out, transform 0.15s ease-in-out;
   }
 
   /* The caret icon, created with CSS borders */
@@ -350,23 +360,24 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
     border-left: 0.3em solid transparent;
   }
 
-  /* Active state for the toggle - match the link's text color */
   .nav-menu__dropdown-container:has(.nav-menu__link.is-active) .nav-menu__dropdown-toggle {
-    color: var(--color-primary);
+    color: var(--color-heading);
   }
 
   /* Submenu styles */
   .nav-menu__submenu {
     display: none; /* Hidden by default */
     position: absolute;
-    top: 100%;
+    top: calc(100% + 0.5rem);
     right: 0;
     background-color: var(--dropdown-background);
+    backdrop-filter: blur(18px);
     list-style: none;
-    margin: 0.125rem 0 0;
-    padding: 0.5rem 0;
+    margin: 0;
+    padding: 0.55rem;
     min-width: 10rem;
-    border-radius: 0.375rem;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 1rem;
     box-shadow: var(--dropdown-shadow);
     z-index: 1001;
   }
@@ -377,7 +388,7 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
 
   .nav-menu__submenu-link {
     display: block;
-    padding: 0.25rem 1rem;
+    padding: 0.55rem 0.8rem;
     color: var(--color-text);
     text-decoration: none;
     white-space: nowrap;
@@ -385,10 +396,12 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
     border: 0;
     width: 100%;
     text-align: left;
+    border-radius: 0.7rem;
+    font-weight: 600;
   }
 
   .nav-menu__submenu-link:hover {
-    background-color: var(--background-hover);
+    background-color: rgba(20, 87, 255, 0.06);
   }
 
   /* Responsive adjustments for mobile view */
@@ -397,7 +410,7 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
       flex-direction: column;
       align-items: stretch;
       width: 100%;
-      gap: 0.25rem;
+      gap: 0.35rem;
       height: auto;
     }
 
@@ -406,18 +419,15 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
     }
 
     .nav-menu__link {
-      padding: 0.75rem 1rem; /* Generous padding for easy tapping */
+      padding: 0.8rem 1rem; /* Generous padding for easy tapping */
       text-align: left;
-      border-bottom: none; /* Remove bottom border on mobile */
       margin-bottom: 0;
-      border-left: 3px solid transparent; /* Use left border for mobile */
-      border-radius: 0;
+      border-radius: 1rem;
     }
 
-    /* Mobile active state - left border indicator */
     .nav-menu__link.is-active {
-      border-left-color: var(--color-primary);
-      border-bottom-color: transparent;
+      background: rgba(20, 87, 255, 0.08);
+      box-shadow: inset 0 0 0 1px rgba(20, 87, 255, 0.14);
     }
 
     /* Ensure the split dropdown container takes full width and aligns items correctly */
@@ -428,23 +438,22 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
       align-items: center;
       padding: 0.75rem 1rem; /* Padding is now on the container */
       cursor: pointer;
-      border-left: 3px solid transparent; /* Use left border for mobile */
+      border-radius: 1rem;
     }
 
     /* Remove padding from the link inside, as the container now has it */
     .nav-menu__dropdown-container .nav-menu__link {
       padding: 0;
-      border-left: none;
     }
 
-    /* When the container holds an active link, style the container with left border */
     .nav-menu__dropdown-container:has(.nav-menu__link.is-active) {
-      border-left-color: var(--color-primary);
+      background: rgba(20, 87, 255, 0.08);
+      box-shadow: inset 0 0 0 1px rgba(20, 87, 255, 0.14);
     }
 
-    /* The link inside an active container keeps the primary color text */
     .nav-menu__dropdown-container .nav-menu__link.is-active {
-      border-left-color: transparent;
+      background: transparent;
+      box-shadow: none;
     }
 
     /* Remove padding from the toggle button as well */
@@ -457,10 +466,9 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
     .nav-menu__submenu {
       position: static;
       box-shadow: none;
-      border-top: 1px solid var(--border-color-light);
+      border: 1px solid rgba(15, 23, 42, 0.08);
       margin-top: 0.5rem;
-      padding-top: 0.5rem;
-      padding-left: 1rem; /* Indent submenu items for clarity */
+      padding-left: 0.55rem;
       min-width: auto;
       width: 100%;
     }

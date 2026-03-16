@@ -62,15 +62,16 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <!-- ========================================================================
-         Google Fonts: Inter (Variable Weight)
+         Google Fonts: Manrope + Space Grotesk
 
          Preconnect to Google Fonts domains for faster font loading.
-         Inter is used as the primary font family for modern, clean typography.
+         Manrope is used for body copy and interface text.
+         Space Grotesk is used for headings and product-forward display moments.
          ======================================================================== -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
       rel="stylesheet"
     />
 
@@ -105,11 +106,42 @@ const {
       )*/;
       @import "../styles/theme.css";
 
+      html {
+        scroll-behavior: smooth;
+      }
+
       body {
-        background-color: var(--body-background);
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at top left, rgba(20, 87, 255, 0.08), transparent 22%),
+          radial-gradient(circle at top right, rgba(201, 114, 52, 0.08), transparent 18%),
+          linear-gradient(180deg, rgba(251, 248, 242, 0.96), rgba(245, 239, 228, 0.98));
+        color: var(--color-body);
+        font-family: var(--font-body);
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      :where(h1, h2, h3, h4, h5, h6) {
+        color: var(--color-heading);
+        font-family: var(--font-display);
+        font-weight: 700;
+        letter-spacing: -0.04em;
+        text-wrap: balance;
+      }
+
+      :where(p, li) {
+        text-wrap: pretty;
+      }
+
+      ::selection {
+        background: rgba(20, 87, 255, 0.14);
+        color: var(--color-heading);
       }
 
       main {
+        position: relative;
         padding-top: var(--nav-height); /* Offset content to account for the fixed header */
       }
     </style>

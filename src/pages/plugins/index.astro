@@ -76,26 +76,42 @@ const seoDescription =
     background: var(--page-bg);
   }
 
+  .plugins-shell--hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    gap: 2rem;
+    align-items: start;
+  }
+
+  .plugins-shell--hero > .kicker,
+  .plugins-shell--hero > .plugins-title,
+  .plugins-shell--hero > .plugins-lead {
+    grid-column: 1;
+  }
+
   .plugins-title {
     margin: 0 0 0.9rem;
     color: var(--color-heading);
-    font-size: clamp(2.25rem, 4vw, 3.4rem);
-    line-height: 1.08;
+    font-size: clamp(2.6rem, 5vw, 4.2rem);
+    line-height: 0.96;
+    max-width: 10ch;
   }
 
   .plugins-lead {
     margin: 0;
-    color: var(--color-body);
-    font-size: 1.02rem;
-    line-height: 1.7;
-    max-width: 58rem;
+    color: #344054;
+    font-size: 1.06rem;
+    line-height: 1.76;
+    max-width: 42rem;
   }
 
   .plugins-stats {
+    grid-column: 2;
+    grid-row: 1 / span 3;
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 1rem;
-    margin-top: 1.5rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem;
+    margin-top: 0;
   }
 
   .plugins-grid {
@@ -105,6 +121,10 @@ const seoDescription =
   }
 
   @media (max-width: 991.98px) {
+    .plugins-shell--hero {
+      grid-template-columns: 1fr;
+    }
+
     .plugins-stats,
     .plugins-grid {
       grid-template-columns: 1fr;

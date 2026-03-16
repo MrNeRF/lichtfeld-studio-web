@@ -28,16 +28,67 @@ const seoDescription =
 ---
 
 <Layout title={seoTitle} description={seoDescription}>
-  <!-- Content -->
-  <div class="container content-frame px-4 py-5">
-    <div class="row">
-      <div class="col-12 col-lg-4 order-1 order-lg-2">
-        <BountyList />
-      </div>
-      <div class="col-12 col-lg-8 order-2 order-lg-1">
-        <h1>{data.title}</h1>
-        <slot />
+  <section class="bounty-detail-page">
+    <div class="container content-frame px-4 py-5">
+      <div class="row g-4">
+        <div class="col-12 col-lg-4 order-1 order-lg-2">
+          <aside class="shell shell--compact bounty-detail__sidebar">
+            <p class="kicker">Browse bounties</p>
+            <BountyList />
+          </aside>
+        </div>
+        <div class="col-12 col-lg-8 order-2 order-lg-1">
+          <article class="shell bounty-detail__article">
+            <p class="kicker">Bounty brief</p>
+            <h1 class="bounty-detail__title">{data.title}</h1>
+            <slot />
+          </article>
+        </div>
       </div>
     </div>
-  </div>
+  </section>
 </Layout>
+
+<style>
+  .bounty-detail-page {
+    background: var(--page-bg);
+  }
+
+  .bounty-detail__sidebar {
+    position: sticky;
+    top: calc(var(--nav-height) + 1.25rem);
+  }
+
+  .bounty-detail__article {
+    padding-bottom: clamp(1.75rem, 3vw, 2.75rem);
+  }
+
+  .bounty-detail__title {
+    margin: 0 0 1.25rem;
+    font-size: clamp(2.2rem, 4.8vw, 3.5rem);
+    line-height: 0.98;
+    max-width: 12ch;
+  }
+
+  .bounty-detail__article :global(p),
+  .bounty-detail__article :global(li) {
+    color: var(--color-body);
+    line-height: 1.75;
+  }
+
+  .bounty-detail__article :global(h2),
+  .bounty-detail__article :global(h3) {
+    margin-top: 2rem;
+  }
+
+  .bounty-detail__article :global(code) {
+    font-family: var(--font-mono);
+  }
+
+  @media (max-width: 991.98px) {
+    .bounty-detail__sidebar {
+      position: static;
+      top: auto;
+    }
+  }
+</style>

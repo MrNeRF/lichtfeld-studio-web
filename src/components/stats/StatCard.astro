@@ -62,11 +62,11 @@ function formatNumber(num: number): string {
   .stat-card {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    gap: 0.5rem;
-    padding: 1.5rem 1rem;
+    align-items: flex-start;
+    justify-content: flex-start;
+    text-align: left;
+    gap: 0.65rem;
+    padding: 1.4rem 1.2rem;
     background: var(--card-bg);
     border: 1px solid var(--card-border);
     border-radius: var(--card-radius);
@@ -89,25 +89,28 @@ function formatNumber(num: number): string {
     justify-content: center;
     width: 3.5rem;
     height: 3.5rem;
-    background: linear-gradient(135deg, #2563eb, #0ea5e9);
+    background: linear-gradient(135deg, #1457ff, #1d4ed8);
     border-radius: 1rem;
     color: #fff;
     font-size: 1.5rem;
     margin-bottom: 0.25rem;
+    box-shadow: 0 14px 26px rgba(20, 87, 255, 0.2);
   }
 
   /* Value styling - the hero number */
   .stat-card__value {
-    font-size: 2.25rem;
+    font-family: var(--font-display);
+    font-size: 2.35rem;
     font-weight: 700;
-    color: var(--color-text);
-    line-height: 1.1;
+    color: var(--color-heading);
+    line-height: 1.02;
+    letter-spacing: -0.04em;
   }
 
   /* Label styling */
   .stat-card__label {
-    font-size: 0.9rem;
-    font-weight: 500;
+    font-size: 0.88rem;
+    font-weight: 700;
     color: var(--color-muted);
   }
 

@@ -99,7 +99,7 @@ or
 * **+ \$500** for the bonus goal.
 
 **Sponsors:**
-[MrNeRF](https://x.com/janusch_patas) \$300 + \$500 bonus goal
+[Janusch Patas](https://x.com/janusch_patas) \$300 + \$500 bonus goal
 [Martin Casado](https://x.com/martin_casado) \$1000
 [Nils Pihl](https://x.com/broodsugar) \$1000
 [Florian Hahlbohm](https://x.com/fhahlbohm) \$100

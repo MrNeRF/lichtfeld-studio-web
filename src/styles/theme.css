@@ -7,6 +7,10 @@
  * to facilitate future migration to Tailwind CSS.
  */
 :root {
+  --font-body: "Manrope", "Segoe UI", sans-serif;
+  --font-display: "Space Grotesk", "Manrope", "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+
   /* ===========================
    * Tailwind-Compatible Spacing Scale
    * =========================== */
@@ -50,49 +54,50 @@
    * Legacy Variables (kept for compatibility)
    * =========================== */
   /* Colors */
-  --color-primary: #0d6efd;
-  --color-accent: #2563eb;
-  --color-primary-link: #0b63f3;
-  --color-primary-link-hover: #084fc1;
-  --color-heading: #0f172a;
-  --color-body: #475569;
-  --color-muted: #64748b;
-  --color-border-subtle: rgba(148, 163, 184, 0.16);
-  --color-border-hover: rgba(37, 99, 235, 0.22);
-  --focus-ring: rgba(37, 99, 235, 0.18);
+  --color-primary: #1457ff;
+  --color-accent: #1d4ed8;
+  --color-primary-link: #1457ff;
+  --color-primary-link-hover: #0f46d3;
+  --color-heading: #101828;
+  --color-body: #475467;
+  --color-muted: #667085;
+  --color-border-subtle: rgba(15, 23, 42, 0.09);
+  --color-border-hover: rgba(20, 87, 255, 0.24);
+  --focus-ring: rgba(20, 87, 255, 0.18);
   --focus-shadow: 0 0 0 3px var(--focus-ring);
-  --color-text: #343a40;
-  --color-text-hover: #000;
+  --color-text: #182230;
+  --color-text-hover: #0f172a;
   --color-text-light: #fff;
-  --color-background: rgba(255, 255, 255, 0.9);
-  --background-hover: #e9ecef;
-  --dropdown-background: #fff;
-  --body-background: #ffffff;
+  --color-background: rgba(255, 255, 255, 0.82);
+  --background-hover: rgba(15, 23, 42, 0.04);
+  --dropdown-background: rgba(255, 255, 255, 0.9);
+  --body-background: #fbf8f2;
 
   /* Surface tokens */
   --surface-bg:
-    radial-gradient(circle at top left, rgba(37, 99, 235, 0.07), transparent 24%),
-    linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
-  --surface-border: rgba(148, 163, 184, 0.16);
-  --surface-shadow: 0 20px 50px rgba(15, 23, 42, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.92);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.72)),
+    linear-gradient(135deg, rgba(20, 87, 255, 0.05), rgba(201, 114, 52, 0.03));
+  --surface-border: rgba(15, 23, 42, 0.08);
+  --surface-shadow: 0 24px 48px rgba(15, 23, 42, 0.06), 0 4px 12px rgba(15, 23, 42, 0.04);
 
   /* Page background */
   --page-bg:
-    radial-gradient(circle at top left, rgba(37, 99, 235, 0.05), transparent 24%),
-    linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    radial-gradient(circle at top left, rgba(20, 87, 255, 0.08), transparent 22%),
+    radial-gradient(circle at top right, rgba(201, 114, 52, 0.08), transparent 16%),
+    linear-gradient(180deg, rgba(251, 248, 242, 0.95) 0%, rgba(245, 239, 228, 0.98) 55%, rgba(248, 245, 238, 1) 100%);
 
   /* Card tokens */
-  --card-bg: rgba(255, 255, 255, 0.92);
-  --card-border: rgba(148, 163, 184, 0.16);
-  --card-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
-  --card-shadow-hover: 0 16px 36px rgba(15, 23, 42, 0.08);
-  --card-radius: 1.25rem;
-  --card-hover-lift: -3px;
+  --card-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.8));
+  --card-border: rgba(15, 23, 42, 0.08);
+  --card-shadow: 0 14px 24px rgba(15, 23, 42, 0.05);
+  --card-shadow-hover: 0 24px 40px rgba(15, 23, 42, 0.08);
+  --card-radius: 1.4rem;
+  --card-hover-lift: -4px;
 
   /* Borders */
-  --border-radius: 8px;
-  --border-color: #e9ecef;
-  --border-color-light: #dee2e6;
+  --border-radius: 10px;
+  --border-color: rgba(15, 23, 42, 0.08);
+  --border-color-light: rgba(15, 23, 42, 0.12);
 
   /* Layout */
   --nav-height: 60px;
@@ -104,10 +109,10 @@
   --breakpoint-lg: 992px;
 
   /* Shadows */
-  --dropdown-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  --dropdown-shadow: 0 20px 38px rgba(15, 23, 42, 0.12);
 
   /* Section backgrounds */
-  --section-bg-alt: #f3f4f6;
+  --section-bg-alt: #efe7d8;
 }
 
 /* ===========================
@@ -903,56 +908,86 @@ section.py-5 > .container {
  * =========================== */
 
 .kicker {
-  margin: 0 0 0.5rem;
-  color: var(--color-accent);
-  font-size: 0.8rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 0.75rem;
+  color: #9a5d26;
+  font-family: var(--font-display);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
+}
+
+.kicker::before {
+  content: "";
+  width: 1.35rem;
+  height: 1px;
+  background: rgba(154, 93, 38, 0.42);
 }
 
 .section-title {
   margin: 0;
   color: var(--color-heading);
-  font-size: clamp(1.6rem, 2.8vw, 2.2rem);
-  line-height: 1.15;
+  font-size: clamp(1.9rem, 3vw, 2.7rem);
+  line-height: 1.02;
 }
 
 .section-copy {
   margin: 0;
   color: var(--color-body);
-  font-size: 1.02rem;
-  line-height: 1.7;
-  max-width: 58rem;
+  font-size: 1.03rem;
+  line-height: 1.75;
+  max-width: 50rem;
 }
 
 .section-link {
   display: inline-flex;
   align-items: center;
+  gap: 0.55rem;
   min-height: 2.75rem;
-  padding: 0.7rem 1rem;
+  padding: 0.7rem 1.05rem;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.86);
-  border: 1px solid var(--color-border-subtle);
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(15, 23, 42, 0.08);
   color: var(--color-primary-link);
   font-weight: 700;
   text-decoration: none;
   white-space: nowrap;
+  box-shadow: 0 10px 18px rgba(15, 23, 42, 0.04);
+  backdrop-filter: blur(12px);
   transition:
     color 0.18s ease,
+    transform 0.18s ease,
     background-color 0.18s ease,
     border-color 0.18s ease,
     box-shadow 0.18s ease;
 }
 
+.section-link::after {
+  content: "→";
+  font-size: 1rem;
+  line-height: 1;
+  transition: transform 0.18s ease;
+}
+
 .section-link:hover {
-  background: rgba(255, 255, 255, 0.96);
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.92);
   color: var(--color-primary-link-hover);
+  border-color: rgba(20, 87, 255, 0.16);
+  box-shadow: 0 16px 26px rgba(15, 23, 42, 0.06);
+}
+
+.section-link:hover::after {
+  transform: translateX(2px);
 }
 
 .section-link:focus-visible {
   outline: none;
-  background: rgba(255, 255, 255, 0.98);
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.96);
   color: var(--color-primary-link-hover);
   border-color: var(--color-primary-link);
   box-shadow: var(--focus-shadow);
@@ -972,11 +1007,24 @@ section.py-5 > .container {
 }
 
 .shell {
+  position: relative;
+  overflow: hidden;
   border-radius: 2rem;
   padding: clamp(1.5rem, 3vw, 2.25rem);
   background: var(--surface-bg);
   border: 1px solid var(--surface-border);
   box-shadow: var(--surface-shadow);
+  backdrop-filter: blur(16px);
+  isolation: isolate;
+}
+
+.shell::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0));
+  pointer-events: none;
 }
 
 .content-frame {
@@ -992,24 +1040,27 @@ section.py-5 > .container {
 }
 
 .stat-block {
-  padding: 1rem 1.1rem;
+  padding: 1.1rem 1.15rem;
   border-radius: var(--card-radius);
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid var(--color-border-subtle);
-  box-shadow: var(--card-shadow);
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.03);
+  backdrop-filter: blur(12px);
 }
 
 .stat-block strong {
   display: block;
   color: var(--color-heading);
-  font-size: 1.5rem;
-  line-height: 1.1;
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
 }
 
 .stat-block span {
   display: block;
   margin-top: 0.35rem;
   color: var(--color-muted);
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: 0.88rem;
+  font-weight: 700;
 }

@@ -75,6 +75,15 @@ const { idea } = Astro.props;
     overflow: hidden;
   }
 
+  .contribution-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(20, 87, 255, 0.24), rgba(20, 87, 255, 0));
+    pointer-events: none;
+  }
+
   .contribution-card:hover {
     transform: translateY(var(--card-hover-lift));
     border-color: var(--color-border-hover);
@@ -124,8 +133,9 @@ const { idea } = Astro.props;
   .contribution-card__title {
     margin-top: 0;
     margin-bottom: 0.75rem;
-    font-size: 1.25rem;
-    font-weight: 600;
+    font-size: 1.3rem;
+    font-weight: 700;
+    line-height: 1.18;
   }
 
   /* Ensure the title's link is clickable above the overlay. */
@@ -171,7 +181,7 @@ const { idea } = Astro.props;
 
   .contribution-card__footer {
     padding: 0.75rem 1.25rem;
-    background-color: rgba(248, 250, 252, 0.72);
+    background-color: rgba(255, 255, 255, 0.52);
     border-top: 1px solid var(--card-border);
     text-align: right;
     margin-top: auto;

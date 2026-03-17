@@ -804,6 +804,30 @@ const seoDescription = SITE.description;
         }
       }, 100); // A 100ms delay is usually sufficient.
     }
+
+    const sectionShells = document.querySelectorAll<HTMLElement>(".hash-section .shell");
+
+    if (sectionShells.length > 0) {
+      document.documentElement.classList.add("has-home-shell-reveal");
+
+      const sectionRevealObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("is-visible");
+            }
+          });
+        },
+        {
+          threshold: 0.18,
+          rootMargin: "0px 0px -10% 0px",
+        },
+      );
+
+      sectionShells.forEach((shell) => {
+        sectionRevealObserver.observe(shell);
+      });
+    }
   });
 
   /**
@@ -1359,6 +1383,13 @@ const seoDescription = SITE.description;
     .hero__scene-cue-step {
       animation: none;
     }
+
+    .hash-section .shell,
+    .hash-section .shell > * {
+      transform: none !important;
+      opacity: 1 !important;
+      will-change: auto !important;
+    }
   }
 
   .hero__get-started-link {
@@ -1381,6 +1412,47 @@ const seoDescription = SITE.description;
     transition:
       border-color 0.18s ease,
       box-shadow 0.18s ease;
+  }
+
+  :global(html.has-home-shell-reveal) .hash-section .shell {
+    opacity: 0.72;
+    transform: translateY(2.4rem) scale(0.985);
+    box-shadow:
+      0 30px 52px rgba(15, 23, 42, 0.09),
+      0 6px 16px rgba(15, 23, 42, 0.05);
+    will-change: transform, opacity, box-shadow;
+    transition:
+      opacity 720ms ease,
+      transform 860ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 520ms ease,
+      border-color 0.18s ease;
+  }
+
+  :global(html.has-home-shell-reveal) .hash-section .shell > * {
+    opacity: 0.78;
+    transform: translateY(1rem);
+    transition:
+      opacity 620ms ease,
+      transform 760ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  :global(html.has-home-shell-reveal) .hash-section .shell.is-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    box-shadow: var(--surface-shadow);
+  }
+
+  :global(html.has-home-shell-reveal) .hash-section .shell.is-visible > * {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  :global(html.has-home-shell-reveal) .hash-section .shell > :nth-child(2) {
+    transition-delay: 90ms;
+  }
+
+  :global(html.has-home-shell-reveal) .hash-section .shell > :nth-child(3) {
+    transition-delay: 150ms;
   }
 
   .hash-section:target .shell {
@@ -1632,6 +1704,7 @@ const seoDescription = SITE.description;
   }
 
   .story-surface {
+    position: relative;
     background:
       radial-gradient(circle at top left, rgba(20, 87, 255, 0.1), transparent 34%),
       linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.82));
@@ -3276,6 +3349,13 @@ const seoDescription = SITE.description;
       margin-top: 0.9rem;
       margin-left: 0;
       animation: none;
+    }
+
+    :global(html.has-home-shell-reveal) .hash-section .shell,
+    :global(html.has-home-shell-reveal) .hash-section .shell > * {
+      transform: none;
+      opacity: 1;
+      will-change: auto;
     }
 
     .section-anchor {

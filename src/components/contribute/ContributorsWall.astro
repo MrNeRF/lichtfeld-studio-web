@@ -47,7 +47,7 @@ const contributors: Contributor[] = providedContributors ?? (await getContributo
 
 {
   contributors.length > 0 && (
-    <div class="container content-frame px-6 py-12" id={sectionId}>
+    <div class="container content-frame shell shell--compact" id={sectionId}>
       {showHeading && <h2 class="contributors-wall__title">{title}</h2>}
       <p class="contributors-wall__desc">A huge thank you to everyone who has contributed to the project.</p>
 
@@ -82,7 +82,7 @@ const contributors: Contributor[] = providedContributors ?? (await getContributo
   .contributors-wall__title {
     margin: 0;
     color: var(--color-heading);
-    font-size: clamp(1.9rem, 3vw, 2.5rem);
+    font-size: clamp(1.75rem, 2.8vw, 2.25rem);
     font-weight: 700;
     line-height: 1.02;
     letter-spacing: -0.03em;
@@ -99,7 +99,7 @@ const contributors: Contributor[] = providedContributors ?? (await getContributo
     display: flex;
     flex-wrap: wrap;
     gap: 0.9rem;
-    padding-top: 1.75rem;
+    padding-top: 1.25rem;
     justify-content: center;
   }
 

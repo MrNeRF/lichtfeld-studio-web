@@ -54,7 +54,7 @@ const { plugin, compact = false } = Astro.props;
     display: flex;
     flex-direction: column;
     height: 100%;
-    padding: 1.35rem;
+    padding: var(--card-padding);
     border-radius: var(--card-radius);
     background: var(--card-bg);
     border: 1px solid var(--card-border);
@@ -76,7 +76,7 @@ const { plugin, compact = false } = Astro.props;
   }
 
   .plugin-card--compact {
-    padding: 1.2rem;
+    padding: var(--card-padding-compact);
   }
 
   .plugin-card:hover {
@@ -98,14 +98,14 @@ const { plugin, compact = false } = Astro.props;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 0.6rem;
+    gap: var(--card-gap);
   }
 
   .plugin-card__badges {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.7rem;
   }
 
   .plugin-card__namespace,
@@ -114,7 +114,7 @@ const { plugin, compact = false } = Astro.props;
     display: inline-flex;
     align-items: center;
     min-height: 1.8rem;
-    padding: 0.2rem 0.7rem;
+    padding: 0.25rem 0.8rem;
     border-radius: 999px;
     font-size: 0.7rem;
     font-weight: 800;
@@ -145,7 +145,7 @@ const { plugin, compact = false } = Astro.props;
   }
 
   .plugin-card__title {
-    margin: 0.85rem 0 0.55rem;
+    margin: 1rem 0 0.7rem;
     color: var(--color-heading);
     font-size: 1.3rem;
     line-height: 1.18;
@@ -159,14 +159,14 @@ const { plugin, compact = false } = Astro.props;
   }
 
   .plugin-card__description {
-    margin-top: 0.7rem;
+    margin-top: 1rem;
   }
 
   .plugin-card__keywords {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.55rem;
-    margin-top: 1rem;
+    gap: 0.75rem;
+    margin-top: 1.1rem;
   }
 
   .plugin-card__keywords span {
@@ -182,7 +182,7 @@ const { plugin, compact = false } = Astro.props;
   }
 
   .plugin-card__details {
-    margin-top: 1rem;
+    margin-top: 1.2rem;
     color: var(--color-muted);
     font-size: 0.85rem;
     font-weight: 600;
@@ -191,7 +191,7 @@ const { plugin, compact = false } = Astro.props;
 
   .plugin-card__footer {
     margin-top: auto;
-    padding-top: 1rem;
+    padding-top: 1.2rem;
     border-top: 1px solid var(--color-border-subtle);
     color: var(--color-muted);
     font-size: 0.82rem;

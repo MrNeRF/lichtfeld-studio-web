@@ -93,6 +93,9 @@
   --card-shadow-hover: 0 24px 40px rgba(15, 23, 42, 0.08);
   --card-radius: 1.4rem;
   --card-hover-lift: -4px;
+  --card-padding: 1.8rem;
+  --card-padding-compact: 1.55rem;
+  --card-gap: 1rem;
 
   /* Borders */
   --border-radius: 10px;

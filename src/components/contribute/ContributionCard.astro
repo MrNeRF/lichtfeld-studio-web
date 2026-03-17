@@ -126,13 +126,13 @@ const { idea } = Astro.props;
   }
 
   .contribution-card__body {
-    padding: 1.25rem;
+    padding: var(--card-padding);
     flex-grow: 1; /* Allows the body to fill available vertical space */
   }
 
   .contribution-card__title {
     margin-top: 0;
-    margin-bottom: 0.75rem;
+    margin-bottom: calc(var(--card-gap) + 0.1rem);
     font-size: 1.3rem;
     font-weight: 700;
     line-height: 1.18;
@@ -180,7 +180,7 @@ const { idea } = Astro.props;
   }
 
   .contribution-card__footer {
-    padding: 0.75rem 1.25rem;
+    padding: 1rem 1.5rem;
     background-color: rgba(255, 255, 255, 0.52);
     border-top: 1px solid var(--card-border);
     text-align: right;

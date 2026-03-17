@@ -59,11 +59,16 @@ export default defineConfig({
   // Output to ./dist for Cloudflare Workers Static Assets
   outDir: "./dist",
   vite: {
+    server: {
+      watch: {
+        ignored: ["**/.venv/**", "**/node_modules/.cache/**"],
+      },
+    },
     css: {
       preprocessorOptions: {
         scss: {
           includePaths: ["node_modules"],
-          silenceDeprecations: ["import", "mixed-decls", "color-functions", "global-builtin"],
+          silenceDeprecations: ["import", "if-function", "color-functions", "global-builtin"],
         },
       },
     },

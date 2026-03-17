@@ -65,8 +65,8 @@ function formatNumber(num: number): string {
     align-items: flex-start;
     justify-content: flex-start;
     text-align: left;
-    gap: 0.65rem;
-    padding: 1.4rem 1.2rem;
+    gap: var(--card-gap);
+    padding: 1.6rem 1.4rem;
     background: var(--card-bg);
     border: 1px solid var(--card-border);
     border-radius: var(--card-radius);
@@ -74,7 +74,7 @@ function formatNumber(num: number): string {
     transition:
       box-shadow 0.2s ease-in-out,
       transform 0.2s ease-in-out;
-    min-height: 160px;
+    min-height: 172px;
   }
 
   .stat-card:hover {
@@ -140,8 +140,8 @@ function formatNumber(num: number): string {
   /* Responsive adjustments */
   @media (max-width: 576px) {
     .stat-card {
-      padding: 1.25rem 1rem;
-      min-height: 140px;
+      padding: 1.35rem 1.1rem;
+      min-height: 152px;
     }
 
     .stat-card__icon {

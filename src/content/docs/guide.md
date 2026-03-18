@@ -8,19 +8,137 @@ order: 1
 
 LichtFeld Studio plugins extend the application with panels, operators, tools, signals, and capabilities. Plugins live in `~/.lichtfeld/plugins/` and are just Python packages with a small manifest and entrypoint.
 
-## Learning path
+## IDE Setup
 
-Read the examples in this order:
+### Auto-generated pyrightconfig.json
 
-| Step | Goal | Example |
-|---|---|---|
-| 1 | Pure immediate-mode panel with `draw(ui)` only | [`examples/01_draw_only.py`](https://github.com/MrNeRF/LichtFeld-Studio/tree/master/docs/plugins/examples/01_draw_only.py) |
-| 2 | Add shell, styling, and periodic updates without rewriting `draw(ui)` | [`examples/02_status_bar_mixed.py`](https://github.com/MrNeRF/LichtFeld-Studio/tree/master/docs/plugins/examples/02_status_bar_mixed.py) |
-| 3 | Build a full hybrid panel with template, RCSS, data model, DOM hooks, and embedded `draw(ui)` | [`examples/03_hybrid_plugin/`](https://github.com/MrNeRF/LichtFeld-Studio/tree/master/docs/plugins/examples/03_hybrid_plugin/) |
-| 4 | Explore focused feature demos | [`examples/README.md`](https://github.com/MrNeRF/LichtFeld-Studio/tree/master/docs/plugins/examples/README.md) |
-| 5 | See an end-to-end multi-file plugin | [`examples/full_plugin/`](https://github.com/MrNeRF/LichtFeld-Studio/tree/master/docs/plugins/examples/full_plugin/) |
+LichtFeld generates a `pyrightconfig.json` in the project root that includes the correct Python paths for type checking.
 
-The key idea is that `lf.ui.Panel` is one public base class that scales from the smallest `draw(ui)` panel to full retained/hybrid UI. You do not need to switch APIs or rewrite the panel body when you add advanced features.
+### VS Code
+
+Add to `.vscode/settings.json`:
+
+```json
+{
+    "python.analysis.extraPaths": [
+        "/path/to/gaussian-splatting-cuda/src/python",
+        "/path/to/gaussian-splatting-cuda/build/src/python/typings"
+    ]
+}
+```
+
+### Type stubs
+
+Type stubs are generated at `build/src/python/typings/` and provide autocomplete for:
+- `lichtfeld` - Main API (scene, training, rendering, etc.)
+- `lichtfeld.ui` - UI functions
+- `lichtfeld.scene` - Scene types
+- `lichtfeld.selection` - Selection types
+- `lichtfeld.plugins` - Plugin management
+
+The committed SDK stubs live in `src/python/stubs/` and are checked against the generated output during the build. If you intentionally change the Python API surface, refresh the committed stubs with:
+
+```bash
+cmake --build build --target refresh_python_stubs
+```
+
+You can also run the check explicitly with:
+
+```bash
+cmake --build build --target check_python_stubs
+```
+
+### debugpy attach
+
+Add to your plugin's `on_load()` for VS Code debugging:
+
+```python
+def on_load():
+    try:
+        import debugpy
+        debugpy.listen(5678)
+        lf.log.info("debugpy listening on port 5678")
+    except ImportError:
+        pass
+```
+
+VS Code launch config:
+
+```json
+{
+    "name": "Attach to LichtFeld Plugin",
+    "type": "debugpy",
+    "request": "attach",
+    "connect": {"host": "localhost", "port": 5678}
+}
+```
+
+---
+
+## Installing & Publishing
+
+### Create a new plugin
+
+```python
+import lichtfeld as lf
+
+path = lf.plugins.create("my_new_plugin")
+```
+
+That Python API creates the minimal source package only. If you also want a plugin venv and editor config, use:
+
+```bash
+LichtFeld-Studio plugin create my_new_plugin
+```
+
+Both scaffold paths start with the same step-1 panel template and now include `main_panel.rml` and `main_panel.rcss` up front. You can ignore those files until you move into the custom-template styling path.
+
+### Install from GitHub
+
+```python
+import lichtfeld as lf
+
+lf.plugins.install("owner/repo")
+lf.plugins.install("https://github.com/owner/repo")
+```
+
+### Plugin registry
+
+```python
+import lichtfeld as lf
+
+results = lf.plugins.search("neural rendering")
+lf.plugins.install_from_registry("plugin_id")
+lf.plugins.check_updates()
+lf.plugins.update("my_plugin")
+```
+
+Registry installs use the same v1 compatibility contract as local plugins. A version is eligible only if its `plugin_api`, `lichtfeld_version`, and `required_features` match the current host.
+
+### Manage plugins
+
+```python
+import lichtfeld as lf
+
+lf.plugins.discover()              # Scan for installed plugins
+lf.plugins.load("my_plugin")       # Load a specific plugin
+lf.plugins.unload("my_plugin")     # Unload
+lf.plugins.reload("my_plugin")     # Reload (hot reload)
+lf.plugins.uninstall("my_plugin")  # Remove
+lf.plugins.list_loaded()           # Show loaded plugins
+```
+
+### pyproject.toml packaging requirements
+
+For publishing, ensure your `pyproject.toml` includes:
+- `name` - Unique plugin identifier
+- `version` - Semantic version (e.g., `"1.0.0"`)
+- `description` - Clear description of what the plugin does
+- `authors` - Your name or organization
+- `dependencies` - Any Python dependencies
+- `plugin_api` - Supported plugin API range, such as `"~=1.0"` or `">=1,<2"`
+- `lichtfeld_version` - Supported host/runtime range, such as `">=0.4.2"`
+- `required_features` - Optional host features the plugin requires
 
 ## Quick start
 
@@ -118,6 +236,20 @@ def on_unload():
         lf.unregister_class(cls)
     lf.log.info("my_plugin unloaded")
 ```
+
+## Learning path
+
+Read the examples in this order:
+
+| Step | Goal | Example |
+|---|---|---|
+| 1 | Pure immediate-mode panel with `draw(ui)` only | [`examples/01_draw_only.py`](https://github.com/MrNeRF/LichtFeld-Studio/tree/master/docs/plugins/examples/01_draw_only.py) |
+| 2 | Add shell, styling, and periodic updates without rewriting `draw(ui)` | [`examples/02_status_bar_mixed.py`](https://github.com/MrNeRF/LichtFeld-Studio/tree/master/docs/plugins/examples/02_status_bar_mixed.py) |
+| 3 | Build a full hybrid panel with template, RCSS, data model, DOM hooks, and embedded `draw(ui)` | [`examples/03_hybrid_plugin/`](https://github.com/MrNeRF/LichtFeld-Studio/tree/master/docs/plugins/examples/03_hybrid_plugin/) |
+| 4 | Explore focused feature demos | [`examples/README.md`](https://github.com/MrNeRF/LichtFeld-Studio/tree/master/docs/plugins/examples/README.md) |
+| 5 | See an end-to-end multi-file plugin | [`examples/full_plugin/`](https://github.com/MrNeRF/LichtFeld-Studio/tree/master/docs/plugins/examples/full_plugin/) |
+
+The key idea is that `lf.ui.Panel` is one public base class that scales from the smallest `draw(ui)` panel to full retained/hybrid UI. You do not need to switch APIs or rewrite the panel body when you add advanced features.
 
 ## Panels
 
@@ -1391,135 +1523,3 @@ lf.plugins.get_traceback("my_plugin")
 ```
 
 ---
-
-## IDE Setup
-
-### Auto-generated pyrightconfig.json
-
-LichtFeld generates a `pyrightconfig.json` in the project root that includes the correct Python paths for type checking.
-
-### VS Code
-
-Add to `.vscode/settings.json`:
-
-```json
-{
-    "python.analysis.extraPaths": [
-        "/path/to/gaussian-splatting-cuda/src/python",
-        "/path/to/gaussian-splatting-cuda/build/src/python/typings"
-    ]
-}
-```
-
-### Type stubs
-
-Type stubs are generated at `build/src/python/typings/` and provide autocomplete for:
-- `lichtfeld` - Main API (scene, training, rendering, etc.)
-- `lichtfeld.ui` - UI functions
-- `lichtfeld.scene` - Scene types
-- `lichtfeld.selection` - Selection types
-- `lichtfeld.plugins` - Plugin management
-
-The committed SDK stubs live in `src/python/stubs/` and are checked against the generated output during the build. If you intentionally change the Python API surface, refresh the committed stubs with:
-
-```bash
-cmake --build build --target refresh_python_stubs
-```
-
-You can also run the check explicitly with:
-
-```bash
-cmake --build build --target check_python_stubs
-```
-
-### debugpy attach
-
-Add to your plugin's `on_load()` for VS Code debugging:
-
-```python
-def on_load():
-    try:
-        import debugpy
-        debugpy.listen(5678)
-        lf.log.info("debugpy listening on port 5678")
-    except ImportError:
-        pass
-```
-
-VS Code launch config:
-
-```json
-{
-    "name": "Attach to LichtFeld Plugin",
-    "type": "debugpy",
-    "request": "attach",
-    "connect": {"host": "localhost", "port": 5678}
-}
-```
-
----
-
-## Installing & Publishing
-
-### Create a new plugin
-
-```python
-import lichtfeld as lf
-
-path = lf.plugins.create("my_new_plugin")
-```
-
-That Python API creates the minimal source package only. If you also want a plugin venv and editor config, use:
-
-```bash
-LichtFeld-Studio plugin create my_new_plugin
-```
-
-Both scaffold paths start with the same step-1 panel template and now include `main_panel.rml` and `main_panel.rcss` up front. You can ignore those files until you move into the custom-template styling path.
-
-### Install from GitHub
-
-```python
-import lichtfeld as lf
-
-lf.plugins.install("owner/repo")
-lf.plugins.install("https://github.com/owner/repo")
-```
-
-### Plugin registry
-
-```python
-import lichtfeld as lf
-
-results = lf.plugins.search("neural rendering")
-lf.plugins.install_from_registry("plugin_id")
-lf.plugins.check_updates()
-lf.plugins.update("my_plugin")
-```
-
-Registry installs use the same v1 compatibility contract as local plugins. A version is eligible only if its `plugin_api`, `lichtfeld_version`, and `required_features` match the current host.
-
-### Manage plugins
-
-```python
-import lichtfeld as lf
-
-lf.plugins.discover()              # Scan for installed plugins
-lf.plugins.load("my_plugin")       # Load a specific plugin
-lf.plugins.unload("my_plugin")     # Unload
-lf.plugins.reload("my_plugin")     # Reload (hot reload)
-lf.plugins.uninstall("my_plugin")  # Remove
-lf.plugins.list_loaded()           # Show loaded plugins
-```
-
-### pyproject.toml packaging requirements
-
-For publishing, ensure your `pyproject.toml` includes:
-- `name` - Unique plugin identifier
-- `version` - Semantic version (e.g., `"1.0.0"`)
-- `description` - Clear description of what the plugin does
-- `authors` - Your name or organization
-- `dependencies` - Any Python dependencies
-- `plugin_api` - Supported plugin API range, such as `"~=1.0"` or `">=1,<2"`
-- `lichtfeld_version` - Supported host/runtime range, such as `">=0.4.2"`
-- `required_features` - Optional host features the plugin requires

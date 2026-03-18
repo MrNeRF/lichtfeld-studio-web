@@ -140,27 +140,36 @@ const seoDescription = SITE.description;
             </div>
 
             <div class="hero__actions">
-              <!-- Primary CTA: Download latest release -->
+              <!-- Primary CTA: Download latest Windows release -->
               <a
                 class="btn btn-lg hero__download-link"
                 href={GITHUB_RELEASES_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Download the latest LichtFeld Studio release"
+                aria-label="Download the latest LichtFeld Studio release for Windows"
               >
-                <i class="bi bi-download mr-2" aria-hidden="true"></i>
+                <i class="bi bi-windows mr-2" aria-hidden="true"></i>
                 Download
               </a>
-              <!-- Secondary CTA: Get Started (links to wiki for documentation/tutorials) -->
+              <!-- Secondary CTA: Get Started (build instructions on wiki) -->
               <a
                 class="btn btn-outline-light btn-lg hero__get-started-link"
                 href={GITHUB_WIKI_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Open the LichtFeld Studio wiki documentation"
+                aria-label="Build instructions for LichtFeld Studio"
               >
-                <i class="bi bi-book mr-2" aria-hidden="true"></i>
-                Get Started
+                <i class="bi bi-tools mr-2" aria-hidden="true"></i>
+                Build from Source
+              </a>
+              <!-- Tertiary CTA: Donate -->
+              <a
+                class="btn btn-outline-light btn-lg hero__donate-link"
+                href="#support-the-project"
+                aria-label="Support the project with a donation"
+              >
+                <i class="bi bi-heart mr-2" aria-hidden="true"></i>
+                Donate
               </a>
             </div>
           </div>
@@ -1041,7 +1050,7 @@ const seoDescription = SITE.description;
   .hero__stack::before {
     content: "";
     position: absolute;
-    inset: -1.45rem -2.35rem;
+    inset: -100vh -2.35rem;
     background:
       linear-gradient(180deg, rgba(9, 16, 28, 0.62), rgba(9, 16, 28, 0.36)),
       radial-gradient(circle at top left, rgba(255, 255, 255, 0.14), transparent 42%);
@@ -1345,6 +1354,22 @@ const seoDescription = SITE.description;
     border-color: rgba(255, 255, 255, 0.32);
     color: #fff;
     background: rgba(255, 255, 255, 0.14);
+  }
+
+  .hero__donate-link {
+    border-color: rgba(255, 255, 255, 0.18);
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .hero__donate-link:hover {
+    border-color: rgba(239, 68, 68, 0.5);
+    color: #fff;
+    background: rgba(239, 68, 68, 0.15);
+  }
+
+  .hero__donate-link:hover .bi-heart {
+    color: #ef4444;
   }
 
   .hash-section {

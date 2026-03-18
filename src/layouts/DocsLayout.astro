@@ -1,0 +1,370 @@
+---
+import Layout from "@/layouts/Layout.astro";
+
+interface Props {
+  title: string;
+  description: string;
+  headings: Array<{ depth: number; slug: string; text: string }>;
+  docEntries: Array<{ slug: string; data: { title: string; order: number } }>;
+  currentSlug: string;
+}
+
+const { title, description, headings, docEntries, currentSlug } = Astro.props;
+const base = import.meta.env.BASE_URL;
+const normalize = (p: string) => (p.endsWith("/") ? p.slice(0, -1) : p);
+const cleanBase = normalize(base);
+
+const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
+---
+
+<Layout title={title} description={description}>
+  <section class="docs-page">
+    <div class="container content-frame px-4 py-5">
+      <div class="row g-4">
+        <div class="col-12 col-lg-4 order-1 order-lg-2">
+          <aside class="shell shell--compact docs-sidebar">
+            <p class="kicker">Documentation</p>
+            <nav class="docs-sidebar__nav">
+              {
+                docEntries.map((entry) => (
+                  <a
+                    href={`${cleanBase}/docs/${entry.slug}`}
+                    class:list={["docs-sidebar__link", { "is-active": entry.slug === currentSlug }]}
+                  >
+                    {entry.data.title}
+                  </a>
+                ))
+              }
+            </nav>
+
+            {
+              tocHeadings.length > 0 && (
+                <>
+                  <div class="docs-sidebar__sep" />
+                  <p class="docs-sidebar__toc-label">On this page</p>
+                  <nav class="docs-sidebar__toc">
+                    {tocHeadings.map((h) => (
+                      <a
+                        href={`#${h.slug}`}
+                        class:list={["docs-sidebar__toc-link", { "docs-sidebar__toc-link--h3": h.depth === 3 }]}
+                        data-heading-slug={h.slug}
+                      >
+                        {h.text}
+                      </a>
+                    ))}
+                  </nav>
+                </>
+              )
+            }
+          </aside>
+        </div>
+        <div class="col-12 col-lg-8 order-2 order-lg-1">
+          <article class="shell docs-article">
+            <p class="kicker">{title}</p>
+            <div class="docs-article__content">
+              <slot />
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  function initTocObserver() {
+    const tocLinks = document.querySelectorAll<HTMLAnchorElement>(".docs-sidebar__toc-link");
+    if (!tocLinks.length) return;
+
+    const slugToLink = new Map<string, HTMLAnchorElement>();
+    tocLinks.forEach((link) => {
+      const slug = link.dataset.headingSlug;
+      if (slug) slugToLink.set(slug, link);
+    });
+
+    const headingEls = Array.from(slugToLink.keys())
+      .map((slug) => document.getElementById(slug))
+      .filter(Boolean) as HTMLElement[];
+
+    if (!headingEls.length) return;
+
+    const setActive = (slug: string) => {
+      tocLinks.forEach((l) => l.classList.remove("is-active"));
+      const active = slugToLink.get(slug);
+      if (active) active.classList.add("is-active");
+    };
+
+    const navHeight = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--nav-height")) || 60;
+    const rootMargin = `${-(navHeight + 24)}px 0px -66% 0px`;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setActive(entry.target.id);
+            break;
+          }
+        }
+      },
+      { rootMargin, threshold: 0 },
+    );
+
+    headingEls.forEach((el) => observer.observe(el));
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initTocObserver, { once: true });
+  } else {
+    initTocObserver();
+  }
+</script>
+
+<style>
+  .docs-page {
+    background: var(--page-bg);
+  }
+
+  .docs-sidebar {
+    position: sticky;
+    top: calc(var(--nav-height) + 1.25rem);
+  }
+
+  .docs-sidebar__nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .docs-sidebar__link {
+    display: block;
+    padding: 0.65rem 0.85rem;
+    border-radius: 0.85rem;
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: var(--color-heading);
+    text-decoration: none;
+    transition:
+      background 0.15s ease-in-out,
+      box-shadow 0.15s ease-in-out;
+  }
+
+  .docs-sidebar__link:hover {
+    background: rgba(20, 87, 255, 0.04);
+  }
+
+  .docs-sidebar__link.is-active {
+    background: rgba(20, 87, 255, 0.08);
+    box-shadow: inset 0 0 0 1px rgba(20, 87, 255, 0.14);
+  }
+
+  .docs-sidebar__sep {
+    height: 1px;
+    background: rgba(15, 23, 42, 0.08);
+    margin: 0.75rem 0;
+  }
+
+  .docs-sidebar__toc-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-muted);
+    margin: 0 0 0.4rem;
+    padding: 0 0.85rem;
+  }
+
+  .docs-sidebar__toc {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+
+  .docs-sidebar__toc-link {
+    display: block;
+    padding: 0.3rem 0.85rem;
+    font-size: 0.84rem;
+    color: var(--color-muted);
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    transition:
+      color 0.15s ease-in-out,
+      border-color 0.15s ease-in-out;
+  }
+
+  .docs-sidebar__toc-link--h3 {
+    padding-left: 1.85rem;
+  }
+
+  .docs-sidebar__toc-link:hover {
+    color: var(--color-primary-link);
+  }
+
+  .docs-sidebar__toc-link.is-active {
+    color: var(--color-primary-link);
+    border-left-color: var(--color-primary);
+  }
+
+  .docs-article {
+    padding-bottom: clamp(1.75rem, 3vw, 2.75rem);
+  }
+
+  /* Markdown content styles */
+  .docs-article__content :global(h2),
+  .docs-article__content :global(h3),
+  .docs-article__content :global(h4) {
+    font-family: var(--font-display);
+    color: var(--color-heading);
+    letter-spacing: -0.04em;
+    scroll-margin-top: calc(var(--nav-height) + 1.5rem);
+  }
+
+  .docs-article__content :global(h2) {
+    font-size: clamp(1.7rem, 2.6vw, 2.1rem);
+    margin-top: 2.5rem;
+    margin-bottom: 0.75rem;
+    line-height: 1.02;
+  }
+
+  .docs-article__content :global(h3) {
+    font-size: 1.25rem;
+    margin-top: 2rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .docs-article__content :global(h4) {
+    font-size: 1.05rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .docs-article__content :global(p) {
+    color: var(--color-body);
+    line-height: 1.75;
+    margin: 0 0 1rem;
+    max-width: 50rem;
+  }
+
+  .docs-article__content :global(a) {
+    color: var(--color-primary-link);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .docs-article__content :global(a:hover) {
+    color: var(--color-primary-link-hover);
+  }
+
+  .docs-article__content :global(pre) {
+    background: #1e293b;
+    border-radius: var(--card-radius);
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    padding: 1.25rem 1.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.88rem;
+    line-height: 1.65;
+    overflow-x: auto;
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+    margin: 1.25rem 0;
+  }
+
+  .docs-article__content :global(pre code) {
+    background: none;
+    padding: 0;
+    border-radius: 0;
+    font-size: inherit;
+    color: inherit;
+  }
+
+  .docs-article__content :global(:not(pre) > code) {
+    background: rgba(15, 23, 42, 0.06);
+    padding: 0.15rem 0.45rem;
+    border-radius: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.88em;
+    color: var(--color-heading);
+  }
+
+  .docs-article__content :global(table) {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1.25rem 0;
+  }
+
+  .docs-article__content :global(.table-wrapper) {
+    overflow-x: auto;
+  }
+
+  .docs-article__content :global(th) {
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    padding: 0.65rem 0.85rem;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--color-heading);
+    text-align: left;
+  }
+
+  .docs-article__content :global(td) {
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    padding: 0.65rem 0.85rem;
+    font-size: 0.88rem;
+    color: var(--color-body);
+  }
+
+  .docs-article__content :global(tr:nth-child(even) td) {
+    background: rgba(255, 255, 255, 0.45);
+  }
+
+  .docs-article__content :global(blockquote) {
+    border-left: 3px solid rgba(154, 93, 38, 0.42);
+    padding: 0.75rem 1.25rem;
+    margin: 1.25rem 0;
+    background: rgba(255, 255, 255, 0.45);
+    border-radius: 0 1rem 1rem 0;
+  }
+
+  .docs-article__content :global(blockquote p) {
+    color: var(--color-muted);
+    font-style: italic;
+    margin: 0;
+  }
+
+  .docs-article__content :global(ul),
+  .docs-article__content :global(ol) {
+    padding-left: 1.5rem;
+    margin: 0 0 1rem;
+  }
+
+  .docs-article__content :global(li) {
+    margin-bottom: 0.35rem;
+    color: var(--color-body);
+    line-height: 1.75;
+  }
+
+  .docs-article__content :global(hr) {
+    border: none;
+    height: 1px;
+    background: rgba(15, 23, 42, 0.08);
+    margin: 2rem 0;
+  }
+
+  @media (max-width: 991.98px) {
+    .docs-sidebar {
+      position: static;
+      top: auto;
+    }
+
+    .docs-sidebar__toc {
+      max-height: none;
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .docs-article__content :global(pre) {
+      font-size: 0.82rem;
+      padding: 1rem;
+    }
+  }
+</style>

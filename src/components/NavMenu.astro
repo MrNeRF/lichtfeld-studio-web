@@ -20,6 +20,7 @@ const currentPath = Astro.url.pathname;
 /** Route constants with base-aware URLs. */
 const ROUTES = {
   plugins: withBase(base, "/plugins"),
+  docs: withBase(base, "/docs"),
   showcase: withBase(base, "/showcase"),
 
   statistics: withBase(base, "/statistics"),
@@ -36,6 +37,7 @@ const isBountiesActive = currentPath.startsWith(`${normalize(base)}/bounty/`);
 const isShowcaseActive = normalize(currentPath) === normalize(ROUTES.showcase);
 const isStatisticsActive = normalize(currentPath) === normalize(ROUTES.statistics);
 const isPluginsActive = currentPath.startsWith(ROUTES.plugins);
+const isDocsActive = currentPath.startsWith(ROUTES.docs);
 
 /** Any /contribute* page activates the parent "Contribute" item. */
 const isContributeActive = currentPath.startsWith(ROUTES.contribute);
@@ -72,6 +74,11 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
   <!-- Plugins -->
   <li class="nav-menu__item">
     <a href={ROUTES.plugins} class:list={["nav-menu__link", { "is-active": isPluginsActive }]}>Plugins</a>
+  </li>
+
+  <!-- Docs -->
+  <li class="nav-menu__item">
+    <a href={ROUTES.docs} class:list={["nav-menu__link", { "is-active": isDocsActive }]}>Docs</a>
   </li>
 
   <!-- Contribute -->

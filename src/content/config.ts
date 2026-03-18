@@ -29,20 +29,34 @@ const pluginCollection = defineCollection({
     keywords: z.array(z.string()).default([]),
     repository: z.string().url(),
     featured: z.boolean().optional(),
-    versions: z.array(z.object({
-      version: z.string(),
-      pluginApi: z.string(),
-      lichtfeldVersion: z.string(),
-      requiredFeatures: z.array(z.string()).default([]),
-      dependencies: z.array(z.string()).default([]),
-      gitRef: z.string().optional(),
-      downloadUrl: z.string().url().optional(),
-      checksum: z.string().optional(),
-    })).default([]),
+    versions: z
+      .array(
+        z.object({
+          version: z.string(),
+          pluginApi: z.string(),
+          lichtfeldVersion: z.string(),
+          requiredFeatures: z.array(z.string()).default([]),
+          dependencies: z.array(z.string()).default([]),
+          gitRef: z.string().optional(),
+          downloadUrl: z.string().url().optional(),
+          checksum: z.string().optional(),
+        }),
+      )
+      .default([]),
+  }),
+});
+
+const docsCollection = defineCollection({
+  type: "content",
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    order: z.number(),
   }),
 });
 
 export const collections = {
   bounty: bountyCollection,
   plugins: pluginCollection,
+  docs: docsCollection,
 };

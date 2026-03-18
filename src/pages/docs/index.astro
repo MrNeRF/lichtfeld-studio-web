@@ -1,0 +1,131 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { getCollection } from "astro:content";
+
+const base = import.meta.env.BASE_URL;
+const normalize = (p: string) => (p.endsWith("/") ? p.slice(0, -1) : p);
+const cleanBase = normalize(base);
+
+const allDocs = (await getCollection("docs")).sort((a, b) => a.data.order - b.data.order);
+
+const seoTitle = "Plugin Development Docs";
+const seoDescription =
+  "Documentation for building LichtFeld Studio plugins: panels, operators, tools, signals, and the full Python API reference.";
+---
+
+<Layout title={seoTitle} description={seoDescription}>
+  <section class="docs-index-page">
+    <div class="container content-frame px-4 py-5">
+      <div class="shell docs-hero">
+        <p class="kicker">Documentation</p>
+        <h1 class="docs-hero__title">Plugin development docs</h1>
+        <p class="docs-hero__lead">
+          Everything you need to extend LichtFeld Studio with Python plugins: panels, operators, tools, signals, and
+          full API reference.
+        </p>
+
+        <div class="docs-cards">
+          {
+            allDocs.map((entry) => (
+              <a href={`${cleanBase}/docs/${entry.slug}`} class="docs-card">
+                <strong>{entry.data.title}</strong>
+                <span>{entry.data.description}</span>
+              </a>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .docs-index-page {
+    background: var(--page-bg);
+  }
+
+  .docs-hero__title {
+    margin: 0 0 0.9rem;
+    color: var(--color-heading);
+    font-size: clamp(2.6rem, 5vw, 4.2rem);
+    line-height: 0.96;
+    max-width: 10ch;
+  }
+
+  .docs-hero__lead {
+    margin: 0 0 2rem;
+    color: #344054;
+    font-size: 1.06rem;
+    line-height: 1.76;
+    max-width: 42rem;
+  }
+
+  .docs-cards {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+
+  .docs-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 1.2rem 1.35rem;
+    border-radius: 1.15rem;
+    background: rgba(255, 255, 255, 0.62);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0 12px 20px rgba(15, 23, 42, 0.03);
+    text-decoration: none;
+    transition:
+      transform 0.18s ease-in-out,
+      border-color 0.18s ease-in-out,
+      box-shadow 0.18s ease-in-out;
+  }
+
+  .docs-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--color-border-hover);
+    box-shadow: 0 18px 28px rgba(15, 23, 42, 0.06);
+  }
+
+  .docs-card::after {
+    content: "\2192";
+    font-size: 1.1rem;
+    color: var(--color-primary-link);
+    margin-top: 0.35rem;
+    transition: transform 0.18s ease-in-out;
+  }
+
+  .docs-card:hover::after {
+    transform: translateX(4px);
+  }
+
+  .docs-card strong {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    color: var(--color-heading);
+  }
+
+  .docs-card span {
+    color: var(--color-muted);
+    font-size: 0.88rem;
+  }
+
+  @media (max-width: 991.98px) {
+    .docs-cards {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .docs-hero__title {
+      max-width: 12ch;
+      font-size: clamp(2.15rem, 10vw, 3rem);
+    }
+
+    .docs-hero__lead {
+      font-size: 0.98rem;
+      line-height: 1.7;
+    }
+  }
+</style>

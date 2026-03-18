@@ -41,8 +41,7 @@ const workflowSteps = [
   },
   {
     title: "Edit in context",
-    description:
-      "Brush, lasso, polygon, crop, align, and compose splats while working against the live scene.",
+    description: "Brush, lasso, polygon, crop, align, and compose splats while working against the live scene.",
   },
   {
     title: "Automate the workflow",
@@ -88,16 +87,15 @@ const platformPillars = [
     icon: "command",
     eyebrow: "Extensibility",
     title: "Plugins and MCP make the app a real tool surface",
-    description:
-      "Extend the studio in Python and expose camera, render, editor, and scene workflows over MCP.",
+    description: "Extend the studio in Python and expose camera, render, editor, and scene workflows over MCP.",
     bullets: [
       "Panels, operators, tools, overlays, and hooks",
       "Compatibility-aware plugin registry",
       "External control for camera, render, and editor workflows",
     ],
-    href: `${GITHUB_REPO_URL}/tree/master/docs/plugins`,
+    href: `${base}docs/`,
     label: "Read the extension docs",
-    external: true,
+    external: false,
   },
 ];
 const platformProof = [
@@ -168,11 +166,15 @@ const seoDescription = SITE.description;
           </div>
         </div>
 
-        <div class="hero__scene-cue" role="note" aria-label="Interactive scene. Click to switch to the next camera angle.">
+        <div
+          class="hero__scene-cue"
+          role="note"
+          aria-label="Interactive scene. Click to switch to the next camera angle."
+        >
           <span class="hero__scene-cue-label">
             <span class="hero__scene-cue-icon" aria-hidden="true">
               <svg class="bi" width="0.95em" height="0.95em">
-                <use href={`${base}static/bootstrap-icons.svg#hand-index-thumb`} />
+                <use href={`${base}static/bootstrap-icons.svg#hand-index-thumb`}></use>
               </svg>
             </span>
             <span class="hero__scene-cue-copy">
@@ -200,7 +202,7 @@ const seoDescription = SITE.description;
               <h2 id="workflow-heading" class="story-title">From training run to finished scene in one app</h2>
               <a class="section-anchor" href="#workflow" aria-label="Link to workflow section">
                 <svg class="bi" width="1em" height="1em" aria-hidden="true">
-                  <use href={`${base}static/bootstrap-icons.svg#link-45deg`} />
+                  <use href={`${base}static/bootstrap-icons.svg#link-45deg`}></use>
                 </svg>
               </a>
             </div>
@@ -258,7 +260,7 @@ const seoDescription = SITE.description;
             <h2 id="features-heading" class="platform-title">Three pillars that keep the workflow in one studio</h2>
             <a class="section-anchor" href="#features" aria-label="Link to platform features section">
               <svg class="bi" width="1em" height="1em" aria-hidden="true">
-                <use href={`${base}static/bootstrap-icons.svg#link-45deg`} />
+                <use href={`${base}static/bootstrap-icons.svg#link-45deg`}></use>
               </svg>
             </a>
           </div>
@@ -321,10 +323,12 @@ const seoDescription = SITE.description;
           <div>
             <p class="kicker mb-3">Plugin ecosystem</p>
             <div class="section-heading">
-              <h2 id="plugins-preview-heading" class="plugins-preview-title">An extension system teams can use today</h2>
+              <h2 id="plugins-preview-heading" class="plugins-preview-title">
+                An extension system teams can use today
+              </h2>
               <a class="section-anchor" href="#plugins" aria-label="Link to plugin ecosystem section">
                 <svg class="bi" width="1em" height="1em" aria-hidden="true">
-                  <use href={`${base}static/bootstrap-icons.svg#link-45deg`} />
+                  <use href={`${base}static/bootstrap-icons.svg#link-45deg`}></use>
                 </svg>
               </a>
             </div>
@@ -360,12 +364,10 @@ const seoDescription = SITE.description;
         <div class="sponsors-intro">
           <p class="kicker mb-3">Sponsors</p>
           <div class="section-heading">
-            <h2 id="sponsors-heading" class="sponsors-title">
-              Backed by sponsors accelerating LichtFeld Studio
-            </h2>
+            <h2 id="sponsors-heading" class="sponsors-title">Backed by sponsors accelerating LichtFeld Studio</h2>
             <a class="section-anchor" href="#sponsors" aria-label="Link to sponsors section">
               <svg class="bi" width="1em" height="1em" aria-hidden="true">
-                <use href={`${base}static/bootstrap-icons.svg#link-45deg`} />
+                <use href={`${base}static/bootstrap-icons.svg#link-45deg`}></use>
               </svg>
             </a>
           </div>
@@ -521,7 +523,7 @@ const seoDescription = SITE.description;
                 <h2 id="support-the-project-heading" class="support-box__title">Support the Project</h2>
                 <a class="section-anchor" href="#support-the-project" aria-label="Link to support section">
                   <svg class="bi" width="1em" height="1em" aria-hidden="true">
-                    <use href={`${base}static/bootstrap-icons.svg#link-45deg`} />
+                    <use href={`${base}static/bootstrap-icons.svg#link-45deg`}></use>
                   </svg>
                 </a>
               </div>
@@ -1154,7 +1156,6 @@ const seoDescription = SITE.description;
     background: linear-gradient(135deg, #ffffff, #bfdbfe);
   }
 
-
   .hero__scene-cue {
     position: absolute;
     right: clamp(1rem, 3.4vw, 2.4rem);
@@ -1628,7 +1629,6 @@ const seoDescription = SITE.description;
     .sponsor-tier-grid {
       grid-template-columns: 1fr;
     }
-
   }
 
   .story-section {
@@ -3502,7 +3502,6 @@ const seoDescription = SITE.description;
       padding: 0.8rem 1rem;
       justify-content: center;
     }
-
   }
 
   @media (max-width: 575.98px) {

@@ -2,8 +2,8 @@
 import Layout from "@/layouts/Layout.astro";
 import PluginCard from "@/components/plugins/PluginCard.astro";
 import { getPluginRegistry } from "@/services/plugin-registry";
-import { GITHUB_REPO_URL } from "@/constants/project";
 
+const base = import.meta.env.BASE_URL;
 const plugins = await getPluginRegistry();
 
 const seoTitle = "Plugins";
@@ -53,14 +53,7 @@ const seoDescription =
               registry contract used by the application.
             </p>
           </div>
-          <a
-            href={`${GITHUB_REPO_URL}/tree/master/docs/plugins`}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="section-link"
-          >
-            Plugin docs
-          </a>
+          <a href={`${base}docs/guide`} class="section-link">Plugin docs</a>
         </div>
 
         <div class="plugins-grid mt-4">

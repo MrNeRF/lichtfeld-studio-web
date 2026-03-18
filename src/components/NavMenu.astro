@@ -66,9 +66,15 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
     </a>
   </li>
 }
-  <!-- Bounties -->
+  <!-- Contribute -->
   <li class="nav-menu__item">
-    <a href={bountiesHref} class:list={["nav-menu__link", { "is-active": isBountiesActive }]}>Bounties</a>
+    <a
+      href={ROUTES.contribute}
+      class:list={["nav-menu__link", { "is-active": isContributeActive }]}
+      aria-current={isContributeActive ? "page" : undefined}
+    >
+      Contribute
+    </a>
   </li>
 
   <!-- Plugins -->
@@ -81,15 +87,9 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
     <a href={ROUTES.docs} class:list={["nav-menu__link", { "is-active": isDocsActive }]}>Docs</a>
   </li>
 
-  <!-- Contribute -->
+  <!-- Bounties -->
   <li class="nav-menu__item">
-    <a
-      href={ROUTES.contribute}
-      class:list={["nav-menu__link", { "is-active": isContributeActive }]}
-      aria-current={isContributeActive ? "page" : undefined}
-    >
-      Contribute
-    </a>
+    <a href={bountiesHref} class:list={["nav-menu__link", { "is-active": isBountiesActive }]}>Bounties</a>
   </li>
 
   <!-- External links (icon-only with screen-reader text for accessibility) -->

@@ -112,10 +112,46 @@ const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
     headingEls.forEach((el) => observer.observe(el));
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initTocObserver, { once: true });
-  } else {
+  function initCodeCopy() {
+    document.querySelectorAll<HTMLPreElement>(".docs-article__content pre").forEach((pre) => {
+      const wrapper = document.createElement("div");
+      wrapper.className = "code-block";
+      pre.parentNode!.insertBefore(wrapper, pre);
+      wrapper.appendChild(pre);
+
+      const btn = document.createElement("button");
+      btn.className = "code-copy";
+      btn.setAttribute("aria-label", "Copy code");
+      btn.innerHTML =
+        '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5.5" y="5.5" width="9" height="9" rx="1.5"/><path d="M10.5 5.5V3a1.5 1.5 0 0 0-1.5-1.5H3A1.5 1.5 0 0 0 1.5 3v6A1.5 1.5 0 0 0 3 10.5h2.5"/></svg>';
+      wrapper.appendChild(btn);
+
+      btn.addEventListener("click", () => {
+        const code = pre.querySelector("code");
+        const text = (code || pre).textContent || "";
+        navigator.clipboard.writeText(text).then(() => {
+          btn.classList.add("is-copied");
+          btn.innerHTML =
+            '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3.5 8.5 6.5 11.5 12.5 4.5"/></svg>';
+          setTimeout(() => {
+            btn.classList.remove("is-copied");
+            btn.innerHTML =
+              '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5.5" y="5.5" width="9" height="9" rx="1.5"/><path d="M10.5 5.5V3a1.5 1.5 0 0 0-1.5-1.5H3A1.5 1.5 0 0 0 1.5 3v6A1.5 1.5 0 0 0 3 10.5h2.5"/></svg>';
+          }, 1500);
+        });
+      });
+    });
+  }
+
+  function initAll() {
     initTocObserver();
+    initCodeCopy();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initAll, { once: true });
+  } else {
+    initAll();
   }
 </script>
 
@@ -256,6 +292,46 @@ const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
     color: var(--color-primary-link-hover);
   }
 
+  .docs-article__content :global(.code-block) {
+    position: relative;
+    margin: 1.25rem 0;
+  }
+
+  .docs-article__content :global(.code-copy) {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border: none;
+    border-radius: 0.5rem;
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.45);
+    cursor: pointer;
+    opacity: 0;
+    transition:
+      opacity 0.15s ease-in-out,
+      background 0.15s ease-in-out,
+      color 0.15s ease-in-out;
+  }
+
+  .docs-article__content :global(.code-block:hover .code-copy) {
+    opacity: 1;
+  }
+
+  .docs-article__content :global(.code-copy:hover) {
+    background: rgba(255, 255, 255, 0.16);
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .docs-article__content :global(.code-copy.is-copied) {
+    color: #4ade80;
+    opacity: 1;
+  }
+
   .docs-article__content :global(pre) {
     background: #1e293b;
     border-radius: var(--card-radius);
@@ -266,7 +342,7 @@ const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
     line-height: 1.65;
     overflow-x: auto;
     box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
-    margin: 1.25rem 0;
+    margin: 0;
   }
 
   .docs-article__content :global(pre code) {

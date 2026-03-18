@@ -14,11 +14,11 @@ Read the examples in this order:
 
 | Step | Goal | Example |
 |---|---|---|
-| 1 | Pure immediate-mode panel with `draw(ui)` only | [`examples/01_draw_only.py`(https://github.com/MrNeRF/LichtFeld-Studio/tree/master/docs/plugins/examples/01_draw_only.py) |
-| 2 | Add shell, styling, and periodic updates without rewriting `draw(ui)` | [`examples/02_status_bar_mixed.py`(https://github.com/MrNeRF/LichtFeld-Studio/tree/master/docs/plugins/examples/02_status_bar_mixed.py) |
-| 3 | Build a full hybrid panel with template, RCSS, data model, DOM hooks, and embedded `draw(ui)` | [`examples/03_hybrid_plugin/`(https://github.com/MrNeRF/LichtFeld-Studio/tree/master/docs/plugins/examples/03_hybrid_plugin/) |
-| 4 | Explore focused feature demos | [`examples/README.md`(https://github.com/MrNeRF/LichtFeld-Studio/tree/master/docs/plugins/examples/README.md) |
-| 5 | See an end-to-end multi-file plugin | [`examples/full_plugin/`(https://github.com/MrNeRF/LichtFeld-Studio/tree/master/docs/plugins/examples/full_plugin/) |
+| 1 | Pure immediate-mode panel with `draw(ui)` only | [`examples/01_draw_only.py`](https://github.com/MrNeRF/LichtFeld-Studio/tree/master/docs/plugins/examples/01_draw_only.py) |
+| 2 | Add shell, styling, and periodic updates without rewriting `draw(ui)` | [`examples/02_status_bar_mixed.py`](https://github.com/MrNeRF/LichtFeld-Studio/tree/master/docs/plugins/examples/02_status_bar_mixed.py) |
+| 3 | Build a full hybrid panel with template, RCSS, data model, DOM hooks, and embedded `draw(ui)` | [`examples/03_hybrid_plugin/`](https://github.com/MrNeRF/LichtFeld-Studio/tree/master/docs/plugins/examples/03_hybrid_plugin/) |
+| 4 | Explore focused feature demos | [`examples/README.md`](https://github.com/MrNeRF/LichtFeld-Studio/tree/master/docs/plugins/examples/README.md) |
+| 5 | See an end-to-end multi-file plugin | [`examples/full_plugin/`](https://github.com/MrNeRF/LichtFeld-Studio/tree/master/docs/plugins/examples/full_plugin/) |
 
 The key idea is that `lf.ui.Panel` is one public base class that scales from the smallest `draw(ui)` panel to full retained/hybrid UI. You do not need to switch APIs or rewrite the panel body when you add advanced features.
 
@@ -151,7 +151,7 @@ class HelloPanel(lf.ui.Panel):
 
 That alone is enough to ship a plugin panel. Keep state on `self`, render with `draw(ui)`, and register the class in `on_load()`.
 
-See the full version in [`examples/01_draw_only.py`(https://github.com/MrNeRF/LichtFeld-Studio/tree/master/docs/plugins/examples/01_draw_only.py).
+See the full version in [`examples/01_draw_only.py`](https://github.com/MrNeRF/LichtFeld-Studio/tree/master/docs/plugins/examples/01_draw_only.py).
 
 ### Panel attributes
 
@@ -245,7 +245,7 @@ What changes here:
 
 This is the normal upgrade path. You do not need to rewrite the panel as full DOM/RML just because you added styling or retained hooks.
 
-See the full version in [`examples/02_status_bar_mixed.py`(https://github.com/MrNeRF/LichtFeld-Studio/tree/master/docs/plugins/examples/02_status_bar_mixed.py).
+See the full version in [`examples/02_status_bar_mixed.py`](https://github.com/MrNeRF/LichtFeld-Studio/tree/master/docs/plugins/examples/02_status_bar_mixed.py).
 
 ### Retained shells and template resolution
 
@@ -332,7 +332,7 @@ Key retained hooks:
 
 To mix retained and immediate content, include `<div id="im-root"></div>` somewhere in your template. `draw(ui)` will render into that node.
 
-See the complete multi-file example in [`examples/03_hybrid_plugin/`(https://github.com/MrNeRF/LichtFeld-Studio/tree/master/docs/plugins/examples/03_hybrid_plugin/).
+See the complete multi-file example in [`examples/03_hybrid_plugin/`](https://github.com/MrNeRF/LichtFeld-Studio/tree/master/docs/plugins/examples/03_hybrid_plugin/).
 
 ### Panel spaces
 
@@ -904,6 +904,8 @@ new_name = scene.duplicate_node("My Group")
 import lichtfeld as lf
 
 lf.select_node("My Splat")
+lf.select_nodes(["Splat A", "Splat B"])
+lf.add_to_selection("Another Splat")
 names = lf.get_selected_node_names()
 lf.deselect_all()
 has_sel = lf.has_selection()
@@ -1116,6 +1118,9 @@ AppState.selection_generation     # Signal[int]
 # Viewport
 AppState.viewport_width           # Signal[int]
 AppState.viewport_height          # Signal[int]
+
+# Application
+AppState.is_headless              # Signal[bool] - whether running without GUI
 
 # Computed
 AppState.training_progress        # ComputedSignal[float] - 0.0 to 1.0

@@ -32,7 +32,7 @@ import {
 
 const base = import.meta.env.BASE_URL;
 const featuredPlugins = await getFeaturedPlugins(3);
-const heroProofItems = ["Native training", "Scene editing", "Python + MCP automation"];
+const heroProofItems = ["Native training", "Scene editing", "Python + MCP", "Windows & Linux", "GPLv3"];
 const workflowSteps = [
   {
     title: "Train on a native core",
@@ -136,12 +136,7 @@ const seoDescription = SITE.description;
         <div class="hero__stack">
           <!-- inner animated wrapper to avoid multiplying parent/child opacities -->
           <div class="hero__stack-content">
-            <p class="hero__eyebrow">Open-source 3D Gaussian Splatting platform</p>
-            <h1 class="hero__title">Train, edit, and automate splats on your desktop</h1>
-            <p class="hero__lead">
-              LichtFeld Studio is a desktop app for training, editing, and inspecting splats on your local GPU.
-            </p>
-
+            <h1 class="hero__eyebrow">Open-source 3D Gaussian Splatting platform</h1>
             <div class="hero__proof">
               {heroProofItems.map((item) => <span class="hero__proof-item">{item}</span>)}
             </div>
@@ -169,17 +164,7 @@ const seoDescription = SITE.description;
                 <i class="bi bi-book mr-2" aria-hidden="true"></i>
                 Get Started
               </a>
-              <a
-                class="btn btn-outline-light btn-lg hero__browse-link"
-                href={`${base}plugins/`}
-                aria-label="Browse the LichtFeld Studio plugin registry"
-              >
-                <i class="bi bi-grid mr-2" aria-hidden="true"></i>
-                Browse plugins
-              </a>
             </div>
-
-            <p class="hero__subline">Windows and Linux • Runs locally on your GPU • GPLv3 open source</p>
           </div>
         </div>
 
@@ -963,12 +948,9 @@ const seoDescription = SITE.description;
 
     canvas {
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      width: 100%;
-      height: 100%;
+      inset: 0;
+      width: 100% !important;
+      height: 100% !important;
       z-index: 0;
       cursor: grab;
       pointer-events: auto;
@@ -1086,14 +1068,6 @@ const seoDescription = SITE.description;
     }
   }
 
-  .hero__title {
-    max-width: 12ch;
-    margin: 0;
-    font-size: clamp(2.25rem, 5.8vw, 4.25rem);
-    line-height: 0.94;
-    position: relative; /* Establish a new stacking context */
-  }
-
   .hero__eyebrow {
     margin: 0;
     display: inline-flex;
@@ -1114,21 +1088,12 @@ const seoDescription = SITE.description;
     background: rgba(245, 158, 11, 0.5);
   }
 
-  .hero__lead {
-    max-width: 41rem;
-    margin: 0.2rem 0 0;
-    font-size: clamp(0.98rem, 1.25vw, 1.08rem);
-    line-height: 1.55;
-    color: rgba(255, 255, 255, 0.84);
-    position: relative;
-  }
-
   .hero__proof {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
     gap: 0.75rem;
-    margin-top: 0.6rem;
+    margin-top: 1rem;
     position: relative;
   }
 
@@ -1152,10 +1117,8 @@ const seoDescription = SITE.description;
     flex-wrap: wrap;
     align-items: stretch;
     justify-content: flex-start;
-    margin-top: 0.55rem;
-    position: relative; /* Establish a new stacking context */
-    /* Re-enable pointer events for the buttons, as the parent `.hero__content`
-       disables them to allow clicks to pass through to the splat canvas. */
+    margin-top: 2.4rem;
+    position: relative;
     pointer-events: auto;
   }
 
@@ -1191,27 +1154,6 @@ const seoDescription = SITE.description;
     background: linear-gradient(135deg, #ffffff, #bfdbfe);
   }
 
-  .hero__browse-link {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.18);
-    color: #fff;
-  }
-
-  .hero__browse-link:hover {
-    background: rgba(255, 255, 255, 0.14);
-    border-color: rgba(255, 255, 255, 0.32);
-    color: #fff;
-  }
-
-  .hero__subline {
-    margin: 0.45rem 0 0;
-    color: rgba(255, 255, 255, 0.56);
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    position: relative;
-  }
 
   .hero__scene-cue {
     position: absolute;
@@ -1582,9 +1524,6 @@ const seoDescription = SITE.description;
 
   /* Responsive tweaks */
   @media (max-width: 991.98px) {
-    .hero__lead {
-      max-width: 100%;
-    }
     .hero__stack {
       align-items: flex-start;
       text-align: left;
@@ -1833,10 +1772,6 @@ const seoDescription = SITE.description;
 
     .hero__stack {
       padding-block: 0.7rem 1.1rem;
-    }
-
-    .hero__title {
-      font-size: clamp(2.05rem, 4.6vw, 3.55rem);
     }
 
     .story-section .container {
@@ -3289,19 +3224,6 @@ const seoDescription = SITE.description;
       box-shadow: 0 24px 40px rgba(0, 0, 0, 0.18);
     }
 
-    .hero__title {
-      max-width: 13.5ch;
-      font-size: clamp(1.78rem, 8.2vw, 2.5rem);
-      line-height: 0.95;
-      text-wrap: balance;
-    }
-
-    .hero__lead {
-      margin-top: 0.32rem;
-      font-size: 0.95rem;
-      line-height: 1.56;
-    }
-
     .hero__eyebrow {
       gap: 0.5rem;
       font-size: 0.72rem;
@@ -3334,13 +3256,6 @@ const seoDescription = SITE.description;
       font-size: 0.92rem;
       border-radius: 1rem;
       box-shadow: 0 12px 24px rgba(0, 0, 0, 0.16);
-    }
-
-    .hero__subline {
-      margin-top: 0.75rem;
-      font-size: 0.72rem;
-      line-height: 1.5;
-      letter-spacing: 0.12em;
     }
 
     .hero__scene-cue {
@@ -3607,11 +3522,6 @@ const seoDescription = SITE.description;
     .hero__stack::before {
       inset: -0.75rem 0;
       border-radius: 1.2rem;
-    }
-
-    .hero__title {
-      max-width: 14ch;
-      font-size: clamp(1.56rem, 7.9vw, 2.02rem);
     }
 
     .hero__proof {

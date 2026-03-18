@@ -724,6 +724,16 @@ import lichtfeld as lf
 | `lf.plugins.get_error(name)` | `str \| None` | Read the last plugin error |
 | `lf.plugins.get_traceback(name)` | `str \| None` | Read the full traceback |
 | `lf.plugins.create(name)` | `str` | Create the v1 source scaffold in `~/.lichtfeld/plugins/<name>` |
+| `lf.plugins.settings(plugin_name)` | `PluginSettings` | Persistent per-plugin settings object |
+| `lf.plugins.register_capability(name, handler, ...)` | `None` | Register a capability (see parameters below) |
+| `lf.plugins.unregister_capability(name)` | `bool` | Unregister a capability by name |
+| `lf.plugins.invoke(name, args)` | `object` | Invoke a registered capability |
+| `lf.plugins.has_capability(name)` | `bool` | Check if a capability exists |
+| `lf.plugins.list_capabilities()` | `list` | List all registered capabilities |
+
+`lf.plugins.settings()` returns a persistent key-value store scoped to the given plugin. Values are saved across sessions.
+
+`lf.plugins.register_capability()` accepts the same parameters as `CapabilityRegistry.register()`: `name`, `handler`, `description`, `schema`, `plugin_name`, and `requires_gui`. This is the preferred approach for most plugins; use `CapabilityRegistry.instance()` only for advanced use cases.
 
 `lf.plugins.create()` writes the source package, including `panels/main_panel.py`, `panels/main_panel.rml`, and `panels/main_panel.rcss`. If you want a scaffold that also adds `.venv`, `.vscode`, and `pyrightconfig.json`, use the CLI command `LichtFeld-Studio plugin create <name>`.
 
@@ -788,6 +798,7 @@ The `ui` object passed to `Panel.draw()` provides the immediate widget API used 
 | `slider_float3(label, value, min, max)`                             | `(bool, tuple)`      | 3-component slider    |
 | `drag_float(label, value, speed=1, min=0, max=0)`                  | `(bool, float)`      | Float drag            |
 | `drag_int(label, value, speed=1, min=0, max=0)`                    | `(bool, int)`        | Integer drag          |
+| `stepper_float(label, value, steps=[1.0, 0.1, 0.01])`             | `(bool, float)`      | Float stepper with configurable step sizes |
 
 ### Selection
 
@@ -804,6 +815,7 @@ The `ui` object passed to `Panel.draw()` provides the immediate widget API used 
 |-----------------------------------------------------|----------------------|--------------------------|
 | `color_edit3(label, color)`                         | `(bool, tuple)`      | RGB color picker         |
 | `color_edit4(label, color)`                         | `(bool, tuple)`      | RGBA color picker        |
+| `color_picker3(label, color)`                       | `(bool, tuple[float, float, float])` | Inline RGB color picker |
 | `color_button(label, color, size=(0,0))`            | `bool`               | Color swatch button      |
 
 ### File/Path
@@ -1128,6 +1140,8 @@ import lichtfeld as lf
 | `add_group(name, parent=-1)`                      | `int`            | Add group node                    |
 | `add_splat(name, means, sh0, shN, scaling, rotation, opacity, ...)` | `int` | Add splat node       |
 | `add_point_cloud(name, points, colors, parent=-1)`| `int`            | Add point cloud                   |
+| `add_mesh(name, vertices, indices, colors=None, normals=None, parent=-1)` | `int` | Add mesh node |
+| `add_camera_group(name, parent, camera_count)` | `int`               | Add camera group node             |
 | `add_camera(name, parent, R, T, fx, fy, w, h, ...)` | `int`         | Add camera node                   |
 | `remove_node(name, keep_children=False)`          | `None`           | Remove node                       |
 | `rename_node(old, new)`                           | `bool`           | Rename node                       |
@@ -1168,6 +1182,8 @@ import lichtfeld as lf
 | Function                              | Returns          | Description                       |
 |---------------------------------------|------------------|-----------------------------------|
 | `select_node(name)`                   | `None`           | Select node by name               |
+| `select_nodes(names)`                 | `None`           | Select multiple nodes by name     |
+| `add_to_selection(name)`              | `None`           | Add a node to the current selection |
 | `deselect_all()`                      | `None`           | Clear selection                   |
 | `has_selection()`                     | `bool`           | Any selection active              |
 | `get_selected_node_name()`            | `str`            | First selected node name          |
@@ -1252,10 +1268,24 @@ Accessible via `scene.combined_model()` (all nodes merged) or `node.splat_data()
 
 > After calling `soft_delete()`, `undelete()`, or `clear_deleted()`, call `scene.notify_changed()` to update the viewport.
 
+### Selection Groups (on Scene object)
+
+| Method | Returns | Description |
+|---|---|---|
+| `add_selection_group(name, color)` | `int` | Create a named selection group with an RGBA color tuple |
+| `remove_selection_group(id)` | `None` | Remove a selection group by ID |
+| `rename_selection_group(id, name)` | `None` | Rename a selection group |
+| `set_selection_group_color(id, color)` | `None` | Change group color |
+| `set_selection_group_locked(id, locked)` | `None` | Lock/unlock a group |
+| `is_selection_group_locked(id)` | `bool` | Check lock state |
+| `active_selection_group` | `int` | Property (get/set). Active group ID |
+| `selection_groups()` | `list[SelectionGroup]` | All selection groups |
+
 ### Training Control
 
 | Function                    | Returns          | Description                   |
 |-----------------------------|------------------|-------------------------------|
+| `prepare_training_from_scene()` | `None`      | Initialize trainer from scene cameras and point cloud |
 | `start_training()`         | `None`           | Start training                |
 | `pause_training()`         | `None`           | Pause                         |
 | `resume_training()`        | `None`           | Resume                        |
@@ -1344,10 +1374,54 @@ lf.save_config_file(path: str)
 ### Undo
 
 ```python
-lf.undo.push(name: str, undo: Callable, redo: Callable, validate: Callable | None = None)
+lf.undo.push(
+    name: str,
+    undo: object,
+    redo: object,
+    validate: bool = False,
+    id: str = '',
+    source: str = 'python',
+    scope: str = 'custom',
+    estimated_bytes: int = 0,
+    dirty_flags: int = 0,
+    merge_window_ms: int = 0,
+)
 lf.undo.transaction(name: str = "Grouped Changes") -> Transaction
 lf.undo.stack() -> dict
 ```
+
+| Function | Returns | Description |
+|---|---|---|
+| `push(name, undo, redo, ...)` | `None` | Push an undo step |
+| `undo()` | `None` | Undo last step |
+| `redo()` | `None` | Redo last undone step |
+| `can_undo()` | `bool` | Whether undo is available |
+| `can_redo()` | `bool` | Whether redo is available |
+| `clear()` | `None` | Clear undo/redo history |
+| `get_undo_name()` | `str` | Name of the next undo step |
+| `get_redo_name()` | `str` | Name of the next redo step |
+| `undo_names()` | `list[str]` | All undo step names |
+| `redo_names()` | `list[str]` | All redo step names |
+| `undo_bytes()` | `int` | Memory used by undo stack |
+| `redo_bytes()` | `int` | Memory used by redo stack |
+| `total_bytes()` | `int` | Total memory used |
+| `total_cpu_bytes()` | `int` | CPU memory used |
+| `total_gpu_bytes()` | `int` | GPU memory used |
+| `max_bytes()` | `int` | Memory budget |
+| `set_max_bytes(n)` | `None` | Set memory budget |
+| `has_active_transaction()` | `bool` | Whether a transaction is open |
+| `transaction_depth()` | `int` | Nesting depth of transactions |
+| `transaction_age_ms()` | `int` | Age of the active transaction |
+| `active_transaction_name()` | `str` | Name of the active transaction |
+| `generation()` | `int` | Change generation counter |
+| `subscribe(callback)` | `None` | Observe undo/redo changes |
+| `unsubscribe(callback)` | `None` | Remove observer |
+| `shrink_to_fit()` | `None` | Release excess memory |
+| `jump(stack, count)` | `None` | Navigate history by count |
+| `transaction(name)` | `Transaction` | Context manager for grouped changes |
+| `stack()` | `dict` | Structured undo/redo items |
+
+`Transaction` supports `with` and exposes `add(undo, redo)` to append additional undo/redo pairs within the group.
 
 - `lf.undo.transaction(...)` groups multiple undoable mutations into one history step.
 - `lf.undo.stack()` returns structured undo/redo items with `id`, `label`, `source`, `scope`, and `estimated_bytes`.
@@ -1384,8 +1458,9 @@ lf.undo.stack() -> dict
 | `lf.ui.set_transform_space(space)`          | `None`           | Set transform space index  |
 | `lf.ui.get_pivot_mode()` / `set_pivot_mode(mode)` | `int`      | Pivot mode enum index      |
 | `lf.ui.get_fps()`                           | `float`          | Current FPS                |
-| `lf.ui.get_gpu_memory()`                    | `(int, int, int)` | (process_used, total_used, total) bytes |
 | `lf.ui.get_git_commit()`                    | `str`            | Git commit hash            |
+
+> **Note:** GPU memory info is available via the Python utility `from lfs_plugins.utils import get_gpu_memory`, which returns current GPU memory usage in bytes as `int`.
 
 ### File Dialogs
 
@@ -1400,10 +1475,10 @@ lf.undo.stack() -> dict
 | `lf.ui.open_json_file_dialog()`             | `str`            |
 | `lf.ui.open_video_file_dialog()`            | `str`            |
 | `lf.ui.save_json_file_dialog(default_name='config.json')` | `str` |
-| `lf.ui.save_ply_file_dialog(default_name='export.ply')`   | `str` |
-| `lf.ui.save_sog_file_dialog(default_name='export.sog')`   | `str` |
-| `lf.ui.save_spz_file_dialog(default_name='export.spz')`   | `str` |
-| `lf.ui.save_html_file_dialog(default_name='viewer.html')` | `str` |
+| `lf.ui.save_ply_file_dialog(default_name='export')`   | `str` |
+| `lf.ui.save_sog_file_dialog(default_name='export')`   | `str` |
+| `lf.ui.save_spz_file_dialog(default_name='export')`   | `str` |
+| `lf.ui.save_html_file_dialog(default_name='viewer')` | `str` |
 
 ### UI Hooks
 

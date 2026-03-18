@@ -39,7 +39,7 @@ export const CONTRIBUTION_PROJECT_VIEW_URL =
   `https://github.com/users/${REPO_OWNER}/projects/${CONTRIBUTION_PROJECT_NUMBER}/views/${CONTRIBUTION_PROJECT_VIEW_NUMBER}`;
 
 /** GitHub releases page (redirects to latest release) */
-export const GITHUB_RELEASES_URL = `${GITHUB_REPO_URL}/releases/latest`;
+export const GITHUB_RELEASES_URL = `${GITHUB_REPO_URL}/releases/download/v0.5.0/LichtFeld-Studio_Windows_v0.5.0.zip`;
 
 /** GitHub wiki URL */
 export const GITHUB_WIKI_URL = `${GITHUB_REPO_URL}/wiki`;

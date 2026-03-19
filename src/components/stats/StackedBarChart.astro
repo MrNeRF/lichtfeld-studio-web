@@ -87,9 +87,9 @@ const { id = "stacked-bar-chart", height = 400, title } = Astro.props;
             download: true,
             selection: false,
             zoom: true,
-            zoomin: true,
-            zoomout: true,
-            pan: true,
+            zoomin: false,
+            zoomout: false,
+            pan: false,
             reset: true,
           },
         },
@@ -151,8 +151,9 @@ const { id = "stacked-bar-chart", height = 400, title } = Astro.props;
         },
       },
       legend: {
-        position: "top",
-        horizontalAlign: "left",
+        position: "bottom",
+        horizontalAlign: "center",
+        fontSize: "12px",
         markers: {
           size: 8,
           strokeWidth: 0,
@@ -199,6 +200,7 @@ const { id = "stacked-bar-chart", height = 400, title } = Astro.props;
             legend: {
               position: "bottom",
               horizontalAlign: "center",
+              fontSize: "11px",
             },
           },
         },
@@ -288,6 +290,10 @@ const { id = "stacked-bar-chart", height = 400, title } = Astro.props;
 
   .stacked-bar-chart :global(.apexcharts-toolbar) {
     z-index: 10;
+  }
+
+  .stacked-bar-chart :global(.apexcharts-legend) {
+    justify-content: center;
   }
 
   .stacked-bar-chart :global(.apexcharts-menu) {

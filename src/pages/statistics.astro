@@ -120,7 +120,7 @@ const seoDescription =
     <div class="stats-shell stats-shell--compact shell shell--compact">
       <p class="stats-attribution">
         <i class="bi bi-info-circle"></i>
-        Statistics are updated daily and reflect download counts from GitHub releases. Data shown is as of <span
+        Statistics are updated hourly and reflect download counts from GitHub releases. Data shown is as of <span
           id="stats-as-of"
         >
           loading...
@@ -296,6 +296,132 @@ const seoDescription =
   }
 
   /**
+   * Finds the first day currently covered by the daily snapshots.
+   */
+  function getDailyWindowStart(releases: StatsResponse["releases"]): number | null {
+    let earliest = Infinity;
+
+    releases.forEach((release) => {
+      release.daily.forEach((point) => {
+        earliest = Math.min(earliest, point.date);
+      });
+    });
+
+    return Number.isFinite(earliest) ? earliest : null;
+  }
+
+  /**
+   * Normalizes a timestamp to the start of its UTC week or month.
+   */
+  function getPeriodStart(timestamp: number, range: Exclude<TimeRange, "daily">): number {
+    const date = new Date(timestamp);
+
+    date.setUTCHours(0, 0, 0, 0);
+
+    if (range === "weekly") {
+      const day = date.getUTCDay();
+      const diff = day === 0 ? 6 : day - 1;
+
+      date.setUTCDate(date.getUTCDate() - diff);
+
+      return date.getTime();
+    }
+
+    date.setUTCDate(1);
+
+    return date.getTime();
+  }
+
+  /**
+   * Converts daily cumulative snapshots into per-day deltas.
+   *
+   * The first daily snapshot for a release published within the visible window
+   * must count as real downloads, otherwise new releases appear to lose their
+   * initial download burst in the charts.
+   */
+  function buildDailyDeltaMap(
+    release: StatsResponse["releases"][number],
+    dailyWindowStart: number | null,
+  ): Map<number, number> {
+    const deltaMap = new Map<number, number>();
+    const sorted = [...release.daily].sort((a, b) => a.date - b.date);
+    const interpolated = interpolateMissingDays(sorted);
+
+    if (interpolated.length === 0) {
+      return deltaMap;
+    }
+
+    const releaseStartsWithinWindow =
+      dailyWindowStart !== null && release.publishedAt !== null && release.publishedAt >= dailyWindowStart;
+
+    interpolated.forEach((point, index) => {
+      if (index === 0) {
+        deltaMap.set(point.date, releaseStartsWithinWindow ? point.downloads : 0);
+
+        return;
+      }
+
+      const previousPoint = interpolated[index - 1];
+      const delta = Math.max(0, point.downloads - previousPoint.downloads);
+
+      deltaMap.set(point.date, delta);
+    });
+
+    return deltaMap;
+  }
+
+  /**
+   * Returns period deltas for the requested range.
+   *
+   * Weekly/monthly aggregates from the backend can undercount the first bucket
+   * of a new release, so the recent buckets are rebuilt from daily snapshots
+   * and replace overlapping aggregated buckets.
+   */
+  function getPeriodDeltas(
+    release: StatsResponse["releases"][number],
+    range: TimeRange,
+    dailyWindowStart: number | null,
+  ): Array<{ x: number; y: number }> {
+    if (range === "daily") {
+      return [...buildDailyDeltaMap(release, dailyWindowStart).entries()]
+        .sort((a, b) => a[0] - b[0])
+        .map(([x, y]) => ({ x, y }));
+    }
+
+    const sourcePoints =
+      range === "weekly"
+        ? release.weekly.map((point) => ({ x: point.week, y: point.downloads }))
+        : release.monthly.map((point) => ({ x: point.month, y: point.downloads }));
+
+    const rebuiltBuckets = new Map<number, number>();
+
+    buildDailyDeltaMap(release, dailyWindowStart).forEach((downloads, date) => {
+      const bucketStart = getPeriodStart(date, range);
+
+      rebuiltBuckets.set(bucketStart, (rebuiltBuckets.get(bucketStart) ?? 0) + downloads);
+    });
+
+    const rebuiltStart = rebuiltBuckets.size > 0 ? Math.min(...rebuiltBuckets.keys()) : null;
+    const mergedPoints = new Map<number, number>();
+
+    sourcePoints.forEach((point) => {
+      if (rebuiltStart !== null && point.x >= rebuiltStart) {
+        return;
+      }
+
+      mergedPoints.set(point.x, point.y);
+    });
+
+    rebuiltBuckets.forEach((downloads, bucketStart) => {
+      mergedPoints.set(bucketStart, downloads);
+    });
+
+    return [...mergedPoints.entries()]
+      .sort((a, b) => a[0] - b[0])
+      .map(([x, y]) => ({ x, y }));
+  }
+
+  /**
    * Transforms release data into chart series format showing DELTAS (new downloads per period).
    * Sorts releases so older versions are at the bottom of the stack
    * and newer versions are at the top (latest on top).
@@ -313,6 +439,8 @@ const seoDescription =
       return compareVersions(versionA, versionB);
     });
 
+    const dailyWindowStart = getDailyWindowStart(releases);
+
     // Build per-release delta maps and collect all unique x values
     const allXValues = new Set<number>();
     const releaseMaps: Map<number, number>[] = [];
@@ -320,27 +448,10 @@ const seoDescription =
     sortedReleases.forEach((release) => {
       const deltaMap = new Map<number, number>();
 
-      if (range === "daily") {
-        const sorted = [...release.daily].sort((a, b) => a.date - b.date);
-        const interpolated = interpolateMissingDays(sorted);
-
-        interpolated.slice(1).forEach((d, i) => {
-          const delta = Math.max(0, d.downloads - interpolated[i].downloads);
-
-          deltaMap.set(d.date, delta);
-          allXValues.add(d.date);
-        });
-      } else if (range === "weekly") {
-        release.weekly.forEach((d) => {
-          deltaMap.set(d.week, d.downloads);
-          allXValues.add(d.week);
-        });
-      } else {
-        release.monthly.forEach((d) => {
-          deltaMap.set(d.month, d.downloads);
-          allXValues.add(d.month);
-        });
-      }
+      getPeriodDeltas(release, range, dailyWindowStart).forEach((point) => {
+        deltaMap.set(point.x, point.y);
+        allXValues.add(point.x);
+      });
 
       releaseMaps.push(deltaMap);
     });
@@ -376,7 +487,8 @@ const seoDescription =
       return compareVersions(versionA, versionB);
     });
 
-    const limitedReleases = sortedReleases.slice(0, 5);
+    const limitedReleases = sortedReleases.slice(-5);
+    const dailyWindowStart = getDailyWindowStart(releases);
 
     // Build per-release cumulative maps and collect all unique x-values
     const allXValues = new Set<number>();
@@ -394,25 +506,15 @@ const seoDescription =
           map.set(d.date, d.downloads);
           allXValues.add(d.date);
         });
-      } else if (range === "weekly") {
-        // Weekly data is deltas - accumulate them
-        const sorted = [...release.weekly].sort((a, b) => a.week - b.week);
-        let cumulative = 0;
-
-        sorted.forEach((d) => {
-          cumulative += d.downloads;
-          map.set(d.week, cumulative);
-          allXValues.add(d.week);
-        });
       } else {
-        // Monthly data is deltas - accumulate them
-        const sorted = [...release.monthly].sort((a, b) => a.month - b.month);
+        // Weekly/monthly data is stored as period deltas.
+        const deltas = getPeriodDeltas(release, range, dailyWindowStart);
         let cumulative = 0;
 
-        sorted.forEach((d) => {
-          cumulative += d.downloads;
-          map.set(d.month, cumulative);
-          allXValues.add(d.month);
+        deltas.forEach((point) => {
+          cumulative += point.y;
+          map.set(point.x, cumulative);
+          allXValues.add(point.x);
         });
       }
 

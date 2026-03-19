@@ -105,9 +105,9 @@ const { id = "stacked-area-chart", height = 400, title } = Astro.props;
             download: true,
             selection: false,
             zoom: true,
-            zoomin: true,
-            zoomout: true,
-            pan: true,
+            zoomin: false,
+            zoomout: false,
+            pan: false,
             reset: true,
           },
         },
@@ -175,8 +175,9 @@ const { id = "stacked-area-chart", height = 400, title } = Astro.props;
         },
       },
       legend: {
-        position: "top",
-        horizontalAlign: "left",
+        position: "bottom",
+        horizontalAlign: "center",
+        fontSize: "12px",
         markers: {
           size: 8,
           strokeWidth: 0,
@@ -223,6 +224,7 @@ const { id = "stacked-area-chart", height = 400, title } = Astro.props;
             legend: {
               position: "bottom",
               horizontalAlign: "center",
+              fontSize: "11px",
             },
           },
         },
@@ -325,6 +327,10 @@ const { id = "stacked-area-chart", height = 400, title } = Astro.props;
   /* ApexCharts overrides for better integration */
   .stacked-area-chart :global(.apexcharts-toolbar) {
     z-index: 10;
+  }
+
+  .stacked-area-chart :global(.apexcharts-legend) {
+    justify-content: center;
   }
 
   .stacked-area-chart :global(.apexcharts-menu) {

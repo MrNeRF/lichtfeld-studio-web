@@ -128,6 +128,12 @@ interface ProcessedRelease {
   publishedAt: number;
 }
 
+interface PeriodDeltaRow {
+  release_id: number;
+  date: number;
+  count: number;
+}
+
 /**
  * Batch upserts all releases and returns a map of tag -> release ID.
  * Uses D1 batch to reduce round trips.
@@ -220,26 +226,7 @@ async function batchUpdateWeekly(
   tagToId: Map<string, number>,
 ): Promise<void> {
   const weekEnd = week + 7 * MS_PER_DAY;
-
-  // Fetch all deltas in one query using a GROUP BY
-  const deltaResult = await db
-    .prepare(
-      `
-            SELECT release_id, COALESCE(MAX(count) - MIN(count), 0) as delta
-            FROM downloads_daily
-            WHERE date >= ? AND date < ?
-            GROUP BY release_id
-        `,
-    )
-    .bind(week, weekEnd)
-    .all<{ release_id: number; delta: number }>();
-
-  // Build release_id -> delta map
-  const deltaMap = new Map<number, number>();
-
-  for (const row of deltaResult.results) {
-    deltaMap.set(row.release_id, row.delta);
-  }
+  const deltaMap = await calculatePeriodDeltas(db, week, weekEnd, releases, tagToId);
 
   // Batch insert weekly aggregates
   const weeklyStmt = db.prepare(
@@ -269,26 +256,7 @@ async function batchUpdateMonthly(
   const nextMonth = new Date(month);
 
   nextMonth.setUTCMonth(nextMonth.getUTCMonth() + 1);
-
-  // Fetch all deltas in one query using a GROUP BY
-  const deltaResult = await db
-    .prepare(
-      `
-            SELECT release_id, COALESCE(MAX(count) - MIN(count), 0) as delta
-            FROM downloads_daily
-            WHERE date >= ? AND date < ?
-            GROUP BY release_id
-        `,
-    )
-    .bind(month, nextMonth.getTime())
-    .all<{ release_id: number; delta: number }>();
-
-  // Build release_id -> delta map
-  const deltaMap = new Map<number, number>();
-
-  for (const row of deltaResult.results) {
-    deltaMap.set(row.release_id, row.delta);
-  }
+  const deltaMap = await calculatePeriodDeltas(db, month, nextMonth.getTime(), releases, tagToId);
 
   // Batch insert monthly aggregates
   const monthlyStmt = db.prepare(
@@ -303,6 +271,65 @@ async function batchUpdateMonthly(
   });
 
   await db.batch(statements);
+}
+
+/**
+ * Calculates period deltas from daily cumulative snapshots.
+ *
+ * Releases published during the current period need their first snapshot counted
+ * as part of the delta, otherwise the initial burst of downloads is lost.
+ */
+async function calculatePeriodDeltas(
+  db: D1Database,
+  periodStart: number,
+  periodEnd: number,
+  releases: ProcessedRelease[],
+  tagToId: Map<string, number>,
+): Promise<Map<number, number>> {
+  const periodRows = await db
+    .prepare(
+      `
+            SELECT release_id, date, count
+            FROM downloads_daily
+            WHERE date >= ? AND date < ?
+            ORDER BY release_id ASC, date ASC
+        `,
+    )
+    .bind(periodStart, periodEnd)
+    .all<PeriodDeltaRow>();
+
+  const rowsByRelease = new Map<number, PeriodDeltaRow[]>();
+
+  for (const row of periodRows.results) {
+    const rows = rowsByRelease.get(row.release_id) ?? [];
+
+    rows.push(row);
+    rowsByRelease.set(row.release_id, rows);
+  }
+
+  const deltaMap = new Map<number, number>();
+
+  for (const release of releases) {
+    const releaseId = tagToId.get(release.tag)!;
+    const rows = rowsByRelease.get(releaseId) ?? [];
+
+    if (rows.length === 0) {
+      deltaMap.set(releaseId, 0);
+      continue;
+    }
+
+    const first = rows[0];
+    const last = rows[rows.length - 1];
+    let delta = Math.max(0, last.count - first.count);
+
+    if (release.publishedAt >= periodStart && release.publishedAt < periodEnd) {
+      delta += first.count;
+    }
+
+    deltaMap.set(releaseId, delta);
+  }
+
+  return deltaMap;
 }
 
 // =============================================================================

@@ -73,6 +73,26 @@ export interface ReleaseInfo {
 }
 
 /**
+ * Minimal metadata for a downloadable release asset.
+ */
+export interface ReleaseAssetInfo {
+  /** Release tag that owns the asset */
+  tagName: string;
+
+  /** Human-readable release title */
+  releaseName: string;
+
+  /** Asset filename as uploaded to GitHub */
+  assetName: string;
+
+  /** Direct browser download URL for the asset */
+  downloadUrl: string;
+
+  /** ISO 8601 date string when the release was published */
+  publishedAt: string;
+}
+
+/**
  * Defines the structure for a release's download statistics.
  */
 export interface ReleaseDownloadStats {
@@ -118,6 +138,14 @@ const DEFAULT_VERSION = "0.0.0";
  */
 let _cachedRelease: ReleaseInfo | null = null;
 let _releasePromise: Promise<ReleaseInfo | null> | null = null;
+
+type GitHubReleaseAssetLike = {
+  name?: string | null;
+  browser_download_url?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+  state?: string | null;
+};
 
 // =================================================================================================
 // GITHUB API CLIENT
@@ -213,6 +241,53 @@ function buildIssueExcerpt(body: string): string {
 
   const excerpt = plain.length > 220 ? `${plain.slice(0, 217).trimEnd()}...` : plain;
   return excerpt;
+}
+
+function selectLatestWindowsAsset(assets: GitHubReleaseAssetLike[]): ReleaseAssetInfo["assetName"] | null {
+  const latestAsset = [...assets]
+    .filter((asset) => {
+      const fileName = asset.name?.toLowerCase() ?? "";
+
+      return (
+        (asset.state === undefined || asset.state === "uploaded") &&
+        Boolean(asset.browser_download_url) &&
+        fileName.includes("windows") &&
+        fileName.endsWith(".zip")
+      );
+    })
+    .sort((a, b) => {
+      const timeA = new Date(a.updated_at ?? a.created_at ?? 0).getTime();
+      const timeB = new Date(b.updated_at ?? b.created_at ?? 0).getTime();
+
+      return timeB - timeA;
+    })[0];
+
+  return latestAsset?.name ?? null;
+}
+
+function buildReleaseAssetInfo(
+  release: {
+    tag_name: string;
+    name: string | null;
+    published_at: string | null;
+    created_at: string;
+    assets: GitHubReleaseAssetLike[];
+  },
+  assetName: string,
+): ReleaseAssetInfo | null {
+  const asset = release.assets.find((entry) => entry.name === assetName);
+
+  if (!asset?.browser_download_url) {
+    return null;
+  }
+
+  return {
+    tagName: release.tag_name,
+    releaseName: release.name || release.tag_name,
+    assetName,
+    downloadUrl: asset.browser_download_url,
+    publishedAt: release.published_at || release.created_at,
+  };
 }
 
 function normalizeProjectItemType(content: Record<string, any> | null | undefined): string {
@@ -541,6 +616,36 @@ export async function getLatestRelease(): Promise<ReleaseInfo | null> {
   })();
 
   return _releasePromise;
+}
+
+/**
+ * Fetches the most recent Windows asset attached to the rolling nightly release.
+ *
+ * The nightly release keeps multiple assets, so this selects the newest uploaded
+ * Windows ZIP and returns its direct browser download URL.
+ */
+export async function getNightlyWindowsDownload(): Promise<ReleaseAssetInfo | null> {
+  try {
+    const { data: release } = await octokit.repos.getReleaseByTag({
+      owner: REPO_OWNER,
+      repo: REPO_NAME,
+      tag: "nightly",
+    });
+
+    const assetName = selectLatestWindowsAsset(release.assets);
+
+    if (!assetName) {
+      console.warn("Nightly release found, but no Windows ZIP asset is available.");
+
+      return null;
+    }
+
+    return buildReleaseAssetInfo(release, assetName);
+  } catch (error) {
+    console.error("Failed to fetch nightly Windows download from GitHub:", error);
+
+    return null;
+  }
 }
 
 /**

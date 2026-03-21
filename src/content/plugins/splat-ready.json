@@ -1,0 +1,30 @@
+{
+  "id": "community:splat-ready",
+  "namespace": "community",
+  "name": "splat-ready",
+  "displayName": "SplatReady",
+  "summary": "Convert video to COLMAP datasets ready for Gaussian splat training.",
+  "description": "Automated pipeline: extract frames from drone/camera video with GPS embedding from DJI SRT files, run 3D reconstruction via COLMAP, Agisoft Metashape, or RealityScan, and import the dataset into LichtFeld Studio for training.",
+  "author": "Jacob van Beets",
+  "latestVersion": "1.0.0",
+  "lichtfeldVersion": ">=0.4.2",
+  "pluginApi": ">=1,<2",
+  "requiredFeatures": [],
+  "downloads": 0,
+  "keywords": ["dataset", "video", "colmap", "metashape", "realityscan", "pipeline", "gps", "drone"],
+  "repository": "https://github.com/jacobvanbeets/SplatReady",
+  "versions": [
+    {
+      "version": "1.0.0",
+      "pluginApi": ">=1,<2",
+      "lichtfeldVersion": ">=0.4.2",
+      "requiredFeatures": [],
+      "dependencies": [
+        "Pillow",
+        "piexif",
+        "av"
+      ],
+      "gitRef": "main"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "id": "community:colmap",
+  "namespace": "community",
+  "name": "colmap",
+  "displayName": "COLMAP Reconstruction Plugin",
+  "summary": "Run sparse COLMAP SfM reconstruction directly inside LichtFeld Studio.",
+  "description": "Provides an integrated interface for running COLMAP-based Structure-from-Motion pipelines, including feature extraction, matching, and sparse reconstruction with quality metrics and live progress feedback.",
+  "author": "Shady Gmira",
+  "latestVersion": "0.1.0",
+  "lichtfeldVersion": ">=0.5.0",
+  "pluginApi": ">=1,<2",
+  "requiredFeatures": [],
+  "downloads": 0,
+  "keywords": ["colmap", "sfm", "reconstruction", "photogrammetry", "sparse"],
+  "repository": "https://github.com/shadygm/Lichtfeld-COLMAP-Plugin",
+  "featured": false,
+  "versions": [
+    {
+      "version": "0.1.0",
+      "pluginApi": ">=1,<2",
+      "lichtfeldVersion": ">=0.5.0",
+      "requiredFeatures": [],
+      "dependencies": [
+        "pycolmap"
+      ],
+      "gitRef": "main"
+    }
+  ]
+}

@@ -12,6 +12,7 @@
 import Layout from "@/layouts/Layout.astro";
 import { SITE } from "@/config/site.config";
 import core11Logo from "@/assets/core11-logo.svg";
+import gaussianSplatKingLogo from "@/assets/gaussian-splatking-logo.jpg";
 
 import { SmartVideo } from "@alos-no/astro-media";
 import Splat from "@/components/Splat.astro";
@@ -22,6 +23,7 @@ import { getLatestRelease, getNightlyWindowsDownload } from "@/services/github";
 
 // Centralized external links (avoid magic strings):
 import {
+  GAUSSIAN_SPLATKING_APP_STORE_URL,
   GITHUB_REPO_URL,
   GITHUB_RELEASES_URL,
   GITHUB_NIGHTLY_RELEASE_URL,
@@ -56,6 +58,16 @@ const workflowSteps = [
       "Use Python plugins and MCP endpoints to build custom panels, operators, batch tools, and external workflows.",
   },
 ];
+const captureRecommendation = {
+  eyebrow: "Optional capture tip",
+  title: "Capturing on iPhone?",
+  description:
+    "Gaussian SplatKing is a straightforward upstream option for field capture before your downstream reconstruction workflow. It focuses on 4K footage, can record LiDAR depth on supported devices, and exports the media plus sensor data needed for 3D scene reconstruction.",
+  note: "It is not required for LichtFeld Studio, but it is an easy recommendation when you want a lightweight mobile capture front end.",
+  highlights: ["iPhone only", "4K capture", "LiDAR-ready"],
+  href: GAUSSIAN_SPLATKING_APP_STORE_URL,
+  label: "View on the App Store",
+};
 const platformPillars = [
   {
     tone: "core",
@@ -295,6 +307,43 @@ const seoDescription = SITE.description;
             ))
           }
         </div>
+
+        <aside class="story-capture-tip" aria-labelledby="capture-tip-heading">
+          <div class="story-capture-tip__copy">
+            <div class="story-capture-tip__header">
+              <img
+                src={gaussianSplatKingLogo.src}
+                alt="Gaussian SplatKing app icon"
+                class="story-capture-tip__logo"
+                width="56"
+                height="56"
+                loading="lazy"
+                decoding="async"
+              />
+              <div class="story-capture-tip__heading">
+                <p class="story-capture-tip__eyebrow">{captureRecommendation.eyebrow}</p>
+                <h3 id="capture-tip-heading" class="story-capture-tip__title">{captureRecommendation.title}</h3>
+              </div>
+            </div>
+            <p class="story-capture-tip__body">{captureRecommendation.description}</p>
+            <p class="story-capture-tip__note">{captureRecommendation.note}</p>
+          </div>
+
+          <div class="story-capture-tip__footer">
+            <div class="story-capture-tip__facts" aria-label="Capture recommendation highlights">
+              {captureRecommendation.highlights.map((item) => <span class="story-capture-tip__fact">{item}</span>)}
+            </div>
+            <a
+              class="section-link story-capture-tip__link"
+              href={captureRecommendation.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="View Gaussian SplatKing on the App Store"
+            >
+              {captureRecommendation.label}
+            </a>
+          </div>
+        </aside>
       </div>
     </div>
   </section>
@@ -1954,6 +2003,102 @@ const seoDescription = SITE.description;
     line-height: 1.65;
   }
 
+  .story-capture-tip {
+    display: grid;
+    grid-template-columns: minmax(0, 1.8fr) auto;
+    gap: 1rem 1.25rem;
+    align-items: end;
+    margin-top: 1rem;
+    padding: 1.15rem 1.2rem;
+    border-radius: 1.25rem;
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.82), rgba(247, 249, 255, 0.72)),
+      radial-gradient(circle at top right, rgba(20, 87, 255, 0.08), transparent 42%);
+    border: 1px solid rgba(20, 87, 255, 0.1);
+    box-shadow: 0 16px 28px rgba(15, 23, 42, 0.04);
+  }
+
+  .story-capture-tip__copy {
+    min-width: 0;
+  }
+
+  .story-capture-tip__header {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+  }
+
+  .story-capture-tip__logo {
+    width: 3.5rem;
+    height: 3.5rem;
+    flex: 0 0 auto;
+    border-radius: 1rem;
+    box-shadow:
+      0 12px 22px rgba(15, 23, 42, 0.16),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+  }
+
+  .story-capture-tip__heading {
+    min-width: 0;
+  }
+
+  .story-capture-tip__eyebrow {
+    margin: 0;
+    color: rgba(20, 87, 255, 0.78);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .story-capture-tip__title {
+    margin: 0.4rem 0 0;
+    color: var(--color-heading);
+    font-size: 1.08rem;
+    line-height: 1.35;
+  }
+
+  .story-capture-tip__body,
+  .story-capture-tip__note {
+    margin: 0.4rem 0 0;
+    color: var(--color-body);
+    line-height: 1.65;
+  }
+
+  .story-capture-tip__note {
+    color: var(--color-muted);
+  }
+
+  .story-capture-tip__footer {
+    display: grid;
+    gap: 0.8rem;
+    justify-items: end;
+  }
+
+  .story-capture-tip__facts {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.55rem;
+  }
+
+  .story-capture-tip__fact {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.42rem 0.75rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(20, 87, 255, 0.1);
+    color: rgba(20, 87, 255, 0.86);
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+
+  .story-capture-tip__link {
+    justify-self: end;
+  }
+
   .story-media-panel {
     position: relative;
   }
@@ -3601,6 +3746,45 @@ const seoDescription = SITE.description;
       margin-top: 0.25rem;
       font-size: 0.93rem;
       line-height: 1.55;
+    }
+
+    .story-capture-tip {
+      grid-template-columns: 1fr;
+      padding: 1rem;
+      gap: 0.9rem;
+    }
+
+    .story-capture-tip__header {
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+
+    .story-capture-tip__logo {
+      width: 3rem;
+      height: 3rem;
+      border-radius: 0.9rem;
+    }
+
+    .story-capture-tip__title {
+      font-size: 1rem;
+    }
+
+    .story-capture-tip__body,
+    .story-capture-tip__note {
+      font-size: 0.93rem;
+      line-height: 1.58;
+    }
+
+    .story-capture-tip__footer {
+      justify-items: start;
+    }
+
+    .story-capture-tip__facts {
+      justify-content: flex-start;
+    }
+
+    .story-capture-tip__link {
+      justify-self: start;
     }
 
     .story-media,

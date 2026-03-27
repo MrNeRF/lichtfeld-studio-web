@@ -102,6 +102,16 @@ export interface SceneConfig {
  */
 export const SHOWCASE_SCENES: SceneConfig[] = [
   {
+    id: 'artist-studio',
+    name: "Artist's Studio - Florent Maussion",
+    description: 'Gaussian splat capture of the artist studio of Florent Maussion.',
+    folderName: 'artist-studio',
+    previewImage: 'preview.webp',
+    attribution: 'Jerome Boccon-Gibod (360images.fr)',
+    controlScheme: 'both',
+    idleAnimation: 'none',
+  },
+  {
     id: 'botanics',
     name: 'Botanical Garden - America',
     description:
@@ -112,22 +122,12 @@ export const SHOWCASE_SCENES: SceneConfig[] = [
     controlScheme: 'both',
     idleAnimation: 'none',
   },
-  {
-    id: 'artist-studio',
-    name: "Artist's Studio - Florent Maussion",
-    description: 'Gaussian splat capture of the artist studio of Florent Maussion.',
-    folderName: 'artist-studio',
-    previewImage: 'preview.webp',
-    attribution: 'Jerome Boccon-Gibod (360images.fr)',
-    controlScheme: 'both',
-    idleAnimation: 'none',
-  },
 ];
 
 /**
  * Default scene to display when no scene is selected.
  */
-export const DEFAULT_SCENE_ID = 'botanics';
+export const DEFAULT_SCENE_ID = 'artist-studio';
 
 /**
  * Get a scene configuration by ID.

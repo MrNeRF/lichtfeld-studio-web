@@ -112,6 +112,16 @@ export const SHOWCASE_SCENES: SceneConfig[] = [
     controlScheme: 'both',
     idleAnimation: 'none',
   },
+  {
+    id: 'artist-studio',
+    name: "Artist's Studio - Florent Maussion",
+    description: 'Gaussian splat capture of the artist studio of Florent Maussion.',
+    folderName: 'artist-studio',
+    previewImage: 'preview.webp',
+    attribution: 'Jerome Boccon-Gibod (360images.fr)',
+    controlScheme: 'both',
+    idleAnimation: 'none',
+  },
 ];
 
 /**

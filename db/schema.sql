@@ -24,6 +24,20 @@ CREATE TABLE IF NOT EXISTS downloads_daily (
 CREATE INDEX IF NOT EXISTS idx_daily_date ON downloads_daily(date);
 CREATE INDEX IF NOT EXISTS idx_daily_release_date ON downloads_daily(release_id, date);
 
+-- Per-asset state for rolling releases like nightly.
+-- Lets the collector compute true deltas even when old assets are deleted.
+CREATE TABLE IF NOT EXISTS release_assets (
+    asset_id INTEGER PRIMARY KEY,      -- GitHub asset ID
+    release_id INTEGER NOT NULL,       -- FK to releases.id
+    name TEXT NOT NULL,
+    last_download_count INTEGER NOT NULL DEFAULT 0,
+    created_at INTEGER,                -- GitHub asset creation timestamp
+    first_seen INTEGER NOT NULL,       -- Unix timestamp when the asset was first tracked
+    last_seen INTEGER NOT NULL         -- Unix timestamp of last observation
+);
+
+CREATE INDEX IF NOT EXISTS idx_release_assets_release_id ON release_assets(release_id);
+
 -- Weekly aggregates (delta)
 CREATE TABLE IF NOT EXISTS downloads_weekly (
     week INTEGER NOT NULL,             -- Unix timestamp (Monday 00:00 UTC)

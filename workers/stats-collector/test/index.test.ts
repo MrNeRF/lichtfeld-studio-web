@@ -29,7 +29,7 @@ interface MockRelease {
   draft: boolean;
   prerelease: boolean;
   published_at: string;
-  assets: Array<{ download_count: number }>;
+  assets: Array<{ id?: number; name?: string; download_count: number; created_at?: string }>;
 }
 
 // =============================================================================
@@ -78,7 +78,20 @@ const mockReleases: MockRelease[] = [
     draft: false,
     prerelease: true,
     published_at: "2024-01-25T12:00:00Z",
-    assets: [{ download_count: 300 }, { download_count: 150 }],
+    assets: [
+      {
+        id: 501,
+        name: "LichtFeld-Studio-windows-nightly-2024-01-25.zip",
+        download_count: 300,
+        created_at: "2024-01-25T02:00:00Z",
+      },
+      {
+        id: 502,
+        name: "LichtFeld-Studio-windows-nightly-2024-01-26.zip",
+        download_count: 150,
+        created_at: "2024-01-26T02:00:00Z",
+      },
+    ],
   },
 ];
 
@@ -99,6 +112,7 @@ function createRequest(url: string, options?: RequestInit): IncomingRequest {
  */
 async function clearDatabase(): Promise<void> {
   await env.STATS_DB.exec(`
+        DELETE FROM release_assets;
         DELETE FROM downloads_monthly;
         DELETE FROM downloads_weekly;
         DELETE FROM downloads_daily;
@@ -520,6 +534,123 @@ describe("Stats Collector Worker", () => {
         .first<{ tag: string }>();
 
       expect(beta).toBeNull();
+    });
+
+    it("should keep nightly totals growing when rolling assets are replaced", async () => {
+      vi.useFakeTimers();
+
+      try {
+        const nightlyDayOne: MockRelease[] = [
+          {
+            tag_name: "nightly",
+            name: "Nightly Build",
+            draft: false,
+            prerelease: true,
+            published_at: "2024-01-25T12:00:00Z",
+            assets: [
+              {
+                id: 1001,
+                name: "LichtFeld-Studio-windows-nightly-2024-01-25.zip",
+                download_count: 80,
+                created_at: "2024-01-25T02:00:00Z",
+              },
+              {
+                id: 1002,
+                name: "LichtFeld-Studio-windows-nightly-2024-01-26.zip",
+                download_count: 40,
+                created_at: "2024-01-26T02:00:00Z",
+              },
+            ],
+          },
+        ];
+        const nightlyDayTwo: MockRelease[] = [
+          {
+            tag_name: "nightly",
+            name: "Nightly Build",
+            draft: false,
+            prerelease: true,
+            published_at: "2024-01-25T12:00:00Z",
+            assets: [
+              {
+                id: 1002,
+                name: "LichtFeld-Studio-windows-nightly-2024-01-26.zip",
+                download_count: 55,
+                created_at: "2024-01-26T02:00:00Z",
+              },
+              {
+                id: 1003,
+                name: "LichtFeld-Studio-windows-nightly-2024-01-27.zip",
+                download_count: 25,
+                created_at: "2024-01-27T02:00:00Z",
+              },
+            ],
+          },
+        ];
+        let collectionCount = 0;
+
+        vi.stubGlobal(
+          "fetch",
+          vi.fn(async (url: string) => {
+            const urlObj = new URL(url);
+            const page = parseInt(urlObj.searchParams.get("page") || "1", 10);
+
+            if (page === 1) {
+              const payload = collectionCount === 0 ? nightlyDayOne : nightlyDayTwo;
+
+              collectionCount++;
+
+              return new Response(JSON.stringify(payload), {
+                status: 200,
+                headers: { "Content-Type": "application/json" },
+              });
+            }
+
+            return new Response(JSON.stringify([]), {
+              status: 200,
+              headers: { "Content-Type": "application/json" },
+            });
+          }),
+        );
+
+        vi.setSystemTime(new Date("2024-01-26T12:00:00Z"));
+
+        const request1 = createRequest("http://localhost/collect", {
+          method: "POST",
+        });
+        const ctx1 = createExecutionContext();
+
+        await worker.fetch(request1, env, ctx1);
+        await waitOnExecutionContext(ctx1);
+
+        vi.setSystemTime(new Date("2024-01-27T12:00:00Z"));
+
+        const request2 = createRequest("http://localhost/collect", {
+          method: "POST",
+        });
+        const ctx2 = createExecutionContext();
+
+        await worker.fetch(request2, env, ctx2);
+        await waitOnExecutionContext(ctx2);
+
+        const nightly = await env.STATS_DB.prepare("SELECT total_downloads FROM releases WHERE tag = ?")
+          .bind("nightly")
+          .first<{ total_downloads: number }>();
+        const daily = await env.STATS_DB.prepare(
+          `
+            SELECT date, count
+            FROM downloads_daily
+            WHERE release_id = (SELECT id FROM releases WHERE tag = ?)
+            ORDER BY date ASC
+          `,
+        )
+          .bind("nightly")
+          .all<{ date: number; count: number }>();
+
+        expect(nightly?.total_downloads).toBe(160);
+        expect(daily.results.map((row) => row.count)).toEqual([120, 160]);
+      } finally {
+        vi.useRealTimers();
+      }
     });
   });
 

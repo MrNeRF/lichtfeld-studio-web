@@ -24,6 +24,7 @@
 DELETE FROM downloads_monthly;
 DELETE FROM downloads_weekly;
 DELETE FROM downloads_daily;
+DELETE FROM release_assets;
 DELETE FROM releases;
 
 -- =============================================================================

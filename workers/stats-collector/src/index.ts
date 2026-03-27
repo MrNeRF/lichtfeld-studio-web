@@ -20,6 +20,7 @@ export interface CollectorEnv {
 type Env = CollectorEnv;
 
 interface GitHubAsset {
+  id: number;
   name: string;
   download_count: number;
   created_at: string;
@@ -126,12 +127,18 @@ interface ProcessedRelease {
   name: string;
   count: number;
   publishedAt: number;
+  assets: GitHubAsset[];
 }
 
 interface PeriodDeltaRow {
   release_id: number;
   date: number;
   count: number;
+}
+
+interface ReleaseAssetRow {
+  asset_id: number;
+  last_download_count: number;
 }
 
 /**
@@ -177,9 +184,74 @@ async function batchUpsertReleases(db: D1Database, releases: ProcessedRelease[])
 }
 
 /**
+ * Rebuilds the nightly cumulative count from per-asset deltas.
+ * This preserves recent download growth even when old nightly assets are deleted.
+ */
+async function computeNightlyCumulativeCount(
+  db: D1Database,
+  nightlyReleaseId: number,
+  assets: GitHubAsset[],
+): Promise<number> {
+  const [previousDaily, assetRows] = await Promise.all([
+    db
+      .prepare("SELECT count FROM downloads_daily WHERE release_id = ? ORDER BY date DESC LIMIT 1")
+      .bind(nightlyReleaseId)
+      .first<{ count: number | null }>(),
+    db
+      .prepare("SELECT asset_id, last_download_count FROM release_assets WHERE release_id = ?")
+      .bind(nightlyReleaseId)
+      .all<ReleaseAssetRow>(),
+  ]);
+
+  const previousCounts = new Map<number, number>();
+
+  for (const row of assetRows.results) {
+    previousCounts.set(row.asset_id, row.last_download_count);
+  }
+
+  let delta = 0;
+
+  for (const asset of assets) {
+    const previousCount = previousCounts.get(asset.id) ?? 0;
+
+    delta += Math.max(0, asset.download_count - previousCount);
+  }
+
+  const now = Date.now();
+  const assetStmt = db.prepare(`
+        INSERT INTO release_assets (asset_id, release_id, name, last_download_count, created_at, first_seen, last_seen)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(asset_id) DO UPDATE SET
+            release_id = excluded.release_id,
+            name = excluded.name,
+            last_download_count = MAX(release_assets.last_download_count, excluded.last_download_count),
+            created_at = COALESCE(release_assets.created_at, excluded.created_at),
+            last_seen = excluded.last_seen
+    `);
+
+  if (assets.length > 0) {
+    const assetStatements = assets.map((asset) =>
+      assetStmt.bind(
+        asset.id,
+        nightlyReleaseId,
+        asset.name,
+        asset.download_count,
+        new Date(asset.created_at).getTime(),
+        now,
+        now,
+      ),
+    );
+
+    await db.batch(assetStatements);
+  }
+
+  return (previousDaily?.count ?? 0) + delta;
+}
+
+/**
  * Batch inserts daily download snapshots for all releases.
- * For nightly releases, ensures the stored count never decreases
- * (old assets get deleted from GitHub, losing their download counts).
+ * For nightly releases, rebuilds a monotonic cumulative count from
+ * per-asset deltas so rolling asset deletion does not flatten recency.
  */
 async function batchStoreDaily(
   db: D1Database,
@@ -191,28 +263,32 @@ async function batchStoreDaily(
     "INSERT INTO downloads_daily (date, release_id, count) VALUES (?, ?, ?) ON CONFLICT(date, release_id) DO UPDATE SET count = excluded.count",
   );
 
-  // For nightly: fetch the last known cumulative value so we never go backwards
   const nightlyRelease = releases.find((r) => r.tag === "nightly");
-  let nightlyFloor = 0;
+  let nightlyCount: number | null = null;
 
   if (nightlyRelease) {
     const nightlyId = tagToId.get("nightly")!;
-    const prev = await db
-      .prepare("SELECT MAX(count) as max_count FROM downloads_daily WHERE release_id = ?")
-      .bind(nightlyId)
-      .first<{ max_count: number | null }>();
 
-    nightlyFloor = prev?.max_count ?? 0;
+    nightlyCount = await computeNightlyCumulativeCount(db, nightlyId, nightlyRelease.assets);
   }
 
   const statements = releases.map((r) => {
     const releaseId = tagToId.get(r.tag)!;
-    const count = r.tag === "nightly" ? Math.max(r.count, nightlyFloor) : r.count;
+    const count = r.tag === "nightly" && nightlyCount !== null ? nightlyCount : r.count;
 
     return dailyStmt.bind(date, releaseId, count);
   });
 
   await db.batch(statements);
+
+  if (nightlyRelease && nightlyCount !== null) {
+    const nightlyId = tagToId.get("nightly")!;
+
+    await db
+      .prepare("UPDATE releases SET total_downloads = ?, last_updated = ? WHERE id = ?")
+      .bind(nightlyCount, Date.now(), nightlyId)
+      .run();
+  }
 }
 
 /**
@@ -382,7 +458,7 @@ export async function collectWithStats(env: CollectorEnv): Promise<CollectResult
 
     console.log(`Processing ${tag}: ${count} downloads`);
 
-    return { tag, name, count, publishedAt };
+    return { tag, name, count, publishedAt, assets: release.assets };
   });
 
   // Batch operations: 6 DB round trips total instead of 7 per release

@@ -19,7 +19,7 @@ import Splat from "@/components/Splat.astro";
 import ContributorsWall from "@/components/contribute/ContributorsWall.astro";
 import PluginCard from "@/components/plugins/PluginCard.astro";
 import { getFeaturedPlugins } from "@/services/plugin-registry";
-import { getLatestRelease, getNightlyWindowsDownload } from "@/services/github";
+import { getLatestRelease } from "@/services/github";
 
 // Centralized external links (avoid magic strings):
 import {
@@ -32,15 +32,17 @@ import {
   PAYPAL_URL,
   DONORBOX_URL,
   CRYPTO_WALLET_BITCOIN,
+  REPO_OWNER,
+  REPO_NAME,
 } from "@/constants/project";
 
 const base = import.meta.env.BASE_URL;
 const featuredPlugins = await getFeaturedPlugins(3);
 const latestRelease = await getLatestRelease();
-const nightlyWindowsDownload = await getNightlyWindowsDownload();
 const stableWindowsVersion = latestRelease?.tagName ?? "v0.5.0";
-const nightlyWindowsUrl = nightlyWindowsDownload?.downloadUrl ?? GITHUB_NIGHTLY_RELEASE_URL;
-const nightlyWindowsMeta = nightlyWindowsDownload ? "Latest dev snapshot" : "Open nightly channel";
+const nightlyWindowsUrl = GITHUB_NIGHTLY_RELEASE_URL;
+const nightlyWindowsMeta = "Latest dev snapshot";
+const nightlyReleaseApiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases/tags/nightly`;
 const heroProofItems = ["Native training", "Scene editing", "Python + MCP", "Windows & Linux", "GPLv3"];
 const workflowSteps = [
   {
@@ -185,6 +187,7 @@ const seoDescription = SITE.description;
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Download the latest nightly Windows build for LichtFeld Studio"
+                  data-nightly-download
                 >
                   <span class="hero__release-card-main">
                     <span class="hero__release-icon hero__release-icon--nightly" aria-hidden="true">
@@ -193,7 +196,7 @@ const seoDescription = SITE.description;
                     <span class="hero__release-copy">
                       <span class="hero__release-kicker">Rolling Preview</span>
                       <span class="hero__release-title">Nightly Build</span>
-                      <span class="hero__release-meta">{nightlyWindowsMeta}</span>
+                      <span class="hero__release-meta" data-nightly-download-meta>{nightlyWindowsMeta}</span>
                     </span>
                   </span>
                   <span class="hero__release-pill hero__release-pill--nightly">Preview</span>
@@ -740,6 +743,69 @@ const seoDescription = SITE.description;
     <ContributorsWall />
   </section>
 </Layout>
+
+<script define:vars={{ nightlyReleaseUrl: GITHUB_NIGHTLY_RELEASE_URL, nightlyReleaseApiUrl }}>
+  document.addEventListener("DOMContentLoaded", () => {
+    const nightlyLink = document.querySelector("[data-nightly-download]");
+    const nightlyMeta = document.querySelector("[data-nightly-download-meta]");
+
+    function selectLatestNightlyWindowsAsset(assets) {
+      return (
+        [...assets]
+          .filter((asset) => {
+            const fileName = asset.name?.toLowerCase() ?? "";
+
+            return (
+              (asset.state === undefined || asset.state === "uploaded") &&
+              Boolean(asset.browser_download_url) &&
+              fileName.includes("windows") &&
+              fileName.endsWith(".zip")
+            );
+          })
+          .sort((a, b) => {
+            const timeA = new Date(a.updated_at ?? a.created_at ?? 0).getTime();
+            const timeB = new Date(b.updated_at ?? b.created_at ?? 0).getTime();
+
+            return timeB - timeA;
+          })[0] ?? null
+      );
+    }
+
+    async function refreshNightlyDownloadLink() {
+      if (!(nightlyLink instanceof HTMLAnchorElement)) return;
+
+      nightlyLink.href = nightlyReleaseUrl;
+
+      try {
+        const response = await fetch(nightlyReleaseApiUrl, {
+          headers: {
+            Accept: "application/vnd.github+json",
+          },
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          throw new Error(`GitHub API returned ${response.status}`);
+        }
+
+        const release = await response.json();
+        const latestAsset = selectLatestNightlyWindowsAsset(Array.isArray(release?.assets) ? release.assets : []);
+
+        if (latestAsset?.browser_download_url) {
+          nightlyLink.href = latestAsset.browser_download_url;
+          if (nightlyMeta) nightlyMeta.textContent = "Latest dev snapshot";
+          return;
+        }
+      } catch (error) {
+        console.warn("Failed to resolve latest nightly Windows asset in the browser:", error);
+      }
+
+      if (nightlyMeta) nightlyMeta.textContent = "Open nightly channel";
+    }
+
+    void refreshNightlyDownloadLink();
+  });
+</script>
 
 <script>
   /**

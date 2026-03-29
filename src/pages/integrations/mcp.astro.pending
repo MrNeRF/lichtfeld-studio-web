@@ -1,0 +1,1844 @@
+---
+/**
+ * mcp.astro
+ *
+ * Integration guide for Model Context Protocol (MCP) with LichtFeld Studio.
+ * Targets search queries: "lichtfeld studio mcp integration", "mcp server gaussian splatting",
+ * "model context protocol tutorial"
+ *
+ * Features:
+ * - Schema.org TechArticle structured data
+ * - Technical documentation style with code blocks
+ * - Step-by-step setup instructions
+ * - Static HTML tables (no JSX mapping)
+ * - Example workflows for automation
+ * - Breadcrumb navigation
+ */
+
+import Layout from "@/layouts/Layout.astro";
+import { SITE } from "@/config/site.config";
+import {
+  GITHUB_REPO_URL,
+  GITHUB_WIKI_URL,
+  DISCORD_URL,
+  GITHUB_SPONSORS_URL,
+  PAYPAL_URL,
+  DONORBOX_URL,
+} from "@/constants/project";
+
+const base = import.meta.env.BASE_URL;
+
+// SEO metadata
+const seoTitle = "MCP Integration Guide: Control LichtFeld Studio Programmatically";
+const seoDescription = "Complete guide to integrating LichtFeld Studio via Model Context Protocol. Setup, endpoints, examples, and best practices for automation.";
+
+// Article metadata for Schema.org
+const articlePublishedDate = new Date("2025-03-28");
+const articleModifiedDate = new Date("2025-03-28");
+
+// Build Schema.org TechArticle structured data
+const techArticleSchema = {
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": seoTitle,
+  "description": seoDescription,
+  "image": new URL(base + "static/social-card.png", Astro.site).toString(),
+  "author": {
+    "@type": "Organization",
+    "name": SITE.name,
+    "url": SITE.url,
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": SITE.name,
+    "logo": {
+      "@type": "ImageObject",
+      "url": new URL(base + "static/favicon.svg", Astro.site).toString(),
+    },
+  },
+  "datePublished": articlePublishedDate.toISOString(),
+  "dateModified": articleModifiedDate.toISOString(),
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": new URL(Astro.url.pathname, Astro.site).toString(),
+  },
+  "proficiencyLevel": "Intermediate",
+  "dependencies": "LichtFeld Studio v0.5.0+, Python 3.10+",
+};
+
+// Breadcrumb schema
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": new URL(base, Astro.site).toString(),
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Integrations",
+      "item": new URL(base + "integrations/", Astro.site).toString(),
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "MCP",
+      "item": new URL(Astro.url.pathname, Astro.site).toString(),
+    },
+  ],
+};
+---
+
+<Layout
+  title={seoTitle}
+  description={seoDescription}
+  ogType="article"
+>
+  <!-- Schema.org Structured Data -->
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(techArticleSchema)} />
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(breadcrumbSchema)} />
+
+  <article class="guide-page">
+    <!-- Hero Section -->
+    <header class="guide-hero guide-hero--mcp">
+      <div class="container content-frame px-4">
+        <div class="guide-hero__content">
+          <nav class="guide-breadcrumb" aria-label="Breadcrumb">
+            <ol class="guide-breadcrumb__list">
+              <li class="guide-breadcrumb__item">
+                <a href={base} class="guide-breadcrumb__link">Home</a>
+              </li>
+              <li class="guide-breadcrumb__item">
+                <a href={base + "integrations/"} class="guide-breadcrumb__link">Integrations</a>
+              </li>
+              <li class="guide-breadcrumb__item" aria-current="page">
+                <span>MCP</span>
+              </li>
+            </ol>
+          </nav>
+
+          <div class="mcp-hero__badge">
+            <span class="mcp-badge">
+              <i class="bi bi-command" aria-hidden="true"></i>
+              Model Context Protocol
+            </span>
+          </div>
+
+          <h1 class="guide-hero__title">MCP Integration Guide</h1>
+          <p class="guide-hero__lead">
+            Control <strong>LichtFeld Studio programmatically</strong> via the Model Context Protocol.
+            Automate training runs, orchestrate camera sequences, build scene analysis pipelines,
+            and integrate with AI assistants like Claude and Cursor.
+          </p>
+
+          <div class="guide-hero__meta">
+            <span class="guide-hero__meta-item">
+              <i class="bi bi-clock" aria-hidden="true"></i>
+              15 min read
+            </span>
+            <span class="guide-hero__meta-item">
+              <i class="bi bi-code-slash" aria-hidden="true"></i>
+              Intermediate
+            </span>
+            <span class="guide-hero__meta-item">
+              <i class="bi bi-lightning-charge" aria-hidden="true"></i>
+              v0.5.0+
+            </span>
+          </div>
+
+          <div class="mcp-hero__cta">
+            <a href="#setup" class="btn btn-primary btn-lg">
+              <i class="bi bi-rocket" aria-hidden="true"></i>
+              Get Started
+            </a>
+            <a href={base + "features/mcp-automation/"} class="btn btn-outline-primary btn-lg">
+              <i class="bi bi-stars" aria-hidden="true"></i>
+              Feature Overview
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Table of Contents -->
+    <nav class="guide-toc" aria-label="Table of contents">
+      <div class="container content-frame px-4">
+        <div class="guide-toc__shell shell shell--compact">
+          <h2 class="guide-toc__title">Contents</h2>
+          <ol class="guide-toc__list">
+            <li><a href="#what-is-mcp" class="guide-toc__link">What is Model Context Protocol?</a></li>
+            <li><a href="#prerequisites" class="guide-toc__link">Prerequisites</a></li>
+            <li><a href="#setup" class="guide-toc__link">Setting Up MCP</a></li>
+            <li><a href="#resources" class="guide-toc__link">Available Resources</a></li>
+            <li><a href="#tools" class="guide-toc__link">Available Tools</a></li>
+            <li><a href="#python-client" class="guide-toc__link">Python Client Example</a></li>
+            <li><a href="#ai-assistants" class="guide-toc__link">Connecting AI Assistants</a></li>
+            <li><a href="#workflows" class="guide-toc__link">Example Workflows</a></li>
+            <li><a href="#api-reference" class="guide-toc__link">API Reference</a></li>
+            <li><a href="#troubleshooting" class="guide-toc__link">Troubleshooting</a></li>
+            <li><a href="#advanced" class="guide-toc__link">Advanced Topics</a></li>
+          </ol>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="guide-content">
+      <div class="container content-frame px-4">
+        <div class="guide-content__layout">
+          <!-- Article Body -->
+          <div class="guide-content__main">
+
+            <!-- Section: What is MCP? -->
+            <section id="what-is-mcp" class="guide-section">
+              <h2 class="guide-section__title">What is Model Context Protocol?</h2>
+
+              <p class="guide-section__lead">
+                The <strong>Model Context Protocol (MCP)</strong> is an open standard for connecting AI assistants
+                to external tools and data sources. Developed by Anthropic, MCP enables secure, structured
+                communication between AI models and applications like LichtFeld Studio.
+              </p>
+
+              <p>
+                Think of MCP as a "USB-C for AI applications"—a standardized way for AI assistants to discover
+                capabilities, read data, and execute actions in external software. For LichtFeld Studio, this means
+                you can:
+              </p>
+
+              <ul class="guide-list">
+                <li><strong>Automate workflows</strong> — Script complex training and rendering pipelines</li>
+                <li><strong>Integrate with AI assistants</strong> — Control the editor via Claude, Cursor, or other MCP-compatible AI</li>
+                <li><strong>Build custom tools</strong> — Create Python scripts that orchestrate scene manipulation</li>
+                <li><strong>Enable real-time monitoring</strong> — Stream training progress and scene updates to external systems</li>
+              </ul>
+
+              <div class="guide-info-box">
+                <div class="guide-info-box__icon" aria-hidden="true">
+                  <i class="bi bi-lightbulb"></i>
+                </div>
+                <div class="guide-info-box__content">
+                  <strong>Key Concept:</strong> MCP separates <em>resources</em> (read-only data like scene info)
+                  from <em>tools</em> (actions like camera movement). This clear separation makes it easy to
+                  build safe, predictable automation workflows.
+                </div>
+              </div>
+
+              <h3>How It Works</h3>
+              <p>
+                When LichtFeld Studio runs with MCP enabled, it exposes a local HTTP server (default: localhost:8080)
+                that implements the MCP protocol. Clients can:
+              </p>
+              <ol class="guide-list guide-list--numbered">
+                <li>Query available <strong>resources</strong> to read scene state, training progress, etc.</li>
+                <li>Invoke <strong>tools</strong> to execute actions like camera moves or training commands</li>
+                <li>Subscribe to <strong>SSE streams</strong> for real-time updates during long-running operations</li>
+              </ol>
+            </section>
+
+            <!-- Section: Prerequisites -->
+            <section id="prerequisites" class="guide-section">
+              <h2 class="guide-section__title">Prerequisites</h2>
+
+              <div class="guide-requirements">
+                <div class="guide-requirement">
+                  <h4><i class="bi bi-laptop" aria-hidden="true"></i> Software</h4>
+                  <ul>
+                    <li>LichtFeld Studio v0.5.0 or later</li>
+                    <li>Python 3.10+ (for client scripts)</li>
+                    <li><code>mcp</code> Python package</li>
+                  </ul>
+                </div>
+                <div class="guide-requirement guide-requirement--recommended">
+                  <h4><i class="bi bi-cpu" aria-hidden="true"></i> Optional</h4>
+                  <ul>
+                    <li>Claude Desktop or Cursor IDE</li>
+                    <li>Familiarity with REST APIs</li>
+                    <li>Basic Python knowledge</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="mcp-install-box">
+                <h4>Install MCP Python Package</h4>
+                <div class="gs-code-block">
+                  <pre><code>pip install mcp</code></pre>
+                  <button class="gs-code-block__copy" aria-label="Copy to clipboard">
+                    <i class="bi bi-clipboard" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </div>
+            </section>
+
+            <!-- Section: Setting Up MCP -->
+            <section id="setup" class="guide-section">
+              <h2 class="guide-section__title">Setting Up MCP in LichtFeld Studio</h2>
+
+              <p class="guide-section__lead">
+                Enabling MCP takes just a few clicks. Once activated, LichtFeld Studio exposes a local
+                MCP server that accepts connections from authorized clients.
+              </p>
+
+              <h3>Step-by-Step Setup</h3>
+              <ol class="guide-steps">
+                <li class="guide-step">
+                  <span class="guide-step__number">1</span>
+                  <div class="guide-step__content">
+                    <h4>Open Preferences</h4>
+                    <p>Launch LichtFeld Studio and navigate to <kbd>Edit</kbd> → <kbd>Preferences</kbd> → <kbd>Integration</kbd>.</p>
+                  </div>
+                </li>
+                <li class="guide-step">
+                  <span class="guide-step__number">2</span>
+                  <div class="guide-step__content">
+                    <h4>Enable MCP Server</h4>
+                    <p>Toggle the "Enable MCP Server" switch. The server will start automatically on the default port.</p>
+                  </div>
+                </li>
+                <li class="guide-step">
+                  <span class="guide-step__number">3</span>
+                  <div class="guide-step__content">
+                    <h4>Configure Port (Optional)</h4>
+                    <p>Change the port if 8080 is in use. Note the server URL for client configuration.</p>
+                  </div>
+                </li>
+                <li class="guide-step">
+                  <span class="guide-step__number">4</span>
+                  <div class="guide-step__content">
+                    <h4>Verify Connection</h4>
+                    <p>Test the server by visiting <code>http://localhost:8080/mcp/manifest</code> in your browser.</p>
+                  </div>
+                </li>
+              </ol>
+
+              <div class="gs-callout gs-callout--info">
+                <span class="gs-callout__icon" aria-hidden="true">
+                  <i class="bi bi-info-circle-fill"></i>
+                </span>
+                <div class="gs-callout__content">
+                  <strong>Security Note:</strong> The MCP server only binds to localhost (127.0.0.1) by default,
+                  preventing external network access. This ensures your scene data stays local and secure.
+                </div>
+              </div>
+
+              <h3>Configuration File</h3>
+              <p>
+                Advanced users can configure MCP via the settings file located at:
+              </p>
+              <div class="gs-code-block">
+                <pre><code># Windows
+%APPDATA%\LichtFeldStudio\mcp.json
+
+# Linux
+~/.config/LichtFeldStudio/mcp.json</code></pre>
+                <button class="gs-code-block__copy" aria-label="Copy to clipboard">
+                  <i class="bi bi-clipboard" aria-hidden="true"></i>
+                </button>
+              </div>
+            </section>
+
+            <!-- Section: Available Resources -->
+            <section id="resources" class="guide-section">
+              <h2 class="guide-section__title">Available MCP Resources</h2>
+
+              <p class="guide-section__lead">
+                Resources provide read-only access to LichtFeld Studio's internal state. Query these endpoints
+                to monitor scenes, training progress, and editor state.
+              </p>
+
+              <div class="mcp-table-wrapper">
+                <table class="mcp-table">
+                  <thead>
+                    <tr>
+                      <th>Resource Name</th>
+                      <th>Description</th>
+                      <th>Type</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <code class="mcp-code">scene/info</code>
+                        <button class="mcp-copy-btn" data-copy="scene/info" aria-label="Copy scene/info">
+                          <i class="bi bi-clipboard" aria-hidden="true"></i>
+                        </button>
+                      </td>
+                      <td>Current scene metadata including splat count, bounds, and camera position</td>
+                      <td><span class="mcp-type">JSON</span></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code class="mcp-code">scene/cameras</code>
+                        <button class="mcp-copy-btn" data-copy="scene/cameras" aria-label="Copy scene/cameras">
+                          <i class="bi bi-clipboard" aria-hidden="true"></i>
+                        </button>
+                      </td>
+                      <td>List of all cameras in the scene with transforms and parameters</td>
+                      <td><span class="mcp-type">JSON</span></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code class="mcp-code">training/status</code>
+                        <button class="mcp-copy-btn" data-copy="training/status" aria-label="Copy training/status">
+                          <i class="bi bi-clipboard" aria-hidden="true"></i>
+                        </button>
+                      </td>
+                      <td>Real-time training progress, loss curves, and iteration count</td>
+                      <td><span class="mcp-type">JSON</span></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code class="mcp-code">training/checkpoints</code>
+                        <button class="mcp-copy-btn" data-copy="training/checkpoints" aria-label="Copy training/checkpoints">
+                          <i class="bi bi-clipboard" aria-hidden="true"></i>
+                        </button>
+                      </td>
+                      <td>Available training checkpoints with timestamps and metrics</td>
+                      <td><span class="mcp-type">JSON</span></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code class="mcp-code">editor/selection</code>
+                        <button class="mcp-copy-btn" data-copy="editor/selection" aria-label="Copy editor/selection">
+                          <i class="bi bi-clipboard" aria-hidden="true"></i>
+                        </button>
+                      </td>
+                      <td>Currently selected splats and selection statistics</td>
+                      <td><span class="mcp-type">JSON</span></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code class="mcp-code">render/viewport</code>
+                        <button class="mcp-copy-btn" data-copy="render/viewport" aria-label="Copy render/viewport">
+                          <i class="bi bi-clipboard" aria-hidden="true"></i>
+                        </button>
+                      </td>
+                      <td>Current viewport screenshot as base64 PNG</td>
+                      <td><span class="mcp-type">Base64 Image</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <h3>Example: Reading Scene Info</h3>
+              <div class="gs-code-block">
+                <pre><code>import requests
+
+# Read scene information
+response = requests.get("http://localhost:8080/mcp/resources/scene/info")
+scene_info = response.json()
+
+print(f"Splats: {scene_info['splat_count']}")
+print(f"Bounds: {scene_info['bounds']}")
+print(f"Camera: {scene_info['camera_position']}")</code></pre>
+                <button class="gs-code-block__copy" aria-label="Copy to clipboard">
+                  <i class="bi bi-clipboard" aria-hidden="true"></i>
+                </button>
+              </div>
+            </section>
+
+            <!-- Section: Available Tools -->
+            <section id="tools" class="guide-section">
+              <h2 class="guide-section__title">Available MCP Tools</h2>
+
+              <p class="guide-section__lead">
+                Tools are actions that modify the editor state, control the camera, manage training,
+                or manipulate scenes. All tool invocations are synchronous and return results immediately.
+              </p>
+
+              <div class="mcp-table-wrapper mcp-table-wrapper--tools">
+                <table class="mcp-table">
+                  <thead>
+                    <tr>
+                      <th>Tool Name</th>
+                      <th>Description</th>
+                      <th>Parameters</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <code class="mcp-code">camera/set_position</code>
+                        <button class="mcp-copy-btn" data-copy="camera/set_position" aria-label="Copy camera/set_position">
+                          <i class="bi bi-clipboard" aria-hidden="true"></i>
+                        </button>
+                      </td>
+                      <td>Move camera to specified position and orientation</td>
+                      <td><code class="mcp-params">position: Vec3, rotation: Quat, fov?: float</code></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code class="mcp-code">camera/animate</code>
+                        <button class="mcp-copy-btn" data-copy="camera/animate" aria-label="Copy camera/animate">
+                          <i class="bi bi-clipboard" aria-hidden="true"></i>
+                        </button>
+                      </td>
+                      <td>Animate camera along keyframes with easing</td>
+                      <td><code class="mcp-params">keyframes: CameraKey[], duration: float, easing?: string</code></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code class="mcp-code">training/start</code>
+                        <button class="mcp-copy-btn" data-copy="training/start" aria-label="Copy training/start">
+                          <i class="bi bi-clipboard" aria-hidden="true"></i>
+                        </button>
+                      </td>
+                      <td>Start a new training run with specified parameters</td>
+                      <td><code class="mcp-params">iterations: int, learning_rate?: float, densify?: bool</code></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code class="mcp-code">training/pause</code>
+                        <button class="mcp-copy-btn" data-copy="training/pause" aria-label="Copy training/pause">
+                          <i class="bi bi-clipboard" aria-hidden="true"></i>
+                        </button>
+                      </td>
+                      <td>Pause or resume current training</td>
+                      <td><code class="mcp-params">resume: bool</code></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code class="mcp-code">training/export_checkpoint</code>
+                        <button class="mcp-copy-btn" data-copy="training/export_checkpoint" aria-label="Copy training/export_checkpoint">
+                          <i class="bi bi-clipboard" aria-hidden="true"></i>
+                        </button>
+                      </td>
+                      <td>Export current training state to checkpoint file</td>
+                      <td><code class="mcp-params">path: string, include_optimizer?: bool</code></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code class="mcp-code">editor/select_brush</code>
+                        <button class="mcp-copy-btn" data-copy="editor/select_brush" aria-label="Copy editor/select_brush">
+                          <i class="bi bi-clipboard" aria-hidden="true"></i>
+                        </button>
+                      </td>
+                      <td>Select splats using brush tool at screen coordinates</td>
+                      <td><code class="mcp-params">x: int, y: int, radius: int, mode: 'add'|'remove'|'toggle'</code></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code class="mcp-code">editor/select_lasso</code>
+                        <button class="mcp-copy-btn" data-copy="editor/select_lasso" aria-label="Copy editor/select_lasso">
+                          <i class="bi bi-clipboard" aria-hidden="true"></i>
+                        </button>
+                      </td>
+                      <td>Select splats using lasso/polygon selection</td>
+                      <td><code class="mcp-params">points: Vec2[], mode: 'add'|'remove'|'toggle'</code></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code class="mcp-code">editor/delete_selection</code>
+                        <button class="mcp-copy-btn" data-copy="editor/delete_selection" aria-label="Copy editor/delete_selection">
+                          <i class="bi bi-clipboard" aria-hidden="true"></i>
+                        </button>
+                      </td>
+                      <td>Delete currently selected splats</td>
+                      <td><code class="mcp-params">confirm?: bool</code></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code class="mcp-code">editor/crop_to_selection</code>
+                        <button class="mcp-copy-btn" data-copy="editor/crop_to_selection" aria-label="Copy editor/crop_to_selection">
+                          <i class="bi bi-clipboard" aria-hidden="true"></i>
+                        </button>
+                      </td>
+                      <td>Crop scene to current selection bounds</td>
+                      <td><code class="mcp-params">padding?: float</code></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code class="mcp-code">render/set_mode</code>
+                        <button class="mcp-copy-btn" data-copy="render/set_mode" aria-label="Copy render/set_mode">
+                          <i class="bi bi-clipboard" aria-hidden="true"></i>
+                        </button>
+                      </td>
+                      <td>Change render mode (RGB, depth, normal, etc.)</td>
+                      <td><code class="mcp-params">mode: 'rgb'|'depth'|'normal'|'shading'</code></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code class="mcp-code">render/capture_frame</code>
+                        <button class="mcp-copy-btn" data-copy="render/capture_frame" aria-label="Copy render/capture_frame">
+                          <i class="bi bi-clipboard" aria-hidden="true"></i>
+                        </button>
+                      </td>
+                      <td>Capture high-resolution render to file</td>
+                      <td><code class="mcp-params">path: string, resolution?: Vec2, samples?: int</code></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code class="mcp-code">scene/load</code>
+                        <button class="mcp-copy-btn" data-copy="scene/load" aria-label="Copy scene/load">
+                          <i class="bi bi-clipboard" aria-hidden="true"></i>
+                        </button>
+                      </td>
+                      <td>Load a scene from PLY or project file</td>
+                      <td><code class="mcp-params">path: string, options?: LoadOptions</code></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code class="mcp-code">scene/save</code>
+                        <button class="mcp-copy-btn" data-copy="scene/save" aria-label="Copy scene/save">
+                          <i class="bi bi-clipboard" aria-hidden="true"></i>
+                        </button>
+                      </td>
+                      <td>Save current scene to file</td>
+                      <td><code class="mcp-params">path: string, format: 'ply'|'splat'|'lfproj'</code></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code class="mcp-code">sequencer/add_keyframe</code>
+                        <button class="mcp-copy-btn" data-copy="sequencer/add_keyframe" aria-label="Copy sequencer/add_keyframe">
+                          <i class="bi bi-clipboard" aria-hidden="true"></i>
+                        </button>
+                      </td>
+                      <td>Add keyframe to animation sequencer</td>
+                      <td><code class="mcp-params">time: float, camera: CameraState, properties?: object</code></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <code class="mcp-code">sequencer/render_sequence</code>
+                        <button class="mcp-copy-btn" data-copy="sequencer/render_sequence" aria-label="Copy sequencer/render_sequence">
+                          <i class="bi bi-clipboard" aria-hidden="true"></i>
+                        </button>
+                      </td>
+                      <td>Render animation sequence to video frames</td>
+                      <td><code class="mcp-params">output_dir: string, fps: int, quality?: string</code></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <h3>Example: Camera Animation</h3>
+              <div class="gs-code-block">
+                <pre><code>import requests
+
+# Animate camera around the scene
+response = requests.post(
+    "http://localhost:8080/mcp/tools/camera/animate",
+    json={
+        "keyframes": [
+            {"position": [5, 2, 5], "rotation": [0, 0.785, 0], "time": 0},
+            {"position": [0, 3, 7], "rotation": [0, 0, 0], "time": 2},
+            {"position": [-5, 2, 5], "rotation": [0, -0.785, 0], "time": 4},
+        ],
+        "duration": 4.0,
+        "easing": "ease_in_out"
+    }
+)
+
+print(f"Animation started: {response.json()['success']}")</code></pre>
+                <button class="gs-code-block__copy" aria-label="Copy to clipboard">
+                  <i class="bi bi-clipboard" aria-hidden="true"></i>
+                </button>
+              </div>
+            </section>
+
+            <!-- Section: Python Client -->
+            <section id="python-client" class="guide-section">
+              <h2 class="guide-section__title">Python Client Example</h2>
+
+              <p class="guide-section__lead">
+                The official <code>mcp</code> Python package provides a high-level client for interacting
+                with LichtFeld Studio. Here's a complete example for common workflows.
+              </p>
+
+              <h3>Basic Client Setup</h3>
+              <div class="gs-code-block">
+                <pre><code>from mcp import ClientSession, StdioServerParameters
+from mcp.client.stdio import stdio_client
+import asyncio
+
+async def main():
+    # Connect to LichtFeld Studio MCP server
+    server_params = StdioServerParameters(
+        command="python",
+        args=["-m", "mcp.server.http", "--url", "http://localhost:8080"]
+    )
+
+    async with stdio_client(server_params) as (read, write):
+        async with ClientSession(read, write) as session:
+            # Initialize connection
+            await session.initialize()
+
+            # List available resources and tools
+            resources = await session.list_resources()
+            tools = await session.list_tools()
+
+            print(f"Available resources: {len(resources)}")
+            print(f"Available tools: {len(tools)}")
+
+            # Read scene info
+            scene_data = await session.read_resource("scene/info")
+            print(f"Scene: {scene_data}")
+
+            # Execute a tool
+            result = await session.call_tool(
+                "camera/set_position",
+                arguments={"position": [0, 2, 5], "rotation": [0, 0, 0]}
+            )
+            print(f"Camera moved: {result}")
+
+if __name__ == "__main__":
+    asyncio.run(main())</code></pre>
+                <button class="gs-code-block__copy" aria-label="Copy to clipboard">
+                  <i class="bi bi-clipboard" aria-hidden="true"></i>
+                </button>
+              </div>
+
+              <h3>Training Automation Script</h3>
+              <div class="gs-code-block">
+                <pre><code>import asyncio
+from mcp import ClientSession
+from mcp.client.sse import sse_client
+
+async def training_workflow():
+    """Automated training with progress monitoring."""
+
+    async with sse_client("http://localhost:8080/mcp/sse") as streams:
+        async with ClientSession(*streams) as session:
+            await session.initialize()
+
+            # Start training
+            print("Starting training...")
+            await session.call_tool(
+                "training/start",
+                arguments={"iterations": 30000, "learning_rate": 0.01}
+            )
+
+            # Monitor progress via SSE
+            async for message in session.receive_messages():
+                if message.type == "resource_updated":
+                    if message.resource == "training/status":
+                        status = message.data
+                        print(f"Iteration {status['iteration']}/{status['total']}")
+                        print(f"Loss: {status['loss']:.6f}")
+
+                        if status['completed']:
+                            print("Training complete!")
+                            break
+
+            # Export checkpoint
+            await session.call_tool(
+                "training/export_checkpoint",
+                arguments={"path": "./checkpoints/final.ckpt"}
+            )
+
+if __name__ == "__main__":
+    asyncio.run(training_workflow())</code></pre>
+                <button class="gs-code-block__copy" aria-label="Copy to clipboard">
+                  <i class="bi bi-clipboard" aria-hidden="true"></i>
+                </button>
+              </div>
+            </section>
+
+            <!-- Section: AI Assistants -->
+            <section id="ai-assistants" class="guide-section">
+              <h2 class="guide-section__title">Connecting Claude/Cursor/Other AI Assistants</h2>
+
+              <p class="guide-section__lead">
+                MCP enables AI assistants to directly control LichtFeld Studio. Configure your
+                AI tool with the MCP server URL to enable natural language scene editing.
+              </p>
+
+              <h3>Claude Desktop Configuration</h3>
+              <p>
+                Add LichtFeld Studio to Claude Desktop's MCP configuration file:
+              </p>
+              <div class="gs-code-block">
+                <pre><code># macOS: ~/Library/Application Support/Claude/claude_desktop_config.json
+# Windows: %APPDATA%\Claude\claude_desktop_config.json
+
+{
+  "mcpServers": {
+    "lichtfeld-studio": {
+      "command": "python",
+      "args": [
+        "-m",
+        "mcp.server.http",
+        "--url",
+        "http://localhost:8080"
+      ],
+      "env": {}
+    }
+  }
+}</code></pre>
+                <button class="gs-code-block__copy" aria-label="Copy to clipboard">
+                  <i class="bi bi-clipboard" aria-hidden="true"></i>
+                </button>
+              </div>
+
+              <div class="gs-callout gs-callout--tip">
+                <span class="gs-callout__icon" aria-hidden="true">
+                  <i class="bi bi-lightbulb-fill"></i>
+                </span>
+                <div class="gs-callout__content">
+                  <strong>Example Prompts for Claude:</strong>
+                  <ul class="gs-callout__list">
+                    <li>"Move the camera to get a better view of the building facade"</li>
+                    <li>"Start training with 20,000 iterations and monitor the loss"</li>
+                    <li>"Delete the floating splats in the upper left corner"</li>
+                    <li>"Render a 360-degree turntable animation around the scene"</li>
+                  </ul>
+                </div>
+              </div>
+
+              <h3>Cursor IDE Integration</h3>
+              <p>
+                Cursor supports MCP through its agent mode. Add the server configuration to
+                <code>.cursor/mcp.json</code> in your project root:
+              </p>
+              <div class="gs-code-block">
+                <pre><code>{
+  "servers": [
+    {
+      "name": "lichtfeld-studio",
+      "type": "http",
+      "url": "http://localhost:8080/mcp"
+    }
+  ]
+}</code></pre>
+                <button class="gs-code-block__copy" aria-label="Copy to clipboard">
+                  <i class="bi bi-clipboard" aria-hidden="true"></i>
+                </button>
+              </div>
+
+              <h3>Other MCP-Compatible Tools</h3>
+              <p>
+                Any tool implementing the MCP client specification can connect to LichtFeld Studio:
+              </p>
+              <ul class="guide-list">
+                <li><strong>Continue.dev</strong> — AI coding assistant with MCP support</li>
+                <li><strong>Zed Editor</strong> — High-performance editor with built-in AI</li>
+                <li><strong>Cody (Sourcegraph)</strong> — AI coding assistant</li>
+                <li><strong>Custom clients</strong> — Build your own with the <code>mcp</code> SDK</li>
+              </ul>
+            </section>
+
+            <!-- Section: Example Workflows -->
+            <section id="workflows" class="guide-section">
+              <h2 class="guide-section__title">Example Workflows</h2>
+
+              <p class="guide-section__lead">
+                These complete workflow examples demonstrate real-world automation scenarios
+                using the MCP integration.
+              </p>
+
+              <!-- Workflow 1: Render Sequence -->
+              <div class="mcp-workflow">
+                <h3 class="mcp-workflow__title">
+                  <i class="bi bi-film" aria-hidden="true"></i>
+                  Workflow 1: Render Sequence Automation
+                </h3>
+                <p class="mcp-workflow__desc">
+                  Automatically render a camera fly-through animation with multiple keyframes
+                  and export frames for video composition.
+                </p>
+
+                <div class="gs-code-block">
+                  <pre><code>import asyncio
+import requests
+from pathlib import Path
+
+async def render_sequence():
+    """Render a cinematic camera sequence."""
+
+    output_dir = Path("./render_output")
+    output_dir.mkdir(exist_ok=True)
+
+    # Define camera path
+    keyframes = [
+        {"time": 0.0, "position": [10, 5, 10], "rotation": [0, 0.785, 0], "fov": 60},
+        {"time": 2.0, "position": [5, 3, 8], "rotation": [0, 0.5, 0], "fov": 55},
+        {"time": 4.0, "position": [0, 2, 6], "rotation": [0, 0, 0], "fov": 50},
+        {"time": 6.0, "position": [-5, 3, 8], "rotation": [0, -0.5, 0], "fov": 55},
+        {"time": 8.0, "position": [-10, 5, 10], "rotation": [0, -0.785, 0], "fov": 60},
+    ]
+
+    # Add keyframes to sequencer
+    for kf in keyframes:
+        requests.post(
+            "http://localhost:8080/mcp/tools/sequencer/add_keyframe",
+            json=kf
+        )
+
+    # Render sequence at 30fps
+    response = requests.post(
+        "http://localhost:8080/mcp/tools/sequencer/render_sequence",
+        json={
+            "output_dir": str(output_dir),
+            "fps": 30,
+            "quality": "high"
+        }
+    )
+
+    result = response.json()
+    print(f"Rendered {result['frame_count']} frames to {output_dir}")
+    print(f"Duration: {result['duration_seconds']:.2f}s")
+
+if __name__ == "__main__":
+    asyncio.run(render_sequence())</code></pre>
+                  <button class="gs-code-block__copy" aria-label="Copy to clipboard">
+                    <i class="bi bi-clipboard" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Workflow 2: Scene Analysis -->
+              <div class="mcp-workflow">
+                <h3 class="mcp-workflow__title">
+                  <i class="bi bi-search" aria-hidden="true"></i>
+                  Workflow 2: Scene Analysis Pipeline
+                </h3>
+                <p class="mcp-workflow__desc">
+                  Analyze scene quality, detect artifacts, and generate a report with
+                  recommended cleanup actions.
+                </p>
+
+                <div class="gs-code-block">
+                  <pre><code>import requests
+import json
+from datetime import datetime
+
+def analyze_scene():
+    """Analyze scene quality and generate report."""
+
+    report = {
+        "timestamp": datetime.now().isoformat(),
+        "scene_analysis": {},
+        "recommendations": []
+    }
+
+    # Get scene info
+    scene = requests.get(
+        "http://localhost:8080/mcp/resources/scene/info"
+    ).json()
+
+    report["scene_analysis"] = {
+        "splat_count": scene["splat_count"],
+        "bounds": scene["bounds"],
+        "density": scene["splat_count"] / scene["bounds_volume"]
+    }
+
+    # Capture viewport for visual analysis
+    viewport = requests.get(
+        "http://localhost:8080/mcp/resources/render/viewport"
+    ).json()
+
+    # Check for common issues
+    if scene["splat_count"] &lt; 100000:
+        report["recommendations"].append({
+            "type": "warning",
+            "message": "Low splat count may indicate incomplete training",
+            "action": "training/continue"
+        })
+
+    if scene["bounds"]["y_max"] > 50:
+        report["recommendations"].append({
+            "type": "cleanup",
+            "message": "Floating artifacts detected above scene",
+            "action": "editor/select_brush",
+            "params": {"y_threshold": 10}
+        })
+
+    # Save report
+    with open("scene_analysis.json", "w") as f:
+        json.dump(report, f, indent=2)
+
+    print(f"Analysis complete. {len(report['recommendations'])} recommendations.")
+    return report
+
+if __name__ == "__main__":
+    analyze_scene()</code></pre>
+                  <button class="gs-code-block__copy" aria-label="Copy to clipboard">
+                    <i class="bi bi-clipboard" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Workflow 3: Training Monitoring -->
+              <div class="mcp-workflow">
+                <h3 class="mcp-workflow__title">
+                  <i class="bi bi-activity" aria-hidden="true"></i>
+                  Workflow 3: Training Monitoring Dashboard
+                </h3>
+                <p class="mcp-workflow__desc">
+                  Real-time training monitoring with automatic checkpointing when
+                  loss plateaus and early stopping detection.
+                </p>
+
+                <div class="gs-code-block">
+                  <pre><code>import asyncio
+import requests
+from collections import deque
+
+class TrainingMonitor:
+    def __init__(self, window_size=100):
+        self.loss_history = deque(maxlen=window_size)
+        self.best_loss = float('inf')
+        self.plateau_count = 0
+
+    async def monitor(self):
+        """Monitor training with plateau detection."""
+
+        # Connect to SSE stream
+        import aiohttp
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                "http://localhost:8080/mcp/sse"
+            ) as response:
+                async for line in response.content:
+                    if line.startswith(b"data: "):
+                        data = json.loads(line[6:])
+
+                        if data.get("resource") == "training/status":
+                            status = data["data"]
+                            await self._process_status(status)
+
+    async def _process_status(self, status):
+        """Process training status update."""
+
+        iteration = status["iteration"]
+        loss = status["loss"]
+        self.loss_history.append(loss)
+
+        # Track best loss
+        if loss &lt; self.best_loss:
+            self.best_loss = loss
+            self.plateau_count = 0
+        else:
+            self.plateau_count += 1
+
+        # Auto-checkpoint on improvement
+        if loss &lt; self.best_loss * 0.99:
+            requests.post(
+                "http://localhost:8080/mcp/tools/training/export_checkpoint",
+                json={"path": f"./checkpoints/auto_{iteration}.ckpt"}
+            )
+            print(f"Checkpoint saved at iteration {iteration}")
+
+        # Early stopping detection
+        if self.plateau_count > 500:
+            print("Loss plateau detected. Consider adjusting learning rate.")
+
+        # Print progress
+        if iteration % 100 == 0:
+            avg_loss = sum(self.loss_history) / len(self.loss_history)
+            print(f"Iter {iteration}: Loss={loss:.6f}, Avg={avg_loss:.6f}")
+
+if __name__ == "__main__":
+    monitor = TrainingMonitor()
+    asyncio.run(monitor.monitor())</code></pre>
+                  <button class="gs-code-block__copy" aria-label="Copy to clipboard">
+                    <i class="bi bi-clipboard" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </div>
+            </section>
+
+            <!-- Section: API Reference -->
+            <section id="api-reference" class="guide-section">
+              <h2 class="guide-section__title">API Reference</h2>
+
+              <p class="guide-section__lead">
+                Complete reference for the MCP HTTP endpoints exposed by LichtFeld Studio.
+              </p>
+
+              <h3>Endpoint Overview</h3>
+              <div class="mcp-table-wrapper">
+                <table class="mcp-table mcp-table--endpoints">
+                  <thead>
+                    <tr>
+                      <th>Method</th>
+                      <th>Endpoint</th>
+                      <th>Description</th>
+                      <th>Auth</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <span class="mcp-method mcp-method--get">GET</span>
+                      </td>
+                      <td>
+                        <code class="mcp-endpoint">/mcp/resources/{resource_name}</code>
+                        <button class="mcp-copy-btn" data-copy="/mcp/resources/{resource_name}" aria-label="Copy endpoint">
+                          <i class="bi bi-clipboard" aria-hidden="true"></i>
+                        </button>
+                      </td>
+                      <td>Read resource data</td>
+                      <td><span class="mcp-auth">None (local only)</span></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <span class="mcp-method mcp-method--post">POST</span>
+                      </td>
+                      <td>
+                        <code class="mcp-endpoint">/mcp/tools/{tool_name}</code>
+                        <button class="mcp-copy-btn" data-copy="/mcp/tools/{tool_name}" aria-label="Copy endpoint">
+                          <i class="bi bi-clipboard" aria-hidden="true"></i>
+                        </button>
+                      </td>
+                      <td>Execute tool/action</td>
+                      <td><span class="mcp-auth">None (local only)</span></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <span class="mcp-method mcp-method--post">POST</span>
+                      </td>
+                      <td>
+                        <code class="mcp-endpoint">/mcp/invoke</code>
+                        <button class="mcp-copy-btn" data-copy="/mcp/invoke" aria-label="Copy endpoint">
+                          <i class="bi bi-clipboard" aria-hidden="true"></i>
+                        </button>
+                      </td>
+                      <td>Unified invocation endpoint for tools</td>
+                      <td><span class="mcp-auth">None (local only)</span></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <span class="mcp-method mcp-method--get">GET</span>
+                      </td>
+                      <td>
+                        <code class="mcp-endpoint">/mcp/sse</code>
+                        <button class="mcp-copy-btn" data-copy="/mcp/sse" aria-label="Copy endpoint">
+                          <i class="bi bi-clipboard" aria-hidden="true"></i>
+                        </button>
+                      </td>
+                      <td>Server-Sent Events stream for real-time updates</td>
+                      <td><span class="mcp-auth">None (local only)</span></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <span class="mcp-method mcp-method--get">GET</span>
+                      </td>
+                      <td>
+                        <code class="mcp-endpoint">/mcp/manifest</code>
+                        <button class="mcp-copy-btn" data-copy="/mcp/manifest" aria-label="Copy endpoint">
+                          <i class="bi bi-clipboard" aria-hidden="true"></i>
+                        </button>
+                      </td>
+                      <td>MCP server capabilities and schema</td>
+                      <td><span class="mcp-auth">None (local only)</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <h3>Response Format</h3>
+              <p>
+                All MCP endpoints return JSON responses with a consistent structure:
+              </p>
+              <div class="gs-code-block">
+                <pre><code>{
+  "success": true,
+  "data": { ... },           // Response payload (varies by endpoint)
+  "error": null,             // Error message if success is false
+  "timestamp": "2025-03-28T10:30:00Z"
+}</code></pre>
+                <button class="gs-code-block__copy" aria-label="Copy to clipboard">
+                  <i class="bi bi-clipboard" aria-hidden="true"></i>
+                </button>
+              </div>
+
+              <h3>Error Codes</h3>
+              <div class="mcp-error-table">
+                <table class="mcp-table">
+                  <thead>
+                    <tr>
+                      <th>HTTP Status</th>
+                      <th>Meaning</th>
+                      <th>Common Causes</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>200</code></td>
+                      <td>Success</td>
+                      <td>Request completed successfully</td>
+                    </tr>
+                    <tr>
+                      <td><code>400</code></td>
+                      <td>Bad Request</td>
+                      <td>Missing or invalid parameters</td>
+                    </tr>
+                    <tr>
+                      <td><code>404</code></td>
+                      <td>Not Found</td>
+                      <td>Unknown resource or tool name</td>
+                    </tr>
+                    <tr>
+                      <td><code>409</code></td>
+                      <td>Conflict</td>
+                      <td>Operation not allowed in current state</td>
+                    </tr>
+                    <tr>
+                      <td><code>500</code></td>
+                      <td>Server Error</td>
+                      <td>Internal error in LichtFeld Studio</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <!-- Section: Troubleshooting -->
+            <section id="troubleshooting" class="guide-section">
+              <h2 class="guide-section__title">Troubleshooting</h2>
+
+              <p class="guide-section__lead">
+                Common issues and their solutions when working with the MCP integration.
+              </p>
+
+              <div class="mcp-troubleshooting">
+                <details class="mcp-troubleshooting__item">
+                  <summary class="mcp-troubleshooting__problem">
+                    <i class="bi bi-exclamation-circle" aria-hidden="true"></i>
+                    Connection refused on localhost:8080
+                    <i class="bi bi-chevron-down mcp-troubleshooting__chevron" aria-hidden="true"></i>
+                  </summary>
+                  <div class="mcp-troubleshooting__solution">
+                    <p>Ensure LichtFeld Studio is running and MCP is enabled in Preferences. Check that the port isn't blocked by a firewall.</p>
+                  </div>
+                </details>
+                <details class="mcp-troubleshooting__item">
+                  <summary class="mcp-troubleshooting__problem">
+                    <i class="bi bi-exclamation-circle" aria-hidden="true"></i>
+                    Tools execute but return 404
+                    <i class="bi bi-chevron-down mcp-troubleshooting__chevron" aria-hidden="true"></i>
+                  </summary>
+                  <div class="mcp-troubleshooting__solution">
+                    <p>Verify the tool name matches exactly (case-sensitive). Check /mcp/manifest for available tools.</p>
+                  </div>
+                </details>
+                <details class="mcp-troubleshooting__item">
+                  <summary class="mcp-troubleshooting__problem">
+                    <i class="bi bi-exclamation-circle" aria-hidden="true"></i>
+                    Camera animations stutter or fail
+                    <i class="bi bi-chevron-down mcp-troubleshooting__chevron" aria-hidden="true"></i>
+                  </summary>
+                  <div class="mcp-troubleshooting__solution">
+                    <p>Reduce keyframe complexity or increase animation duration. Ensure scene is fully loaded before animating.</p>
+                  </div>
+                </details>
+                <details class="mcp-troubleshooting__item">
+                  <summary class="mcp-troubleshooting__problem">
+                    <i class="bi bi-exclamation-circle" aria-hidden="true"></i>
+                    Training status not updating in real-time
+                    <i class="bi bi-chevron-down mcp-troubleshooting__chevron" aria-hidden="true"></i>
+                  </summary>
+                  <div class="mcp-troubleshooting__solution">
+                    <p>Connect to the SSE endpoint at /mcp/sse for live updates, or poll /mcp/resources/training/status.</p>
+                  </div>
+                </details>
+                <details class="mcp-troubleshooting__item">
+                  <summary class="mcp-troubleshooting__problem">
+                    <i class="bi bi-exclamation-circle" aria-hidden="true"></i>
+                    Python client can't connect
+                    <i class="bi bi-chevron-down mcp-troubleshooting__chevron" aria-hidden="true"></i>
+                  </summary>
+                  <div class="mcp-troubleshooting__solution">
+                    <p>Verify the mcp Python package is installed: pip install mcp. Check that the server_url matches LichtFeld Studio's MCP port.</p>
+                  </div>
+                </details>
+              </div>
+
+              <div class="gs-callout gs-callout--info">
+                <span class="gs-callout__icon" aria-hidden="true">
+                  <i class="bi bi-discord" aria-hidden="true"></i>
+                </span>
+                <div class="gs-callout__content">
+                  <strong>Still stuck?</strong>
+                  <p>
+                    Join our <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer">Discord community</a> for
+                    real-time support. The #mcp-integration channel is dedicated to automation and API questions.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <!-- Section: Advanced Topics -->
+            <section id="advanced" class="guide-section">
+              <h2 class="guide-section__title">Advanced Topics</h2>
+
+              <p class="guide-section__lead">
+                Deep-dive topics for power users building complex integrations.
+              </p>
+
+              <h3>Custom Tool Development</h3>
+              <p>
+                Extend LichtFeld Studio's MCP capabilities by registering custom tools through the
+                <a href={base + "docs/"} class="guide-link">Python plugin system</a>. Custom tools
+                appear in the MCP manifest and can be invoked by any MCP client.
+              </p>
+
+              <div class="gs-code-block">
+                <pre><code># In your LichtFeld Studio plugin
+from lichtfeld import mcp
+
+@mcp.tool("custom/analyze_normals")
+def analyze_normals(threshold: float = 0.5):
+    """Analyze surface normals and return statistics."""
+    scene = get_active_scene()
+    normals = scene.get_normals()
+
+    outliers = np.sum(np.abs(normals) &lt; threshold)
+    return {
+        "total": len(normals),
+        "outliers": int(outliers),
+        "quality_score": 1.0 - (outliers / len(normals))
+    }</code></pre>
+                <button class="gs-code-block__copy" aria-label="Copy to clipboard">
+                  <i class="bi bi-clipboard" aria-hidden="true"></i>
+                </button>
+              </div>
+
+              <h3>Batch Operations</h3>
+              <p>
+                For high-throughput scenarios, use the batch endpoint to execute multiple tools
+                in a single request:
+              </p>
+              <div class="gs-code-block">
+                <pre><code>POST /mcp/batch
+{
+  "operations": [
+    {"tool": "camera/set_position", "params": {"position": [0, 2, 5]}},
+    {"tool": "render/capture_frame", "params": {"path": "./frame_001.png"}},
+    {"tool": "camera/set_position", "params": {"position": [1, 2, 5]}},
+    {"tool": "render/capture_frame", "params": {"path": "./frame_002.png"}}
+  ]
+}</code></pre>
+                <button class="gs-code-block__copy" aria-label="Copy to clipboard">
+                  <i class="bi bi-clipboard" aria-hidden="true"></i>
+                </button>
+              </div>
+
+              <h3>WebSocket Alternative</h3>
+              <p>
+                For bidirectional communication, connect to the WebSocket endpoint at
+                <code>ws://localhost:8080/mcp/ws</code>. This enables pushing commands from
+                the server to clients and is ideal for collaborative editing scenarios.
+              </p>
+
+              <h3>Performance Optimization</h3>
+              <ul class="guide-list">
+                <li>
+                  <strong>Use SSE for monitoring:</strong> Polling consumes more resources than
+                  Server-Sent Events for real-time updates.
+                </li>
+                <li>
+                  <strong>Batch small operations:</strong> Group multiple tool calls using the batch endpoint.
+                </li>
+                <li>
+                  <strong>Cache resource reads:</strong> Scene info changes infrequently—cache locally
+                  and invalidate on explicit updates.
+                </li>
+                <li>
+                  <strong>Async camera animations:</strong> Use the animate tool instead of
+                  sequential set_position calls for smoother motion.
+                </li>
+              </ul>
+
+              <h3>Security Considerations</h3>
+              <div class="gs-callout gs-callout--warning">
+                <span class="gs-callout__icon" aria-hidden="true">
+                  <i class="bi bi-shield-exclamation"></i>
+                </span>
+                <div class="gs-callout__content">
+                  <strong>Local Development Only</strong>
+                  <p>
+                    The MCP server is designed for local development and automation. Do not expose
+                    port 8080 to external networks. For remote access, use SSH tunneling or a secure proxy.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <!-- Related Resources -->
+            <section class="guide-section">
+              <h2 class="guide-section__title">Related Resources</h2>
+
+              <div class="guide-resources">
+                <a href={base + "features/mcp-automation/"} class="guide-resource">
+                  <div class="guide-resource__icon" aria-hidden="true">
+                    <i class="bi bi-stars"></i>
+                  </div>
+                  <div class="guide-resource__content">
+                    <h3 class="guide-resource__title">MCP Automation Feature</h3>
+                    <p class="guide-resource__desc">Overview of automation capabilities and use cases.</p>
+                  </div>
+                  <i class="bi bi-arrow-right guide-resource__arrow" aria-hidden="true"></i>
+                </a>
+
+                <a href={base + "docs/"} class="guide-resource">
+                  <div class="guide-resource__icon" aria-hidden="true">
+                    <i class="bi bi-book"></i>
+                  </div>
+                  <div class="guide-resource__content">
+                    <h3 class="guide-resource__title">Documentation</h3>
+                    <p class="guide-resource__desc">Complete API reference and plugin development guide.</p>
+                  </div>
+                  <i class="bi bi-arrow-right guide-resource__arrow" aria-hidden="true"></i>
+                </a>
+
+                <a href={GITHUB_WIKI_URL} target="_blank" rel="noopener noreferrer" class="guide-resource">
+                  <div class="guide-resource__icon" aria-hidden="true">
+                    <i class="bi bi-github"></i>
+                  </div>
+                  <div class="guide-resource__content">
+                    <h3 class="guide-resource__title">GitHub Wiki</h3>
+                    <p class="guide-resource__desc">Community-contributed tutorials and examples.</p>
+                  </div>
+                  <i class="bi bi-box-arrow-up-right guide-resource__arrow" aria-hidden="true"></i>
+                </a>
+
+                <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer" class="guide-resource">
+                  <div class="guide-resource__icon" aria-hidden="true">
+                    <i class="bi bi-discord"></i>
+                  </div>
+                  <div class="guide-resource__content">
+                    <h3 class="guide-resource__title">Discord Community</h3>
+                    <p class="guide-resource__desc">Get help and share your MCP workflows.</p>
+                  </div>
+                  <i class="bi bi-box-arrow-up-right guide-resource__arrow" aria-hidden="true"></i>
+                </a>
+              </div>
+            </section>
+          </div>
+
+          <!-- Sidebar -->
+          <aside class="guide-sidebar">
+            <div class="guide-sidebar__sticky">
+              <!-- Quick Links -->
+              <div class="guide-sidebar__box">
+                <h3>Quick Links</h3>
+                <ul class="guide-sidebar__links">
+                  <li>
+                    <a href={base + "features/mcp-automation/"}>
+                      <i class="bi bi-stars" aria-hidden="true"></i>
+                      MCP Feature Overview
+                    </a>
+                  </li>
+                  <li>
+                    <a href={base + "docs/"}>
+                      <i class="bi bi-book" aria-hidden="true"></i>
+                      API Documentation
+                    </a>
+                  </li>
+                  <li>
+                    <a href={GITHUB_REPO_URL} target="_blank" rel="noopener noreferrer">
+                      <i class="bi bi-github" aria-hidden="true"></i>
+                      GitHub Repository
+                    </a>
+                  </li>
+                  <li>
+                    <a href={GITHUB_WIKI_URL} target="_blank" rel="noopener noreferrer">
+                      <i class="bi bi-journal-text" aria-hidden="true"></i>
+                      Wiki & Tutorials
+                    </a>
+                  </li>
+                  <li>
+                    <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer">
+                      <i class="bi bi-discord" aria-hidden="true"></i>
+                      Discord Support
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Support Box -->
+              <div class="guide-sidebar__box guide-sidebar__box--support">
+                <h3>Support the Project</h3>
+                <p>
+                  LichtFeld Studio is free and open-source. Your support helps us build better automation tools.
+                </p>
+                <div class="guide-sidebar__support-actions">
+                  <a href={GITHUB_SPONSORS_URL} class="btn btn-primary w-full" target="_blank" rel="noopener noreferrer">
+                    <i class="bi bi-github" aria-hidden="true"></i>
+                    GitHub Sponsors
+                  </a>
+                  <a href={PAYPAL_URL} class="btn btn-outline-primary w-full" target="_blank" rel="noopener noreferrer">
+                    <i class="bi bi-paypal" aria-hidden="true"></i>
+                    PayPal
+                  </a>
+                  <a href={DONORBOX_URL} class="btn btn-outline-primary w-full" target="_blank" rel="noopener noreferrer">
+                    <i class="bi bi-gift" aria-hidden="true"></i>
+                    DonorBox
+                  </a>
+                </div>
+              </div>
+
+              <!-- Version Info -->
+              <div class="guide-sidebar__box">
+                <h3>Version Info</h3>
+                <div class="mcp-version-info">
+                  <div class="mcp-version-item">
+                    <span class="mcp-version-label">MCP Protocol</span>
+                    <span class="mcp-version-value">2024-11-05</span>
+                  </div>
+                  <div class="mcp-version-item">
+                    <span class="mcp-version-label">LichtFeld Studio</span>
+                    <span class="mcp-version-value">v0.5.0+</span>
+                  </div>
+                  <div class="mcp-version-item">
+                    <span class="mcp-version-label">Python Package</span>
+                    <span class="mcp-version-value">mcp >= 1.0</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </article>
+</Layout>
+
+<script>
+  // Copy-to-clipboard functionality
+  document.addEventListener('DOMContentLoaded', () => {
+    // Code block copy buttons
+    const codeCopyButtons = document.querySelectorAll('.gs-code-block__copy');
+    codeCopyButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const code = btn.previousElementSibling?.textContent;
+        if (code) {
+          navigator.clipboard.writeText(code).then(() => {
+            const originalIcon = btn.innerHTML;
+            btn.innerHTML = '<i class="bi bi-check-lg" aria-hidden="true"></i>';
+            setTimeout(() => {
+              btn.innerHTML = originalIcon;
+            }, 2000);
+          });
+        }
+      });
+    });
+
+    // Table copy buttons
+    const tableCopyButtons = document.querySelectorAll('.mcp-copy-btn');
+    tableCopyButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const text = btn.getAttribute('data-copy');
+        if (text) {
+          navigator.clipboard.writeText(text).then(() => {
+            const originalIcon = btn.innerHTML;
+            btn.innerHTML = '<i class="bi bi-check-lg" aria-hidden="true"></i>';
+            setTimeout(() => {
+              btn.innerHTML = originalIcon;
+            }, 2000);
+          });
+        }
+      });
+    });
+  });
+</script>
+
+<style>
+  /* MCP-specific styles */
+
+  .guide-hero--mcp {
+    background:
+      radial-gradient(circle at top left, rgba(20, 87, 255, 0.08), transparent 40%),
+      radial-gradient(circle at top right, rgba(201, 114, 52, 0.08), transparent 35%),
+      radial-gradient(circle at bottom right, rgba(139, 92, 246, 0.06), transparent 30%);
+  }
+
+  .mcp-hero__badge {
+    margin-bottom: 1rem;
+  }
+
+  .mcp-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, rgba(20, 87, 255, 0.15), rgba(139, 92, 246, 0.1));
+    border: 1px solid rgba(20, 87, 255, 0.2);
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-primary);
+  }
+
+  .mcp-hero__cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .mcp-hero__cta .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* Install box */
+  .mcp-install-box {
+    padding: 1.5rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .mcp-install-box h4 {
+    margin: 0 0 1rem;
+    font-size: 1rem;
+  }
+
+  /* Tables */
+  .mcp-table-wrapper {
+    overflow-x: auto;
+    border-radius: 1rem;
+    border: 1px solid var(--surface-border);
+    margin: 1.5rem 0;
+  }
+
+  .mcp-table-wrapper--tools {
+    max-height: 500px;
+    overflow-y: auto;
+  }
+
+  .mcp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9375rem;
+    background: var(--surface-bg);
+  }
+
+  .mcp-table th,
+  .mcp-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--surface-border);
+  }
+
+  .mcp-table th {
+    font-weight: 600;
+    color: var(--color-heading);
+    background: rgba(15, 23, 42, 0.03);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+
+  .mcp-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .mcp-code {
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+    font-size: 0.875rem;
+    color: var(--color-primary);
+    background: rgba(20, 87, 255, 0.08);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+  }
+
+  .mcp-params {
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+    font-size: 0.8rem;
+    color: var(--color-muted);
+  }
+
+  .mcp-type {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    background: rgba(34, 197, 94, 0.1);
+    color: #16a34a;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 0.25rem;
+  }
+
+  .mcp-method {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 0.25rem;
+    text-transform: uppercase;
+  }
+
+  .mcp-method--get {
+    background: rgba(59, 130, 246, 0.15);
+    color: #2563eb;
+  }
+
+  .mcp-method--post {
+    background: rgba(34, 197, 94, 0.15);
+    color: #16a34a;
+  }
+
+  .mcp-endpoint {
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+    font-size: 0.875rem;
+    color: var(--color-body);
+  }
+
+  .mcp-auth {
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+
+  .mcp-copy-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    margin-left: 0.5rem;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0.375rem;
+    color: var(--color-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .mcp-copy-btn:hover {
+    background: rgba(15, 23, 42, 0.06);
+    color: var(--color-primary);
+  }
+
+  /* Workflows */
+  .mcp-workflow {
+    padding: 1.5rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .mcp-workflow__title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.125rem;
+    margin: 0 0 0.75rem;
+    color: var(--color-heading);
+  }
+
+  .mcp-workflow__title i {
+    color: var(--color-primary);
+  }
+
+  .mcp-workflow__desc {
+    color: var(--color-muted);
+    margin: 0 0 1rem;
+    font-size: 0.9375rem;
+  }
+
+  /* Troubleshooting */
+  .mcp-troubleshooting {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: 1.5rem 0;
+  }
+
+  .mcp-troubleshooting__item {
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+    overflow: hidden;
+  }
+
+  .mcp-troubleshooting__problem {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--color-heading);
+    list-style: none;
+  }
+
+  .mcp-troubleshooting__problem::-webkit-details-marker {
+    display: none;
+  }
+
+  .mcp-troubleshooting__problem i:first-child {
+    color: #f59e0b;
+  }
+
+  .mcp-troubleshooting__chevron {
+    margin-left: auto;
+    transition: transform 0.2s ease;
+  }
+
+  .mcp-troubleshooting__item[open] .mcp-troubleshooting__chevron {
+    transform: rotate(180deg);
+  }
+
+  .mcp-troubleshooting__solution {
+    padding: 0 1.25rem 1.25rem;
+    color: var(--color-body);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
+
+  .mcp-troubleshooting__solution p {
+    margin: 0;
+  }
+
+  /* Version info */
+  .mcp-version-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .mcp-version-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--surface-border);
+  }
+
+  .mcp-version-item:last-child {
+    border-bottom: none;
+  }
+
+  .mcp-version-label {
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+
+  .mcp-version-value {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-heading);
+    font-family: monospace;
+  }
+
+  /* Error table */
+  .mcp-error-table {
+    margin: 1.5rem 0;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 767px) {
+    .mcp-table {
+      font-size: 0.875rem;
+    }
+
+    .mcp-table th,
+    .mcp-table td {
+      padding: 0.75rem 0.5rem;
+    }
+
+    .mcp-copy-btn {
+      display: none;
+    }
+  }
+</style>

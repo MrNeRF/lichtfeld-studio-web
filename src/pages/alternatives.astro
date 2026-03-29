@@ -1,0 +1,2038 @@
+---
+/**
+ * alternatives.astro
+ *
+ * Curation page: Best 3D Gaussian Splatting Software 2025
+ * Targets searches for "best 3d gaussian splatting software", "gaussian splatting tools",
+ * "3dgs software comparison", "gaussian splatting software alternatives"
+ */
+import Layout from "@/layouts/Layout.astro";
+import { SITE } from "@/config/site.config";
+import {
+  GITHUB_REPO_URL,
+  GITHUB_RELEASES_URL,
+  GITHUB_WIKI_URL,
+  DISCORD_URL,
+  GITHUB_SPONSORS_URL,
+  PAYPAL_URL,
+  DONORBOX_URL,
+} from "@/constants/project";
+
+const base = import.meta.env.BASE_URL;
+
+// SEO metadata
+const seoTitle = "Best 3D Gaussian Splatting Software 2025: Top Tools Compared";
+const seoDescription =
+  "Discover the best 3D Gaussian Splatting software. Compare LichtFeld Studio, Brush, NerfStudio, SuperSplat, and more. Features, pricing, and recommendations.";
+
+// Tool data for curation
+const tools = [
+  {
+    id: "lichtfeld-studio",
+    name: "LichtFeld Studio",
+    tagline: "Open-source 3D Gaussian Splatting platform",
+    type: "open-source",
+    price: "Free",
+    license: "GPL-3.0",
+    platforms: ["Windows", "Linux"],
+    featured: true,
+    badges: ["Top Pick", "Open Source", "Free Forever"],
+    features: [
+      "Native C++23/CUDA training",
+      "Full editing suite (brush, lasso, polygon)",
+      "Python plugin system + MCP",
+      "Save & resume training",
+      "Registry-based plugin installs",
+    ],
+    website: GITHUB_REPO_URL,
+    downloadUrl: GITHUB_RELEASES_URL,
+    docsUrl: GITHUB_WIKI_URL,
+    compareUrl: `${base}vs/postshot/`,
+  },
+  {
+    id: "brush",
+    name: "Brush",
+    tagline: "Cross-platform 3D Gaussian Splatting training and viewer",
+    type: "open-source",
+    price: "Free",
+    license: "Apache-2.0",
+    platforms: ["Windows", "Linux", "macOS", "Web"],
+    featured: false,
+    badges: ["WebGPU", "Rust", "Cross-Platform"],
+    features: [
+      "3D Gaussian Splatting training",
+      "WebGPU-based rendering",
+      "Cross-platform (desktop and web)",
+      "No installation required for web",
+      "PLY import/export",
+      "Written in Rust",
+    ],
+    website: "https://github.com/ArthurBrussee/brush",
+    compareUrl: `${base}vs/brush/`,
+  },
+  {
+    id: "nerfstudio",
+    name: "NerfStudio",
+    tagline: "Research framework for neural radiance fields",
+    type: "open-source",
+    price: "Free",
+    license: "Apache-2.0",
+    platforms: ["Windows", "macOS", "Linux"],
+    featured: false,
+    badges: ["Research-Grade", "Python", "Extensible"],
+    features: [
+      "Multiple NeRF methods",
+      "Gaussian Splatting support",
+      "Python-based framework",
+      "Extensive documentation",
+      "Academic focus",
+      "Viewer included",
+    ],
+    website: "https://docs.nerf.studio/",
+  },
+  {
+    id: "supersplat",
+    name: "SuperSplat",
+    tagline: "Web-based Gaussian Splatting viewer and editor",
+    type: "open-source",
+    price: "Free",
+    license: "MIT",
+    platforms: ["Any (Web-based)"],
+    featured: false,
+    badges: ["Web Viewer", "Editor", "PlayCanvas"],
+    features: [
+      "Browser-based editor",
+      "Visual splat editing",
+      "PLY import/export",
+      "Camera controls",
+      "Export to various formats",
+      "No install needed",
+    ],
+    website: "https://playcanvas.com/supersplat/editor/",
+  },
+];
+
+// Comparison table data
+const comparisonFeatures = [
+  { feature: "Price", category: "General" },
+  { feature: "License", category: "General" },
+  { feature: "Platforms", category: "General" },
+  { feature: "Native Training", category: "Core Features" },
+  { feature: "Real-time Viewer", category: "Core Features" },
+  { feature: "Editing Tools", category: "Core Features" },
+  { feature: "Plugin System", category: "Extensibility" },
+  { feature: "Python API", category: "Extensibility" },
+  { feature: "MCP Integration", category: "Extensibility" },
+  { feature: "Save/Resume Training", category: "Core Features" },
+  { feature: "Multi-GPU Support", category: "Performance" },
+  { feature: "Source Code Access", category: "General" },
+];
+
+const comparisonData: Record<string, Record<string, string | boolean>> = {
+  "lichtfeld-studio": {
+    Price: "Free",
+    License: "GPL-3.0",
+    Platforms: "Windows, Linux",
+    "Native Training": true,
+    "Real-time Viewer": true,
+    "Editing Tools": "Full Suite",
+    "Plugin System": "Python + MCP",
+    "Python API": true,
+    "MCP Integration": true,
+    "Save/Resume Training": true,
+    "Multi-GPU Support": false,
+    "Source Code Access": "Full",
+  },
+  postshot: {
+    Price: "Paid",
+    License: "Proprietary",
+    Platforms: "Windows, macOS",
+    "Native Training": true,
+    "Real-time Viewer": true,
+    "Editing Tools": "Basic",
+    "Plugin System": false,
+    "Python API": false,
+    "MCP Integration": false,
+    "Save/Resume Training": false,
+    "Multi-GPU Support": false,
+    "Source Code Access": "None",
+  },
+  brush: {
+    Price: "Free",
+    License: "Apache-2.0",
+    Platforms: "Windows, Linux, macOS, Web",
+    "Native Training": true,
+    "Real-time Viewer": true,
+    "Editing Tools": "Basic",
+    "Plugin System": false,
+    "Python API": false,
+    "MCP Integration": false,
+    "Save/Resume Training": false,
+    "Multi-GPU Support": false,
+    "Source Code Access": "Full",
+  },
+  nerfstudio: {
+    Price: "Free",
+    License: "Apache-2.0",
+    Platforms: "Windows, macOS, Linux",
+    "Native Training": true,
+    "Real-time Viewer": true,
+    "Editing Tools": "Basic",
+    "Plugin System": "Extensible",
+    "Python API": true,
+    "MCP Integration": false,
+    "Save/Resume Training": true,
+    "Multi-GPU Support": true,
+    "Source Code Access": "Full",
+  },
+  supersplat: {
+    Price: "Free",
+    License: "MIT",
+    Platforms: "Any (Web-based)",
+    "Native Training": false,
+    "Real-time Viewer": true,
+    "Editing Tools": "Viewer + Basic",
+    "Plugin System": false,
+    "Python API": false,
+    "MCP Integration": false,
+    "Save/Resume Training": false,
+    "Multi-GPU Support": false,
+    "Source Code Access": "Full",
+  },
+};
+
+// FAQ data
+const faqs = [
+  {
+    question: "What is 3D Gaussian Splatting software?",
+    answer:
+      "3D Gaussian Splatting software enables the creation, editing, and rendering of 3D scenes represented as collections of 3D Gaussians. These tools convert photos or video into interactive 3D scenes that can be viewed in real-time, exported to game engines, or used in production workflows.",
+  },
+  {
+    question: "Is free 3DGS software as good as paid options?",
+    answer:
+      "Yes, and often better. LichtFeld Studio, our top pick, is completely free and open source yet offers more features and competitive (often superior) performance compared to commercial alternatives like Postshot. Free and open source doesn't mean lower quality — our native C++23/CUDA core delivers professional-grade performance at zero cost. The open-source nature means continuous improvements from the community and no vendor lock-in.",
+  },
+  {
+    question: "Which tool is best for beginners?",
+    answer:
+      "For beginners, LichtFeld Studio offers the most complete package with an intuitive interface and comprehensive documentation on Windows and Linux. For macOS users, we recommend Brush—it provides excellent cross-platform support with native macOS training (both Intel and Apple Silicon), WebGPU-based rendering (no CUDA required), and a polished interface. For quick experimentation without installation, SuperSplat's web-based editor is ideal.",
+  },
+  {
+    question: "Can I use these tools commercially?",
+    answer:
+      "All the tools listed here allow commercial use under their respective open-source licenses (GPL-3.0, Apache-2.0, MIT). Always check the specific license for your use case.",
+  },
+  {
+    question: "What hardware do I need?",
+    answer:
+      "For training 3D Gaussian Splats, an NVIDIA GPU with at least 8GB VRAM is recommended. Viewing and editing can work on less powerful hardware. Web-based tools like SuperSplat and Brush can run on any device with a modern browser.",
+  },
+  {
+    question: "Can I switch between tools?",
+    answer:
+      "Yes! Most tools use standard PLY format for 3D Gaussians, allowing you to train in one tool and edit in another. For example, you can train with Brush and edit with LichtFeld Studio or SuperSplat.",
+  },
+];
+
+// Schema.org structured data
+const itemListSchema = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  name: "Best 3D Gaussian Splatting Software 2025",
+  description: seoDescription,
+  itemListElement: tools.map((tool, index) => ({
+    "@type": "ListItem",
+    position: index + 1,
+    item: {
+      "@type": "SoftwareApplication",
+      name: tool.name,
+      description: tool.tagline,
+      applicationCategory: "DeveloperApplication",
+      operatingSystem: tool.platforms,
+      offers: {
+        "@type": "Offer",
+        price: tool.price === "Free" ? "0" : tool.price,
+        priceCurrency: "USD",
+      },
+      url: tool.website,
+    },
+  })),
+};
+
+const comparisonSchema = {
+  "@context": "https://schema.org",
+  "@type": "Comparison",
+  name: "3D Gaussian Splatting Software Comparison",
+  description: "Comparison of top 3DGS tools including features, pricing, and platforms",
+};
+---
+
+<Layout title={seoTitle} description={seoDescription}>
+  {/* Schema.org structured data */}
+  <script type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
+  <script type="application/ld+json" set:html={JSON.stringify(comparisonSchema)} />
+
+  {/* Hero Section */}
+  <header class="alt-hero">
+    <div class="container content-frame px-4">
+      <div class="alt-hero__content">
+        <div class="alt-hero__badge">
+          <i class="bi bi-award"></i>
+          <span>2025 Software Guide</span>
+        </div>
+        <h1 class="alt-hero__title">Best 3D Gaussian Splatting Software</h1>
+        <p class="alt-hero__subtitle">
+          The complete guide to 3DGS tools. Compare the top 4 Gaussian Splatting applications with features,
+          pricing, and our expert recommendations.
+        </p>
+        <div class="alt-hero__stats">
+          <div class="alt-hero__stat">
+            <span class="alt-hero__stat-number">5</span>
+            <span class="alt-hero__stat-label">Tools Compared</span>
+          </div>
+          <div class="alt-hero__stat">
+            <span class="alt-hero__stat-number">100%</span>
+            <span class="alt-hero__stat-label">Free Options</span>
+          </div>
+        </div>
+        <div class="alt-hero__cta">
+          <a href="#top-picks" class="btn btn-primary btn-lg alt-hero__btn-primary">
+            <i class="bi bi-trophy mr-2"></i>
+            See Top Picks
+          </a>
+          <a href="#comparison-table" class="btn btn-outline-primary btn-lg alt-hero__btn-secondary">
+            <i class="bi bi-table mr-2"></i>
+            Full Comparison
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  {/* What to Look For Section */}
+  <section id="what-to-look-for" class="alt-section hash-section">
+    <div class="container content-frame px-4">
+      <div class="shell shell--spacious">
+        <div class="alt-section__header">
+          <p class="kicker">Buyer's Guide</p>
+          <h2 class="alt-section__title">What to Look for in 3DGS Software</h2>
+          <p class="alt-section__desc">Key features that separate great tools from mediocre ones.</p>
+        </div>
+
+        <div class="alt-features-grid">
+          <div class="alt-feature-card">
+            <div class="alt-feature-card__icon">
+              <i class="bi bi-cpu"></i>
+            </div>
+            <h3 class="alt-feature-card__title">Native Training</h3>
+            <p class="alt-feature-card__desc">
+              Look for tools with native C++/CUDA training cores for speed and efficiency. Save/resume capabilities are
+              essential for long training runs.
+            </p>
+          </div>
+          <div class="alt-feature-card">
+            <div class="alt-feature-card__icon">
+              <i class="bi bi-brush"></i>
+            </div>
+            <h3 class="alt-feature-card__title">Editing Tools</h3>
+            <p class="alt-feature-card__desc">
+              Brush, lasso, polygon selection, masking, and cropping tools let you clean up and refine your splats after
+              training.
+            </p>
+          </div>
+          <div class="alt-feature-card">
+            <div class="alt-feature-card__icon">
+              <i class="bi bi-plug"></i>
+            </div>
+            <h3 class="alt-feature-card__title">Extensibility</h3>
+            <p class="alt-feature-card__desc">
+              Python plugins and MCP integration enable custom workflows and automation. Essential for production
+              environments.
+            </p>
+          </div>
+          <div class="alt-feature-card">
+            <div class="alt-feature-card__icon">
+              <i class="bi bi-display"></i>
+            </div>
+            <h3 class="alt-feature-card__title">Platform Support</h3>
+            <p class="alt-feature-card__desc">
+              Consider your OS (Windows, Linux, macOS) and whether you need web-based access for collaboration or
+              demonstrations.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* Top Picks / Featured Tools */}
+  <section id="top-picks" class="alt-section hash-section">
+    <div class="container content-frame px-4">
+      <div class="shell shell--spacious alt-shell--highlight">
+        <div class="alt-section__header">
+          <p class="kicker">Editor's Choice</p>
+          <h2 class="alt-section__title">The Best 3D Gaussian Splatting Tools</h2>
+          <p class="alt-section__desc">Our top recommendations based on features, value, and user experience.</p>
+        </div>
+
+        <div class="alt-tools-grid">
+          {
+            tools.map((tool) => (
+              <article class:list={["alt-tool-card", tool.featured && "alt-tool-card--featured"]}>
+                {tool.featured && (
+                  <div class="alt-tool-card__ribbon">
+                    <i class="bi bi-star-fill" />
+                    <span>Top Pick</span>
+                  </div>
+                )}
+
+                <div class="alt-tool-card__header">
+                  <div class="alt-tool-card__badges">
+                    {tool.badges.map((badge) => (
+                      <span class:list={["alt-tool-card__badge", badge === "Top Pick" && "alt-tool-card__badge--top"]}>
+                        {badge}
+                      </span>
+                    ))}
+                  </div>
+                  <h3 class="alt-tool-card__name">{tool.name}</h3>
+                  <p class="alt-tool-card__tagline">{tool.tagline}</p>
+                </div>
+
+                <div class="alt-tool-card__meta">
+                  <div class="alt-tool-card__details">
+                    <span class="alt-tool-card__price">{tool.price}</span>
+                    <span class="alt-tool-card__separator">•</span>
+                    <span class="alt-tool-card__license">{tool.license}</span>
+                  </div>
+                </div>
+
+                <div class="alt-tool-card__platforms">
+                  {tool.platforms.map((platform) => (
+                    <span class="alt-tool-card__platform">
+                      <i class:list={["bi", platform === "Windows" ? "bi-windows" : platform === "macOS" ? "bi-apple" : "bi-laptop"]} />
+                      {platform}
+                    </span>
+                  ))}
+                </div>
+
+                <ul class="alt-tool-card__features">
+                  {tool.features.slice(0, 4).map((feature) => (
+                    <li>
+                      <i class="bi bi-check-lg" />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+
+                <div class="alt-tool-card__actions">
+                  {tool.downloadUrl ? (
+                    <a href={tool.downloadUrl} class="btn btn-primary alt-tool-card__btn" target="_blank" rel="noopener noreferrer">
+                      <i class="bi bi-download mr-2" />
+                      Download
+                    </a>
+                  ) : (
+                    <a href={tool.website} class="btn btn-primary alt-tool-card__btn" target="_blank" rel="noopener noreferrer">
+                      <i class="bi bi-box-arrow-up-right mr-2" />
+                      Visit Website
+                    </a>
+                  )}
+                  {tool.compareUrl && (
+                    <a href={tool.compareUrl} class="btn btn-outline-primary alt-tool-card__btn alt-tool-card__btn--secondary">
+                      <i class="bi bi-arrow-left-right mr-2" />
+                      Compare
+                    </a>
+                  )}
+                </div>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* Comparison Table */}
+  <section id="comparison-table" class="alt-section hash-section">
+    <div class="container content-frame px-4">
+      <div class="shell shell--spacious">
+        <div class="alt-section__header">
+          <p class="kicker">Side-by-Side</p>
+          <h2 class="alt-section__title">Complete Comparison Table</h2>
+          <p class="alt-section__desc">Every feature compared across all recommended tools plus commercial alternatives.</p>
+        </div>
+
+        <div class="alt-table-wrapper">
+          <table class="alt-table">
+            <thead>
+              <tr>
+                <th class="alt-table__feature">Feature</th>
+                {tools.map((tool) => (
+                  <th class:list={["alt-table__tool", tool.featured && "alt-table__tool--featured"]}>
+                    <span class="alt-table__tool-name">{tool.name}</span>
+                    {tool.featured && <span class="alt-table__tool-badge">Top Pick</span>}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {comparisonFeatures.map((row) => (
+                <tr>
+                  <td class="alt-table__feature">
+                    <span class="alt-table__feature-name">{row.feature}</span>
+                    <span class="alt-table__feature-category">{row.category}</span>
+                  </td>
+                  {tools.map((tool) => {
+                    const value = comparisonData[tool.id][row.feature];
+                    return (
+                      <td class:list={["alt-table__cell", tool.featured && "alt-table__cell--featured"]}>
+                        {typeof value === "boolean" ? (
+                          value ? (
+                            <span class="alt-table__yes">
+                              <i class="bi bi-check-lg" /> Yes
+                            </span>
+                          ) : (
+                            <span class="alt-table__no">
+                              <i class="bi bi-x-lg" /> No
+                            </span>
+                          )
+                        ) : (
+                          <span class="alt-table__value">{value}</span>
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="alt-table-legend">
+          <div class="alt-table-legend__item">
+            <span class="alt-table-legend__icon alt-table-legend__icon--yes">
+              <i class="bi bi-check-lg" />
+            </span>
+            <span>Available</span>
+          </div>
+          <div class="alt-table-legend__item">
+            <span class="alt-table-legend__icon alt-table-legend__icon--no">
+              <i class="bi bi-x-lg" />
+            </span>
+            <span>Not Available</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* Free vs Paid */}
+  <section id="free-vs-paid" class="alt-section hash-section">
+    <div class="container content-frame px-4">
+      <div class="shell shell--spacious">
+        <div class="alt-section__header">
+          <p class="kicker">Pricing Models</p>
+          <h2 class="alt-section__title">Free vs Paid Options</h2>
+          <p class="alt-section__desc">
+            <strong>Free and open source doesn't mean lower quality.</strong> Paid subscriptions don't guarantee better
+            performance. LichtFeld Studio delivers professional-grade performance at zero cost.
+          </p>
+        </div>
+
+        <div class="alt-comparison-cards">
+          <div class="alt-comparison-card alt-comparison-card--free">
+            <div class="alt-comparison-card__header">
+              <div class="alt-comparison-card__icon">
+                <i class="bi bi-gift"></i>
+              </div>
+              <h3 class="alt-comparison-card__title">Free & Open Source</h3>
+              <p class="alt-comparison-card__subtitle">All tools listed are 100% free — with no performance compromise</p>
+            </div>
+            <ul class="alt-comparison-card__list">
+              <li>
+                <i class="bi bi-check-lg" />
+                <span>No licensing costs ever</span>
+              </li>
+              <li>
+                <i class="bi bi-check-lg" />
+                <span>Full source code access</span>
+              </li>
+              <li>
+                <i class="bi bi-check-lg" />
+                <span>Professional-grade performance</span>
+              </li>
+              <li>
+                <i class="bi bi-check-lg" />
+                <span>No subscription fees, no feature gates</span>
+              </li>
+              <li>
+                <i class="bi bi-check-lg" />
+                <span>Community-driven development</span>
+              </li>
+              <li>
+                <i class="bi bi-check-lg" />
+                <span>No vendor lock-in</span>
+              </li>
+              <li>
+                <i class="bi bi-check-lg" />
+                <span>Customize and extend</span>
+              </li>
+            </ul>
+            <div class="alt-comparison-card__examples">
+              <span class="alt-comparison-card__examples-label">Examples:</span>
+              <span class="alt-comparison-card__examples-list">LichtFeld Studio, NerfStudio, Brush, SuperSplat</span>
+            </div>
+            <div class="alt-comparison-card__examples" style="margin-top: 0.75rem;">
+              <span class="alt-comparison-card__examples-label">Libraries:</span>
+              <span class="alt-comparison-card__examples-list">
+                <a href="https://github.com/nerfstudio-project/gsplat" target="_blank" rel="noopener noreferrer">gsplat</a> - CUDA-accelerated Gaussian Splatting library
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* Open Source vs Commercial */}
+  <section id="open-source" class="alt-section hash-section">
+    <div class="container content-frame px-4">
+      <div class="shell shell--spacious alt-shell--gradient">
+        <div class="alt-section__header">
+          <p class="kicker">Licensing</p>
+          <h2 class="alt-section__title">Open Source vs Commercial</h2>
+          <p class="alt-section__desc">Why open source leads in the 3D Gaussian Splatting space.</p>
+        </div>
+
+        <div class="alt-oss-advantages">
+          <div class="alt-oss-card">
+            <div class="alt-oss-card__icon">
+              <i class="bi bi-unlock"></i>
+            </div>
+            <h3 class="alt-oss-card__title">No Lock-in</h3>
+            <p class="alt-oss-card__desc">
+              Your work is always yours. Export to standard formats and switch tools anytime without losing access to
+              your projects.
+            </p>
+          </div>
+          <div class="alt-oss-card">
+            <div class="alt-oss-card__icon">
+              <i class="bi bi-code-slash"></i>
+            </div>
+            <h3 class="alt-oss-card__title">Full Transparency</h3>
+            <p class="alt-oss-card__desc">
+              See exactly how the algorithms work. Modify, extend, or audit the code to match your specific needs and
+              security requirements.
+            </p>
+          </div>
+          <div class="alt-oss-card">
+            <div class="alt-oss-card__icon">
+              <i class="bi bi-people"></i>
+            </div>
+            <h3 class="alt-oss-card__title">Community Innovation</h3>
+            <p class="alt-oss-card__desc">
+              Open source projects benefit from contributions worldwide. Bugs get fixed faster, features evolve based on
+              real user needs.
+            </p>
+          </div>
+          <div class="alt-oss-card">
+            <div class="alt-oss-card__icon">
+              <i class="bi bi-infinity"></i>
+            </div>
+            <h3 class="alt-oss-card__title">Forever Free</h3>
+            <p class="alt-oss-card__desc">
+              No subscription renewals, no feature tiers, no surprise price increases. Free today, free tomorrow, free
+              forever.
+            </p>
+          </div>
+        </div>
+
+        <div class="alt-oss-cta">
+          <p class="alt-oss-cta__text">
+            <strong>LichtFeld Studio</strong> is proudly open source under GPL-3.0, ensuring these freedoms are
+            protected for all users.
+          </p>
+          <a href={GITHUB_REPO_URL} class="btn btn-primary alt-oss-cta__btn" target="_blank" rel="noopener noreferrer">
+            <i class="bi bi-github mr-2"></i>
+            View Source on GitHub
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* Platform Availability */}
+  <section id="platforms" class="alt-section hash-section">
+    <div class="container content-frame px-4">
+      <div class="shell shell--spacious">
+        <div class="alt-section__header">
+          <p class="kicker">Compatibility</p>
+          <h2 class="alt-section__title">Platform Availability</h2>
+          <p class="alt-section__desc">Which tools run on your operating system.</p>
+        </div>
+
+        <div class="alt-platforms">
+          <div class="alt-platform alt-platform--windows">
+            <div class="alt-platform__icon">
+              <i class="bi bi-windows"></i>
+            </div>
+            <h3 class="alt-platform__name">Windows</h3>
+            <p class="alt-platform__count">3/4 tools supported</p>
+            <div class="alt-platform__tools">
+              {tools.map((tool) => (
+                <span class:list={["alt-platform__tool", !tool.platforms.includes("Windows") && "alt-platform__tool--unsupported"]}>
+                  {tool.platforms.includes("Windows") ? <i class="bi bi-check-lg" /> : <i class="bi bi-x-lg" />}
+                  {tool.name}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div class="alt-platform alt-platform--linux">
+            <div class="alt-platform__icon">
+              <i class="bi bi-laptop"></i>
+            </div>
+            <h3 class="alt-platform__name">Linux</h3>
+            <p class="alt-platform__count">3/4 tools supported</p>
+            <div class="alt-platform__tools">
+              {tools.map((tool) => (
+                <span class:list={["alt-platform__tool", !tool.platforms.includes("Linux") && "alt-platform__tool--unsupported"]}>
+                  {tool.platforms.includes("Linux") ? <i class="bi bi-check-lg" /> : <i class="bi bi-x-lg" />}
+                  {tool.name}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div class="alt-platform alt-platform--macos">
+            <div class="alt-platform__icon">
+              <i class="bi bi-apple"></i>
+            </div>
+            <h3 class="alt-platform__name">macOS</h3>
+            <p class="alt-platform__count">Brush recommended</p>
+            <div class="alt-platform__tools">
+              {tools.map((tool) => (
+                <span class:list={["alt-platform__tool", !tool.platforms.includes("macOS") && "alt-platform__tool--unsupported"]}>
+                  {tool.platforms.includes("macOS") ? <i class="bi bi-check-lg" /> : <i class="bi bi-x-lg" />}
+                  {tool.name}
+                </span>
+              ))}
+            </div>
+            <p class="alt-platform__note" style="margin-top: 1rem; font-size: 0.875rem; color: var(--color-body);">
+              <strong>Recommended:</strong> <a href="https://github.com/ArthurBrussee/brush" target="_blank" rel="noopener noreferrer">Brush</a> — 
+              Native macOS training on Intel & Apple Silicon. Build from source with <code>cargo run --release</code> or use the 
+              <a href="https://arthurbrussee.github.io/brush-demo" target="_blank" rel="noopener noreferrer">web demo</a> (Chrome/Edge).
+            </p>
+          </div>
+
+          <div class="alt-platform alt-platform--web">
+            <div class="alt-platform__icon">
+              <i class="bi bi-globe"></i>
+            </div>
+            <h3 class="alt-platform__name">Web</h3>
+            <p class="alt-platform__count">2/4 tools supported</p>
+            <div class="alt-platform__tools">
+              {tools.map((tool) => (
+                <span class:list={["alt-platform__tool", !tool.platforms.includes("Web") && "alt-platform__tool--unsupported"]}>
+                  {tool.platforms.includes("Web") ? <i class="bi bi-check-lg" /> : <i class="bi bi-x-lg" />}
+                  {tool.name}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* Our Recommendation */}
+  <section id="recommendation" class="alt-section hash-section">
+    <div class="container content-frame px-4">
+      <div class="shell shell--spacious alt-shell--cta">
+        <div class="alt-recommendation">
+          <div class="alt-recommendation__badge">
+            <i class="bi bi-award"></i>
+            <span>Our Top Recommendation</span>
+          </div>
+          <h2 class="alt-recommendation__title">LichtFeld Studio</h2>
+          <p class="alt-recommendation__subtitle">The best 3D Gaussian Splatting software for most users</p>
+
+          <div class="alt-recommendation__reasons">
+            <div class="alt-recommendation__reason">
+              <i class="bi bi-check-circle-fill"></i>
+              <span>Completely free and open source (GPL-3.0)</span>
+            </div>
+            <div class="alt-recommendation__reason">
+              <i class="bi bi-check-circle-fill"></i>
+              <span>Native C++23/CUDA training with save/resume</span>
+            </div>
+            <div class="alt-recommendation__reason">
+              <i class="bi bi-check-circle-fill"></i>
+              <span>Full editing suite + Python plugins + MCP</span>
+            </div>
+            <div class="alt-recommendation__reason">
+              <i class="bi bi-check-circle-fill"></i>
+              <span>Active development with community support</span>
+            </div>
+          </div>
+
+          <div class="alt-recommendation__actions">
+            <a href={GITHUB_RELEASES_URL} class="btn btn-primary btn-lg alt-recommendation__btn" target="_blank" rel="noopener noreferrer">
+              <i class="bi bi-download mr-2"></i>
+              Download Free
+            </a>
+            <a href={`${base}vs/postshot/`} class="btn btn-outline-primary btn-lg alt-recommendation__btn">
+              <i class="bi bi-arrow-left-right mr-2"></i>
+              vs Postshot
+            </a>
+          </div>
+
+          <p class="alt-recommendation__note">
+            Also check out our <a href={`${base}vs/brush/`}>Brush comparison</a> for web-based alternatives.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* FAQ */}
+  <section id="faq" class="alt-section hash-section">
+    <div class="container content-frame px-4">
+      <div class="shell shell--spacious">
+        <div class="alt-section__header">
+          <p class="kicker">FAQ</p>
+          <h2 class="alt-section__title">Frequently Asked Questions</h2>
+          <p class="alt-section__desc">Common questions about 3D Gaussian Splatting software.</p>
+        </div>
+
+        <div class="alt-faq">
+          {faqs.map((faq, index) => (
+            <details class="alt-faq__item" open={index === 0}>
+              <summary class="alt-faq__question">
+                <span>{faq.question}</span>
+                <i class="bi bi-chevron-down alt-faq__icon" />
+              </summary>
+              <div class="alt-faq__answer">
+                <p>{faq.answer}</p>
+              </div>
+            </details>
+          ))}
+        </div>
+
+        <div class="alt-faq__more">
+          <p>Still have questions?</p>
+          <a href={DISCORD_URL} class="section-link" target="_blank" rel="noopener noreferrer">
+            <i class="bi bi-discord mr-2"></i>
+            Ask on Discord
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* Support CTA */}
+  <section id="support" class="alt-section hash-section">
+    <div class="container content-frame px-4">
+      <div class="shell shell--spacious">
+        <div class="alt-support">
+          <div class="alt-support__content">
+            <h2 class="alt-support__title">Support Open Source 3DGS</h2>
+            <p class="alt-support__desc">
+              LichtFeld Studio is free because of community support. Your contribution helps maintain and improve
+              open-source 3D Gaussian Splatting tools for everyone.
+            </p>
+          </div>
+          <div class="alt-support__actions">
+            <a href={GITHUB_SPONSORS_URL} class="btn btn-primary alt-support__btn" target="_blank" rel="noopener noreferrer">
+              <i class="bi bi-heart-fill mr-2"></i>
+              GitHub Sponsors
+            </a>
+            <a href={PAYPAL_URL} class="btn btn-outline-primary alt-support__btn" target="_blank" rel="noopener noreferrer">
+              <i class="bi bi-paypal mr-2"></i>
+              PayPal
+            </a>
+            <a href={DONORBOX_URL} class="btn btn-outline-primary alt-support__btn" target="_blank" rel="noopener noreferrer">
+              <i class="bi bi-gift-fill mr-2"></i>
+              DonorBox
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style lang="scss">
+  /* Hero Section */
+  .alt-hero {
+    padding: clamp(4rem, 10vh, 7rem) 0 clamp(3rem, 6vh, 5rem);
+    text-align: center;
+    background:
+      radial-gradient(circle at top left, rgba(20, 87, 255, 0.08), transparent 40%),
+      radial-gradient(circle at top right, rgba(201, 114, 52, 0.08), transparent 35%);
+  }
+
+  .alt-hero__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    background: rgba(20, 87, 255, 0.1);
+    border: 1px solid rgba(20, 87, 255, 0.2);
+    color: var(--color-primary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+  }
+
+  .alt-hero__title {
+    font-size: clamp(2.25rem, 5vw, 3.5rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--color-heading) 0%, var(--color-primary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .alt-hero__subtitle {
+    font-size: clamp(1.125rem, 2vw, 1.375rem);
+    color: var(--color-body);
+    max-width: 700px;
+    margin: 0 auto 2rem;
+    line-height: 1.6;
+  }
+
+  .alt-hero__stats {
+    display: flex;
+    justify-content: center;
+    gap: 2.5rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .alt-hero__stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .alt-hero__stat-number {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    line-height: 1;
+  }
+
+  .alt-hero__stat-label {
+    font-size: 0.875rem;
+    color: var(--color-muted);
+    font-weight: 500;
+  }
+
+  .alt-hero__cta {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .alt-hero__btn-primary,
+  .alt-hero__btn-secondary {
+    border-radius: 999px;
+    padding: 0.875rem 1.75rem;
+    font-weight: 600;
+  }
+
+  /* Section Styles */
+  .alt-section {
+    padding: 2rem 0;
+  }
+
+  .alt-section__header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+
+  .alt-section__title {
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+  }
+
+  .alt-section__desc {
+    font-size: 1.125rem;
+    color: var(--color-body);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  /* Shell Variants */
+  .alt-shell--highlight {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(219, 234, 254, 0.4));
+  }
+
+  .alt-shell--gradient {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(219, 234, 254, 0.4));
+  }
+
+  .alt-shell--cta {
+    background: linear-gradient(135deg, rgba(20, 87, 255, 0.08), rgba(201, 114, 52, 0.05));
+  }
+
+  /* Feature Cards (What to Look For) */
+  .alt-features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .alt-feature-card {
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: var(--rounded-xl);
+    padding: 1.5rem;
+    border: 1px solid var(--surface-border);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .alt-feature-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--card-shadow-hover);
+  }
+
+  .alt-feature-card__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--rounded-lg);
+    background: rgba(20, 87, 255, 0.1);
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .alt-feature-card__title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--color-heading);
+  }
+
+  .alt-feature-card__desc {
+    font-size: 0.9375rem;
+    color: var(--color-body);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* Tool Cards */
+  .alt-tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .alt-tool-card {
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: var(--rounded-2xl);
+    padding: 1.5rem;
+    border: 1px solid var(--surface-border);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .alt-tool-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--card-shadow-hover);
+  }
+
+  .alt-tool-card--featured {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(219, 234, 254, 0.6));
+    border-color: rgba(20, 87, 255, 0.3);
+    box-shadow: 0 20px 40px rgba(20, 87, 255, 0.1);
+  }
+
+  .alt-tool-card__ribbon {
+    position: absolute;
+    top: -1px;
+    right: 1.5rem;
+    background: linear-gradient(135deg, #1457ff, #1d4ed8);
+    color: white;
+    padding: 0.375rem 1rem;
+    border-radius: 0 0 999px 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    letter-spacing: 0.02em;
+  }
+
+  .alt-tool-card__header {
+    margin-bottom: 1rem;
+  }
+
+  .alt-tool-card__badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .alt-tool-card__badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.625rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: rgba(15, 23, 42, 0.06);
+    color: var(--color-muted);
+  }
+
+  .alt-tool-card__badge--top {
+    background: rgba(20, 87, 255, 0.12);
+    color: var(--color-primary);
+  }
+
+  .alt-tool-card__name {
+    font-size: 1.375rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    color: var(--color-heading);
+  }
+
+  .alt-tool-card__tagline {
+    font-size: 0.9375rem;
+    color: var(--color-body);
+    margin: 0;
+  }
+
+  .alt-tool-card__meta {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--surface-border);
+  }
+
+  .alt-tool-card__rating {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .alt-tool-card__stars {
+    color: rgb(245, 158, 11);
+    font-size: 0.875rem;
+  }
+
+  .alt-tool-card__rating-value {
+    font-weight: 700;
+    color: var(--color-heading);
+  }
+
+  .alt-tool-card__reviews {
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+
+  .alt-tool-card__details {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .alt-tool-card__price {
+    font-weight: 600;
+    color: rgb(34, 197, 94);
+  }
+
+  .alt-tool-card__separator {
+    color: var(--color-muted);
+  }
+
+  .alt-tool-card__license {
+    color: var(--color-muted);
+  }
+
+  .alt-tool-card__platforms {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .alt-tool-card__platform {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.625rem;
+    border-radius: 999px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    background: rgba(15, 23, 42, 0.04);
+    color: var(--color-body);
+  }
+
+  .alt-tool-card__features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1rem;
+    flex: 1;
+  }
+
+  .alt-tool-card__features li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.375rem 0;
+    font-size: 0.875rem;
+    color: var(--color-body);
+  }
+
+  .alt-tool-card__features li i {
+    color: rgb(34, 197, 94);
+    font-size: 1rem;
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+  }
+
+  .alt-tool-card__best-for {
+    margin-bottom: 1rem;
+  }
+
+  .alt-tool-card__best-for-label {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .alt-tool-card__best-for-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+  }
+
+  .alt-tool-card__best-for-tag {
+    display: inline-flex;
+    padding: 0.25rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background: rgba(20, 87, 255, 0.08);
+    color: var(--color-primary);
+  }
+
+  .alt-tool-card__actions {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .alt-tool-card__btn {
+    flex: 1;
+    border-radius: 999px;
+    padding: 0.625rem 1rem;
+    font-weight: 600;
+    font-size: 0.9375rem;
+  }
+
+  .alt-tool-card__btn--secondary {
+    flex: 0 0 auto;
+  }
+
+  /* Comparison Table */
+  .alt-table-wrapper {
+    overflow-x: auto;
+    border-radius: var(--rounded-2xl);
+    border: 1px solid var(--surface-border);
+    margin-bottom: 1.5rem;
+  }
+
+  .alt-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+    min-width: 800px;
+  }
+
+  .alt-table th,
+  .alt-table td {
+    padding: 0.875rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--surface-border);
+  }
+
+  .alt-table th {
+    background: rgba(255, 255, 255, 0.8);
+    font-weight: 600;
+    color: var(--color-heading);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+
+  .alt-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .alt-table tbody tr:hover {
+    background: rgba(20, 87, 255, 0.03);
+  }
+
+  .alt-table__feature {
+    width: 180px;
+    min-width: 180px;
+  }
+
+  .alt-table__feature-name {
+    display: block;
+    font-weight: 500;
+    color: var(--color-heading);
+  }
+
+  .alt-table__feature-category {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--color-muted);
+    margin-top: 0.125rem;
+  }
+
+  .alt-table__tool {
+    min-width: 140px;
+  }
+
+  .alt-table__tool--featured {
+    background: rgba(20, 87, 255, 0.04);
+  }
+
+  .alt-table__tool-name {
+    display: block;
+    font-weight: 700;
+    font-size: 0.9375rem;
+  }
+
+  .alt-table__tool-badge {
+    display: inline-block;
+    padding: 0.125rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    background: rgba(20, 87, 255, 0.12);
+    color: var(--color-primary);
+    margin-top: 0.25rem;
+  }
+
+  .alt-table__cell {
+    text-align: center;
+  }
+
+  .alt-table__cell--featured {
+    background: rgba(20, 87, 255, 0.02);
+  }
+
+  .alt-table__yes {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: rgb(34, 197, 94);
+    font-weight: 600;
+  }
+
+  .alt-table__no {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: rgb(239, 68, 68);
+    opacity: 0.7;
+  }
+
+  .alt-table__value {
+    color: var(--color-body);
+  }
+
+  .alt-table-legend {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .alt-table-legend__item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+
+  .alt-table-legend__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+  }
+
+  .alt-table-legend__icon--yes {
+    background: rgba(34, 197, 94, 0.15);
+    color: rgb(21, 128, 61);
+  }
+
+  .alt-table-legend__icon--no {
+    background: rgba(239, 68, 68, 0.1);
+    color: rgb(185, 28, 28);
+  }
+
+  /* Decision Tree */
+  .alt-decision-tree {
+    display: grid;
+    gap: 1.5rem;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .alt-decision-step {
+    display: flex;
+    gap: 1rem;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: var(--rounded-xl);
+    padding: 1.25rem;
+    border: 1px solid var(--surface-border);
+  }
+
+  .alt-decision-step__number {
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    background: var(--color-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.125rem;
+    flex-shrink: 0;
+  }
+
+  .alt-decision-step__content {
+    flex: 1;
+  }
+
+  .alt-decision-step__question {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--color-heading);
+    margin-bottom: 1rem;
+  }
+
+  .alt-decision-step__options {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .alt-decision-option {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: var(--rounded-lg);
+    border: 1px solid rgba(15, 23, 42, 0.06);
+  }
+
+  .alt-decision-option__answer {
+    font-weight: 500;
+    color: var(--color-body);
+    min-width: 140px;
+  }
+
+  .alt-decision-option__result {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9375rem;
+  }
+
+  .alt-decision-option__result i {
+    color: var(--color-primary);
+  }
+
+  .alt-decision-option__tool {
+    font-weight: 700;
+    color: var(--color-primary);
+  }
+
+  .alt-decision-option__reason {
+    color: var(--color-muted);
+    font-size: 0.875rem;
+  }
+
+  .alt-decision-summary {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, rgba(20, 87, 255, 0.08), rgba(20, 87, 255, 0.02));
+    border-radius: var(--rounded-xl);
+    border: 1px solid rgba(20, 87, 255, 0.2);
+    max-width: 800px;
+    margin-inline: auto;
+  }
+
+  .alt-decision-summary__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--rounded-lg);
+    background: var(--color-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .alt-decision-summary__content h3 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--color-heading);
+  }
+
+  .alt-decision-summary__content p {
+    margin: 0;
+    color: var(--color-body);
+    line-height: 1.6;
+  }
+
+  /* Free vs Paid Cards */
+  .alt-comparison-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .alt-comparison-card {
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: var(--rounded-2xl);
+    padding: 1.5rem;
+    border: 1px solid var(--surface-border);
+  }
+
+  .alt-comparison-card--free {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(220, 252, 231, 0.4));
+    border-color: rgba(34, 197, 94, 0.2);
+  }
+
+  .alt-comparison-card--paid {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(254, 243, 199, 0.4));
+    border-color: rgba(245, 158, 11, 0.2);
+  }
+
+  .alt-comparison-card__header {
+    text-align: center;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--surface-border);
+  }
+
+  .alt-comparison-card__icon {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--rounded-xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    margin: 0 auto 1rem;
+  }
+
+  .alt-comparison-card--free .alt-comparison-card__icon {
+    background: rgba(34, 197, 94, 0.1);
+    color: rgb(34, 197, 94);
+  }
+
+  .alt-comparison-card--paid .alt-comparison-card__icon {
+    background: rgba(245, 158, 11, 0.1);
+    color: rgb(245, 158, 11);
+  }
+
+  .alt-comparison-card__title {
+    font-size: 1.375rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    color: var(--color-heading);
+  }
+
+  .alt-comparison-card__subtitle {
+    font-size: 0.9375rem;
+    color: var(--color-muted);
+    margin: 0;
+  }
+
+  .alt-comparison-card__list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.25rem;
+  }
+
+  .alt-comparison-card__list li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    font-size: 0.9375rem;
+    color: var(--color-body);
+  }
+
+  .alt-comparison-card__list li i.bi-check-lg {
+    color: rgb(34, 197, 94);
+    font-size: 1.125rem;
+  }
+
+  .alt-comparison-card__list li i.bi-x-lg {
+    color: rgb(239, 68, 68);
+    font-size: 1.125rem;
+    opacity: 0.7;
+  }
+
+  .alt-comparison-card__examples {
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--surface-border);
+  }
+
+  .alt-comparison-card__examples-label {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .alt-comparison-card__examples-list {
+    font-size: 0.9375rem;
+    color: var(--color-body);
+    line-height: 1.5;
+  }
+
+  /* OSS Advantages */
+  .alt-oss-advantages {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+  }
+
+  .alt-oss-card {
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: var(--rounded-xl);
+    padding: 1.5rem;
+    border: 1px solid var(--surface-border);
+    text-align: center;
+  }
+
+  .alt-oss-card__icon {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--rounded-xl);
+    background: rgba(20, 87, 255, 0.1);
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    margin: 0 auto 1rem;
+  }
+
+  .alt-oss-card__title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--color-heading);
+  }
+
+  .alt-oss-card__desc {
+    font-size: 0.9375rem;
+    color: var(--color-body);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .alt-oss-cta {
+    text-align: center;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: var(--rounded-xl);
+    border: 1px solid var(--surface-border);
+  }
+
+  .alt-oss-cta__text {
+    font-size: 1rem;
+    color: var(--color-body);
+    margin-bottom: 1rem;
+  }
+
+  .alt-oss-cta__btn {
+    border-radius: 999px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+  }
+
+  /* Platforms */
+  .alt-platforms {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .alt-platform {
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: var(--rounded-xl);
+    padding: 1.5rem;
+    border: 1px solid var(--surface-border);
+  }
+
+  .alt-platform__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--rounded-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .alt-platform--windows .alt-platform__icon {
+    background: rgba(20, 87, 255, 0.1);
+    color: var(--color-primary);
+  }
+
+  .alt-platform--linux .alt-platform__icon {
+    background: rgba(245, 158, 11, 0.1);
+    color: rgb(245, 158, 11);
+  }
+
+  .alt-platform--macos .alt-platform__icon {
+    background: rgba(15, 23, 42, 0.08);
+    color: var(--color-heading);
+  }
+
+  .alt-platform--web .alt-platform__icon {
+    background: rgba(34, 197, 94, 0.1);
+    color: rgb(34, 197, 94);
+  }
+
+  .alt-platform__name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    color: var(--color-heading);
+  }
+
+  .alt-platform__count {
+    font-size: 0.9375rem;
+    color: var(--color-muted);
+    margin-bottom: 1rem;
+  }
+
+  .alt-platform__tools {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .alt-platform__tool {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--color-body);
+  }
+
+  .alt-platform__tool i {
+    font-size: 1rem;
+  }
+
+  .alt-platform__tool i.bi-check-lg {
+    color: rgb(34, 197, 94);
+  }
+
+  .alt-platform__tool i.bi-x-lg {
+    color: rgb(239, 68, 68);
+    opacity: 0.5;
+  }
+
+  .alt-platform__tool--unsupported {
+    opacity: 0.5;
+  }
+
+  /* Recommendation Section */
+  .alt-recommendation {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .alt-recommendation__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #1457ff, #1d4ed8);
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+  }
+
+  .alt-recommendation__title {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--color-heading);
+  }
+
+  .alt-recommendation__subtitle {
+    font-size: 1.25rem;
+    color: var(--color-body);
+    margin-bottom: 2rem;
+  }
+
+  .alt-recommendation__reasons {
+    display: grid;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+    text-align: left;
+    max-width: 500px;
+    margin-inline: auto;
+  }
+
+  .alt-recommendation__reason {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: var(--rounded-lg);
+    font-size: 0.9375rem;
+    color: var(--color-body);
+  }
+
+  .alt-recommendation__reason i {
+    color: rgb(34, 197, 94);
+    font-size: 1.25rem;
+  }
+
+  .alt-recommendation__actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+
+  .alt-recommendation__btn {
+    border-radius: 999px;
+    padding: 0.875rem 1.75rem;
+    font-weight: 600;
+  }
+
+  .alt-recommendation__note {
+    font-size: 0.9375rem;
+    color: var(--color-muted);
+  }
+
+  .alt-recommendation__note a {
+    color: var(--color-primary);
+    font-weight: 600;
+  }
+
+  /* FAQ */
+  .alt-faq {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .alt-faq__item {
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: var(--rounded-lg);
+    border: 1px solid var(--surface-border);
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+  }
+
+  .alt-faq__question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    font-weight: 600;
+    color: var(--color-heading);
+    cursor: pointer;
+    list-style: none;
+    transition: background 0.2s ease;
+  }
+
+  .alt-faq__question:hover {
+    background: rgba(255, 255, 255, 0.8);
+  }
+
+  .alt-faq__question::-webkit-details-marker {
+    display: none;
+  }
+
+  .alt-faq__icon {
+    font-size: 0.875rem;
+    color: var(--color-muted);
+    transition: transform 0.2s ease;
+  }
+
+  .alt-faq__item[open] .alt-faq__icon {
+    transform: rotate(180deg);
+  }
+
+  .alt-faq__answer {
+    padding: 0 1.25rem 1.25rem;
+  }
+
+  .alt-faq__answer p {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    color: var(--color-body);
+  }
+
+  .alt-faq__more {
+    text-align: center;
+    margin-top: 1.5rem;
+  }
+
+  .alt-faq__more p {
+    color: var(--color-muted);
+    margin-bottom: 0.75rem;
+  }
+
+  /* Support Section */
+  .alt-support {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .alt-support__content {
+    flex: 1;
+    min-width: 280px;
+  }
+
+  .alt-support__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--color-heading);
+  }
+
+  .alt-support__desc {
+    font-size: 1rem;
+    color: var(--color-body);
+    margin: 0;
+    max-width: 500px;
+  }
+
+  .alt-support__actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .alt-support__btn {
+    border-radius: 999px;
+    padding: 0.625rem 1.25rem;
+    font-weight: 600;
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 991.98px) {
+    .alt-tools-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .alt-tool-card__actions {
+      flex-direction: column;
+    }
+
+    .alt-tool-card__btn--secondary {
+      flex: 1;
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    .alt-hero__stats {
+      gap: 1.5rem;
+    }
+
+    .alt-decision-step {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .alt-decision-option {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .alt-decision-option__answer {
+      min-width: auto;
+    }
+
+    .alt-decision-summary {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .alt-support {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .alt-support__actions {
+      justify-content: center;
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .alt-hero__title {
+      font-size: 1.875rem;
+    }
+
+    .alt-features-grid,
+    .alt-oss-advantages,
+    .alt-platforms {
+      grid-template-columns: 1fr;
+    }
+
+    .alt-comparison-cards {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

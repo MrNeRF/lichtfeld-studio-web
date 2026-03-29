@@ -1,0 +1,1621 @@
+---
+/**
+ * 3dgut.astro
+ *
+ * Comprehensive glossary page targeting:
+ * - "what is 3dgut"
+ * - "3d gaussian unscented transform"
+ * - "3dgut gaussian splatting"
+ *
+ * Features:
+ * - Schema.org TechArticle structured data
+ * - Comparison tables (3DGUT vs 3DGS)
+ * - CLI parameters reference
+ * - Internal linking to related features
+ */
+
+import Layout from "@/layouts/Layout.astro";
+import { SITE } from "@/config/site.config";
+import {
+  GITHUB_REPO_URL,
+  GITHUB_WIKI_URL,
+  GITHUB_RELEASES_URL,
+  DISCORD_URL,
+  PAYPAL_URL,
+  DONORBOX_URL,
+  GITHUB_SPONSORS_URL,
+} from "@/constants/project";
+
+const base = import.meta.env.BASE_URL;
+
+// SEO metadata
+const seoTitle = "What is 3DGUT? 3D Gaussian Unscented Transform Explained 2025";
+const seoDescription = "Learn what 3DGUT (3D Gaussian Unscented Transform) is, how it extends 3D Gaussian Splatting to support distorted cameras and secondary rays. Based on NVIDIA/CVPR 2025 research.";
+
+// Article metadata for Schema.org
+const articlePublishedDate = new Date("2025-03-29");
+const articleModifiedDate = new Date("2025-03-29");
+
+// FAQ data
+const faqs = [
+  {
+    question: "What is 3DGUT in simple terms?",
+    answer: "3DGUT (3D Gaussian Unscented Transform) is an extension of 3D Gaussian Splatting that uses the Unscented Transform to accurately render scenes captured with distorted cameras like fisheye lenses. It replaces the standard EWA (Elliptical Weighted Average) projection with sigma point sampling for better accuracy."
+  },
+  {
+    question: "How is 3DGUT different from standard 3DGS?",
+    answer: "Standard 3DGS uses EWA (Elliptical Weighted Average) projection which assumes pinhole cameras and requires Jacobian calculations. 3DGUT uses the Unscented Transform with 7 sigma points, supports any camera model including fisheye and distorted lenses, and eliminates the need for Jacobian calculations."
+  },
+  {
+    question: "What hardware do I need for 3DGUT?",
+    answer: "3DGUT requires an NVIDIA GPU with CUDA support. The training is 2-4× faster than 3DGRT (ray tracing), and rendering achieves 250-1000+ FPS depending on scene complexity and GPU."
+  },
+  {
+    question: "When should I use 3DGUT over standard 3DGS?",
+    answer: "Use 3DGUT when working with fisheye cameras, rolling shutter footage, robotics applications requiring accurate distortion handling, or when you need hybrid rendering combining Gaussian Splatting with ray tracing for effects like reflections."
+  },
+  {
+    question: "Can I mix 3DGUT and standard 3DGS?",
+    answer: "No—if you train with GUT enabled, you must also render with GUT. Training with GUT and rendering without it (or vice versa) will cause visualization issues. The model expects the same projection method during both training and inference."
+  }
+];
+
+// Related resources
+const relatedResources = [
+  {
+    title: "What is Gaussian Splatting?",
+    description: "Complete beginner's guide to 3D Gaussian Splatting technology.",
+    href: `${base}what-is-gaussian-splatting/`,
+    icon: "lightbulb"
+  },
+  {
+    title: "Getting Started Guide",
+    description: "Step-by-step tutorial to create your first Gaussian Splat with LichtFeld Studio.",
+    href: `${base}getting-started/`,
+    icon: "book"
+  },
+  {
+    title: "COLMAP Glossary",
+    description: "Learn about COLMAP and camera calibration for 3D reconstruction.",
+    href: `${base}glossary/colmap/`,
+    icon: "camera"
+  },
+  {
+    title: "Interactive Showcase",
+    description: "Explore photorealistic Gaussian Splatting scenes directly in your browser.",
+    href: `${base}showcase/`,
+    icon: "eye"
+  }
+];
+
+// Build Schema.org TechArticle structured data
+const techArticleSchema = {
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": seoTitle,
+  "description": seoDescription,
+  "image": new URL(`${base}static/social-card.png`, Astro.site).toString(),
+  "author": {
+    "@type": "Organization",
+    "name": SITE.name,
+    "url": SITE.url
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": SITE.name,
+    "logo": {
+      "@type": "ImageObject",
+      "url": new URL(`${base}static/favicon.svg`, Astro.site).toString()
+    }
+  },
+  "datePublished": articlePublishedDate.toISOString(),
+  "dateModified": articleModifiedDate.toISOString(),
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": new URL(Astro.url.pathname, Astro.site).toString()
+  },
+  "about": {
+    "@type": "Thing",
+    "name": "3D Gaussian Unscented Transform",
+    "alternateName": "3DGUT"
+  },
+  "proficiencyLevel": "Intermediate",
+  "dependencies": "LichtFeld Studio, NVIDIA GPU"
+};
+
+// Build FAQ Schema
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": faqs.map(faq => ({
+    "@type": "Question",
+    "name": faq.question,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": faq.answer
+    }
+  }))
+};
+---
+
+<Layout 
+  title={seoTitle} 
+  description={seoDescription}
+  ogType="article"
+>
+  <!-- Schema.org Structured Data -->
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(techArticleSchema)} />
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(faqSchema)} />
+
+  <article class="guide-page">
+    <!-- Hero Section -->
+    <header class="guide-hero">
+      <div class="container content-frame px-4">
+        <div class="guide-hero__content">
+          <nav class="guide-breadcrumb" aria-label="Breadcrumb">
+            <ol class="guide-breadcrumb__list">
+              <li class="guide-breadcrumb__item">
+                <a href={base} class="guide-breadcrumb__link">Home</a>
+              </li>
+              <li class="guide-breadcrumb__item">
+                <a href={`${base}glossary/`} class="guide-breadcrumb__link">Glossary</a>
+              </li>
+              <li class="guide-breadcrumb__item" aria-current="page">
+                <span>3DGUT</span>
+              </li>
+            </ol>
+          </nav>
+          
+          <h1 class="guide-hero__title">What is 3DGUT?</h1>
+          <p class="guide-hero__lead">
+            <strong>3DGUT (3D Gaussian Unscented Transform)</strong> extends 3D Gaussian Splatting to support 
+            distorted cameras and secondary rays using the Unscented Transform. Developed by NVIDIA Research 
+            and presented at CVPR 2025.
+          </p>
+          
+          <div class="guide-hero__meta">
+            <span class="guide-hero__reading-time">
+              <svg class="bi" width="16" height="16" aria-hidden="true">
+                <use href={`${base}static/bootstrap-icons.svg#clock`}></use>
+              </svg>
+              8 min read
+            </span>
+            <span class="guide-hero__updated">
+              Updated March 2025
+            </span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Table of Contents -->
+    <nav class="guide-toc" aria-label="Table of contents">
+      <div class="container content-frame px-4">
+        <div class="guide-toc__shell shell shell--compact">
+          <h2 class="guide-toc__title">Contents</h2>
+          <ol class="guide-toc__list">
+            <li><a href="#what-is" class="guide-toc__link">What is 3DGUT?</a></li>
+            <li><a href="#how-it-differs" class="guide-toc__link">How It Differs from 3DGS</a></li>
+            <li><a href="#how-it-works" class="guide-toc__link">How It Works</a></li>
+            <li><a href="#benefits" class="guide-toc__link">Key Benefits</a></li>
+            <li><a href="#when-to-use" class="guide-toc__link">When to Use It</a></li>
+            <li><a href="#performance" class="guide-toc__link">Performance</a></li>
+            <li><a href="#cli-parameters" class="guide-toc__link">CLI Parameters</a></li>
+            <li><a href="#faq" class="guide-toc__link">FAQ</a></li>
+            <li><a href="#citation" class="guide-toc__link">Citation</a></li>
+          </ol>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="guide-content">
+      <div class="container content-frame px-4">
+        <div class="guide-content__layout">
+          <!-- Article Body -->
+          <div class="guide-content__main">
+            
+            <!-- Section 1: What is 3DGUT? -->
+            <section id="what-is" class="guide-section">
+              <h2 class="guide-section__title">What is 3DGUT?</h2>
+              
+              <p class="guide-section__lead">
+                <strong>3DGUT (3D Gaussian Unscented Transform)</strong> is a rendering technique that extends 
+                3D Gaussian Splatting to handle distorted camera models and secondary rays. Introduced at CVPR 2025 
+                by Wu et al. from NVIDIA, it replaces the traditional EWA (Elliptical Weighted Average) projection 
+                with the Unscented Transform for more accurate rendering.
+              </p>
+
+              <h3>The Core Concept</h3>
+              <p>
+                Standard 3D Gaussian Splatting assumes a pinhole camera model and uses EWA projection, which requires 
+                computing Jacobian matrices for each Gaussian projection. This approach works well for standard lenses 
+                but struggles with:
+              </p>
+              <ul class="guide-list">
+                <li><strong>Fisheye lenses:</strong> Extreme distortion that breaks the pinhole assumption</li>
+                <li><strong>Rolling shutter:</strong> Time-varying distortion during capture</li>
+                <li><strong>Secondary rays:</strong> Reflections, refractions, and indirect lighting</li>
+                <li><strong>Complex camera models:</strong> Non-pinhole optics used in robotics and VR</li>
+              </ul>
+              <p>
+                3DGUT solves these limitations by using the <strong>Unscented Transform</strong>—a mathematical 
+                technique that approximates how 3D Gaussians project through arbitrary camera models without 
+                requiring Jacobian calculations.
+              </p>
+
+              <div class="guide-info-box">
+                <div class="guide-info-box__icon" aria-hidden="true">
+                  <svg class="bi" width="24" height="24">
+                    <use href={`${base}static/bootstrap-icons.svg#lightbulb`}></use>
+                  </svg>
+                </div>
+                <div class="guide-info-box__content">
+                  <strong>Key Innovation:</strong> 3DGUT enables accurate Gaussian Splatting with any camera 
+                  distortion model while maintaining real-time performance—something that was previously only 
+                  possible with slower ray tracing approaches like 3DGRT.
+                </div>
+              </div>
+            </section>
+
+            <!-- Section 2: How It Differs from 3DGS -->
+            <section id="how-it-differs" class="guide-section">
+              <h2 class="guide-section__title">How It Differs from 3DGS</h2>
+              
+              <p class="guide-section__lead">
+                3DGUT makes fundamental changes to how Gaussians are projected and evaluated, enabling capabilities 
+                that standard 3DGS cannot achieve.
+              </p>
+
+              <h3>Comparison: 3DGUT vs Standard 3DGS</h3>
+              <div class="guide-comparison">
+                <div class="guide-comparison__table-wrapper">
+                  <table class="guide-comparison__table">
+                    <thead>
+                      <tr>
+                        <th>Feature</th>
+                        <th class="guide-comparison__highlight">3DGUT</th>
+                        <th>Standard 3DGS</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><strong>Projection Method</strong></td>
+                        <td class="guide-comparison__highlight">Unscented Transform (7 sigma points)</td>
+                        <td>EWA (Elliptical Weighted Average)</td>
+                      </tr>
+                      <tr>
+                        <td><strong>Camera Support</strong></td>
+                        <td class="guide-comparison__highlight">Any camera model (fisheye, FTheta, etc.)</td>
+                        <td>Pinhole only</td>
+                      </tr>
+                      <tr>
+                        <td><strong>Jacobian Required</strong></td>
+                        <td class="guide-comparison__highlight">No</td>
+                        <td>Yes</td>
+                      </tr>
+                      <tr>
+                        <td><strong>Rolling Shutter</strong></td>
+                        <td class="guide-comparison__highlight">Native support</td>
+                        <td>Not supported</td>
+                      </tr>
+                      <tr>
+                        <td><strong>Secondary Rays</strong></td>
+                        <td class="guide-comparison__highlight">Supported (reflections, refractions)</td>
+                        <td>Not supported</td>
+                      </tr>
+                      <tr>
+                        <td><strong>3D Evaluation</strong></td>
+                        <td class="guide-comparison__highlight">Along entire ray</td>
+                        <td>On image plane only</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <h3>Why EWA Falls Short</h3>
+              <p>
+                EWA projection assumes a linear projection that can be approximated with Jacobian matrices. 
+                For distorted cameras, this linear approximation breaks down, leading to:
+              </p>
+              <ul class="guide-list">
+                <li>Geometric inaccuracies at image edges</li>
+                <li>Artifacts with fisheye and wide-angle lenses</li>
+                <li>Inability to model complex lens distortions</li>
+                <li>Limited support for non-pinhole camera models</li>
+              </ul>
+              <p>
+                3DGUT eliminates these issues by sampling the projection directly using sigma points, 
+                bypassing the need for linear approximations entirely.
+              </p>
+            </section>
+
+            <!-- Section 3: How It Works -->
+            <section id="how-it-works" class="guide-section">
+              <h2 class="guide-section__title">How It Works</h2>
+              
+              <p class="guide-section__lead">
+                3DGUT replaces the EWA projection pipeline with Unscented Transform sampling, enabling 
+                accurate rendering through arbitrary camera models.
+              </p>
+
+              <h3>The Unscented Transform</h3>
+              <p>
+                The Unscented Transform is a mathematical technique from estimation theory that approximates 
+                how a probability distribution transforms through a nonlinear function. In 3DGUT:
+              </p>
+              
+              <div class="guide-innovation">
+                <h4>1. Sigma Point Selection</h4>
+                <p>
+                  3DGUT uses <strong>7 sigma points</strong> strategically chosen to represent the 3D Gaussian's 
+                  distribution. These points capture the mean and covariance of the Gaussian in 3D space.
+                </p>
+              </div>
+
+              <div class="guide-innovation">
+                <h4>2. Nonlinear Projection</h4>
+                <p>
+                  Each of the 7 sigma points is projected through the camera's distortion model. Unlike EWA, 
+                  which requires Jacobian approximations, this direct sampling works with <strong>any projection 
+                  function</strong>—including fisheye, FTheta, and custom distortion models.
+                </p>
+              </div>
+
+              <div class="guide-innovation">
+                <h4>3. 3D Evaluation Along Rays</h4>
+                <p>
+                  Instead of evaluating Gaussians only on the 2D image plane, 3DGUT evaluates them 
+                  <strong>along the entire ray</strong> in 3D space. This enables:
+                </p>
+                <ul class="guide-list">
+                  <li>Accurate depth handling for distorted projections</li>
+                  <li>Support for secondary rays (reflections, refractions)</li>
+                  <li>Better integration with ray tracing pipelines</li>
+                </ul>
+              </div>
+
+              <div class="guide-innovation">
+                <h4>4. Distribution Reconstruction</h4>
+                <p>
+                  The projected sigma points are used to reconstruct the 2D Gaussian approximation. 
+                  This reconstructed Gaussian is then blended with others using standard alpha compositing.
+                </p>
+              </div>
+
+              <h3>No Jacobian Required</h3>
+              <p>
+                A key advantage of 3DGUT is that it <strong>eliminates the need for Jacobian matrix calculations</strong>. 
+                The Jacobian of the projection function can be complex or even undefined for some camera models 
+                (like fisheye lenses with extreme distortion). By using sigma point sampling, 3DGUT bypasses 
+                this limitation entirely.
+              </p>
+            </section>
+
+            <!-- Section 4: Key Benefits -->
+            <section id="benefits" class="guide-section">
+              <h2 class="guide-section__title">Key Benefits</h2>
+              
+              <p class="guide-section__lead">
+                3DGUT unlocks new capabilities for Gaussian Splatting workflows, particularly in specialized 
+                applications requiring accurate distortion handling.
+              </p>
+
+              <h3>1. Accurate Distortion Handling</h3>
+              <p>
+                3DGUT natively supports any camera distortion model without approximations:
+              </p>
+              <ul class="guide-list">
+                <li><strong>Fisheye lenses:</strong> Full support for equidistant, equisolid, and stereographic projections</li>
+                <li><strong>FTheta models:</strong> Common in VR/AR headsets and robotics cameras</li>
+                <li><strong>Polynomial distortion:</strong> Brown-Conrady and other radial distortion models</li>
+                <li><strong>Custom models:</strong> Any projection function that can be evaluated point-wise</li>
+              </ul>
+
+              <h3>2. Rolling Shutter Support</h3>
+              <p>
+                Rolling shutter cameras capture each row of pixels at a slightly different time, causing 
+                distortion when the camera moves. 3DGUT can model this time-varying distortion, enabling 
+                accurate reconstruction from:
+              </p>
+              <ul class="guide-list">
+                <li>CMOS sensor cameras with rolling shutter</li>
+                <li>Fast-moving capture scenarios</li>
+                <li>Handheld and drone footage</li>
+              </ul>
+
+              <h3>3. Hybrid Rendering with Ray Tracing</h3>
+              <p>
+                Because 3DGUT evaluates Gaussians along rays in 3D space, it can be integrated with ray 
+                tracing pipelines for:
+              </p>
+              <ul class="guide-list">
+                <li><strong>Reflections:</strong> Accurate mirror and glossy reflections</li>
+                <li><strong>Refractions:</strong> Light passing through transparent materials</li>
+                <li><strong>Global illumination:</strong> Indirect lighting effects</li>
+                <li><strong>Shadows:</strong> Ray-traced shadows from Gaussian primitives</li>
+              </ul>
+
+              <div class="guide-warning-box">
+                <div class="guide-warning-box__icon" aria-hidden="true">
+                  <svg class="bi" width="24" height="24">
+                    <use href={`${base}static/bootstrap-icons.svg#exclamation-triangle`}></use>
+                  </svg>
+                </div>
+                <div class="guide-warning-box__content">
+                  <strong>Performance Cost:</strong> 3DGUT has a slight performance cost in both rendering 
+                  and training compared to standard 3DGS due to the additional sigma point sampling. 
+                  However, it remains significantly faster than full ray tracing approaches like 3DGRT.
+                </div>
+              </div>
+            </section>
+
+            <!-- Section 5: When to Use It -->
+            <section id="when-to-use" class="guide-section">
+              <h2 class="guide-section__title">When to Use 3DGUT</h2>
+              
+              <p class="guide-section__lead">
+                3DGUT is ideal for specific use cases where standard 3DGS limitations become blockers.
+              </p>
+
+              <h3>Robotics Applications</h3>
+              <p>
+                Robotics platforms often use specialized cameras with significant distortion:
+              </p>
+              <ul class="guide-list">
+                <li>Wide-angle cameras for navigation and obstacle detection</li>
+                <li>Fisheye lenses for 360° situational awareness</li>
+                <li>Custom calibration models for multi-camera rigs</li>
+              </ul>
+
+              <h3>Fisheye and Wide-Angle Cameras</h3>
+              <p>
+                Consumer and professional cameras with extreme field-of-view:
+              </p>
+              <ul class="guide-list">
+                <li>Action cameras (GoPro, DJI Osmo)</li>
+                <li>360° cameras (Insta360, Ricoh Theta)</li>
+                <li>VR/AR headset cameras</li>
+                <li>Automotive surround-view systems</li>
+              </ul>
+
+              <h3>Rolling Shutter Scenarios</h3>
+              <p>
+                When working with CMOS sensors exhibiting rolling shutter artifacts:
+              </p>
+              <ul class="guide-list">
+                <li>Fast camera motion during capture</li>
+                <li>Handheld video sequences</li>
+                <li>Drone and aerial photography</li>
+              </ul>
+
+              <h3>Hybrid Rendering Needs</h3>
+              <p>
+                Applications requiring both Gaussian Splatting and ray tracing effects:
+              </p>
+              <ul class="guide-list">
+                <li>Architectural visualization with reflections</li>
+                <li>Product rendering with transparent materials</li>
+                <li>VFX requiring accurate lighting</li>
+              </ul>
+            </section>
+
+
+            <!-- Section 8: FAQ -->
+            <section id="faq" class="guide-section">
+              <h2 class="guide-section__title">Frequently Asked Questions</h2>
+              
+              <div class="guide-faq">
+                {faqs.map((faq, index) => (
+                  <details class="guide-faq__item" open={index === 0}>
+                    <summary class="guide-faq__question">
+                      {faq.question}
+                      <svg class="guide-faq__icon" width="20" height="20" aria-hidden="true">
+                        <use href={`${base}static/bootstrap-icons.svg#chevron-down`}></use>
+                      </svg>
+                    </summary>
+                    <div class="guide-faq__answer">
+                      <p>{faq.answer}</p>
+                    </div>
+                  </details>
+                ))}
+              </div>
+            </section>
+
+            <!-- Section 9: Citation -->
+            <section id="citation" class="guide-section">
+              <h2 class="guide-section__title">Citation</h2>
+              
+              <p class="guide-section__lead">
+                If you use 3DGUT in your research, please cite the original paper:
+              </p>
+
+              <div class="guide-code-block">
+                <pre><code>@article&#123;wu20253dgut,
+    title=&#123;3DGUT: Enabling Distorted Cameras and Secondary Rays in Gaussian Splatting&#125;,
+    author=&#123;Wu, Qi and Martinez Esturo, Janick and Mirzaei, Ashkan and Moenne-Loccoz, Nicolas and Gojcic, Zan&#125;,
+    journal=&#123;CVPR&#125;,
+    year=&#123;2025&#125;
+&#125;</code></pre>
+              </div>
+
+              <h3>Related Resources</h3>
+              <ul class="guide-list">
+                <li>
+                  <a href="https://research.nvidia.com/labs/toronto-ai/3dgut/" target="_blank" rel="noopener noreferrer" class="guide-link">
+                    NVIDIA 3DGUT Research Page
+                  </a> — Official project page with paper and supplementary materials
+                </li>
+                <li>
+                  <a href="https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/" target="_blank" rel="noopener noreferrer" class="guide-link">
+                    Original 3D Gaussian Splatting Paper (SIGGRAPH 2023)
+                  </a> — Kerbl et al., INRIA & Max Planck Institute
+                </li>
+                <li>
+                  <a href={GITHUB_REPO_URL} target="_blank" rel="noopener noreferrer" class="guide-link">
+                    LichtFeld Studio GitHub Repository
+                  </a> — Open-source implementation
+                </li>
+                <li>
+                  <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer" class="guide-link">
+                    Community Discord
+                  </a> — Get help and share your work
+                </li>
+              </ul>
+            </section>
+
+            <!-- Section 10: Related Resources -->
+            <section id="resources" class="guide-section">
+              <h2 class="guide-section__title">Related Resources</h2>
+              
+              <p class="guide-section__lead">
+                Continue your Gaussian Splatting journey with these curated resources.
+              </p>
+
+              <div class="guide-resources">
+                {relatedResources.map((resource) => (
+                  <a href={resource.href} class="guide-resource">
+                    <div class="guide-resource__icon" aria-hidden="true">
+                      <svg class="bi" width="24" height="24">
+                        <use href={`${base}static/bootstrap-icons.svg#${resource.icon}`}></use>
+                      </svg>
+                    </div>
+                    <div class="guide-resource__content">
+                      <h3 class="guide-resource__title">{resource.title}</h3>
+                      <p class="guide-resource__desc">{resource.description}</p>
+                    </div>
+                    <svg class="guide-resource__arrow" width="20" height="20" aria-hidden="true">
+                      <use href={`${base}static/bootstrap-icons.svg#arrow-right`}></use>
+                    </svg>
+                  </a>
+                ))}
+              </div>
+
+              <div class="guide-cta-box">
+                <h3>Start Creating with 3DGUT</h3>
+                <p>
+                  Ready to work with distorted cameras? LichtFeld Studio provides everything you need 
+                  to train and render with 3DGUT—completely free and open-source.
+                </p>
+                <div class="guide-cta-box__actions">
+                  <a href={GITHUB_RELEASES_URL} class="btn btn-primary btn-lg" target="_blank" rel="noopener noreferrer">
+                    <svg class="bi" width="20" height="20" aria-hidden="true">
+                      <use href={`${base}static/bootstrap-icons.svg#download`}></use>
+                    </svg>
+                    Download Now
+                  </a>
+                  <a href={`${base}getting-started/`} class="btn btn-outline-primary btn-lg">
+                    <svg class="bi" width="20" height="20" aria-hidden="true">
+                      <use href={`${base}static/bootstrap-icons.svg#book`}></use>
+                    </svg>
+                    Getting Started
+                  </a>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <!-- Sidebar -->
+          <aside class="guide-sidebar">
+            <div class="guide-sidebar__sticky">
+              <!-- Quick Info Box -->
+              <div class="guide-sidebar__box">
+                <h3>3DGUT at a Glance</h3>
+                <dl class="guide-sidebar__specs">
+                  <dt>Full Name</dt>
+                  <dd>3D Gaussian Unscented Transform</dd>
+                  
+                  <dt>Developer</dt>
+                  <dd>NVIDIA Research</dd>
+                  
+                  <dt>Conference</dt>
+                  <dd>CVPR 2025</dd>
+                  
+                  <dt>Projection</dt>
+                  <dd>Unscented Transform (7 sigma points)</dd>
+                  
+                  <dt>Training Speed</dt>
+                  <dd>2-4× faster than 3DGRT</dd>
+                  
+                  <dt>Rendering Speed</dt>
+                  <dd>250-1000+ FPS</dd>
+                </dl>
+              </div>
+
+              <!-- Enable Box -->
+              <div class="guide-sidebar__box guide-sidebar__box--highlight">
+                <h3>Quick Start</h3>
+                <p>Enable 3DGUT with a single flag:</p>
+                <code class="guide-sidebar__code">--gut</code>
+                <a href="#cli-parameters" class="btn btn-primary w-full mt-3">
+                  View All Parameters
+                </a>
+              </div>
+
+              <!-- Support Box -->
+              <div class="guide-sidebar__box guide-sidebar__box--support">
+                <h3>Support the Project</h3>
+                <p>
+                  LichtFeld Studio is free and open-source. Your support helps us build better tools for the Gaussian Splatting community.
+                </p>
+                <div class="guide-sidebar__support-actions">
+                  <a href={GITHUB_SPONSORS_URL} class="btn btn-primary w-full" target="_blank" rel="noopener noreferrer">
+                    <svg class="bi" width="18" height="18" aria-hidden="true">
+                      <use href={`${base}static/bootstrap-icons.svg#github`}></use>
+                    </svg>
+                    GitHub Sponsors
+                  </a>
+                  <a href={PAYPAL_URL} class="btn btn-outline-primary w-full" target="_blank" rel="noopener noreferrer">
+                    <svg class="bi" width="18" height="18" aria-hidden="true">
+                      <use href={`${base}static/bootstrap-icons.svg#paypal`}></use>
+                    </svg>
+                    PayPal
+                  </a>
+                  <a href={DONORBOX_URL} class="btn btn-outline-primary w-full" target="_blank" rel="noopener noreferrer">
+                    <svg class="bi" width="18" height="18" aria-hidden="true">
+                      <use href={`${base}static/bootstrap-icons.svg#gift`}></use>
+                    </svg>
+                    DonorBox
+                  </a>
+                </div>
+              </div>
+
+              <!-- Quick Links -->
+              <div class="guide-sidebar__box">
+                <h3>Quick Links</h3>
+                <ul class="guide-sidebar__links">
+                  <li>
+                    <a href={GITHUB_REPO_URL} target="_blank" rel="noopener noreferrer">
+                      <svg class="bi" width="16" height="16" aria-hidden="true">
+                        <use href={`${base}static/bootstrap-icons.svg#github`}></use>
+                      </svg>
+                      GitHub Repository
+                    </a>
+                  </li>
+                  <li>
+                    <a href={GITHUB_WIKI_URL} target="_blank" rel="noopener noreferrer">
+                      <svg class="bi" width="16" height="16" aria-hidden="true">
+                        <use href={`${base}static/bootstrap-icons.svg#book`}></use>
+                      </svg>
+                      Documentation
+                    </a>
+                  </li>
+                  <li>
+                    <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer">
+                      <svg class="bi" width="16" height="16" aria-hidden="true">
+                        <use href={`${base}static/bootstrap-icons.svg#discord`}></use>
+                      </svg>
+                      Community Discord
+                    </a>
+                  </li>
+                  <li>
+                    <a href={`${base}showcase/`}>
+                      <svg class="bi" width="16" height="16" aria-hidden="true">
+                        <use href={`${base}static/bootstrap-icons.svg#eye`}></use>
+                      </svg>
+                      Interactive Showcase
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Share -->
+              <div class="guide-sidebar__box">
+                <h3>Share This Page</h3>
+                <div class="guide-sidebar__share">
+                  <button 
+                    type="button" 
+                    class="btn btn-outline-secondary guide-sidebar__share-btn"
+                    id="share-page-btn"
+                    aria-label="Copy page link to clipboard"
+                  >
+                    <svg class="bi" width="18" height="18" aria-hidden="true">
+                      <use href={`${base}static/bootstrap-icons.svg#link-45deg`}></use>
+                    </svg>
+                    Copy Link
+                  </button>
+                  <a 
+                    href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(seoTitle)}&url=${encodeURIComponent(new URL(Astro.url.pathname, Astro.site).toString())}`}
+                    class="btn btn-outline-secondary guide-sidebar__share-btn"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Share on Twitter"
+                  >
+                    <svg class="bi" width="18" height="18" aria-hidden="true">
+                      <use href={`${base}static/bootstrap-icons.svg#twitter-x`}></use>
+                    </svg>
+                    Twitter
+                  </a>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast notification -->
+    <div class="guide-toast" id="share-toast" aria-live="polite" aria-hidden="true">
+      <svg class="bi" width="20" height="20" aria-hidden="true">
+        <use href={`${base}static/bootstrap-icons.svg#check-circle`}></use>
+      </svg>
+      Link copied to clipboard!
+    </div>
+  </article>
+</Layout>
+
+<script>
+  // Share button functionality
+  document.addEventListener('DOMContentLoaded', () => {
+    const shareBtn = document.getElementById('share-page-btn');
+    const toast = document.getElementById('share-toast');
+
+    if (shareBtn && toast) {
+      shareBtn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(window.location.href);
+          
+          // Show toast
+          toast.classList.add('is-visible');
+          toast.setAttribute('aria-hidden', 'false');
+          
+          // Hide after 3 seconds
+          setTimeout(() => {
+            toast.classList.remove('is-visible');
+            toast.setAttribute('aria-hidden', 'true');
+          }, 3000);
+        } catch (err) {
+          console.error('Failed to copy:', err);
+        }
+      });
+    }
+  });
+</script>
+
+<style>
+  /* ============================================================================
+   * Guide Page Layout
+   * ============================================================================ */
+
+  .guide-page {
+    padding-bottom: 4rem;
+  }
+
+  /* ============================================================================
+   * Hero Section
+   * ============================================================================ */
+
+  .guide-hero {
+    padding: 3rem 0 2rem;
+    background: 
+      radial-gradient(circle at top left, rgba(20, 87, 255, 0.06), transparent 40%),
+      radial-gradient(circle at top right, rgba(201, 114, 52, 0.06), transparent 35%);
+    border-bottom: 1px solid var(--surface-border);
+  }
+
+  .guide-hero__content {
+    max-width: 800px;
+  }
+
+  .guide-breadcrumb {
+    margin-bottom: 1.5rem;
+  }
+
+  .guide-breadcrumb__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+
+  .guide-breadcrumb__item:not(:last-child)::after {
+    content: "/";
+    margin-left: 0.5rem;
+    opacity: 0.5;
+  }
+
+  .guide-breadcrumb__link {
+    color: var(--color-primary-link);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .guide-breadcrumb__link:hover {
+    color: var(--color-primary-link-hover);
+    text-decoration: underline;
+  }
+
+  .guide-hero__title {
+    font-size: clamp(2rem, 5vw, 3rem);
+    line-height: 1.1;
+    margin: 0 0 1.5rem;
+    color: var(--color-heading);
+  }
+
+  .guide-hero__lead {
+    font-size: 1.25rem;
+    line-height: 1.6;
+    color: var(--color-body);
+    margin: 0 0 1.5rem;
+  }
+
+  .guide-hero__meta {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+
+  .guide-hero__reading-time {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* ============================================================================
+   * Table of Contents
+   * ============================================================================ */
+
+  .guide-toc {
+    padding: 2rem 0;
+  }
+
+  .guide-toc__shell {
+    padding: 1.5rem;
+  }
+
+  .guide-toc__title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0 0 1rem;
+    color: var(--color-heading);
+  }
+
+  .guide-toc__list {
+    margin: 0;
+    padding: 0 0 0 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .guide-toc__link {
+    color: var(--color-body);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    transition: color 0.2s ease;
+  }
+
+  .guide-toc__link:hover {
+    color: var(--color-primary-link);
+  }
+
+  /* ============================================================================
+   * Content Layout
+   * ============================================================================ */
+
+  .guide-content {
+    padding: 1rem 0 3rem;
+  }
+
+  .guide-content__layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  @media (min-width: 1024px) {
+    .guide-content__layout {
+      grid-template-columns: 1fr 300px;
+      gap: 4rem;
+    }
+  }
+
+  .guide-content__main {
+    min-width: 0;
+  }
+
+  /* ============================================================================
+   * Guide Sections
+   * ============================================================================ */
+
+  .guide-section {
+    margin-bottom: 4rem;
+  }
+
+  .guide-section__title {
+    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    line-height: 1.2;
+    margin: 0 0 1.5rem;
+    color: var(--color-heading);
+    scroll-margin-top: calc(var(--nav-height) + 2rem);
+  }
+
+  .guide-section__lead {
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: var(--color-body);
+    margin: 0 0 1.5rem;
+  }
+
+  .guide-section h3 {
+    font-size: 1.375rem;
+    line-height: 1.3;
+    margin: 2rem 0 1rem;
+    color: var(--color-heading);
+    scroll-margin-top: calc(var(--nav-height) + 2rem);
+  }
+
+  .guide-section h4 {
+    font-size: 1.125rem;
+    line-height: 1.4;
+    margin: 1.5rem 0 0.75rem;
+    color: var(--color-heading);
+  }
+
+  .guide-section p {
+    font-size: 1.0625rem;
+    line-height: 1.8;
+    color: var(--color-body);
+    margin: 0 0 1.25rem;
+  }
+
+  .guide-section ul,
+  .guide-section ol {
+    font-size: 1.0625rem;
+    line-height: 1.8;
+    color: var(--color-body);
+    margin: 0 0 1.5rem;
+    padding-left: 1.5rem;
+  }
+
+  .guide-section li {
+    margin-bottom: 0.5rem;
+  }
+
+  .guide-link {
+    color: var(--color-primary-link);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+  }
+
+  .guide-link:hover {
+    color: var(--color-primary-link-hover);
+    text-decoration: underline;
+  }
+
+  /* ============================================================================
+   * Info Box
+   * ============================================================================ */
+
+  .guide-info-box {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, rgba(20, 87, 255, 0.08), rgba(20, 87, 255, 0.02));
+    border: 1px solid rgba(20, 87, 255, 0.15);
+    border-radius: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-info-box__icon {
+    flex-shrink: 0;
+    color: var(--color-primary);
+  }
+
+  .guide-info-box__content {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--color-body);
+  }
+
+  /* ============================================================================
+   * Warning Box
+   * ============================================================================ */
+
+  .guide-warning-box {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, rgba(201, 114, 52, 0.08), rgba(201, 114, 52, 0.02));
+    border: 1px solid rgba(201, 114, 52, 0.15);
+    border-radius: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-warning-box__icon {
+    flex-shrink: 0;
+    color: #c97234;
+  }
+
+  .guide-warning-box__content {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--color-body);
+  }
+
+  /* ============================================================================
+   * Innovations & Parameters
+   * ============================================================================ */
+
+  .guide-innovation,
+  .guide-parameter {
+    padding: 1.5rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-innovation h4,
+  .guide-parameter h4 {
+    margin: 0 0 0.75rem;
+    font-size: 1.125rem;
+  }
+
+  .guide-innovation p,
+  .guide-parameter p {
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
+  }
+
+  .guide-innovation p:last-child,
+  .guide-parameter p:last-child {
+    margin-bottom: 0;
+  }
+
+  .guide-parameter h3 {
+    margin-top: 0;
+    font-size: 1.25rem;
+  }
+
+  /* ============================================================================
+   * Comparison Table
+   * ============================================================================ */
+
+  .guide-comparison {
+    margin: 2rem 0;
+  }
+
+  .guide-comparison__table-wrapper {
+    overflow-x: auto;
+    border-radius: 1rem;
+    border: 1px solid var(--surface-border);
+  }
+
+  .guide-comparison__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9375rem;
+    background: var(--surface-bg);
+  }
+
+  .guide-comparison__table th,
+  .guide-comparison__table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--surface-border);
+  }
+
+  .guide-comparison__table th {
+    font-weight: 600;
+    color: var(--color-heading);
+    background: rgba(15, 23, 42, 0.03);
+  }
+
+  .guide-comparison__table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .guide-comparison__highlight {
+    background: rgba(20, 87, 255, 0.06);
+    font-weight: 500;
+  }
+
+  .guide-comparison__table code {
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.35rem;
+    background: rgba(15, 23, 42, 0.08);
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+  }
+
+  @media (max-width: 767px) {
+    .guide-comparison__table {
+      font-size: 0.875rem;
+    }
+    
+    .guide-comparison__table th,
+    .guide-comparison__table td {
+      padding: 0.75rem 0.5rem;
+    }
+  }
+
+  /* ============================================================================
+   * Code Block
+   * ============================================================================ */
+
+  .guide-code-block {
+    margin: 1rem 0;
+    border-radius: 1rem;
+    background: #1a1a2e;
+    overflow: hidden;
+  }
+
+  .guide-code-block pre {
+    margin: 0;
+    padding: 1.25rem;
+    overflow-x: auto;
+  }
+
+  .guide-code-block code {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #e4e4e7;
+    background: transparent;
+  }
+
+  /* ============================================================================
+   * Requirements
+   * ============================================================================ */
+
+  .guide-requirements {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  @media (min-width: 640px) {
+    .guide-requirements {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .guide-requirement {
+    padding: 1.5rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+  }
+
+  .guide-requirement--recommended {
+    background: linear-gradient(135deg, rgba(20, 87, 255, 0.08), rgba(20, 87, 255, 0.02));
+    border-color: rgba(20, 87, 255, 0.2);
+  }
+
+  .guide-requirement h4 {
+    margin: 0 0 1rem;
+    font-size: 1rem;
+    color: var(--color-heading);
+  }
+
+  .guide-requirement ul {
+    margin: 0;
+    padding-left: 1.25rem;
+    font-size: 0.9375rem;
+  }
+
+  .guide-requirement li {
+    margin-bottom: 0.375rem;
+  }
+
+  /* ============================================================================
+   * CTA Box
+   * ============================================================================ */
+
+  .guide-cta-box {
+    padding: 2rem;
+    background: linear-gradient(135deg, rgba(20, 87, 255, 0.1), rgba(201, 114, 52, 0.05));
+    border: 1px solid rgba(20, 87, 255, 0.2);
+    border-radius: 1.25rem;
+    margin: 2.5rem 0;
+    text-align: center;
+  }
+
+  .guide-cta-box h3 {
+    margin: 0 0 1rem;
+    font-size: 1.5rem;
+  }
+
+  .guide-cta-box p {
+    margin: 0 0 1.5rem;
+    font-size: 1.0625rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .guide-cta-box__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+  }
+
+  .guide-cta-box__actions .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* ============================================================================
+   * FAQ
+   * ============================================================================ */
+
+  .guide-faq {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-faq__item {
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+    overflow: hidden;
+  }
+
+  .guide-faq__question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.25rem;
+    font-weight: 600;
+    color: var(--color-heading);
+    cursor: pointer;
+    list-style: none;
+    transition: background 0.2s ease;
+  }
+
+  .guide-faq__question:hover {
+    background: rgba(15, 23, 42, 0.02);
+  }
+
+  .guide-faq__question::-webkit-details-marker {
+    display: none;
+  }
+
+  .guide-faq__icon {
+    flex-shrink: 0;
+    color: var(--color-muted);
+    transition: transform 0.2s ease;
+  }
+
+  .guide-faq__item[open] .guide-faq__icon {
+    transform: rotate(180deg);
+  }
+
+  .guide-faq__answer {
+    padding: 0 1.25rem 1.25rem;
+  }
+
+  .guide-faq__answer p {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  /* ============================================================================
+   * Resources
+   * ============================================================================ */
+
+  .guide-resources {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  @media (min-width: 640px) {
+    .guide-resources {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .guide-resource {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  .guide-resource:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--surface-shadow);
+    border-color: var(--color-border-hover);
+  }
+
+  .guide-resource__icon {
+    flex-shrink: 0;
+    color: var(--color-primary);
+  }
+
+  .guide-resource__content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .guide-resource__title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem;
+    color: var(--color-heading);
+  }
+
+  .guide-resource__desc {
+    font-size: 0.875rem;
+    color: var(--color-muted);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .guide-resource__arrow {
+    flex-shrink: 0;
+    color: var(--color-muted);
+    transition: transform 0.2s ease, color 0.2s ease;
+  }
+
+  .guide-resource:hover .guide-resource__arrow {
+    transform: translateX(4px);
+    color: var(--color-primary);
+  }
+
+  /* ============================================================================
+   * Sidebar
+   * ============================================================================ */
+
+  .guide-sidebar {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    .guide-sidebar {
+      display: block;
+    }
+  }
+
+  .guide-sidebar__sticky {
+    position: sticky;
+    top: calc(var(--nav-height) + 2rem);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .guide-sidebar__box {
+    padding: 1.5rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+  }
+
+  .guide-sidebar__box--highlight {
+    background: linear-gradient(135deg, rgba(20, 87, 255, 0.08), rgba(201, 114, 52, 0.05));
+    border-color: rgba(20, 87, 255, 0.2);
+  }
+
+  .guide-sidebar__box--support {
+    background: linear-gradient(135deg, rgba(20, 87, 255, 0.06), rgba(201, 114, 52, 0.04));
+  }
+
+  .guide-sidebar__box h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 1rem;
+    color: var(--color-heading);
+  }
+
+  .guide-sidebar__box p {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--color-body);
+    margin: 0 0 1rem;
+  }
+
+  .guide-sidebar__specs {
+    margin: 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .guide-sidebar__specs dt {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-muted);
+    font-weight: 600;
+  }
+
+  .guide-sidebar__specs dd {
+    margin: 0 0 0.75rem;
+    font-size: 0.9375rem;
+    color: var(--color-body);
+  }
+
+  .guide-sidebar__specs dd:last-child {
+    margin-bottom: 0;
+  }
+
+  .guide-sidebar__code {
+    display: block;
+    padding: 0.75rem 1rem;
+    background: #1a1a2e;
+    color: #e4e4e7;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    border-radius: 0.5rem;
+    margin: 0.75rem 0 0;
+  }
+
+  .guide-sidebar__links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .guide-sidebar__links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-body);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    transition: color 0.2s ease;
+  }
+
+  .guide-sidebar__links a:hover {
+    color: var(--color-primary-link);
+  }
+
+  .guide-sidebar__support-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .guide-sidebar__support-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .guide-sidebar__share {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .guide-sidebar__share-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem;
+    font-size: 0.875rem;
+  }
+
+  /* ============================================================================
+   * Toast
+   * ============================================================================ */
+
+  .guide-toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(1rem);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: var(--color-heading);
+    color: white;
+    font-weight: 500;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+  }
+
+  .guide-toast.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ============================================================================
+   * Utilities
+   * ============================================================================ */
+
+  .w-full {
+    width: 100%;
+  }
+
+  .mt-3 {
+    margin-top: 1rem;
+  }
+
+  /* ============================================================================
+   * Responsive Adjustments
+   * ============================================================================ */
+
+  @media (max-width: 767px) {
+    .guide-hero {
+      padding: 2rem 0 1.5rem;
+    }
+
+    .guide-hero__lead {
+      font-size: 1.125rem;
+    }
+
+    .guide-section {
+      margin-bottom: 3rem;
+    }
+
+    .guide-cta-box {
+      padding: 1.5rem;
+    }
+
+    .guide-cta-box__actions {
+      flex-direction: column;
+    }
+
+    .guide-cta-box__actions .btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .guide-innovation,
+    .guide-parameter {
+      padding: 1.25rem;
+    }
+
+    .guide-code-block pre {
+      padding: 1rem;
+    }
+
+    .guide-code-block code {
+      font-size: 0.85rem;
+    }
+  }
+</style>

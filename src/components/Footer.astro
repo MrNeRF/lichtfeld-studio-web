@@ -2,8 +2,8 @@
 /**
  * Footer.astro
  *
- * Site-wide footer component with theme-aware styling.
- * Displays the copyright notice and logo.
+ * Site-wide footer component with comprehensive navigation structure.
+ * Displays organized link columns, sponsor CTA, copyright and tech credits.
  */
 import lichtFeldLogo from '../assets/lichtfeld-logo.svg';
 import core11Logo from '../assets/core11-logo.svg';
@@ -13,34 +13,226 @@ const launchYear = 2025;
 const currentYear = new Date().getFullYear();
 const copyrightLabel =
   currentYear > launchYear ? `© ${launchYear}-${currentYear} LichtFeld` : `© ${launchYear} LichtFeld`;
+
+// Navigation structure
+const footerNav = {
+  gettingStarted: {
+    title: 'Getting Started',
+    links: [
+      { label: 'Quick Start', href: `${base}getting-started/` },
+      { label: 'First Training', href: `${base}tutorials/first-training/` },
+      { label: 'Capture Tips', href: `${base}tutorials/capture-tips/` },
+    ],
+  },
+  learn3dgs: {
+    title: 'Learn 3DGS',
+    links: [
+      { label: 'What is 3DGS?', href: `${base}what-is-gaussian-splatting/` },
+      { label: 'COLMAP Guide', href: `${base}glossary/colmap/` },
+      { label: '3DGUT', href: `${base}glossary/3dgut/` },
+      { label: 'FAQ', href: `${base}faq/` },
+      { label: 'Troubleshooting', href: `${base}troubleshooting/` },
+    ],
+  },
+  features: {
+    title: 'Features',
+    links: [
+      { label: 'MCP Automation', href: `${base}features/mcp-automation/` },
+      { label: 'Plugins', href: `${base}plugins/` },
+      { label: 'Showcase', href: `${base}showcase/` },
+    ],
+  },
+  comparisons: {
+    title: 'Comparisons',
+    links: [
+      { label: 'vs Postshot', href: `${base}vs/postshot/` },
+      { label: 'vs Brush', href: `${base}vs/brush/` },
+      { label: 'Alternatives', href: `${base}alternatives/` },
+    ],
+  },
+  developers: {
+    title: 'Developers',
+    links: [
+      { label: 'Documentation', href: `${base}docs/` },
+      { label: 'MCP Integration', href: `${base}integrations/mcp/` },
+      { label: 'Contribute', href: `${base}contribute/` },
+      { label: 'GitHub', href: 'https://github.com/lichtfeld-studio', external: true },
+    ],
+  },
+  community: {
+    title: 'Community',
+    links: [
+      { label: 'Discord', href: 'https://discord.gg/lichtfeld', external: true },
+      { label: 'Bounty Program', href: `${base}bounty/` },
+      { label: 'Sponsors', href: `${base}sponsors/` },
+      { label: 'Twitter/X', href: 'https://twitter.com/lichtfeldstudio', external: true },
+    ],
+  },
+};
 ---
 
 <div class="container content-frame px-4">
-  <footer class="site-footer py-3 my-4">
-    <!-- Supported by section -->
-    <div class="d-flex flex-column align-items-center mb-3 pb-3 border-bottom">
-      <p class="text-body-secondary mb-2 small">Supported by</p>
-      <a
-        href="https://www.core11.eu/"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Visit Core11 website"
-        class="sponsor-logo"
-      >
-        <img src={core11Logo.src} alt="Core11" class="sponsor-logo__image" />
-      </a>
+  <footer class="site-footer py-5 my-4">
+    <!-- Main footer content with navigation columns -->
+    <div class="footer-grid">
+      <!-- Brand column -->
+      <div class="footer-brand">
+        <a href={base} class="footer-brand__link" aria-label="LichtFeld Studio Home">
+          <img src={lichtFeldLogo.src} alt="LichtFeld Studio" class="footer-brand__logo" />
+        </a>
+        <p class="footer-brand__tagline">
+          Professional 3D Gaussian Splatting tools for creators and developers.
+        </p>
+        
+        <!-- Sponsor CTA -->
+        <div class="footer-sponsor">
+          <p class="footer-sponsor__label">Supported by</p>
+          <a
+            href="https://www.core11.eu/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Visit Core11 website"
+            class="footer-sponsor__link"
+          >
+            <img src={core11Logo.src} alt="Core11" class="footer-sponsor__logo" />
+          </a>
+        </div>
+      </div>
+
+      <!-- Navigation columns -->
+      <div class="footer-nav">
+        <div class="footer-nav__column">
+          <h3 class="footer-nav__title">{footerNav.gettingStarted.title}</h3>
+          <ul class="footer-nav__list">
+            {footerNav.gettingStarted.links.map((link) => (
+              <li class="footer-nav__item">
+                <a 
+                  href={link.href} 
+                  class="footer-nav__link"
+                  target={link.external ? '_blank' : undefined}
+                  rel={link.external ? 'noopener noreferrer' : undefined}
+                >
+                  {link.label}
+                  {link.external && <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div class="footer-nav__column">
+          <h3 class="footer-nav__title">{footerNav.learn3dgs.title}</h3>
+          <ul class="footer-nav__list">
+            {footerNav.learn3dgs.links.map((link) => (
+              <li class="footer-nav__item">
+                <a 
+                  href={link.href} 
+                  class="footer-nav__link"
+                  target={link.external ? '_blank' : undefined}
+                  rel={link.external ? 'noopener noreferrer' : undefined}
+                >
+                  {link.label}
+                  {link.external && <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div class="footer-nav__column">
+          <h3 class="footer-nav__title">{footerNav.features.title}</h3>
+          <ul class="footer-nav__list">
+            {footerNav.features.links.map((link) => (
+              <li class="footer-nav__item">
+                <a 
+                  href={link.href} 
+                  class="footer-nav__link"
+                  target={link.external ? '_blank' : undefined}
+                  rel={link.external ? 'noopener noreferrer' : undefined}
+                >
+                  {link.label}
+                  {link.external && <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div class="footer-nav__column">
+          <h3 class="footer-nav__title">{footerNav.comparisons.title}</h3>
+          <ul class="footer-nav__list">
+            {footerNav.comparisons.links.map((link) => (
+              <li class="footer-nav__item">
+                <a 
+                  href={link.href} 
+                  class="footer-nav__link"
+                  target={link.external ? '_blank' : undefined}
+                  rel={link.external ? 'noopener noreferrer' : undefined}
+                >
+                  {link.label}
+                  {link.external && <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div class="footer-nav__column">
+          <h3 class="footer-nav__title">{footerNav.developers.title}</h3>
+          <ul class="footer-nav__list">
+            {footerNav.developers.links.map((link) => (
+              <li class="footer-nav__item">
+                <a 
+                  href={link.href} 
+                  class="footer-nav__link"
+                  target={link.external ? '_blank' : undefined}
+                  rel={link.external ? 'noopener noreferrer' : undefined}
+                >
+                  {link.label}
+                  {link.external && <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div class="footer-nav__column">
+          <h3 class="footer-nav__title">{footerNav.community.title}</h3>
+          <ul class="footer-nav__list">
+            {footerNav.community.links.map((link) => (
+              <li class="footer-nav__item">
+                <a 
+                  href={link.href} 
+                  class="footer-nav__link"
+                  target={link.external ? '_blank' : undefined}
+                  rel={link.external ? 'noopener noreferrer' : undefined}
+                >
+                  {link.label}
+                  {link.external && <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
     </div>
 
-    <!-- Footer content -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center">
-      <p class="col-md-4 mb-0 site-footer__copyright">{copyrightLabel}</p>
-      <a
-        href={base}
-        class="col-md-4 d-flex align-items-center justify-content-center mb-3 mb-md-0 me-md-auto text-decoration-none"
-        aria-label="LichtFeld Studio Home"
-      >
-        <img src={lichtFeldLogo.src} alt="LichtFeld Studio" class="site-footer__logo" />
-      </a>
+    <!-- Bottom bar -->
+    <div class="footer-bottom">
+      <div class="footer-bottom__content">
+        <p class="footer-bottom__copyright">{copyrightLabel}</p>
+        <div class="footer-bottom__links">
+          <a href={`${base}license/`} class="footer-bottom__link">License</a>
+          <span class="footer-bottom__separator">·</span>
+          <a href={`${base}privacy/`} class="footer-bottom__link">Privacy</a>
+          <span class="footer-bottom__separator">·</span>
+          <a href={`${base}terms/`} class="footer-bottom__link">Terms</a>
+        </div>
+        <p class="footer-bottom__credit">
+          Built with <a href="https://astro.build" target="_blank" rel="noopener noreferrer" class="footer-bottom__credit-link">Astro</a>
+          <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>
+        </p>
+      </div>
     </div>
   </footer>
 </div>
@@ -50,36 +242,297 @@ const copyrightLabel =
    * Footer styling with theme-aware colors.
    */
   .site-footer {
-    padding-top: 2rem !important;
+    padding-top: 3rem !important;
     border-top: 1px solid rgba(15, 23, 42, 0.08) !important;
-    border-color: transparent !important;
   }
 
-  .site-footer__copyright {
-    color: var(--color-muted);
-    font-weight: 600;
+  /* Main footer grid layout */
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 3rem;
+    margin-bottom: 2.5rem;
   }
 
-  .site-footer__logo {
-    height: 20px;
-    opacity: 0.78;
+  /* Brand column */
+  .footer-brand {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .footer-brand__link {
+    display: inline-flex;
+    margin-bottom: 1rem;
+  }
+
+  .footer-brand__logo {
+    height: 24px;
+    opacity: 0.9;
     transition: opacity var(--transition-fast, 150ms) ease-out;
   }
 
-  .site-footer__logo:hover {
+  .footer-brand__link:hover .footer-brand__logo {
     opacity: 1;
   }
 
-  .sponsor-logo {
+  .footer-brand__tagline {
+    color: var(--color-muted);
+    font-size: 0.875rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    max-width: 260px;
+  }
+
+  /* Sponsor section */
+  .footer-sponsor {
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: var(--rounded-lg, 0.5rem);
+    backdrop-filter: blur(8px);
+  }
+
+  .footer-sponsor__label {
+    color: var(--color-muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+  }
+
+  .footer-sponsor__link {
+    display: inline-flex;
     transition: opacity var(--transition-fast, 150ms) ease-out;
   }
 
-  .sponsor-logo:hover {
-    opacity: 1 !important;
+  .footer-sponsor__link:hover {
+    opacity: 0.8;
   }
 
-  .sponsor-logo__image {
-    height: 30px;
-    opacity: 0.85;
+  .footer-sponsor__logo {
+    height: 28px;
+    opacity: 0.9;
+  }
+
+  /* Navigation columns grid */
+  .footer-nav {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 1.5rem;
+  }
+
+  .footer-nav__column {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .footer-nav__title {
+    color: var(--color-heading);
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  }
+
+  .footer-nav__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .footer-nav__item {
+    display: flex;
+  }
+
+  .footer-nav__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--color-body);
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color var(--transition-fast, 150ms) ease-out;
+    line-height: 1.4;
+  }
+
+  .footer-nav__link:hover {
+    color: var(--color-primary-link);
+  }
+
+  .footer-nav__link :global(.bi) {
+    font-size: 0.7rem;
+    opacity: 0.6;
+    transition: opacity var(--transition-fast, 150ms) ease-out;
+  }
+
+  .footer-nav__link:hover :global(.bi) {
+    opacity: 1;
+  }
+
+  /* Bottom bar */
+  .footer-bottom {
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(15, 23, 42, 0.08);
+  }
+
+  .footer-bottom__content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .footer-bottom__copyright {
+    color: var(--color-muted);
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .footer-bottom__links {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .footer-bottom__link {
+    color: var(--color-muted);
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color var(--transition-fast, 150ms) ease-out;
+  }
+
+  .footer-bottom__link:hover {
+    color: var(--color-primary-link);
+  }
+
+  .footer-bottom__separator {
+    color: var(--color-muted);
+    opacity: 0.5;
+  }
+
+  .footer-bottom__credit {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--color-muted);
+    font-size: 0.875rem;
+    margin: 0;
+  }
+
+  .footer-bottom__credit-link {
+    color: var(--color-primary-link);
+    font-weight: 600;
+    text-decoration: none;
+    transition: color var(--transition-fast, 150ms) ease-out;
+  }
+
+  .footer-bottom__credit-link:hover {
+    color: var(--color-primary-link-hover);
+  }
+
+  .footer-bottom__credit :global(.bi) {
+    font-size: 0.7rem;
+    opacity: 0.6;
+  }
+
+  /* Responsive styles */
+  @media (max-width: 1199.98px) {
+    .footer-grid {
+      grid-template-columns: 240px 1fr;
+      gap: 2rem;
+    }
+
+    .footer-nav {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem 1.5rem;
+    }
+  }
+
+  @media (max-width: 991.98px) {
+    .footer-grid {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+    }
+
+    .footer-brand {
+      align-items: center;
+      text-align: center;
+    }
+
+    .footer-brand__tagline {
+      max-width: 400px;
+    }
+
+    .footer-sponsor {
+      max-width: 200px;
+    }
+
+    .footer-nav {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .footer-bottom__content {
+      flex-direction: column;
+      text-align: center;
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    .site-footer {
+      padding-top: 2rem !important;
+    }
+
+    .footer-nav {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem 1rem;
+    }
+
+    .footer-nav__title {
+      font-size: 0.75rem;
+    }
+
+    .footer-nav__link {
+      font-size: 0.8125rem;
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .footer-nav {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .footer-nav__column {
+      border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+      padding-bottom: 1rem;
+    }
+
+    .footer-nav__column:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .footer-nav__list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem 1rem;
+    }
+
+    .footer-bottom__links {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
   }
 </style>

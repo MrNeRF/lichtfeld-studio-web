@@ -1,0 +1,2008 @@
+---
+/**
+ * colmap.astro
+ *
+ * Educational glossary page targeting:
+ * - "what is colmap"
+ * - "colmap 3d gaussian splatting"
+ * - "colmap tutorial"
+ *
+ * Features:
+ * - Schema.org Definition + Article structured data
+ * - Breadcrumb navigation
+ * - Code blocks for commands
+ * - File structure diagrams
+ * - Tips and warnings
+ * - Internal links to related pages
+ */
+
+import Layout from "@/layouts/Layout.astro";
+import { SITE } from "@/config/site.config";
+import {
+  GITHUB_REPO_URL,
+  GITHUB_WIKI_URL,
+  DISCORD_URL,
+} from "@/constants/project";
+
+const base = import.meta.env.BASE_URL;
+
+// SEO metadata
+const seoTitle = "What is COLMAP? Complete Guide for 3D Gaussian Splatting";
+const seoDescription = "Learn what COLMAP is and how to use it with LichtFeld Studio for 3D Gaussian Splatting. Step-by-step guide to structure-from-motion and camera calibration.";
+
+// Article metadata for Schema.org
+const articlePublishedDate = new Date();
+const articleModifiedDate = new Date();
+
+// FAQ data
+const faqs = [
+  {
+    question: "What is COLMAP used for?",
+    answer: "COLMAP is a Structure-from-Motion (SfM) and Multi-View Stereo (MVS) pipeline used to reconstruct 3D geometry from 2D images. It's primarily used for estimating camera poses, creating sparse point clouds, and generating dense reconstructions for applications like 3D Gaussian Splatting."
+  },
+  {
+    question: "Is COLMAP free to use?",
+    answer: "Yes, COLMAP is completely free and open-source under the BSD license. You can use it for personal, academic, and commercial projects without restrictions."
+  },
+  {
+    question: "Do I need to install COLMAP separately for LichtFeld Studio?",
+    answer: "Yes, COLMAP is a separate prerequisite tool that you must run independently before using LichtFeld Studio. LFS does not include or automatically run COLMAP. You need to use COLMAP CLI, RealityScan, or similar photogrammetry tools first to generate the sparse reconstruction (cameras.bin, images.bin, points3D.bin), then import that output into LFS."
+  },
+  {
+    question: "How long does COLMAP processing take?",
+    answer: "Processing time depends on the number of images and your hardware. Feature extraction typically takes 1-3 minutes per 100 images, and matching can take 5-30 minutes depending on image overlap and resolution."
+  },
+  {
+    question: "What image formats does COLMAP support?",
+    answer: "COLMAP supports common image formats including JPG, PNG, TIFF, and BMP. RAW files should be converted to one of these formats before processing."
+  }
+];
+
+// Related glossary terms (for future expansion)
+const relatedTerms = [
+  {
+    term: "3D Gaussian Splatting",
+    description: "A real-time 3D rendering technique using millions of colored 3D Gaussians.",
+    href: `${base}what-is-gaussian-splatting/`
+  },
+  {
+    term: "Structure from Motion",
+    description: "The process of estimating 3D structure from 2D image sequences.",
+    href: `${base}glossary/sfm/`
+  },
+  {
+    term: "Camera Calibration",
+    description: "Determining camera intrinsic and extrinsic parameters for accurate 3D reconstruction.",
+    href: `${base}glossary/camera-calibration/`
+  }
+];
+
+// Build Schema.org Definition structured data
+const definitionSchema = {
+  "@context": "https://schema.org",
+  "@type": "DefinedTerm",
+  "name": "COLMAP",
+  "description": "A general-purpose Structure-from-Motion and Multi-View Stereo pipeline for 3D reconstruction from images.",
+  "inDefinedTermSet": {
+    "@type": "DefinedTermSet",
+    "name": "3D Gaussian Splatting Glossary"
+  }
+};
+
+// Build Schema.org Article structured data
+const articleSchema = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": seoTitle,
+  "description": seoDescription,
+  "image": new URL(`${base}static/social-card.png`, Astro.site).toString(),
+  "author": {
+    "@type": "Organization",
+    "name": SITE.name,
+    "url": SITE.url
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": SITE.name,
+    "logo": {
+      "@type": "ImageObject",
+      "url": new URL(`${base}static/favicon.svg`, Astro.site).toString()
+    }
+  },
+  "datePublished": articlePublishedDate.toISOString(),
+  "dateModified": articleModifiedDate.toISOString(),
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": new URL(Astro.url.pathname, Astro.site).toString()
+  }
+};
+
+// Build FAQ Schema
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": faqs.map(faq => ({
+    "@type": "Question",
+    "name": faq.question,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": faq.answer
+    }
+  }))
+};
+
+// Breadcrumb schema
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": new URL(base, Astro.site).toString()
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Glossary",
+      "item": new URL(`${base}glossary/`, Astro.site).toString()
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "COLMAP",
+      "item": new URL(Astro.url.pathname, Astro.site).toString()
+    }
+  ]
+};
+---
+
+<Layout 
+  title={seoTitle} 
+  description={seoDescription}
+  ogType="article"
+>
+  <!-- Schema.org Structured Data -->
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(definitionSchema)} />
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(articleSchema)} />
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(faqSchema)} />
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(breadcrumbSchema)} />
+
+  <article class="guide-page">
+    <!-- Hero Section -->
+    <header class="guide-hero">
+      <div class="container content-frame px-4">
+        <div class="guide-hero__content">
+          <nav class="guide-breadcrumb" aria-label="Breadcrumb">
+            <ol class="guide-breadcrumb__list">
+              <li class="guide-breadcrumb__item">
+                <a href={base} class="guide-breadcrumb__link">Home</a>
+              </li>
+              <li class="guide-breadcrumb__item">
+                <a href={`${base}glossary/`} class="guide-breadcrumb__link">Glossary</a>
+              </li>
+              <li class="guide-breadcrumb__item" aria-current="page">
+                <span>COLMAP</span>
+              </li>
+            </ol>
+          </nav>
+          
+          <h1 class="guide-hero__title">What is COLMAP?</h1>
+          <p class="guide-hero__lead">
+            <strong>COLMAP</strong> is a powerful open-source Structure-from-Motion (SfM) and Multi-View Stereo (MVS) 
+            pipeline that transforms 2D images into accurate 3D reconstructions. It's the essential first step in 
+            creating 3D Gaussian Splats and many other 3D vision workflows.
+          </p>
+          
+          <div class="guide-hero__meta">
+            <span class="guide-hero__reading-time">
+              <svg class="bi" width="16" height="16" aria-hidden="true">
+                <use href={`${base}static/bootstrap-icons.svg#clock`}></use>
+              </svg>
+              8 min read
+            </span>
+            <span class="guide-hero__updated">
+              Updated {articleModifiedDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+            </span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Table of Contents -->
+    <nav class="guide-toc" aria-label="Table of contents">
+      <div class="container content-frame px-4">
+        <div class="guide-toc__shell shell shell--compact">
+          <h2 class="guide-toc__title">Contents</h2>
+          <ol class="guide-toc__list">
+            <li><a href="#what-is" class="guide-toc__link">What is COLMAP?</a></li>
+            <li><a href="#how-it-works" class="guide-toc__link">How COLMAP Works</a></li>
+            <li><a href="#why-important" class="guide-toc__link">Why COLMAP is Important for 3DGS</a></li>
+            <li><a href="#capture-guidelines" class="guide-toc__link">Capture Guidelines</a></li>
+            <li><a href="#installing" class="guide-toc__link">Installing COLMAP</a></li>
+            <li><a href="#lichtfeld" class="guide-toc__link">Using COLMAP with LichtFeld Studio</a></li>
+            <li><a href="#output-format" class="guide-toc__link">COLMAP Output Format</a></li>
+            <li><a href="#faq" class="guide-toc__link">FAQ</a></li>
+            <li><a href="#related" class="guide-toc__link">Related Terms</a></li>
+          </ol>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="guide-content">
+      <div class="container content-frame px-4">
+        <div class="guide-content__layout">
+          <!-- Article Body -->
+          <div class="guide-content__main">
+            
+            <!-- Section 1: What is COLMAP? -->
+            <section id="what-is" class="guide-section">
+              <h2 class="guide-section__title">What is COLMAP?</h2>
+              
+              <p class="guide-section__lead">
+                <strong>COLMAP</strong> (short for "COLlection MAPping") is a general-purpose photogrammetry pipeline 
+                that reconstructs 3D geometry from a collection of 2D images. Developed by Johannes Schönberger and 
+                colleagues, it's become the industry standard for Structure-from-Motion tasks and serves as the 
+                foundation for many 3D reconstruction workflows, including 3D Gaussian Splatting.
+              </p>
+
+              <p>
+                At its core, COLMAP solves a fundamental computer vision problem: given multiple photographs of a 
+                scene taken from different viewpoints, determine where each photo was taken (camera pose) and build 
+                a 3D representation of the scene geometry. This process is essential for any 3D reconstruction 
+                pipeline that starts with regular photographs.
+              </p>
+
+              <h3>Key Capabilities</h3>
+              <ul class="guide-list">
+                <li><strong>Feature Extraction:</strong> Identifies distinctive visual features in each image</li>
+                <li><strong>Feature Matching:</strong> Finds corresponding features across multiple images</li>
+                <li><strong>Sparse Reconstruction:</strong> Estimates camera poses and creates a sparse point cloud</li>
+                <li><strong>Dense Reconstruction:</strong> Generates detailed depth maps and dense point clouds</li>
+                <li><strong>Mesh Reconstruction:</strong> Creates textured 3D meshes from dense point clouds</li>
+              </ul>
+
+              <div class="guide-info-box">
+                <div class="guide-info-box__icon" aria-hidden="true">
+                  <svg class="bi" width="24" height="24">
+                    <use href={`${base}static/bootstrap-icons.svg#book`}></use>
+                  </svg>
+                </div>
+                <div class="guide-info-box__content">
+                  <strong>Getting Started:</strong> New to COLMAP and 3D Gaussian Splatting? 
+                  See our <a href={`${base}getting-started/`} class="guide-link">Getting Started guide</a> for a 
+                  complete walkthrough from capture to final splat.
+                </div>
+              </div>
+
+              <div class="guide-info-box">
+                <div class="guide-info-box__icon" aria-hidden="true">
+                  <svg class="bi" width="24" height="24">
+                    <use href={`${base}static/bootstrap-icons.svg#lightbulb`}></use>
+                  </svg>
+                </div>
+                <div class="guide-info-box__content">
+                  <strong>Key Insight:</strong> COLMAP doesn't create the final 3D Gaussian Splat directly. Instead, 
+                  it provides the essential camera calibration and initial point cloud that 3D Gaussian Splatting 
+                  algorithms use as their starting point for training.
+                </div>
+              </div>
+            </section>
+
+            <!-- Section 2: How COLMAP Works -->
+            <section id="how-it-works" class="guide-section">
+              <h2 class="guide-section__title">How COLMAP Works</h2>
+              
+              <p class="guide-section__lead">
+                COLMAP operates in two main stages: <strong>Structure-from-Motion (SfM)</strong> for sparse 
+                reconstruction and <strong>Multi-View Stereo (MVS)</strong> for dense reconstruction. 
+                Understanding these stages helps you use COLMAP more effectively.
+              </p>
+
+              <h3>Stage 1: Structure-from-Motion (SfM)</h3>
+              <p>
+                Structure-from-Motion is the process of estimating camera poses and sparse 3D structure from images. 
+                COLMAP's SfM pipeline follows these steps:
+              </p>
+              
+              <ol class="guide-list guide-list--numbered">
+                <li>
+                  <strong>Feature Extraction:</strong> COLMAP analyzes each image and extracts distinctive visual 
+                  features using algorithms like SIFT (Scale-Invariant Feature Transform). These features are 
+                  points in the image that are likely to be recognizable from different viewpoints.
+                </li>
+                <li>
+                  <strong>Feature Matching:</strong> The extracted features are compared across image pairs to find 
+                  correspondences—points that appear in multiple images. COLMAP uses geometric verification to 
+                  ensure matches are consistent with 3D geometry.
+                </li>
+                <li>
+                  <strong>Geometric Estimation:</strong> Using the matched features, COLMAP estimates the relative 
+                  positions and orientations of cameras, as well as the 3D positions of feature points. This creates 
+                  a sparse point cloud representing the scene.
+                </li>
+                <li>
+                  <strong>Bundle Adjustment:</strong> This optimization step refines all camera parameters and 3D 
+                  point positions simultaneously to minimize reprojection error—the difference between where 
+                  points appear in images and where the model predicts they should appear.
+                </li>
+              </ol>
+
+              <h3>Stage 2: Multi-View Stereo (MVS)</h3>
+              <p>
+                While SfM produces a sparse point cloud, Multi-View Stereo creates dense depth maps and a 
+                comprehensive point cloud with millions of points:
+              </p>
+              
+              <ol class="guide-list guide-list--numbered">
+                <li>
+                  <strong>Stereo Matching:</strong> For each image, COLMAP finds corresponding pixels in 
+                  neighboring views and calculates depth using triangulation.
+                </li>
+                <li>
+                  <strong>Depth Map Fusion:</strong> Depth estimates from multiple views are fused into a 
+                  consistent 3D point cloud, filtering out outliers and noise.
+                </li>
+                <li>
+                  <strong>Mesh Reconstruction (Optional):</strong> The dense point cloud can be converted 
+                  into a textured mesh using Poisson surface reconstruction or Delaunay triangulation.
+                </li>
+              </ol>
+
+              <div class="guide-tech-specs">
+                <h4>Technical Specifications</h4>
+                <dl class="guide-specs-list">
+                  <dt>Feature Types</dt>
+                  <dd>SIFT, SURF, ORB, AKAZE (configurable)</dd>
+                  
+                  <dt>Matching Strategies</dt>
+                  <dd>Exhaustive, sequential, vocabulary tree, spatial</dd>
+                  
+                  <dt>Camera Models</dt>
+                  <dd>PINHOLE, OPENCV, OPENCV_FISHEYE, FULL_OPENCV, FOV, SIMPLE_RADIAL, RADIAL</dd>
+                  
+                  <dt>Output Formats</dt>
+                  <dd>TXT, BIN, PLY, OBJ, VRML</dd>
+                </dl>
+              </div>
+            </section>
+
+            <!-- Section 3: Why COLMAP is Important for 3DGS -->
+            <section id="why-important" class="guide-section">
+              <h2 class="guide-section__title">Why COLMAP is Important for 3D Gaussian Splatting</h2>
+              
+              <p class="guide-section__lead">
+                3D Gaussian Splatting (3DGS) requires accurate camera calibration and an initial point cloud 
+                to begin training. COLMAP provides both, making it an indispensable tool in the 3DGS workflow.
+              </p>
+
+              <h3>The 3DGS Pipeline Dependency</h3>
+              <p>
+                The standard 3D Gaussian Splatting training pipeline looks like this:
+              </p>
+              
+              <div class="guide-pipeline">
+                <div class="guide-pipeline__step">
+                  <span class="guide-pipeline__number">1</span>
+                  <span class="guide-pipeline__label">Capture Images</span>
+                </div>
+                <div class="guide-pipeline__arrow">→</div>
+                <div class="guide-pipeline__step guide-pipeline__step--highlight">
+                  <span class="guide-pipeline__number">2</span>
+                  <span class="guide-pipeline__label">COLMAP SfM</span>
+                </div>
+                <div class="guide-pipeline__arrow">→</div>
+                <div class="guide-pipeline__step">
+                  <span class="guide-pipeline__number">3</span>
+                  <span class="guide-pipeline__label">3DGS Training</span>
+                </div>
+                <div class="guide-pipeline__arrow">→</div>
+                <div class="guide-pipeline__step">
+                  <span class="guide-pipeline__number">4</span>
+                  <span class="guide-pipeline__label">Rendered Splat</span>
+                </div>
+              </div>
+
+              <p>
+                Without COLMAP (or a similar SfM tool), 3DGS has no way to know:
+              </p>
+              
+              <ul class="guide-list">
+                <li><strong>Camera positions:</strong> Where each photo was taken in 3D space</li>
+                <li><strong>Camera orientations:</strong> Which direction each camera was facing</li>
+                <li><strong>Camera intrinsics:</strong> Focal length, principal point, and lens distortion parameters</li>
+                <li><strong>Initial geometry:</strong> A starting point for the 3D Gaussian positions</li>
+              </ul>
+
+              <h3>Why COLMAP Specifically?</h3>
+              <p>
+                Several SfM solutions exist, but COLMAP has become the de facto standard for 3DGS for several reasons:
+              </p>
+              
+              <ul class="guide-list">
+                <li><strong>Accuracy:</strong> Produces highly accurate camera calibrations</li>
+                <li><strong>Robustness:</strong> Handles challenging datasets better than many alternatives</li>
+                <li><strong>Open Source:</strong> Free to use and actively maintained by the research community</li>
+                <li><strong>Compatibility:</strong> Output format is directly compatible with 3DGS implementations</li>
+                <li><strong>Documentation:</strong> Extensive tutorials and community support available</li>
+              </ul>
+
+              <div class="guide-warning-box">
+                <div class="guide-warning-box__icon" aria-hidden="true">
+                  <svg class="bi" width="24" height="24">
+                    <use href={`${base}static/bootstrap-icons.svg#exclamation-triangle`}></use>
+                  </svg>
+                </div>
+                <div class="guide-warning-box__content">
+                  <strong>Important:</strong> The quality of your COLMAP reconstruction directly impacts 
+                  your final 3D Gaussian Splat quality. Poor camera calibration will result in blurry, 
+                  misaligned, or incomplete splats. Always verify your COLMAP output before proceeding 
+                  to 3DGS training. For capture best practices, see our <a href={`${base}tutorials/capture-tips/`} class="guide-link">Capture Tips guide</a>.
+                </div>
+              </div>
+            </section>
+
+            <!-- Section 4: Capture Guidelines for COLMAP -->
+            <section id="capture-guidelines" class="guide-section">
+              <h2 class="guide-section__title">Capture Guidelines for COLMAP</h2>
+              
+              <p class="guide-section__lead">
+                The quality of your input images directly determines COLMAP's reconstruction accuracy. 
+                Follow these essential guidelines for best results.
+              </p>
+
+              <h3>Essential Capture Settings</h3>
+              <div class="guide-tips-grid">
+                <div class="guide-tip-card">
+                  <span class="guide-tip-card__number">1</span>
+                  <p class="guide-tip-card__text"><strong>Scene Overlap:</strong> Maintain 60-80% overlap between consecutive images. This ensures COLMAP can find enough matching features.</p>
+                </div>
+                <div class="guide-tip-card">
+                  <span class="guide-tip-card__number">2</span>
+                  <p class="guide-tip-card__text"><strong>Image Count:</strong> Use 100-200 images for single objects, 200+ for larger scenes. More images improve accuracy but increase processing time.</p>
+                </div>
+                <div class="guide-tip-card">
+                  <span class="guide-tip-card__number">3</span>
+                  <p class="guide-tip-card__text"><strong>Lighting:</strong> Use soft, diffused, even lighting. Avoid harsh shadows, specular highlights, and changing light conditions.</p>
+                </div>
+              </div>
+
+              <div class="guide-info-box">
+                <div class="guide-info-box__icon" aria-hidden="true">
+                  <svg class="bi" width="24" height="24">
+                    <use href={`${base}static/bootstrap-icons.svg#book`}></use>
+                  </svg>
+                </div>
+                <div class="guide-info-box__content">
+                  <strong>Detailed Guide:</strong> For comprehensive capture techniques including camera settings, 
+                  shooting patterns, and advanced tips, see our <a href={`${base}tutorials/capture-tips/`} class="guide-link">Capture Tips guide</a>.
+                </div>
+              </div>
+            </section>
+
+            <!-- Section 5: Installing COLMAP -->
+            <section id="installing" class="guide-section">
+              <h2 class="guide-section__title">Installing COLMAP</h2>
+              
+              <p class="guide-section__lead">
+                COLMAP is a separate prerequisite tool that you must run independently 
+                before using LichtFeld Studio. This section explains how to use external 
+                COLMAP output with LFS for 3D Gaussian Splatting workflows.
+              </p>
+
+              <h3>Windows Installation</h3>
+              <div class="guide-code-block">
+                <pre><code># Download pre-built binaries from GitHub releases
+# https://github.com/colmap/colmap/releases
+
+# Extract the ZIP file and add to PATH, or use the portable version
+# The installer includes both COLMAP GUI and command-line tools</code></pre>
+                <button class="guide-code-block__copy" aria-label="Copy code to clipboard">
+                  <svg class="bi" width="16" height="16">
+                    <use href={`${base}static/bootstrap-icons.svg#clipboard`}></use>
+                  </svg>
+                </button>
+              </div>
+
+              <h3>Linux Installation (Ubuntu/Debian)</h3>
+              <div class="guide-code-block">
+                <pre><code># Install from package manager (may not be latest version)
+sudo apt-get update
+sudo apt-get install colmap
+
+# Or build from source for latest features
+# See: https://colmap.github.io/install.html</code></pre>
+                <button class="guide-code-block__copy" aria-label="Copy code to clipboard">
+                  <svg class="bi" width="16" height="16">
+                    <use href={`${base}static/bootstrap-icons.svg#clipboard`}></use>
+                  </svg>
+                </button>
+              </div>
+
+              <h3>macOS Installation</h3>
+              <div class="guide-code-block">
+                <pre><code># Using Homebrew
+brew install colmap
+
+# Note: macOS builds may have limited CUDA support
+# For full GPU acceleration, Linux or Windows is recommended</code></pre>
+                <button class="guide-code-block__copy" aria-label="Copy code to clipboard">
+                  <svg class="bi" width="16" height="16">
+                    <use href={`${base}static/bootstrap-icons.svg#clipboard`}></use>
+                  </svg>
+                </button>
+              </div>
+
+              <div class="guide-info-box">
+                <div class="guide-info-box__icon" aria-hidden="true">
+                  <svg class="bi" width="24" height="24">
+                    <use href={`${base}static/bootstrap-icons.svg#info-circle`}></use>
+                  </svg>
+                </div>
+                <div class="guide-info-box__content">
+                  <strong>External Tool Required:</strong> COLMAP is a separate application that you must 
+                  run independently before using LichtFeld Studio. LFS does not include or automatically 
+                  run COLMAP. Use COLMAP CLI, RealityScan, or similar SfM tools first, then import the 
+                  output into LFS.
+                </div>
+              </div>
+
+              <h3>COLMAP Tutorial</h3>
+              <p>
+                For a comprehensive walkthrough of COLMAP's features and workflows, refer to the 
+                <a href="https://colmap.github.io/tutorial.html" target="_blank" rel="noopener noreferrer" class="guide-link">official COLMAP tutorial</a>. 
+                It covers feature extraction, matching strategies, and advanced reconstruction options.
+              </p>
+            </section>
+
+            <!-- Section 5: Using COLMAP with LichtFeld Studio -->
+            <section id="lichtfeld" class="guide-section">
+              <h2 class="guide-section__title">Using COLMAP with LichtFeld Studio</h2>
+              
+              <div class="guide-warning-box">
+                <div class="guide-warning-box__icon" aria-hidden="true">
+                  <svg class="bi" width="24" height="24">
+                    <use href={`${base}static/bootstrap-icons.svg#exclamation-triangle`}></use>
+                  </svg>
+                </div>
+                <div class="guide-warning-box__content">
+                  <strong>Important Prerequisite:</strong> COLMAP is a <em>separate external tool</em> that you 
+                  must run independently BEFORE using LichtFeld Studio. LFS does NOT include or automatically 
+                  run COLMAP. You need to use COLMAP CLI, RealityScan, or similar photogrammetry tools first, 
+                  then import the generated output (sparse/ folder with cameras.bin, images.bin, points3D.bin) 
+                  into LFS.
+                </div>
+              </div>
+              
+              <p class="guide-section__lead">
+                LichtFeld Studio works with existing COLMAP output to create 3D Gaussian Splats. 
+                You must first run COLMAP externally using the tools below, then import the 
+                resulting dataset into LFS.
+              </p>
+
+              <h3>Step-by-Step Workflow</h3>
+              
+              <div class="guide-steps">
+                <div class="guide-step">
+                  <span class="guide-step__number">1</span>
+                  <div class="guide-step__content">
+                    <h4>Run COLMAP Externally</h4>
+                    <p>
+                      Use one of these tools to process your images and generate COLMAP output:
+                    </p>
+                    <ul>
+                      <li><strong>COLMAP CLI:</strong> Command-line tool for feature extraction, matching, and sparse reconstruction</li>
+                      <li><strong>COLMAP GUI:</strong> Desktop application with visual interface</li>
+                      <li><strong>RealityScan (Epic Games):</strong> Mobile/desktop photogrammetry app that exports COLMAP format</li>
+                      <li><strong>Other SfM tools:</strong> Any tool that outputs COLMAP-compatible sparse reconstruction</li>
+                    </ul>
+                    <p>
+                      Your output should include a <code>sparse/</code> folder containing 
+                      <code>cameras.bin</code>, <code>images.bin</code>, and <code>points3D.bin</code>.
+                    </p>
+                  </div>
+                </div>
+                
+                <div class="guide-step">
+                  <span class="guide-step__number">2</span>
+                  <div class="guide-step__content">
+                    <h4>Import COLMAP Output into LFS</h4>
+                    <p>
+                      Launch LichtFeld Studio and import your existing COLMAP dataset. 
+                      Click <kbd>Import</kbd> → <kbd>COLMAP Dataset</kbd> and select your 
+                      dataset folder containing the <code>sparse/</code> folder and images.
+                    </p>
+                  </div>
+                </div>
+                
+                <div class="guide-step">
+                  <span class="guide-step__number">3</span>
+                  <div class="guide-step__content">
+                    <h4>Verify Camera Registration</h4>
+                    <p>
+                      Once imported, review the camera poses in the 3D viewer. Ensure all 
+                      cameras are properly positioned and the sparse point cloud looks correct.
+                    </p>
+                  </div>
+                </div>
+                
+                <div class="guide-step">
+                  <span class="guide-step__number">4</span>
+                  <div class="guide-step__content">
+                    <h4>Start 3DGS Training</h4>
+                    <p>
+                      With verified camera calibration, proceed to 3D Gaussian Splatting training. 
+                      The imported COLMAP output provides the initialization for your splat training.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <h3>Importing Existing COLMAP Datasets</h3>
+              <p>
+                To import a COLMAP dataset into LichtFeld Studio, you must first generate it using 
+                external tools (COLMAP CLI, RealityScan, etc.). Once you have the COLMAP output folder 
+                with the proper structure, you can import it into LFS:
+              </p>
+              
+              <div class="guide-code-block">
+                <pre><code># Your COLMAP dataset should have this structure:
+dataset/
+├── images/              # Your input photos
+│   ├── IMG_0001.jpg
+│   ├── IMG_0002.jpg
+│   └── ...
+└── sparse/             # COLMAP output (0/ folder)
+    └── 0/
+        ├── cameras.bin     # or cameras.txt
+        ├── images.bin      # or images.txt
+        └── points3D.bin    # or points3D.txt</code></pre>
+                <button class="guide-code-block__copy" aria-label="Copy code to clipboard">
+                  <svg class="bi" width="16" height="16">
+                    <use href={`${base}static/bootstrap-icons.svg#clipboard`}></use>
+                  </svg>
+                </button>
+              </div>
+
+              <p>
+                In LichtFeld Studio, select <kbd>Import</kbd> → <kbd>COLMAP Dataset</kbd> and choose 
+                your dataset folder (the folder containing both your images and the <code>sparse/</code> 
+                subfolder). LFS will load the existing camera calibration and point cloud data—no 
+                automatic processing occurs.
+              </p>
+
+              <div class="guide-cta-box">
+                <h3>Ready to Try It?</h3>
+                <p>
+                  First, run COLMAP using one of the external tools above to generate your sparse reconstruction. 
+                  Then follow our complete getting started guide to import the output and create your first 
+                  3D Gaussian Splat in LichtFeld Studio.
+                </p>
+                <div class="guide-cta-box__actions">
+                  <a href={`${base}getting-started/`} class="btn btn-primary btn-lg">
+                    <svg class="bi" width="20" height="20" aria-hidden="true">
+                      <use href={`${base}static/bootstrap-icons.svg#book`}></use>
+                    </svg>
+                    Getting Started Guide
+                  </a>
+                </div>
+              </div>
+            </section>
+
+            <!-- Section 6: COLMAP Output Format -->
+            <section id="output-format" class="guide-section">
+              <h2 class="guide-section__title">COLMAP Output Format</h2>
+              
+              <p class="guide-section__lead">
+                Understanding COLMAP's output structure helps you troubleshoot issues and work with 
+                the data in other applications. Here's what COLMAP produces and what each file contains.
+              </p>
+
+              <h3>Directory Structure</h3>
+              <p>
+                After running COLMAP's sparse reconstruction, you'll have this folder structure:
+              </p>
+
+              <div class="guide-file-tree">
+                <div class="guide-file-tree__root">
+                  <span class="guide-file-tree__icon">📁</span>
+                  <span class="guide-file-tree__name">dataset/</span>
+                </div>
+                <div class="guide-file-tree__item">
+                  <span class="guide-file-tree__icon">📁</span>
+                  <span class="guide-file-tree__name">images/</span>
+                  <span class="guide-file-tree__desc">— Your input photos</span>
+                </div>
+                <div class="guide-file-tree__item">
+                  <span class="guide-file-tree__icon">📁</span>
+                  <span class="guide-file-tree__name">sparse/</span>
+                  <span class="guide-file-tree__desc">— Sparse reconstruction output</span>
+                </div>
+                <div class="guide-file-tree__item guide-file-tree__item--nested">
+                  <span class="guide-file-tree__icon">📁</span>
+                  <span class="guide-file-tree__name">0/</span>
+                  <span class="guide-file-tree__desc">— Reconstruction folder (numbered)</span>
+                </div>
+                <div class="guide-file-tree__item guide-file-tree__item--deep">
+                  <span class="guide-file-tree__icon">📄</span>
+                  <span class="guide-file-tree__name">cameras.bin</span>
+                  <span class="guide-file-tree__desc">— Camera intrinsic parameters</span>
+                </div>
+                <div class="guide-file-tree__item guide-file-tree__item--deep">
+                  <span class="guide-file-tree__icon">📄</span>
+                  <span class="guide-file-tree__name">images.bin</span>
+                  <span class="guide-file-tree__desc">— Camera extrinsic parameters (poses)</span>
+                </div>
+                <div class="guide-file-tree__item guide-file-tree__item--deep">
+                  <span class="guide-file-tree__icon">📄</span>
+                  <span class="guide-file-tree__name">points3D.bin</span>
+                  <span class="guide-file-tree__desc">— Sparse 3D point cloud</span>
+                </div>
+              </div>
+
+              <h3>File Format Details</h3>
+              
+              <div class="guide-file-format">
+                <h4>cameras.txt (or cameras.bin)</h4>
+                <p>Contains camera intrinsic parameters—how the camera captures images:</p>
+                <div class="guide-code-block">
+                  <pre><code># Camera list with one line of data per camera:
+#   CAMERA_ID, MODEL, WIDTH, HEIGHT, PARAMS[]
+# Number of cameras: 1
+1 PINHOLE 1920 1080 1520.45 1520.45 960.0 540.0</code></pre>
+                  <button class="guide-code-block__copy" aria-label="Copy code to clipboard">
+                    <svg class="bi" width="16" height="16">
+                      <use href={`${base}static/bootstrap-icons.svg#clipboard`}></use>
+                    </svg>
+                  </button>
+                </div>
+                <ul>
+                  <li><strong>CAMERA_ID:</strong> Unique identifier for each camera model</li>
+                  <li><strong>MODEL:</strong> Camera model type (PINHOLE, OPENCV, etc.)</li>
+                  <li><strong>WIDTH/HEIGHT:</strong> Image dimensions in pixels</li>
+                  <li><strong>PARAMS:</strong> Focal length (fx, fy) and principal point (cx, cy)</li>
+                </ul>
+              </div>
+
+              <div class="guide-file-format">
+                <h4>images.txt (or images.bin)</h4>
+                <p>Contains camera extrinsic parameters—where each image was taken:</p>
+                <div class="guide-code-block">
+                  <pre><code># Image list with two lines of data per image:
+#   IMAGE_ID, QW, QX, QY, QZ, TX, TY, TZ, CAMERA_ID, NAME
+#   POINTS2D[] as (X, Y, POINT3D_ID)
+# Number of images: 10
+1 0.98 0.01 0.15 0.12 1.5 0.2 0.8 1 IMG_0001.jpg
+1234.5 567.8 1001 1300.2 400.3 1002 ...</code></pre>
+                  <button class="guide-code-block__copy" aria-label="Copy code to clipboard">
+                    <svg class="bi" width="16" height="16">
+                      <use href={`${base}static/bootstrap-icons.svg#clipboard`}></use>
+                    </svg>
+                  </button>
+                </div>
+                <ul>
+                  <li><strong>QW, QX, QY, QZ:</strong> Quaternion representing camera rotation</li>
+                  <li><strong>TX, TY, TZ:</strong> Camera translation (position in 3D space)</li>
+                  <li><strong>CAMERA_ID:</strong> Reference to the camera intrinsics</li>
+                  <li><strong>NAME:</strong> Filename of the source image</li>
+                </ul>
+              </div>
+
+              <div class="guide-file-format">
+                <h4>points3D.txt (or points3D.bin)</h4>
+                <p>Contains the sparse 3D point cloud from feature triangulation:</p>
+                <div class="guide-code-block">
+                  <pre><code># 3D point list with one line of data per point:
+#   POINT3D_ID, X, Y, Z, R, G, B, ERROR, TRACK[] as (IMAGE_ID, POINT2D_IDX)
+# Number of points: 15000
+1 2.5 1.2 0.8 255 200 150 0.5 1 100 2 95 ...</code></pre>
+                  <button class="guide-code-block__copy" aria-label="Copy code to clipboard">
+                    <svg class="bi" width="16" height="16">
+                      <use href={`${base}static/bootstrap-icons.svg#clipboard`}></use>
+                    </svg>
+                  </button>
+                </div>
+                <ul>
+                  <li><strong>X, Y, Z:</strong> 3D coordinates of the point</li>
+                  <li><strong>R, G, B:</strong> Color of the point (averaged from images)</li>
+                  <li><strong>ERROR:</strong> Reprojection error (lower is better)</li>
+                  <li><strong>TRACK:</strong> Which images see this point</li>
+                </ul>
+              </div>
+
+              <div class="guide-info-box">
+                <div class="guide-info-box__icon" aria-hidden="true">
+                  <svg class="bi" width="24" height="24">
+                    <use href={`${base}static/bootstrap-icons.svg#info-circle`}></use>
+                  </svg>
+                </div>
+                <div class="guide-info-box__content">
+                  <strong>Binary vs. Text:</strong> COLMAP can output both .bin (binary, faster/smaller) 
+                  and .txt (text, human-readable) formats. LichtFeld Studio can read both, but binary 
+                  is recommended for larger datasets.
+                </div>
+              </div>
+            </section>
+
+            <!-- Section 7: Tips for Best Results -->
+            <section id="tips" class="guide-section">
+              <h2 class="guide-section__title">Tips for Best Results</h2>
+              
+              <p class="guide-section__lead">
+                For comprehensive guidance on capturing high-quality images for photogrammetry and 3D Gaussian Splatting, 
+                see our dedicated <a href={`${base}tutorials/capture-tips/`} class="guide-link">Capture Tips guide</a>. 
+                It covers overlap requirements, lighting conditions, and common pitfalls to avoid.
+              </p>
+
+              <div class="guide-info-box">
+                <div class="guide-info-box__icon" aria-hidden="true">
+                  <svg class="bi" width="24" height="24">
+                    <use href={`${base}static/bootstrap-icons.svg#lightbulb`}></use>
+                  </svg>
+                </div>
+                <div class="guide-info-box__content">
+                  <strong>Quick Tip:</strong> The quality of your COLMAP reconstruction directly impacts your final 
+                  3D Gaussian Splat quality. Always verify your COLMAP output before proceeding to 3DGS training.
+                </div>
+              </div>
+            </section>
+
+            <!-- Section 8: Troubleshooting -->
+            <section id="troubleshooting" class="guide-section">
+              <h2 class="guide-section__title">Troubleshooting</h2>
+              
+              <p class="guide-section__lead">
+                Having issues with COLMAP? Visit our <a href={`${base}troubleshooting/`} class="guide-link">Troubleshooting page</a> 
+                for solutions to common problems including feature extraction failures, camera registration issues, 
+                and reconstruction quality problems.
+              </p>
+
+              <div class="guide-info-box">
+                <div class="guide-info-box__icon" aria-hidden="true">
+                  <svg class="bi" width="24" height="24">
+                    <use href={`${base}static/bootstrap-icons.svg#info-circle`}></use>
+                  </svg>
+                </div>
+                <div class="guide-info-box__content">
+                  <strong>Need More Help?</strong> For additional support, visit the 
+                  <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer" class="guide-link">LichtFeld Studio Discord</a> 
+                  or the <a href="https://github.com/colmap/colmap/issues" target="_blank" rel="noopener noreferrer" class="guide-link">COLMAP GitHub Issues</a> page.
+                </div>
+              </div>
+            </section>
+
+            <!-- Section 9: FAQ -->
+            <section id="faq" class="guide-section">
+              <h2 class="guide-section__title">Frequently Asked Questions</h2>
+              
+              <div class="guide-faq">
+                {faqs.map((faq, index) => (
+                  <details class="guide-faq__item" open={index === 0}>
+                    <summary class="guide-faq__question">
+                      {faq.question}
+                      <svg class="guide-faq__icon" width="20" height="20" aria-hidden="true">
+                        <use href={`${base}static/bootstrap-icons.svg#chevron-down`}></use>
+                      </svg>
+                    </summary>
+                    <div class="guide-faq__answer">
+                      <p>{faq.answer}</p>
+                    </div>
+                  </details>
+                ))}
+              </div>
+            </section>
+
+            <!-- Section 10: Related Terms -->
+            <section id="related" class="guide-section">
+              <h2 class="guide-section__title">Related Terms</h2>
+              
+              <p class="guide-section__lead">
+                Expand your knowledge of 3D Gaussian Splatting and photogrammetry with these related concepts.
+              </p>
+
+              <div class="guide-related-terms">
+                {relatedTerms.map((term) => (
+                  <a href={term.href} class="guide-related-term">
+                    <div class="guide-related-term__content">
+                      <h3 class="guide-related-term__title">{term.term}</h3>
+                      <p class="guide-related-term__desc">{term.description}</p>
+                    </div>
+                    <svg class="guide-related-term__arrow" width="20" height="20" aria-hidden="true">
+                      <use href={`${base}static/bootstrap-icons.svg#arrow-right`}></use>
+                    </svg>
+                  </a>
+                ))}
+              </div>
+
+              <h3>Additional Resources</h3>
+              <ul class="guide-list">
+                <li>
+                  <a href={`${base}getting-started/`} class="guide-link">Getting Started with LichtFeld Studio</a> — 
+                  Complete tutorial from capture to final splat
+                </li>
+                <li>
+                  <a href="https://colmap.github.io/" target="_blank" rel="noopener noreferrer" class="guide-link">COLMAP Official Documentation</a> — 
+                  Comprehensive guide to all COLMAP features
+                </li>
+                <li>
+                  <a href={GITHUB_WIKI_URL} target="_blank" rel="noopener noreferrer" class="guide-link">LichtFeld Studio Wiki</a> — 
+                  Community-contributed tutorials and tips
+                </li>
+              </ul>
+            </section>
+          </div>
+
+          <!-- Sidebar -->
+          <aside class="guide-sidebar">
+            <div class="guide-sidebar__sticky">
+              <!-- Quick Navigation -->
+              <div class="guide-sidebar__box">
+                <h3>Quick Links</h3>
+                <ul class="guide-sidebar__links">
+                  <li>
+                    <a href={`${base}getting-started/`}>
+                      <svg class="bi" width="16" height="16" aria-hidden="true">
+                        <use href={`${base}static/bootstrap-icons.svg#book`}></use>
+                      </svg>
+                      Getting Started Guide
+                    </a>
+                  </li>
+                  <li>
+                    <a href={`${base}what-is-gaussian-splatting/`}>
+                      <svg class="bi" width="16" height="16" aria-hidden="true">
+                        <use href={`${base}static/bootstrap-icons.svg#question-circle`}></use>
+                      </svg>
+                      What is 3DGS?
+                    </a>
+                  </li>
+                  <li>
+                    <a href={GITHUB_REPO_URL} target="_blank" rel="noopener noreferrer">
+                      <svg class="bi" width="16" height="16" aria-hidden="true">
+                        <use href={`${base}static/bootstrap-icons.svg#github`}></use>
+                      </svg>
+                      GitHub Repository
+                    </a>
+                  </li>
+                  <li>
+                    <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer">
+                      <svg class="bi" width="16" height="16" aria-hidden="true">
+                        <use href={`${base}static/bootstrap-icons.svg#discord`}></use>
+                      </svg>
+                      Community Discord
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              <!-- COLMAP Info -->
+              <div class="guide-sidebar__box guide-sidebar__box--info">
+                <h3>About COLMAP</h3>
+                <dl class="guide-sidebar__dl">
+                  <dt>License</dt>
+                  <dd>BSD 3-Clause (Open Source)</dd>
+                  
+                  <dt>Developer</dt>
+                  <dd>Johannes Schönberger &amp; Team</dd>
+                  
+                  <dt>Website</dt>
+                  <dd>
+                    <a href="https://colmap.github.io/" target="_blank" rel="noopener noreferrer">
+                      colmap.github.io
+                    </a>
+                  </dd>
+                  
+                  <dt>First Release</dt>
+                  <dd>2016</dd>
+                </dl>
+              </div>
+
+              <!-- Share -->
+              <div class="guide-sidebar__box">
+                <h3>Share This Page</h3>
+                <div class="guide-sidebar__share">
+                  <button 
+                    type="button" 
+                    class="btn btn-outline-secondary guide-sidebar__share-btn"
+                    id="share-page-btn"
+                    aria-label="Copy page link to clipboard"
+                  >
+                    <svg class="bi" width="18" height="18" aria-hidden="true">
+                      <use href={`${base}static/bootstrap-icons.svg#link-45deg`}></use>
+                    </svg>
+                    Copy Link
+                  </button>
+                  <a 
+                    href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(seoTitle)}&url=${encodeURIComponent(new URL(Astro.url.pathname, Astro.site).toString())}`}
+                    class="btn btn-outline-secondary guide-sidebar__share-btn"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Share on Twitter"
+                  >
+                    <svg class="bi" width="18" height="18" aria-hidden="true">
+                      <use href={`${base}static/bootstrap-icons.svg#twitter-x`}></use>
+                    </svg>
+                    Twitter
+                  </a>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast notification -->
+    <div class="guide-toast" id="share-toast" aria-live="polite" aria-hidden="true">
+      <svg class="bi" width="20" height="20" aria-hidden="true">
+        <use href={`${base}static/bootstrap-icons.svg#check-circle`}></use>
+      </svg>
+      Link copied to clipboard!
+    </div>
+  </article>
+</Layout>
+
+<script>
+  // Share button functionality
+  document.addEventListener('DOMContentLoaded', () => {
+    const shareBtn = document.getElementById('share-page-btn');
+    const toast = document.getElementById('share-toast');
+
+    if (shareBtn && toast) {
+      shareBtn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(window.location.href);
+          
+          // Show toast
+          toast.classList.add('is-visible');
+          toast.setAttribute('aria-hidden', 'false');
+          
+          // Hide after 3 seconds
+          setTimeout(() => {
+            toast.classList.remove('is-visible');
+            toast.setAttribute('aria-hidden', 'true');
+          }, 3000);
+        } catch (err) {
+          console.error('Failed to copy:', err);
+        }
+      });
+    }
+
+    // Code block copy functionality
+    const copyButtons = document.querySelectorAll('.guide-code-block__copy');
+    copyButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const code = btn.previousElementSibling?.textContent;
+        if (code) {
+          navigator.clipboard.writeText(code).then(() => {
+            const originalIcon = btn.innerHTML;
+            btn.innerHTML = '<svg class="bi" width="16" height="16"><use href="' + document.querySelector('base')?.href + 'static/bootstrap-icons.svg#check-lg"></use></svg>';
+            setTimeout(() => {
+              btn.innerHTML = originalIcon;
+            }, 2000);
+          });
+        }
+      });
+    });
+  });
+</script>
+
+<style>
+  /* ============================================================================
+   * Guide Page Layout (from what-is-gaussian-splatting.astro)
+   * ============================================================================ */
+
+  .guide-page {
+    padding-bottom: 4rem;
+  }
+
+  /* ============================================================================
+   * Hero Section
+   * ============================================================================ */
+
+  .guide-hero {
+    padding: 3rem 0 2rem;
+    background: 
+      radial-gradient(circle at top left, rgba(20, 87, 255, 0.06), transparent 40%),
+      radial-gradient(circle at top right, rgba(201, 114, 52, 0.06), transparent 35%);
+    border-bottom: 1px solid var(--surface-border);
+  }
+
+  .guide-hero__content {
+    max-width: 800px;
+  }
+
+  .guide-breadcrumb {
+    margin-bottom: 1.5rem;
+  }
+
+  .guide-breadcrumb__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+
+  .guide-breadcrumb__item:not(:last-child)::after {
+    content: "/";
+    margin-left: 0.5rem;
+    opacity: 0.5;
+  }
+
+  .guide-breadcrumb__link {
+    color: var(--color-primary-link);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .guide-breadcrumb__link:hover {
+    color: var(--color-primary-link-hover);
+    text-decoration: underline;
+  }
+
+  .guide-hero__title {
+    font-size: clamp(2rem, 5vw, 3rem);
+    line-height: 1.1;
+    margin: 0 0 1.5rem;
+    color: var(--color-heading);
+  }
+
+  .guide-hero__lead {
+    font-size: 1.25rem;
+    line-height: 1.6;
+    color: var(--color-body);
+    margin: 0 0 1.5rem;
+  }
+
+  .guide-hero__meta {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+
+  .guide-hero__reading-time {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* ============================================================================
+   * Table of Contents
+   * ============================================================================ */
+
+  .guide-toc {
+    padding: 2rem 0;
+  }
+
+  .guide-toc__shell {
+    padding: 1.5rem;
+  }
+
+  .guide-toc__title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0 0 1rem;
+    color: var(--color-heading);
+  }
+
+  .guide-toc__list {
+    margin: 0;
+    padding: 0 0 0 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .guide-toc__link {
+    color: var(--color-body);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    transition: color 0.2s ease;
+  }
+
+  .guide-toc__link:hover {
+    color: var(--color-primary-link);
+  }
+
+  /* ============================================================================
+   * Content Layout
+   * ============================================================================ */
+
+  .guide-content {
+    padding: 1rem 0 3rem;
+  }
+
+  .guide-content__layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  @media (min-width: 1024px) {
+    .guide-content__layout {
+      grid-template-columns: 1fr 300px;
+      gap: 4rem;
+    }
+  }
+
+  .guide-content__main {
+    min-width: 0;
+  }
+
+  /* ============================================================================
+   * Guide Sections
+   * ============================================================================ */
+
+  .guide-section {
+    margin-bottom: 4rem;
+  }
+
+  .guide-section__title {
+    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    line-height: 1.2;
+    margin: 0 0 1.5rem;
+    color: var(--color-heading);
+    scroll-margin-top: calc(var(--nav-height) + 2rem);
+  }
+
+  .guide-section__lead {
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: var(--color-body);
+    margin: 0 0 1.5rem;
+  }
+
+  .guide-section h3 {
+    font-size: 1.375rem;
+    line-height: 1.3;
+    margin: 2rem 0 1rem;
+    color: var(--color-heading);
+    scroll-margin-top: calc(var(--nav-height) + 2rem);
+  }
+
+  .guide-section h4 {
+    font-size: 1.125rem;
+    line-height: 1.4;
+    margin: 1.5rem 0 0.75rem;
+    color: var(--color-heading);
+  }
+
+  .guide-section p {
+    font-size: 1.0625rem;
+    line-height: 1.8;
+    color: var(--color-body);
+    margin: 0 0 1.25rem;
+  }
+
+  .guide-section ul,
+  .guide-section ol {
+    font-size: 1.0625rem;
+    line-height: 1.8;
+    color: var(--color-body);
+    margin: 0 0 1.5rem;
+    padding-left: 1.5rem;
+  }
+
+  .guide-section li {
+    margin-bottom: 0.5rem;
+  }
+
+  .guide-link {
+    color: var(--color-primary-link);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+  }
+
+  .guide-link:hover {
+    color: var(--color-primary-link-hover);
+    text-decoration: underline;
+  }
+
+  /* ============================================================================
+   * Info Box
+   * ============================================================================ */
+
+  .guide-info-box {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, rgba(20, 87, 255, 0.08), rgba(20, 87, 255, 0.02));
+    border: 1px solid rgba(20, 87, 255, 0.15);
+    border-radius: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-info-box__icon {
+    flex-shrink: 0;
+    color: var(--color-primary);
+  }
+
+  .guide-info-box__content {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--color-body);
+  }
+
+  /* ============================================================================
+   * Warning Box
+   * ============================================================================ */
+
+  .guide-warning-box {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(239, 68, 68, 0.02));
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-warning-box__icon {
+    flex-shrink: 0;
+    color: #ef4444;
+  }
+
+  .guide-warning-box__content {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--color-body);
+  }
+
+  /* ============================================================================
+   * CTA Box
+   * ============================================================================ */
+
+  .guide-cta-box {
+    padding: 2rem;
+    background: linear-gradient(135deg, rgba(20, 87, 255, 0.1), rgba(201, 114, 52, 0.05));
+    border: 1px solid rgba(20, 87, 255, 0.2);
+    border-radius: 1.25rem;
+    margin: 2.5rem 0;
+    text-align: center;
+  }
+
+  .guide-cta-box h3 {
+    margin: 0 0 1rem;
+    font-size: 1.5rem;
+  }
+
+  .guide-cta-box p {
+    margin: 0 0 1.5rem;
+    font-size: 1.0625rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .guide-cta-box__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+  }
+
+  .guide-cta-box__actions .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* ============================================================================
+   * FAQ
+   * ============================================================================ */
+
+  .guide-faq {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-faq__item {
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+    overflow: hidden;
+  }
+
+  .guide-faq__question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.25rem;
+    font-weight: 600;
+    color: var(--color-heading);
+    cursor: pointer;
+    list-style: none;
+    transition: background 0.2s ease;
+  }
+
+  .guide-faq__question:hover {
+    background: rgba(15, 23, 42, 0.02);
+  }
+
+  .guide-faq__question::-webkit-details-marker {
+    display: none;
+  }
+
+  .guide-faq__icon {
+    flex-shrink: 0;
+    color: var(--color-muted);
+    transition: transform 0.2s ease;
+  }
+
+  .guide-faq__item[open] .guide-faq__icon {
+    transform: rotate(180deg);
+  }
+
+  .guide-faq__answer {
+    padding: 0 1.25rem 1.25rem;
+  }
+
+  .guide-faq__answer p {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  /* ============================================================================
+   * Sidebar
+   * ============================================================================ */
+
+  .guide-sidebar {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    .guide-sidebar {
+      display: block;
+    }
+  }
+
+  .guide-sidebar__sticky {
+    position: sticky;
+    top: calc(var(--nav-height) + 2rem);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .guide-sidebar__box {
+    padding: 1.5rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+  }
+
+  .guide-sidebar__box h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 1rem;
+    color: var(--color-heading);
+  }
+
+  .guide-sidebar__box p {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--color-body);
+    margin: 0 0 1rem;
+  }
+
+  .guide-sidebar__box--info {
+    background: linear-gradient(135deg, rgba(20, 87, 255, 0.06), rgba(201, 114, 52, 0.04));
+  }
+
+  .guide-sidebar__links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .guide-sidebar__links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-body);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    transition: color 0.2s ease;
+  }
+
+  .guide-sidebar__links a:hover {
+    color: var(--color-primary-link);
+  }
+
+  .guide-sidebar__share {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .guide-sidebar__share-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem;
+    font-size: 0.875rem;
+  }
+
+  .guide-sidebar__dl {
+    margin: 0;
+  }
+
+  .guide-sidebar__dl dt {
+    font-weight: 600;
+    color: var(--color-heading);
+    font-size: 0.875rem;
+    margin-top: 0.75rem;
+  }
+
+  .guide-sidebar__dl dd {
+    margin: 0.25rem 0 0;
+    font-size: 0.875rem;
+    color: var(--color-body);
+  }
+
+  .guide-sidebar__dl a {
+    color: var(--color-primary-link);
+    text-decoration: none;
+  }
+
+  .guide-sidebar__dl a:hover {
+    text-decoration: underline;
+  }
+
+  /* ============================================================================
+   * Toast
+   * ============================================================================ */
+
+  .guide-toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(1rem);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: var(--color-heading);
+    color: white;
+    font-weight: 500;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+  }
+
+  .guide-toast.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ============================================================================
+   * Glossary-Specific Components
+   * ============================================================================ */
+
+  /* Pipeline Visualization */
+  .guide-pipeline {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1.5rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+    margin: 1.5rem 0;
+    overflow-x: auto;
+  }
+
+  .guide-pipeline__step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 0.75rem;
+    min-width: 100px;
+    text-align: center;
+  }
+
+  .guide-pipeline__step--highlight {
+    background: linear-gradient(135deg, rgba(20, 87, 255, 0.15), rgba(20, 87, 255, 0.05));
+    border-color: rgba(20, 87, 255, 0.3);
+  }
+
+  .guide-pipeline__number {
+    width: 1.5rem;
+    height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-primary);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 50%;
+  }
+
+  .guide-pipeline__label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--color-body);
+    white-space: nowrap;
+  }
+
+  .guide-pipeline__arrow {
+    color: var(--color-muted);
+    font-size: 1.25rem;
+  }
+
+  @media (max-width: 767px) {
+    .guide-pipeline {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .guide-pipeline__arrow {
+      transform: rotate(90deg);
+    }
+  }
+
+  /* Code Blocks */
+  .guide-code-block {
+    position: relative;
+    background: #1a1a2e;
+    border-radius: 1rem;
+    overflow: hidden;
+    margin: 1rem 0;
+  }
+
+  .guide-code-block pre {
+    padding: 1.25rem;
+    margin: 0;
+    overflow-x: auto;
+  }
+
+  .guide-code-block code {
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: #e2e8f0;
+  }
+
+  .guide-code-block__copy {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 0.5rem;
+    color: white;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+
+  .guide-code-block__copy:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  /* File Tree */
+  .guide-file-tree {
+    padding: 1.25rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+    margin: 1.5rem 0;
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+    font-size: 0.875rem;
+  }
+
+  .guide-file-tree__root,
+  .guide-file-tree__item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0;
+  }
+
+  .guide-file-tree__item {
+    padding-left: 1.5rem;
+  }
+
+  .guide-file-tree__item--nested {
+    padding-left: 3rem;
+  }
+
+  .guide-file-tree__item--deep {
+    padding-left: 4.5rem;
+  }
+
+  .guide-file-tree__icon {
+    flex-shrink: 0;
+  }
+
+  .guide-file-tree__name {
+    color: var(--color-heading);
+    font-weight: 500;
+  }
+
+  .guide-file-tree__desc {
+    color: var(--color-muted);
+    font-size: 0.8rem;
+  }
+
+  /* File Format Section */
+  .guide-file-format {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+  }
+
+  .guide-file-format h4 {
+    margin: 0 0 1rem;
+    font-size: 1.125rem;
+  }
+
+  .guide-file-format ul {
+    margin: 1rem 0 0;
+    padding-left: 1.25rem;
+  }
+
+  .guide-file-format li {
+    margin-bottom: 0.5rem;
+    font-size: 0.9375rem;
+  }
+
+  /* Tips Grid */
+  .guide-tips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-tip-card {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+  }
+
+  .guide-tip-card__number {
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-primary);
+    color: white;
+    font-weight: 700;
+    font-size: 0.875rem;
+    border-radius: 50%;
+  }
+
+  .guide-tip-card__text {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+
+  /* Steps */
+  .guide-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-step {
+    display: flex;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+  }
+
+  .guide-step__number {
+    flex-shrink: 0;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-primary);
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+    border-radius: 50%;
+  }
+
+  .guide-step__content {
+    flex: 1;
+  }
+
+  .guide-step__content h4 {
+    margin: 0 0 0.5rem;
+    font-size: 1.125rem;
+  }
+
+  .guide-step__content p {
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
+  }
+
+  .guide-step__content ul {
+    margin: 0;
+    padding-left: 1.25rem;
+  }
+
+  .guide-step__content li {
+    margin-bottom: 0.25rem;
+    font-size: 0.9375rem;
+  }
+
+  /* Related Terms */
+  .guide-related-terms {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-related-term {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  .guide-related-term:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--surface-shadow);
+    border-color: var(--color-border-hover);
+  }
+
+  .guide-related-term__content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .guide-related-term__title {
+    margin: 0 0 0.25rem;
+    font-size: 1.125rem;
+    color: var(--color-heading);
+  }
+
+  .guide-related-term__desc {
+    margin: 0;
+    font-size: 0.9375rem;
+    color: var(--color-muted);
+  }
+
+  .guide-related-term__arrow {
+    flex-shrink: 0;
+    color: var(--color-muted);
+    transition: transform 0.2s ease, color 0.2s ease;
+  }
+
+  .guide-related-term:hover .guide-related-term__arrow {
+    transform: translateX(4px);
+    color: var(--color-primary);
+  }
+
+  /* Keyboard styling */
+  kbd {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    background: rgba(15, 23, 42, 0.08);
+    border: 1px solid rgba(15, 23, 42, 0.15);
+    border-radius: 0.375rem;
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+    font-size: 0.875rem;
+    color: var(--color-body);
+  }
+
+  /* Tech Specs */
+  .guide-tech-specs {
+    padding: 1.5rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-tech-specs h4 {
+    margin: 0 0 1rem;
+    font-size: 1.125rem;
+  }
+
+  .guide-specs-list {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.5rem 1.5rem;
+    margin: 0;
+  }
+
+  .guide-specs-list dt {
+    font-weight: 600;
+    color: var(--color-heading);
+    font-size: 0.9375rem;
+  }
+
+  .guide-specs-list dd {
+    margin: 0;
+    font-size: 0.9375rem;
+    color: var(--color-body);
+  }
+
+  /* ============================================================================
+   * Responsive Adjustments
+   * ============================================================================ */
+
+  @media (max-width: 767px) {
+    .guide-hero {
+      padding: 2rem 0 1.5rem;
+    }
+
+    .guide-hero__lead {
+      font-size: 1.125rem;
+    }
+
+    .guide-section {
+      margin-bottom: 3rem;
+    }
+
+    .guide-cta-box {
+      padding: 1.5rem;
+    }
+
+    .guide-cta-box__actions {
+      flex-direction: column;
+    }
+
+    .guide-cta-box__actions .btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .guide-step {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .guide-tip-card {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+  }
+</style>

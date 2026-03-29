@@ -1,0 +1,1739 @@
+---
+/**
+ * first-training.astro
+ *
+ * Tutorial page targeting "lichtfeld studio first training", "3d gaussian splatting first training",
+ * "gaussian splatting tutorial" searches.
+ *
+ * Features:
+ * - Schema.org HowTo structured data for rich search results
+ * - Step-by-step numbered instructions with progress indicator
+ * - Screenshot placeholders for visual guidance
+ * - Code blocks for CLI commands
+ * - Tips and warnings callouts
+ * - Video tutorial embeds
+ * - Understanding training metrics section
+ * - Common first-time issues troubleshooting
+ */
+
+import Layout from "@/layouts/Layout.astro";
+import { SITE } from "@/config/site.config";
+import {
+  GITHUB_WIKI_URL,
+  GITHUB_REPO_URL,
+  DISCORD_URL,
+  GITHUB_SPONSORS_URL,
+  PAYPAL_URL,
+  DONORBOX_URL,
+} from "@/constants/project";
+
+const base = import.meta.env.BASE_URL;
+
+// SEO metadata
+const seoTitle = "Your First Training Run: LichtFeld Studio Tutorial";
+const seoDescription =
+  "Complete tutorial for your first 3D Gaussian Splatting training run in LichtFeld Studio. From dataset import to rendered scene in 5 steps.";
+
+// HowTo structured data for Schema.org
+const howToSchema = {
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  name: "Your First Training Run in LichtFeld Studio",
+  description: seoDescription,
+  image: `${SITE.url}/static/social-card.png`,
+  totalTime: "PT20M",
+  estimatedCost: {
+    "@type": "MonetaryAmount",
+    currency: "USD",
+    value: "0",
+  },
+  supply: [
+    {
+      "@type": "HowToSupply",
+      name: "NVIDIA GPU with 8GB+ VRAM",
+    },
+    {
+      "@type": "HowToSupply",
+      name: "COLMAP-processed dataset (camera poses + point cloud)",
+    },
+    {
+      "@type": "HowToSupply",
+      name: "LichtFeld Studio installed",
+    },
+  ],
+  tool: [
+    {
+      "@type": "HowToTool",
+      name: "LichtFeld Studio",
+    },
+    {
+      "@type": "HowToTool",
+      name: "COLMAP or RealityScan (for structure-from-motion)",
+    },
+  ],
+  step: [
+    {
+      "@type": "HowToStep",
+      position: 1,
+      name: "Prepare COLMAP Dataset",
+      text: "Run COLMAP or RealityScan on your images to generate camera poses and point cloud, then import that output into LichtFeld Studio.",
+      url: `${SITE.url}/tutorials/first-training/#step-1`,
+    },
+    {
+      "@type": "HowToStep",
+      position: 2,
+      name: "Import COLMAP Output",
+      text: "Import your COLMAP-processed dataset into LichtFeld Studio. The app loads camera poses and point cloud for training.",
+      url: `${SITE.url}/tutorials/first-training/#step-2`,
+    },
+    {
+      "@type": "HowToStep",
+      position: 3,
+      name: "Configure Training Settings",
+      text: "Review and adjust training parameters. For your first run, default settings work well.",
+      url: `${SITE.url}/tutorials/first-training/#step-3`,
+    },
+    {
+      "@type": "HowToStep",
+      position: 4,
+      name: "Start Training",
+      text: "Launch training via GUI or CLI. Monitor progress in real-time as gaussians are optimized.",
+      url: `${SITE.url}/tutorials/first-training/#step-4`,
+    },
+    {
+      "@type": "HowToStep",
+      position: 5,
+      name: "Monitor Progress and Results",
+      text: "Watch training metrics (PSNR, loss, gaussian count) and view the emerging 3D scene.",
+      url: `${SITE.url}/tutorials/first-training/#step-5`,
+    },
+  ],
+};
+
+// Breadcrumb structured data
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: SITE.url,
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: "Tutorials",
+      item: `${SITE.url}/tutorials/`,
+    },
+    {
+      "@type": "ListItem",
+      position: 3,
+      name: "First Training",
+      item: `${SITE.url}/tutorials/first-training/`,
+    },
+  ],
+};
+
+// Progress steps data
+const steps = [
+  { id: "prerequisites", label: "Prerequisites", icon: "cpu" },
+  { id: "step-1", label: "Prepare Dataset", icon: "download" },
+  { id: "step-2", label: "Import Dataset", icon: "folder-open" },
+  { id: "step-3", label: "Configure", icon: "sliders" },
+  { id: "step-4", label: "Start Training", icon: "play-circle" },
+  { id: "step-5", label: "Monitor Results", icon: "graph-up" },
+  { id: "troubleshooting", label: "Issues", icon: "tools" },
+  { id: "next-steps", label: "What's Next", icon: "rocket" },
+];
+
+// Hardware requirements
+const hardwareRequirements = [
+  { item: "GPU", value: "NVIDIA with 8GB+ VRAM", recommended: "RTX 3060 or better" },
+  { item: "RAM", value: "16GB minimum", recommended: "32GB+ for large scenes" },
+  { item: "Storage", value: "5GB free space", recommended: "SSD for faster I/O" },
+  { item: "OS", value: "Windows 10/11 or Linux", recommended: "Windows 11 / Ubuntu 22.04" },
+];
+
+// Common first-time issues
+const commonIssues = [
+  {
+    issue: "Training won't start / CUDA out of memory",
+    cause: "GPU doesn't have enough VRAM for the dataset size",
+    solution: "Reduce tile mode 2 or 4 or generate less gaussians. Close other GPU applications.",
+  },
+  {
+    issue: "Import fails / no camera poses loaded",
+    cause: "Dataset missing COLMAP output or incorrect folder structure",
+    solution: "Ensure you have cameras.bin/txt, images.bin/txt, points3D.bin, the initial point cloud and the images from COLMAP.",
+  },
+  {
+    issue: "Output looks blurry or low quality",
+    cause: "Training stopped too early or dataset issues",
+    solution: "Train for more iterations. Check image focus and lighting.",
+  },
+];
+
+// Video tutorials
+const videoTutorials = [
+  {
+    title: "First Training Run Walkthrough",
+    embedId: "zWIzBHRc-60",
+    duration: "12:34",
+    description: "Complete walkthrough of your first 3D Gaussian Splatting training session from import to render.",
+  },
+];
+
+// Next steps resources
+const nextSteps = [
+  {
+    title: "Scene Editing",
+    description: "Learn to clean up and refine your trained scenes with brush, lasso, and polygon tools.",
+    href: `${base}getting-started/#step-4`,
+    icon: "vector-pen",
+  },
+  {
+    title: "Export & Share",
+    description: "Export your splats in PLY format for web viewers and other applications.",
+    href: `${base}getting-started/#step-5`,
+    icon: "box-arrow-up-right",
+  },
+  {
+    title: "Capture Tips",
+    description: "Best practices for capturing photos that reconstruct well.",
+    href: `${base}tutorials/capture-tips/`,
+    icon: "camera-fill",
+  },
+  {
+    title: "Advanced Training",
+    description: "Learn about advanced parameters, optimization techniques, and custom workflows.",
+    href: GITHUB_WIKI_URL,
+    icon: "sliders",
+    external: true,
+  },
+];
+---
+
+<Layout title={seoTitle} description={seoDescription}>
+  <!-- Schema.org HowTo Structured Data -->
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(howToSchema)} />
+  
+  <!-- Breadcrumb Structured Data -->
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(breadcrumbSchema)} />
+
+  <!-- Hero Section -->
+  <header class="guide-hero">
+    <div class="container content-frame px-4">
+      <div class="guide-hero__content">
+        <nav class="guide-breadcrumb" aria-label="Breadcrumb">
+          <ol class="guide-breadcrumb__list">
+            <li class="guide-breadcrumb__item">
+              <a href={base} class="guide-breadcrumb__link">Home</a>
+            </li>
+            <li class="guide-breadcrumb__item">
+              <a href={`${base}tutorials/`} class="guide-breadcrumb__link">Tutorials</a>
+            </li>
+            <li class="guide-breadcrumb__item" aria-current="page">
+              <span>First Training</span>
+            </li>
+          </ol>
+        </nav>
+        
+        <h1 class="guide-hero__title">Your First Training Run</h1>
+        <p class="guide-hero__lead">
+          Go from dataset import to rendered 3D scene in 20 minutes. This step-by-step tutorial covers everything you need 
+          for your first 3D Gaussian Splatting training run in LichtFeld Studio.
+        </p>
+        
+        <div class="guide-hero__meta">
+          <span class="guide-hero__reading-time">
+            <svg class="bi" width="16" height="16" aria-hidden="true">
+              <use href={`${base}static/bootstrap-icons.svg#clock`}></use>
+            </svg>
+            ~20 minutes
+          </span>
+          <span class="guide-hero__updated">
+            Beginner level
+          </span>
+          <span class="guide-hero__updated">
+            Free & open source
+          </span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Progress Indicator -->
+  <nav class="guide-progress" aria-label="Tutorial progress">
+    <div class="container content-frame px-4">
+      <div class="guide-progress__track">
+        {
+          steps.map((step, index) => (
+            <a href={`#${step.id}`} class="guide-progress__item" data-step={index + 1}>
+              <span class="guide-progress__icon" aria-hidden="true">
+                <svg class="bi" width="1em" height="1em">
+                  <use href={`${base}static/bootstrap-icons.svg#${step.icon}`} />
+                </svg>
+              </span>
+              <span class="guide-progress__label">{step.label}</span>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="guide-content">
+    <div class="container content-frame px-4">
+      <div class="guide-content__layout">
+        <!-- Article Body -->
+        <div class="guide-content__main">
+          
+          <!-- Prerequisites Section -->
+          <section id="prerequisites" class="guide-section">
+            <h2 class="guide-section__title">Prerequisites</h2>
+
+            <div class="guide-innovation">
+              <h3>Hardware Requirements</h3>
+              <p>
+                3D Gaussian Splatting training requires a modern NVIDIA GPU. Ensure your system meets these 
+                requirements before starting.
+              </p>
+
+              <div class="guide-specs-list">
+                {hardwareRequirements.map((req) => (
+                  <div class="guide-requirement">
+                    <span class="guide-requirement__item">{req.item}</span>
+                    <span class="guide-requirement__value">{req.value}</span>
+                    <span class="guide-requirement__rec">Recommended: {req.recommended}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div class="guide-info-box">
+              <div class="guide-info-box__icon" aria-hidden="true">
+                <svg class="bi" width="24" height="24">
+                  <use href={`${base}static/bootstrap-icons.svg#info-circle`}></use>
+                </svg>
+              </div>
+              <div class="guide-info-box__content">
+                <strong>New to 3D Gaussian Splatting?</strong>
+                <p>
+                  If you haven't installed LichtFeld Studio yet, follow our 
+                  <a href={`${base}getting-started/`} class="guide-link">Getting Started guide</a> first.
+                </p>
+              </div>
+            </div>
+
+            <div class="guide-innovation">
+              <h3>What LFS Does vs. External Tools</h3>
+              <div class="guide-specs-list">
+                <div class="guide-requirement">
+                  <span class="guide-requirement__item">LichtFeld Studio</span>
+                  <span class="guide-requirement__value">3D Gaussian Splatting training (pure C++/CUDA)</span>
+                  <span class="guide-requirement__value">Real-time viewing & editing tools</span>
+                  <span class="guide-requirement__value">Export to PLY/SOG formats</span>
+                </div>
+                <div class="guide-requirement">
+                  <span class="guide-requirement__item">External Prerequisite</span>
+                  <span class="guide-requirement__value">COLMAP or RealityScan for structure-from-motion</span>
+                  <span class="guide-requirement__value">Generates camera poses & initial point cloud</span>
+                  <span class="guide-requirement__value">Must be run before importing into LFS</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Step 1: Prepare COLMAP Dataset -->
+          <section id="step-1" class="guide-section">
+            <h2 class="guide-section__title">Step 1: Prepare Your COLMAP Dataset</h2>
+
+            <div class="guide-innovation">
+              <h3>Run COLMAP First</h3>
+              <p>
+                LichtFeld Studio does <strong>not</strong> perform structure-from-motion. You must run 
+                COLMAP (or RealityScan) separately to generate camera poses and a point cloud from your photos. 
+                LFS then imports this output for 3D Gaussian Splatting training.
+              </p>
+
+              <ol class="guide-list guide-list--numbered">
+                <li>
+                  <strong>Capture Photos</strong>
+                  <p>Take 20-50 photos with 60-80% overlap. Good lighting and textured surfaces help.</p>
+                </li>
+                <li>
+                  <strong>Run COLMAP</strong>
+                  <p>Use COLMAP's feature extraction and matching to estimate camera poses. Or use RealityScan mobile app.</p>
+                </li>
+                <li>
+                  <strong>Export COLMAP Output</strong>
+                  <p>Ensure you have the sparse reconstruction folder containing <code>cameras.bin</code>, <code>images.bin</code>, and <code>points3D.bin</code></p>
+                </li>
+                <li>
+                  <strong>Organize Files</strong>
+                  <p>Place your images and COLMAP output in a single folder (e.g., <code>~/Datasets/scene_001/</code>)</p>
+                </li>
+              </ol>
+
+              <div class="guide-info-box">
+                <div class="guide-info-box__icon" aria-hidden="true">
+                  <svg class="bi" width="24" height="24">
+                    <use href={`${base}static/bootstrap-icons.svg#lightbulb`}></use>
+                  </svg>
+                </div>
+                <div class="guide-info-box__content">
+                  <strong>Sample Datasets Available</strong>
+                  <p>
+                    Don't have COLMAP set up yet? Download pre-processed sample datasets from our 
+                    <a href={`${GITHUB_WIKI_URL}/Example-Datasets`} target="_blank" rel="noopener noreferrer" class="guide-link">Wiki</a> 
+                    that include both images and COLMAP output ready to import.
+                  </p>
+                </div>
+              </div>
+
+              <div class="guide-warning-box">
+                <div class="guide-warning-box__icon" aria-hidden="true">
+                  <svg class="bi" width="24" height="24">
+                    <use href={`${base}static/bootstrap-icons.svg#exclamation-triangle`}></use>
+                  </svg>
+                </div>
+                <div class="guide-warning-box__content">
+                  <strong>COLMAP is a Prerequisite</strong>
+                  <p>
+                    LFS cannot train without camera poses. If COLMAP fails to reconstruct your scene, 
+                    check our <a href={`${base}tutorials/capture-tips/`} class="guide-link">Capture Tips guide</a> for 
+                    photography best practices that improve reconstruction success.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Step 2: Import the Dataset -->
+          <section id="step-2" class="guide-section">
+            <h2 class="guide-section__title">Step 2: Import COLMAP Output</h2>
+
+            <div class="guide-innovation">
+              <h3>Load Your Dataset into LichtFeld Studio</h3>
+              <p>
+                Once you have your COLMAP-processed dataset ready, import it into LichtFeld Studio. 
+                The app loads the camera poses and point cloud, then you're ready to start 3D Gaussian Splatting training.
+              </p>
+
+              <ol class="guide-list guide-list--numbered">
+                <li>
+                  <strong>Launch LichtFeld Studio</strong>
+                  <p>Start the application and wait for the main workspace to load</p>
+                </li>
+                <li>
+                  <strong>Import Dataset</strong>
+                  <p>Drag and drop your dataset folder onto the viewport, or use <kbd>File</kbd> → <kbd>Import Dataset</kbd></p>
+                </li>
+                <li>
+                  <strong>Verify Import</strong>
+                  <p>LFS loads the camera poses and point cloud. The frustums represent camera positions.</p>
+                </li>
+                <li>
+                  <strong>Activate/Deactivate Cameras</strong>
+                  <p>Use the camera panel to enable or disable specific views for training</p>
+                </li>
+                <li>
+                  <strong>Crop Point Cloud (Optional)</strong>
+                  <p>Remove unwanted points before training to improve quality and reduce noise</p>
+                </li>
+              </ol>
+
+              <div class="guide-info-box">
+                <div class="guide-info-box__icon" aria-hidden="true">
+                  <svg class="bi" width="24" height="24">
+                    <use href={`${base}static/bootstrap-icons.svg#check-circle`}></use>
+                  </svg>
+                </div>
+                <div class="guide-info-box__content">
+                  <strong>Import Complete!</strong>
+                  <p>
+                    When the dataset loads, you'll see your images arranged in 3D space as blue camera frustums. 
+                    The point cloud shows the sparse reconstruction from COLMAP. If this looks correct, you're ready to train!
+                  </p>
+                </div>
+              </div>
+
+              <div class="guide-warning-box">
+                <div class="guide-warning-box__icon" aria-hidden="true">
+                  <svg class="bi" width="24" height="24">
+                    <use href={`${base}static/bootstrap-icons.svg#exclamation-triangle`}></use>
+                  </svg>
+                </div>
+                <div class="guide-warning-box__content">
+                  <strong>Import Issues?</strong>
+                  <p>
+                    If the dataset fails to load, ensure you have the COLMAP sparse folder with 
+                    <code>cameras.bin</code>, <code>images.bin</code>, and <code>points3D.bin</code>. 
+                    See the <a href="#troubleshooting" class="guide-link">troubleshooting section</a> below.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Step 3: Configure Training Settings -->
+          <section id="step-3" class="guide-section">
+            <h2 class="guide-section__title">Step 3: Configure Training Settings</h2>
+
+            <div class="guide-innovation">
+              <h3>Review Training Parameters</h3>
+              <p>
+                Before starting training, review the settings in the right-hand panel. For your first run, 
+                the defaults work well, but understanding the options helps you optimize later.
+              </p>
+
+              <ol class="guide-list guide-list--numbered">
+                <li>
+                  <strong>Open Training Panel</strong>
+                  <p>Click the <kbd>Training</kbd> tab on the right-hand side to access training parameters</p>
+                </li>
+                <li>
+                  <strong>Review Default Settings</strong>
+                  <p>Key parameters are pre-configured for general use</p>
+                </li>
+                <li>
+                  <strong>VRAM-Critical Parameters: Gaussian Count & SH Degree</strong>
+                  <p>
+                    VRAM usage mainly depends on Gaussian count and SH degree.
+                    Rule of thumb: ~1M Gaussians at SH3 ≈ ~1–1.5 GB VRAM.
+                  </p>
+                </li>
+              </ol>
+            </div>
+          </section>
+
+          <!-- Step 4: Start Training -->
+          <section id="step-4" class="guide-section">
+            <h2 class="guide-section__title">Step 4: Start Training</h2>
+
+            <div class="guide-innovation">
+              <h3>Launch Training</h3>
+
+              <ol class="guide-list guide-list--numbered">
+                <li>
+                  <strong>Click Start Training</strong>
+                  <p>In the Training panel, click the <kbd>Start Training</kbd> button</p>
+                </li>
+                <li>
+                  <strong>Watch the Scene Emerge</strong>
+                  <p>The viewport shows gaussians optimizing in real-time. The scene updates live during training—you can navigate, rotate, and zoom in the viewport while training progresses.</p>
+                </li>
+                <li>
+                  <strong>Monitor Progress</strong>
+                  <p>Check the training panel for progress in the loss and number of gaussians.</p>
+                </li>
+              </ol>
+            </div>
+          </section>
+
+          <!-- Step 5: Monitor Progress and Results -->
+          <section id="step-5" class="guide-section">
+            <h2 class="guide-section__title">Step 5: Monitor Progress and Results</h2>
+
+            <div class="guide-innovation">
+              <h3>What to Watch During Training</h3>
+              <p>
+                Training typically takes 10-30 minutes depending on your dataset size and GPU. 
+                Here's what happens during that time:
+              </p>
+
+              <div class="guide-steps">
+                <div class="guide-step">
+                  <span class="guide-step__number">1</span>
+                  <div class="guide-step__content">
+                    <h4>Initialization (0-1 min)</h4>
+                    <p>Point cloud from COLMAP is converted to initial gaussians. First render appears.</p>
+                  </div>
+                </div>
+                <div class="guide-step">
+                  <span class="guide-step__number">2</span>
+                  <div class="guide-step__content">
+                    <h4>Densification (1-10 min)</h4>
+                    <p>Gaussian count grows as model adds detail. Scene becomes sharper.</p>
+                  </div>
+                </div>
+                <div class="guide-step">
+                  <span class="guide-step__number">3</span>
+                  <div class="guide-step__content">
+                    <h4>Refinement (10-20 min)</h4>
+                    <p>Fine-tuning colors, positions, and opacities. Quality improves steadily.</p>
+                  </div>
+                </div>
+                <div class="guide-step">
+                  <span class="guide-step__number">4</span>
+                  <div class="guide-step__content">
+                    <h4>Convergence (20+ min)</h4>
+                    <p>Metrics plateau. Training can be stopped or continued for marginal gains.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="guide-info-box">
+                <div class="guide-info-box__icon" aria-hidden="true">
+                  <svg class="bi" width="24" height="24">
+                    <use href={`${base}static/bootstrap-icons.svg#check-circle`}></use>
+                  </svg>
+                </div>
+                <div class="guide-info-box__content">
+                  <strong>Training Complete!</strong>
+                  <p>
+                    When training finishes (or you stop it), your 3D scene is ready to view and edit. 
+                    The trained splat can be exported for use elsewhere.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Common First-Time Issues -->
+          <section id="troubleshooting" class="guide-section">
+            <h2 class="guide-section__title">Common First-Time Issues</h2>
+
+            <div class="guide-innovation">
+              <h3>Troubleshooting Guide</h3>
+              <p>
+                Don't worry if you encounter issues—it's normal when learning. Here are solutions to 
+                the most common problems beginners face.
+              </p>
+
+              <div class="guide-issues-list">
+                {
+                  commonIssues.map((item) => (
+                    <div class="guide-issue">
+                      <div class="guide-issue__header">
+                        <svg class="bi" width="24" height="24">
+                          <use href={`${base}static/bootstrap-icons.svg#exclamation-circle`}></use>
+                        </svg>
+                        <h4 class="guide-issue__title">{item.issue}</h4>
+                      </div>
+                      <div class="guide-issue__body">
+                        <p><strong>Cause:</strong> {item.cause}</p>
+                        <p><strong>Solution:</strong> {item.solution}</p>
+                      </div>
+                    </div>
+                  ))
+                }
+              </div>
+
+              <div class="guide-info-box">
+                <div class="guide-info-box__icon" aria-hidden="true">
+                  <svg class="bi" width="24" height="24">
+                    <use href={`${base}static/bootstrap-icons.svg#discord`}></use>
+                  </svg>
+                </div>
+                <div class="guide-info-box__content">
+                  <strong>Still Stuck?</strong>
+                  <p>
+                    Join our <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer" class="guide-link">Discord community</a> for 
+                    real-time help. The community is friendly and quick to assist beginners!
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Video Tutorial -->
+          <section class="guide-section">
+            <h2 class="guide-section__title">Video Tutorial</h2>
+
+            <div class="guide-videos-grid">
+              {
+                videoTutorials.map((video) => (
+                  <div class="guide-video-card">
+                    <div class="guide-video-card__embed">
+                      <iframe
+                        src={`https://www.youtube.com/embed/${video.embedId}`}
+                        title={video.title}
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        allowfullscreen
+                      />
+                    </div>
+                    <div class="guide-video-card__meta">
+                      <span class="guide-video-card__duration">
+                        <svg class="bi" width="16" height="16" aria-hidden="true">
+                          <use href={`${base}static/bootstrap-icons.svg#clock`}></use>
+                        </svg>
+                        {video.duration}
+                      </span>
+                    </div>
+                    <h3 class="guide-video-card__title">{video.title}</h3>
+                    <p class="guide-video-card__desc">{video.description}</p>
+                  </div>
+                ))
+              }
+            </div>
+
+            <p class="guide-section__lead">
+              <a href={GITHUB_WIKI_URL} target="_blank" rel="noopener noreferrer" class="guide-link">
+                View all video tutorials on our Wiki 
+                <svg class="bi" width="16" height="16" aria-hidden="true">
+                  <use href={`${base}static/bootstrap-icons.svg#box-arrow-up-right`}></use>
+                </svg>
+              </a>
+            </p>
+          </section>
+
+          <!-- What's Next -->
+          <section id="next-steps" class="guide-section">
+            <h2 class="guide-section__title">What's Next?</h2>
+            
+            <p class="guide-section__lead">
+              Continue your Gaussian Splatting journey with these related resources.
+            </p>
+
+            <div class="guide-resources">
+              {nextSteps.map((item) => (
+                <a
+                  href={item.href}
+                  class="guide-resource"
+                  target={item.external ? "_blank" : undefined}
+                  rel={item.external ? "noopener noreferrer" : undefined}
+                >
+                  <div class="guide-resource__icon" aria-hidden="true">
+                    <svg class="bi" width="24" height="24">
+                      <use href={`${base}static/bootstrap-icons.svg#${item.icon}`}></use>
+                    </svg>
+                  </div>
+                  <div class="guide-resource__content">
+                    <h3 class="guide-resource__title">{item.title}</h3>
+                    <p class="guide-resource__desc">{item.description}</p>
+                  </div>
+                  <svg class="guide-resource__arrow" width="20" height="20" aria-hidden="true">
+                    <use href={`${base}static/bootstrap-icons.svg#${item.external ? 'box-arrow-up-right' : 'arrow-right'}`}></use>
+                  </svg>
+                </a>
+              ))}
+            </div>
+          </section>
+
+          <!-- Sponsor CTA -->
+          <section class="guide-section">
+            <div class="guide-cta-box">
+              <h3>Support LichtFeld Studio</h3>
+              <p>
+                This tutorial and the entire open-source platform are made possible by community support. 
+                Consider donating to help us build more tutorials, features, and improvements.
+              </p>
+              <div class="guide-cta-box__actions">
+                <a href={GITHUB_SPONSORS_URL} target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+                  <svg class="bi" width="18" height="18" aria-hidden="true">
+                    <use href={`${base}static/bootstrap-icons.svg#github`}></use>
+                  </svg>
+                  GitHub Sponsors
+                </a>
+                <a href={PAYPAL_URL} target="_blank" rel="noopener noreferrer" class="btn btn-outline-primary">
+                  <svg class="bi" width="18" height="18" aria-hidden="true">
+                    <use href={`${base}static/bootstrap-icons.svg#paypal`}></use>
+                  </svg>
+                  PayPal
+                </a>
+                <a href={DONORBOX_URL} target="_blank" rel="noopener noreferrer" class="btn btn-outline-primary">
+                  <svg class="bi" width="18" height="18" aria-hidden="true">
+                    <use href={`${base}static/bootstrap-icons.svg#gift`}></use>
+                  </svg>
+                  DonorBox
+                </a>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Sidebar -->
+        <aside class="guide-sidebar">
+          <div class="guide-sidebar__sticky">
+            <!-- Quick Links -->
+            <div class="guide-sidebar__box">
+              <h3>Quick Links</h3>
+              <ul class="guide-sidebar__links">
+                <li>
+                  <a href={`${base}getting-started/`}>
+                    <svg class="bi" width="16" height="16" aria-hidden="true">
+                      <use href={`${base}static/bootstrap-icons.svg#book`}></use>
+                    </svg>
+                    Getting Started Guide
+                  </a>
+                </li>
+                <li>
+                  <a href={`${base}tutorials/capture-tips/`}>
+                    <svg class="bi" width="16" height="16" aria-hidden="true">
+                      <use href={`${base}static/bootstrap-icons.svg#camera`}></use>
+                    </svg>
+                    Capture Tips
+                  </a>
+                </li>
+                <li>
+                  <a href={GITHUB_REPO_URL} target="_blank" rel="noopener noreferrer">
+                    <svg class="bi" width="16" height="16" aria-hidden="true">
+                      <use href={`${base}static/bootstrap-icons.svg#github`}></use>
+                    </svg>
+                    GitHub Repository
+                  </a>
+                </li>
+                <li>
+                  <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer">
+                    <svg class="bi" width="16" height="16" aria-hidden="true">
+                      <use href={`${base}static/bootstrap-icons.svg#discord`}></use>
+                    </svg>
+                    Community Discord
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Share -->
+            <div class="guide-sidebar__box">
+              <h3>Share This Page</h3>
+              <div class="guide-sidebar__share">
+                <button 
+                  type="button" 
+                  class="btn btn-outline-secondary guide-sidebar__share-btn"
+                  id="share-page-btn"
+                  aria-label="Copy page link to clipboard"
+                >
+                  <svg class="bi" width="18" height="18" aria-hidden="true">
+                    <use href={`${base}static/bootstrap-icons.svg#link-45deg`}></use>
+                  </svg>
+                  Copy Link
+                </button>
+                <a 
+                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(seoTitle)}&url=${encodeURIComponent(new URL(Astro.url.pathname, Astro.site).toString())}`}
+                  class="btn btn-outline-secondary guide-sidebar__share-btn"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Share on Twitter"
+                >
+                  <svg class="bi" width="18" height="18" aria-hidden="true">
+                    <use href={`${base}static/bootstrap-icons.svg#twitter-x`}></use>
+                  </svg>
+                  Twitter
+                </a>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast notification -->
+  <div class="guide-toast" id="share-toast" aria-live="polite" aria-hidden="true">
+    <svg class="bi" width="20" height="20" aria-hidden="true">
+      <use href={`${base}static/bootstrap-icons.svg#check-circle`}></use>
+    </svg>
+    Link copied to clipboard!
+  </div>
+</Layout>
+
+<script>
+  // Share button functionality
+  document.addEventListener('DOMContentLoaded', () => {
+    const shareBtn = document.getElementById('share-page-btn');
+    const toast = document.getElementById('share-toast');
+
+    if (shareBtn && toast) {
+      shareBtn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(window.location.href);
+          
+          // Show toast
+          toast.classList.add('is-visible');
+          toast.setAttribute('aria-hidden', 'false');
+          
+          // Hide after 3 seconds
+          setTimeout(() => {
+            toast.classList.remove('is-visible');
+            toast.setAttribute('aria-hidden', 'true');
+          }, 3000);
+        } catch (err) {
+          console.error('Failed to copy:', err);
+        }
+      });
+    }
+  });
+
+  // Progress indicator active state on scroll
+  document.addEventListener('DOMContentLoaded', () => {
+    const sections = document.querySelectorAll('.guide-section[id]');
+    const progressItems = document.querySelectorAll('.guide-progress__item');
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const id = entry.target.getAttribute('id');
+            progressItems.forEach((item) => {
+              item.classList.remove('guide-progress__item--active');
+              if (item.getAttribute('href') === `#${id}`) {
+                item.classList.add('guide-progress__item--active');
+              }
+            });
+          }
+        });
+      },
+      { rootMargin: "-20% 0px -60% 0px" }
+    );
+
+    sections.forEach((section) => observer.observe(section));
+  });
+</script>
+
+<style>
+  /* ============================================================================
+   * Guide Page Layout (from what-is-gaussian-splatting.astro)
+   * ============================================================================ */
+
+  .guide-page {
+    padding-bottom: 4rem;
+  }
+
+  /* ============================================================================
+   * Hero Section
+   * ============================================================================ */
+
+  .guide-hero {
+    padding: 3rem 0 2rem;
+    background: 
+      radial-gradient(circle at top left, rgba(20, 87, 255, 0.06), transparent 40%),
+      radial-gradient(circle at top right, rgba(201, 114, 52, 0.06), transparent 35%);
+    border-bottom: 1px solid var(--surface-border);
+  }
+
+  .guide-hero__content {
+    max-width: 800px;
+  }
+
+  .guide-breadcrumb {
+    margin-bottom: 1.5rem;
+  }
+
+  .guide-breadcrumb__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+
+  .guide-breadcrumb__item:not(:last-child)::after {
+    content: "/";
+    margin-left: 0.5rem;
+    opacity: 0.5;
+  }
+
+  .guide-breadcrumb__link {
+    color: var(--color-primary-link);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .guide-breadcrumb__link:hover {
+    color: var(--color-primary-link-hover);
+    text-decoration: underline;
+  }
+
+  .guide-hero__title {
+    font-size: clamp(2rem, 5vw, 3rem);
+    line-height: 1.1;
+    margin: 0 0 1.5rem;
+    color: var(--color-heading);
+  }
+
+  .guide-hero__lead {
+    font-size: 1.25rem;
+    line-height: 1.6;
+    color: var(--color-body);
+    margin: 0 0 1.5rem;
+  }
+
+  .guide-hero__meta {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+
+  .guide-hero__reading-time {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* ============================================================================
+   * Progress Indicator
+   * ============================================================================ */
+
+  .guide-progress {
+    position: sticky;
+    top: var(--nav-height);
+    z-index: 100;
+    background: rgba(251, 248, 242, 0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+    padding: 0.75rem 0;
+  }
+
+  .guide-progress__track {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 0.25rem;
+  }
+
+  .guide-progress__track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .guide-progress__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    text-decoration: none;
+    color: var(--color-body);
+    font-size: 0.875rem;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+  }
+
+  .guide-progress__item:hover {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+
+  .guide-progress__item--active {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: white;
+  }
+
+  .guide-progress__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ============================================================================
+   * Content Layout
+   * ============================================================================ */
+
+  .guide-content {
+    padding: 1rem 0 3rem;
+  }
+
+  .guide-content__layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  @media (min-width: 1024px) {
+    .guide-content__layout {
+      grid-template-columns: 1fr 300px;
+      gap: 4rem;
+    }
+  }
+
+  .guide-content__main {
+    min-width: 0;
+  }
+
+  /* ============================================================================
+   * Guide Sections
+   * ============================================================================ */
+
+  .guide-section {
+    margin-bottom: 4rem;
+  }
+
+  .guide-section__title {
+    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    line-height: 1.2;
+    margin: 0 0 1.5rem;
+    color: var(--color-heading);
+    scroll-margin-top: calc(var(--nav-height) + 2rem);
+  }
+
+  .guide-section__lead {
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: var(--color-body);
+    margin: 0 0 1.5rem;
+  }
+
+  .guide-section h3 {
+    font-size: 1.375rem;
+    line-height: 1.3;
+    margin: 2rem 0 1rem;
+    color: var(--color-heading);
+    scroll-margin-top: calc(var(--nav-height) + 2rem);
+  }
+
+  .guide-section h4 {
+    font-size: 1.125rem;
+    line-height: 1.4;
+    margin: 1.5rem 0 0.75rem;
+    color: var(--color-heading);
+  }
+
+  .guide-section p {
+    font-size: 1.0625rem;
+    line-height: 1.8;
+    color: var(--color-body);
+    margin: 0 0 1.25rem;
+  }
+
+  .guide-section ul,
+  .guide-section ol {
+    font-size: 1.0625rem;
+    line-height: 1.8;
+    color: var(--color-body);
+    margin: 0 0 1.5rem;
+    padding-left: 1.5rem;
+  }
+
+  .guide-section li {
+    margin-bottom: 0.5rem;
+  }
+
+  .guide-link {
+    color: var(--color-primary-link);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+  }
+
+  .guide-link:hover {
+    color: var(--color-primary-link-hover);
+    text-decoration: underline;
+  }
+
+  /* ============================================================================
+   * Info Box
+   * ============================================================================ */
+
+  .guide-info-box {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, rgba(20, 87, 255, 0.08), rgba(20, 87, 255, 0.02));
+    border: 1px solid rgba(20, 87, 255, 0.15);
+    border-radius: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-info-box__icon {
+    flex-shrink: 0;
+    color: var(--color-primary);
+  }
+
+  .guide-info-box__content {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--color-body);
+  }
+
+  /* ============================================================================
+   * Warning Box
+   * ============================================================================ */
+
+  .guide-warning-box {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(239, 68, 68, 0.02));
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-warning-box__icon {
+    flex-shrink: 0;
+    color: #ef4444;
+  }
+
+  .guide-warning-box__content {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--color-body);
+  }
+
+  /* ============================================================================
+   * Innovations & Parameters
+   * ============================================================================ */
+
+  .guide-innovation,
+  .guide-parameter {
+    padding: 1.5rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-innovation h3,
+  .guide-parameter h3 {
+    margin: 0 0 0.75rem;
+    font-size: 1.125rem;
+  }
+
+  .guide-innovation p,
+  .guide-parameter p {
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
+  }
+
+  .guide-innovation p:last-child,
+  .guide-parameter p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* ============================================================================
+   * Lists
+   * ============================================================================ */
+
+  .guide-list {
+    margin: 0 0 1.5rem;
+    padding-left: 1.5rem;
+  }
+
+  .guide-list--numbered {
+    counter-reset: step;
+    list-style: none;
+    padding-left: 0;
+  }
+
+  .guide-list--numbered li {
+    position: relative;
+    padding-left: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  .guide-list--numbered li::before {
+    counter-increment: step;
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-primary);
+    color: white;
+    font-weight: 700;
+    font-size: 0.875rem;
+    border-radius: 0.5rem;
+  }
+
+  .guide-list--numbered li strong {
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  .guide-list--numbered li p {
+    margin: 0;
+    font-size: 0.95rem;
+  }
+
+  /* ============================================================================
+   * Steps
+   * ============================================================================ */
+
+  .guide-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-step {
+    display: flex;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+  }
+
+  .guide-step__number {
+    flex-shrink: 0;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-primary);
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+    border-radius: 50%;
+  }
+
+  .guide-step__content {
+    flex: 1;
+  }
+
+  .guide-step__content h4 {
+    margin: 0 0 0.5rem;
+    font-size: 1.125rem;
+  }
+
+  .guide-step__content p {
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
+  }
+
+  .guide-step__content ul {
+    margin: 0;
+    padding-left: 1.25rem;
+  }
+
+  .guide-step__content li {
+    margin-bottom: 0.25rem;
+    font-size: 0.9375rem;
+  }
+
+  /* ============================================================================
+   * Requirements
+   * ============================================================================ */
+
+  .guide-specs-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-requirement {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 0.75rem;
+    border: 1px solid rgba(15, 23, 42, 0.06);
+  }
+
+  .guide-requirement__item {
+    font-weight: 600;
+    color: var(--color-heading);
+  }
+
+  .guide-requirement__value {
+    font-size: 0.9rem;
+    color: var(--color-body);
+  }
+
+  .guide-requirement__rec {
+    font-size: 0.8rem;
+    color: var(--color-muted);
+  }
+
+  /* ============================================================================
+   * Issues List
+   * ============================================================================ */
+
+  .guide-issues-list {
+    display: grid;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-issue {
+    padding: 1.25rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+  }
+
+  .guide-issue__header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .guide-issue__header svg {
+    color: #ef4444;
+    flex-shrink: 0;
+  }
+
+  .guide-issue__title {
+    font-size: 1rem;
+    margin: 0;
+  }
+
+  .guide-issue__body {
+    padding-left: 2rem;
+  }
+
+  .guide-issue__body p {
+    margin: 0 0 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .guide-issue__body strong {
+    color: var(--color-heading);
+  }
+
+  /* ============================================================================
+   * CTA Box
+   * ============================================================================ */
+
+  .guide-cta-box {
+    padding: 2rem;
+    background: linear-gradient(135deg, rgba(20, 87, 255, 0.1), rgba(201, 114, 52, 0.05));
+    border: 1px solid rgba(20, 87, 255, 0.2);
+    border-radius: 1.25rem;
+    margin: 2.5rem 0;
+    text-align: center;
+  }
+
+  .guide-cta-box h3 {
+    margin: 0 0 1rem;
+    font-size: 1.5rem;
+  }
+
+  .guide-cta-box p {
+    margin: 0 0 1.5rem;
+    font-size: 1.0625rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .guide-cta-box__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+  }
+
+  .guide-cta-box__actions .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* ============================================================================
+   * Videos Grid
+   * ============================================================================ */
+
+  .guide-videos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-video-card {
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+    overflow: hidden;
+  }
+
+  .guide-video-card__embed {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+  }
+
+  .guide-video-card__embed iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  .guide-video-card__meta {
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid var(--surface-border);
+  }
+
+  .guide-video-card__duration {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--color-muted);
+  }
+
+  .guide-video-card__title {
+    font-size: 1.1rem;
+    margin: 0;
+    padding: 1rem 1.25rem 0.5rem;
+  }
+
+  .guide-video-card__desc {
+    font-size: 0.9rem;
+    color: var(--color-muted);
+    margin: 0;
+    padding: 0 1.25rem 1.25rem;
+  }
+
+  /* ============================================================================
+   * Resources
+   * ============================================================================ */
+
+  .guide-resources {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  @media (min-width: 640px) {
+    .guide-resources {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .guide-resource {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  .guide-resource:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--surface-shadow);
+    border-color: var(--color-border-hover);
+  }
+
+  .guide-resource__icon {
+    flex-shrink: 0;
+    color: var(--color-primary);
+  }
+
+  .guide-resource__content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .guide-resource__title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem;
+    color: var(--color-heading);
+  }
+
+  .guide-resource__desc {
+    font-size: 0.875rem;
+    color: var(--color-muted);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .guide-resource__arrow {
+    flex-shrink: 0;
+    color: var(--color-muted);
+    transition: transform 0.2s ease, color 0.2s ease;
+  }
+
+  .guide-resource:hover .guide-resource__arrow {
+    transform: translateX(4px);
+    color: var(--color-primary);
+  }
+
+  /* ============================================================================
+   * Sidebar
+   * ============================================================================ */
+
+  .guide-sidebar {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    .guide-sidebar {
+      display: block;
+    }
+  }
+
+  .guide-sidebar__sticky {
+    position: sticky;
+    top: calc(var(--nav-height) + 2rem);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .guide-sidebar__box {
+    padding: 1.5rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+  }
+
+  .guide-sidebar__box h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 1rem;
+    color: var(--color-heading);
+  }
+
+  .guide-sidebar__links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .guide-sidebar__links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-body);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    transition: color 0.2s ease;
+  }
+
+  .guide-sidebar__links a:hover {
+    color: var(--color-primary-link);
+  }
+
+  .guide-sidebar__share {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .guide-sidebar__share-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem;
+    font-size: 0.875rem;
+  }
+
+  /* ============================================================================
+   * Toast
+   * ============================================================================ */
+
+  .guide-toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(1rem);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: var(--color-heading);
+    color: white;
+    font-weight: 500;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+  }
+
+  .guide-toast.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ============================================================================
+   * Keyboard styling
+   * ============================================================================ */
+
+  kbd {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    background: rgba(15, 23, 42, 0.08);
+    border: 1px solid rgba(15, 23, 42, 0.15);
+    border-radius: 0.375rem;
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+    font-size: 0.875rem;
+    color: var(--color-body);
+  }
+
+  /* ============================================================================
+   * Responsive Adjustments
+   * ============================================================================ */
+
+  @media (max-width: 767px) {
+    .guide-hero {
+      padding: 2rem 0 1.5rem;
+    }
+
+    .guide-hero__lead {
+      font-size: 1.125rem;
+    }
+
+    .guide-section {
+      margin-bottom: 3rem;
+    }
+
+    .guide-cta-box {
+      padding: 1.5rem;
+    }
+
+    .guide-cta-box__actions {
+      flex-direction: column;
+    }
+
+    .guide-cta-box__actions .btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .guide-innovation,
+    .guide-parameter {
+      padding: 1.25rem;
+    }
+
+    .guide-step {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .guide-issue__body {
+      padding-left: 0;
+    }
+
+    .guide-progress__label {
+      display: none;
+    }
+
+    .guide-progress__item {
+      padding: 0.5rem;
+    }
+  }
+</style>

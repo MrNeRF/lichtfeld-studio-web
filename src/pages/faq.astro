@@ -1,0 +1,1269 @@
+---
+/**
+ * FAQ Page for LichtFeld Studio
+ * 
+ * A comprehensive FAQ page targeting searches for:
+ * - "lichtfeld studio faq"
+ * - "gaussian splatting problems"
+ * - "3dgs troubleshooting"
+ * 
+ * Features:
+ * - Accordion-style expandable FAQ items
+ * - Search functionality for filtering questions
+ * - Categorized sections (Installation, Training, Performance, Export, General)
+ * - Schema.org FAQPage structured data for SEO
+ * - Sponsor/donor CTA section
+ */
+
+import Layout from "@/layouts/Layout.astro";
+import { GITHUB_REPO_URL, GITHUB_SPONSORS_URL, PAYPAL_URL, DONORBOX_URL } from "@/constants/project";
+
+// SEO metadata
+const seoTitle = "LichtFeld Studio FAQ: Common Questions & Solutions";
+const seoDescription = "Find answers to frequently asked questions about LichtFeld Studio. Installation, training, troubleshooting, and getting started with 3D Gaussian Splatting.";
+
+// FAQ Categories and Items
+const faqCategories = [
+  {
+    id: "installation",
+    title: "Installation & Getting Started",
+    icon: "bi-download",
+    items: [
+      {
+        id: "binary-download",
+        question: "Where can I find a binary download or installer?",
+        answer: `LichtFeld Studio (LFS) is currently distributed as source code via GitHub. You can find the latest releases and source code at our <a href="${GITHUB_REPO_URL}" target="_blank" rel="noopener noreferrer">GitHub repository</a>. For detailed installation instructions, check out our <a href="/getting-started/">Getting Started guide</a>. We recommend using the latest nightly release to ensure you have the latest features and fixes.`,
+        keywords: ["download", "installer", "binary", "github", "source"]
+      },
+      {
+        id: "hardware-requirements",
+        question: "What hardware do I need for LichtFeld Studio?",
+        answer: `LichtFeld Studio requires an NVIDIA GPU with CUDA 12.8+ support. Minimum requirements include:
+        <ul>
+          <li><strong>GPU:</strong> NVIDIA GPU with Compute Capability SM 75+ (Turing or newer)</li>
+          <li><strong>VRAM:</strong> 8GB minimum (12GB+ recommended)</li>
+          <li><strong>CUDA:</strong> CUDA Toolkit 12.8+ required</li>
+          <li><strong>Driver:</strong> NVIDIA Driver >= 570 required</li>
+          <li><strong>RAM:</strong> 16GB system RAM minimum (32GB recommended for large scenes)</li>
+          <li><strong>Storage:</strong> SSD with at least 10GB free space</li>
+          <li><strong>OS:</strong> Windows 10/11 or Linux (macOS is not supported — <a href="https://github.com/ArthurBrussee/brush" target="_blank" rel="noopener noreferrer">use Brush for macOS</a>)</li>
+        </ul>
+        <p><strong>For macOS users:</strong> We recommend <a href="https://github.com/ArthurBrussee/brush" target="_blank" rel="noopener noreferrer">Brush</a>, a free and open-source alternative that works natively on macOS (both Intel and Apple Silicon). Brush uses WebGPU for rendering (no CUDA required) and supports training splats directly on your Mac. Build from source with <code>cargo run --release</code> or use the <a href="https://arthurbrussee.github.io/brush-demo" target="_blank" rel="noopener noreferrer">web demo</a> in Chrome/Edge.</p>
+        For optimal training performance, we recommend an RTX 3060 or better with 12GB+ VRAM.`,
+        keywords: ["hardware", "requirements", "gpu", "cuda", "ram", "system", "macos", "mac"]
+      },
+      {
+        id: "free-software",
+        question: "Is LichtFeld Studio really free?",
+        answer: `Yes! LichtFeld Studio is completely free and open-source software. It's released under the GPL-3.0 license that allows you to use, modify, and distribute the software at no cost. We believe in making 3D Gaussian Splatting technology accessible to everyone, from hobbyists to professional studios.`,
+        keywords: ["free", "cost", "price", "open source", "license"]
+      },
+      {
+        id: "commercial-use",
+        question: "Can I use LichtFeld Studio commercially?",
+        answer: `Absolutely! LichtFeld Studio can be used for commercial projects without any licensing fees or restrictions. Whether you're creating content for clients, building products, or running a business, you're free to use LFS. We appreciate attribution when possible, but it's not required. If you'd like to support continued development, consider <a href="#support">becoming a sponsor</a>.`,
+        keywords: ["commercial", "business", "license", "usage", "work"]
+      }
+    ]
+  },
+  {
+    id: "training",
+    title: "Training & Scene Creation",
+    icon: "bi-camera",
+    items: [
+      {
+        id: "scene-explodes",
+        question: "When I use LFS to train a scene, my scene \"explodes\". What could be the cause?",
+        answer: `Scene "explosion" typically occurs when Gaussians become unstable during training. Common causes include:
+        <ul>
+          <li><strong>Insufficient image overlap:</strong> Ensure your input images have adequate overlap (60-80% recommended)</li>
+          <li><strong>Poor camera calibration:</strong> Verify your camera parameters are correctly set</li>
+          <li><strong>Extreme depth variations:</strong> Scenes with very close and very far objects can cause instability</li>
+          <li><strong>Learning rate too high:</strong> Try reducing the learning rate in training settings</li>
+        </ul>
+        Check our <a href="/troubleshooting/">troubleshooting guide</a> for detailed solutions.`,
+        keywords: ["explode", "explosion", "training", "unstable", "error"]
+      },
+      {
+        id: "max-images",
+        question: "What is the maximum number of images that LFS can train?",
+        answer: `There's no hard limit on the number of images, but practical limits depend on your hardware and image size:
+        <ul>
+          <li><strong>VRAM:</strong> Each image requires memory for processing during training</li>
+          <li><strong>Training speed:</strong> Number of images does NOT directly affect training speed - the number of Gaussians in the scene does</li>
+          <li><strong>Code limit:</strong> There is a code limit on maximum image size</li>
+          <li><strong>Tile mode:</strong> Use <code>--tile-mode</code> to bypass image size limitations</li>
+          <li><strong>HDR support:</strong> We do NOT support HDR images currently</li>
+          <li><strong>Recommended:</strong> 50-500 images for most scenes</li>
+          <li><strong>Large scenes:</strong> 1000+ images possible with 24GB+ VRAM</li>
+        </ul>
+        <p><strong>Important:</strong> Training speed depends on the number of Gaussians, not image count. However, too many Gaussians can cause out-of-memory (OOM) failures. If training fails with OOM errors, try reducing the maximum Gaussian cap in training settings.</p>
+        For best results, focus on image quality and coverage rather than quantity. 100 well-distributed images often outperform 1000 poorly positioned ones.`,
+        keywords: ["images", "maximum", "limit", "photos", "count", "tile-mode", "hdr"]
+      },
+      {
+        id: "viewport-navigation",
+        question: "Can I navigate the viewport while training is running?",
+        answer: `Yes! The scene updates live during training—you can navigate, rotate, and zoom in the viewport while training progresses. This allows you to:
+        <ul>
+          <li><strong>Inspect different angles:</strong> Rotate around the scene to see how reconstruction is progressing from all sides</li>
+          <li><strong>Zoom in on details:</strong> Check fine details as they emerge during training</li>
+          <li><strong>Pan and explore:</strong> Move through the scene to verify coverage and quality</li>
+        </ul>
+        The viewport remains fully interactive during training, so you can explore your scene as it develops without interrupting the training process.`,
+        keywords: ["viewport", "navigation", "training", "rotate", "zoom", "move"]
+      },
+      {
+        id: "max-resolution",
+        question: "What is the maximum resolution of the images that LFS can train?",
+        answer: `LFS can handle high-resolution images, but there are practical considerations:
+        <ul>
+          <li><strong>Input resolution:</strong> Up to 4K (3840×2160) and beyond</li>
+          <li><strong>Processing:</strong> Images are typically downscaled during training based on VRAM</li>
+          <li><strong>Recommended:</strong> 1920×1080 to 2560×1440 for balance of quality and speed</li>
+          <li><strong>Memory impact:</strong> Higher resolution = more VRAM required</li>
+        </ul>
+        You can configure the training resolution in the settings to optimize for your hardware.`,
+        keywords: ["resolution", "quality", "size", "pixels", "high"]
+      }
+    ]
+  },
+  {
+    id: "performance",
+    title: "Performance & Optimization",
+    icon: "bi-speedometer2",
+    items: [
+      {
+        id: "slow-training",
+        question: "My system / training is slow, even less than 1 iteration / second. What could be the cause?",
+        answer: `Slow training performance can be caused by several factors. Note that training requires an NVIDIA GPU with CUDA - CPU training is NOT supported:
+        <ul>
+          <li><strong>GPU not being used:</strong> Ensure CUDA is properly installed and GPU is being used. Training is GPU-only (CUDA required)</li>
+          <li><strong>Insufficient VRAM:</strong> Training may be using slower memory management</li>
+          <li><strong>Large image resolution:</strong> Try reducing training resolution</li>
+          <li><strong>Too many Gaussians:</strong> Scene complexity affects iteration speed</li>
+          <li><strong>Background processes:</strong> Close other GPU-intensive applications</li>
+        </ul>
+        Check GPU utilization in Task Manager (Windows) or <code>nvidia-smi</code> (Linux). GPU should be at 80-100% during training.`,
+        keywords: ["slow", "speed", "performance", "iteration", "training"]
+      },
+      {
+        id: "training-speed-factors",
+        question: "What affects training duration and VRAM usage?",
+        answer: `Training performance depends on several key factors:
+        <ul>
+          <li><strong>Duration affected by:</strong>
+            <ul>
+              <li>Number of Gaussians in the scene</li>
+              <li>SH (Spherical Harmonics) degree (0-3)</li>
+              <li>Number of iterations</li>
+            </ul>
+          </li>
+          <li><strong>VRAM affected by:</strong>
+            <ul>
+              <li>Number of Gaussians</li>
+              <li>SH degree</li>
+            </ul>
+          </li>
+        </ul>
+        <p><strong>Note:</strong> Training speed depends on Gaussian count, not image count. The number of input images affects initial Gaussian generation but does not directly impact iteration speed during training.</p>`,
+        keywords: ["training", "duration", "vram", "speed", "gaussians", "sh degree", "factors"]
+      },
+      {
+        id: "cpu-usage",
+        question: "My CPU is heavily used and at 100% all the time, is this normal?",
+        answer: `High CPU usage during training is not typical - the GPU should handle most of the computation. Training requires an NVIDIA GPU with CUDA; CPU-only training is NOT supported. If your CPU is at 100%:
+        <ul>
+          <li><strong>Check GPU utilization:</strong> If GPU is at 0-10%, verify CUDA and GPU drivers are properly installed - training cannot run without GPU</li>
+          <li><strong>CUDA installation:</strong> Verify CUDA and cuDNN are properly installed</li>
+          <li><strong>Data loading:</strong> CPU may be bottlenecked loading images - consider SSD storage</li>
+          <li><strong>Number of workers:</strong> Adjust data loader workers in settings</li>
+        </ul>
+        Normal behavior: GPU at 80-100%, CPU at 20-50% for data loading and coordination.`,
+        keywords: ["cpu", "usage", "100%", "performance", "bottleneck"]
+      },
+      {
+        id: "multi-gpu",
+        question: "Does LFS support multiple GPUs?",
+        answer: `LichtFeld Studio currently supports single GPU only. Multi-GPU training is not implemented. For now, if you have multiple GPUs:
+        <ul>
+          <li>Select your most powerful GPU in settings</li>
+          <li>Consider running multiple training jobs on different GPUs</li>
+        </ul>
+        Follow our <a href="${GITHUB_REPO_URL}/issues" target="_blank" rel="noopener noreferrer">GitHub issues</a> for updates on multi-GPU support.`,
+        keywords: ["multi-gpu", "multiple", "gpus", "sli", "nvlink"]
+      }
+    ]
+  },
+  {
+    id: "export",
+    title: "Export & Integration",
+    icon: "bi-box-arrow-up-right",
+    items: [
+      {
+        id: "export-splat",
+        question: "How do I export the created splat?",
+        answer: `Exporting your trained Gaussian Splat is straightforward:
+        <ul>
+          <li><strong>PLY format:</strong> Standard point cloud format compatible with most viewers</li>
+          <li><strong>SOG format:</strong> Compressed format specifically designed for efficient storage and transmission</li>
+          <li><strong>Export options:</strong> Choose compression level and format in the export dialog</li>
+        </ul>
+        Go to <strong>File → Export</strong> or use the export button in the toolbar.`,
+        keywords: ["export", "save", "output", "ply", "splat"]
+      },
+      {
+        id: "install-plugins",
+        question: "How do I install plugins?",
+        answer: `LichtFeld Studio supports plugins to extend functionality:
+        <ul>
+          <li><strong>Plugin Marketplace:</strong> Go to <strong>Tools → Plugin Marketplace</strong> in the UI to browse all registry plugins</li>
+          <li><strong>Registry plugins:</strong> Access all official plugins from the registry directly in the marketplace</li>
+          <li><strong>Custom plugins:</strong> You can also download and install custom plugins not in the registry</li>
+          <li><strong>Enable/Disable:</strong> Use the Plugin Manager in Settings to enable/disable installed plugins</li>
+          <li><strong>Development:</strong> Create your own using our <a href="/docs/">plugin API documentation</a></li>
+        </ul>
+        Plugins can add new export formats, processing filters, and UI enhancements.`,
+        keywords: ["plugins", "extensions", "addons", "install", "marketplace"]
+      },
+      {
+        id: "mcp-integration",
+        question: "What is MCP integration?",
+        answer: `MCP (Model Context Protocol) integration allows LichtFeld Studio to communicate with AI assistants and external tools. This enables:
+        <ul>
+          <li><strong>AI-assisted workflows:</strong> Use natural language to control LFS operations</li>
+          <li><strong>Automation:</strong> Script and automate repetitive tasks</li>
+          <li><strong>Pipeline integration:</strong> Fit LFS into your existing production workflow</li>
+        </ul>
+        MCP is available in the latest builds. See <a href="/docs/">documentation</a> for setup instructions.`,
+        keywords: ["mcp", "integration", "api", "automation", "ai"]
+      }
+    ]
+  },
+  {
+    id: "general",
+    title: "General Questions",
+    icon: "bi-question-circle",
+    items: [
+      {
+        id: "report-bugs",
+        question: "How do I report bugs or request features?",
+        answer: `We welcome bug reports and feature requests! Here's how to contribute:
+        <ul>
+          <li><strong>GitHub Issues:</strong> Submit detailed reports at <a href="${GITHUB_REPO_URL}/issues" target="_blank" rel="noopener noreferrer">our issue tracker</a></li>
+          <li><strong>Bug reports:</strong> Include system specs, LFS version, and steps to reproduce</li>
+          <li><strong>Feature requests:</strong> Describe the use case and expected behavior</li>
+          <li><strong>Discussions:</strong> For questions and ideas, use <a href="${GITHUB_REPO_URL}/discussions" target="_blank" rel="noopener noreferrer">GitHub Discussions</a></li>
+        </ul>
+        Check existing issues first to avoid duplicates.`,
+        keywords: ["bugs", "report", "features", "request", "issues"]
+      },
+      {
+        id: "find-tutorials",
+        question: "Where can I find tutorials?",
+        answer: `We have multiple resources to help you learn LichtFeld Studio:
+        <ul>
+          <li><strong>Documentation:</strong> Comprehensive guides at <a href="/docs/">our docs</a></li>
+          <li><strong>Getting Started:</strong> Step-by-step <a href="/getting-started/">tutorial for beginners</a></li>
+          <li><strong>Community:</strong> User-contributed tutorials in <a href="${GITHUB_REPO_URL}/discussions" target="_blank" rel="noopener noreferrer">GitHub Discussions</a></li>
+          <li><strong>Showcase:</strong> See what others have created at <a href="/showcase/">our showcase</a></li>
+        </ul>
+        Start with the Getting Started guide if you're new to 3D Gaussian Splatting.`,
+        keywords: ["tutorials", "learn", "guide", "help", "documentation"]
+      }
+    ]
+  }
+];
+
+// Flatten all FAQ items for search and structured data
+const allFaqItems = faqCategories.flatMap(cat => cat.items);
+
+// Generate Schema.org FAQPage structured data
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": allFaqItems.map(item => ({
+    "@type": "Question",
+    "name": item.question,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": item.answer.replace(/<[^>]*>/g, '') // Strip HTML tags for schema
+    }
+  }))
+};
+
+// Support options for CTA
+const supportOptions = [
+  { label: "GitHub Sponsors", href: GITHUB_SPONSORS_URL, detail: "Recurring monthly support", icon: "bi-heart" },
+  { label: "PayPal", href: PAYPAL_URL, detail: "One-time contribution", icon: "bi-paypal" },
+  { label: "Donorbox", href: DONORBOX_URL, detail: "Card donations", icon: "bi-credit-card" },
+];
+---
+
+<Layout title={seoTitle} description={seoDescription}>
+  {/* Schema.org structured data */}
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} slot="head" />
+  
+  <section class="faq-page">
+    <div class="container content-frame px-4 py-5">
+      {/* Hero Section */}
+      <div class="shell faq-hero">
+        <p class="kicker">Help Center</p>
+        <h1 class="faq-title">Frequently Asked Questions</h1>
+        <p class="faq-lead">
+          Find answers to common questions about LichtFeld Studio. From installation and training 
+          to troubleshooting and export - we've got you covered.
+        </p>
+        
+        {/* Search Bar */}
+        <div class="faq-search">
+          <div class="search-input-wrapper">
+            <i class="bi bi-search search-icon"></i>
+            <input 
+              type="text" 
+              id="faq-search" 
+              class="search-input" 
+              placeholder="Search questions... (e.g., 'export', 'GPU', 'slow')"
+              autocomplete="off"
+            />
+            <button id="search-clear" class="search-clear hidden" aria-label="Clear search">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+          <p class="search-hint">
+            <i class="bi bi-lightbulb"></i>
+            Try searching for: <span class="search-tag" data-term="export">export</span>, 
+            <span class="search-tag" data-term="GPU">GPU</span>, 
+            <span class="search-tag" data-term="training">training</span>, 
+            <span class="search-tag" data-term="slow">slow</span>
+          </p>
+        </div>
+        
+        {/* Quick Links */}
+        <div class="quick-links">
+          <span class="quick-links-label">Jump to:</span>
+          {faqCategories.map(cat => (
+            <a href={`#${cat.id}`} class="quick-link">
+              <i class={`bi ${cat.icon}`}></i>
+              {cat.title}
+            </a>
+          ))}
+        </div>
+      </div>
+      
+      {/* FAQ Categories */}
+      <div class="faq-categories">
+        {faqCategories.map((category, catIndex) => (
+          <section class="faq-category shell" id={category.id} data-category={category.id}>
+            <div class="category-header">
+              <div class="category-icon">
+                <i class={`bi ${category.icon}`}></i>
+              </div>
+              <h2 class="category-title">{category.title}</h2>
+              <span class="category-count">{category.items.length} questions</span>
+            </div>
+            
+            <div class="faq-list">
+              {category.items.map((item, itemIndex) => (
+                <div 
+                  class="faq-item" 
+                  data-question={item.question.toLowerCase()}
+                  data-keywords={item.keywords.join(',')}
+                  data-category={category.id}
+                >
+                  <button 
+                    class="faq-question" 
+                    aria-expanded="false"
+                    aria-controls={`faq-answer-${catIndex}-${itemIndex}`}
+                    id={`faq-question-${catIndex}-${itemIndex}`}
+                  >
+                    <span class="question-text">{item.question}</span>
+                    <span class="question-icon">
+                      <i class="bi bi-chevron-down"></i>
+                    </span>
+                  </button>
+                  <div 
+                    class="faq-answer" 
+                    id={`faq-answer-${catIndex}-${itemIndex}`}
+                    role="region"
+                    aria-labelledby={`faq-question-${catIndex}-${itemIndex}`}
+                  >
+                    <div class="answer-content" set:html={item.answer} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
+      
+      {/* No Results Message */}
+      <div id="no-results" class="no-results hidden">
+        <div class="shell no-results-content">
+          <i class="bi bi-search"></i>
+          <h3>No matching questions found</h3>
+          <p>Try different keywords or browse the categories above.</p>
+          <button id="clear-search-btn" class="section-link">Clear search</button>
+        </div>
+      </div>
+      
+      {/* Support CTA Section */}
+      <section class="shell support-cta" id="support">
+        <div class="support-content">
+          <div class="support-text">
+            <p class="kicker">Support the Project</p>
+            <h2 class="support-title">Help us keep LichtFeld Studio free</h2>
+            <p class="support-description">
+              LichtFeld Studio is developed and maintained by a small team of volunteers. 
+              Your support helps us continue improving the software, adding new features, 
+              and keeping it free for everyone.
+            </p>
+          </div>
+          
+          <div class="support-options">
+            {supportOptions.map(option => (
+              <a 
+                href={option.href} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                class="support-option"
+              >
+                <span class="support-option-icon">
+                  <i class={`bi ${option.icon}`}></i>
+                </span>
+                <span class="support-option-text">
+                  <strong>{option.label}</strong>
+                  <span>{option.detail}</span>
+                </span>
+                <i class="bi bi-arrow-up-right support-option-arrow"></i>
+              </a>
+            ))}
+          </div>
+        </div>
+        
+        <div class="support-alternative">
+          <p>
+            <i class="bi bi-github"></i>
+            You can also support us by <a href={GITHUB_REPO_URL} target="_blank" rel="noopener noreferrer">starring the repository</a>, 
+            <a href={`${GITHUB_REPO_URL}/issues`} target="_blank" rel="noopener noreferrer">reporting bugs</a>, or 
+            <a href="/contribute/">contributing code</a>.
+          </p>
+        </div>
+      </section>
+      
+      {/* Related Resources */}
+      <section class="related-resources">
+        <h2 class="related-title">Still need help?</h2>
+        <div class="resources-grid">
+          <a href="/docs/" class="resource-card">
+            <i class="bi bi-book"></i>
+            <span>Documentation</span>
+          </a>
+          <a href="/getting-started/" class="resource-card">
+            <i class="bi bi-rocket"></i>
+            <span>Getting Started</span>
+          </a>
+          <a href="/troubleshooting/" class="resource-card">
+            <i class="bi bi-wrench"></i>
+            <span>Troubleshooting</span>
+          </a>
+          <a href={`${GITHUB_REPO_URL}/discussions`} target="_blank" rel="noopener noreferrer" class="resource-card">
+            <i class="bi bi-chat-dots"></i>
+            <span>Community</span>
+          </a>
+        </div>
+      </section>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  // FAQ Accordion and Search Functionality
+  document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('faq-search') as HTMLInputElement;
+    const searchClear = document.getElementById('search-clear');
+    const clearSearchBtn = document.getElementById('clear-search-btn');
+    const noResults = document.getElementById('no-results');
+    const faqItems = document.querySelectorAll('.faq-item');
+    const categories = document.querySelectorAll('.faq-category');
+    const searchTags = document.querySelectorAll('.search-tag');
+    
+    // Accordion functionality
+    const questionButtons = document.querySelectorAll('.faq-question');
+    
+    questionButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const isExpanded = button.getAttribute('aria-expanded') === 'true';
+        const answer = button.nextElementSibling as HTMLElement;
+        const icon = button.querySelector('.question-icon i');
+        
+        // Close all other items in the same category (optional - remove for multiple open)
+        const parentCategory = button.closest('.faq-category');
+        if (parentCategory) {
+          parentCategory.querySelectorAll('.faq-question').forEach(otherButton => {
+            if (otherButton !== button) {
+              otherButton.setAttribute('aria-expanded', 'false');
+              const otherAnswer = otherButton.nextElementSibling as HTMLElement;
+              const otherIcon = otherButton.querySelector('.question-icon i');
+              otherAnswer.style.maxHeight = '';
+              otherAnswer.classList.remove('is-open');
+              if (otherIcon) {
+                otherIcon.className = 'bi bi-chevron-down';
+              }
+            }
+          });
+        }
+        
+        // Toggle current item
+        button.setAttribute('aria-expanded', String(!isExpanded));
+        
+        if (!isExpanded) {
+          // Use a large max-height to ensure all content is visible
+          answer.style.maxHeight = '2000px';
+          answer.classList.add('is-open');
+          if (icon) icon.className = 'bi bi-chevron-up';
+        } else {
+          answer.style.maxHeight = '';
+          answer.classList.remove('is-open');
+          if (icon) icon.className = 'bi bi-chevron-down';
+        }
+      });
+    });
+    
+    // Search functionality
+    function performSearch(query: string) {
+      const normalizedQuery = query.toLowerCase().trim();
+      let visibleCount = 0;
+      
+      if (normalizedQuery === '') {
+        // Show all
+        faqItems.forEach(item => {
+          item.classList.remove('hidden');
+          item.classList.remove('highlighted');
+        });
+        categories.forEach(cat => {
+          cat.classList.remove('hidden');
+        });
+        noResults?.classList.add('hidden');
+        searchClear?.classList.add('hidden');
+        return;
+      }
+      
+      searchClear?.classList.remove('hidden');
+      
+      faqItems.forEach(item => {
+        const question = item.getAttribute('data-question') || '';
+        const keywords = item.getAttribute('data-keywords') || '';
+        
+        if (question.includes(normalizedQuery) || keywords.includes(normalizedQuery)) {
+          item.classList.remove('hidden');
+          item.classList.add('highlighted');
+          visibleCount++;
+          
+          // Auto-expand highlighted items
+          const button = item.querySelector('.faq-question') as HTMLElement;
+          const answer = item.querySelector('.faq-answer') as HTMLElement;
+          const icon = item.querySelector('.question-icon i');
+          
+          if (button && answer && button.getAttribute('aria-expanded') !== 'true') {
+            button.setAttribute('aria-expanded', 'true');
+            answer.style.maxHeight = '2000px';
+            answer.classList.add('is-open');
+            if (icon) icon.className = 'bi bi-chevron-up';
+          }
+        } else {
+          item.classList.add('hidden');
+          item.classList.remove('highlighted');
+        }
+      });
+      
+      // Hide empty categories
+      categories.forEach(cat => {
+        const visibleItems = cat.querySelectorAll('.faq-item:not(.hidden)');
+        if (visibleItems.length === 0) {
+          cat.classList.add('hidden');
+        } else {
+          cat.classList.remove('hidden');
+        }
+      });
+      
+      // Show/hide no results message
+      if (visibleCount === 0) {
+        noResults?.classList.remove('hidden');
+      } else {
+        noResults?.classList.add('hidden');
+      }
+    }
+    
+    // Search input handler
+    searchInput?.addEventListener('input', (e) => {
+      const target = e.target as HTMLInputElement;
+      performSearch(target.value);
+    });
+    
+    // Clear search handlers
+    searchClear?.addEventListener('click', () => {
+      if (searchInput) {
+        searchInput.value = '';
+        performSearch('');
+        searchInput.focus();
+      }
+    });
+    
+    clearSearchBtn?.addEventListener('click', () => {
+      if (searchInput) {
+        searchInput.value = '';
+        performSearch('');
+        searchInput.focus();
+      }
+    });
+    
+    // Search tag clicks
+    searchTags.forEach(tag => {
+      tag.addEventListener('click', () => {
+        const term = tag.getAttribute('data-term') || '';
+        if (searchInput) {
+          searchInput.value = term;
+          performSearch(term);
+          searchInput.focus();
+        }
+      });
+    });
+    
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && searchInput) {
+        searchInput.value = '';
+        performSearch('');
+      }
+    });
+    
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const href = (e.currentTarget as HTMLAnchorElement).getAttribute('href');
+        if (href) {
+          const target = document.querySelector(href);
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // Expand first item in category
+            const firstButton = target.querySelector('.faq-question') as HTMLElement;
+            if (firstButton) {
+              firstButton.click();
+              firstButton.focus();
+            }
+          }
+        }
+      });
+    });
+  });
+</script>
+
+<style>
+  .faq-page {
+    background: var(--page-bg);
+    min-height: 100vh;
+  }
+  
+  /* Hero Section */
+  .faq-hero {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  
+  .faq-title {
+    margin: 0 0 1rem;
+    color: var(--color-heading);
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+  }
+  
+  .faq-lead {
+    margin: 0 auto 2rem;
+    color: var(--color-body);
+    font-size: 1.1rem;
+    line-height: 1.7;
+    max-width: 50ch;
+  }
+  
+  /* Search */
+  .faq-search {
+    max-width: 600px;
+    margin: 0 auto 1.5rem;
+  }
+  
+  .search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  
+  .search-icon {
+    position: absolute;
+    left: 1.25rem;
+    color: var(--color-muted);
+    font-size: 1.1rem;
+    pointer-events: none;
+  }
+  
+  .search-input {
+    width: 100%;
+    padding: 1rem 3rem 1rem 3.25rem;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.8);
+    color: var(--color-heading);
+    font-size: 1rem;
+    font-family: var(--font-body);
+    transition: all 0.2s ease;
+  }
+  
+  .search-input:focus {
+    outline: none;
+    border-color: rgba(20, 87, 255, 0.3);
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 4px 20px rgba(20, 87, 255, 0.1);
+  }
+  
+  .search-input::placeholder {
+    color: var(--color-muted);
+  }
+  
+  .search-clear {
+    position: absolute;
+    right: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border: none;
+    border-radius: 50%;
+    background: rgba(15, 23, 42, 0.08);
+    color: var(--color-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .search-clear:hover {
+    background: rgba(15, 23, 42, 0.15);
+    color: var(--color-heading);
+  }
+  
+  .search-hint {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 0.75rem 0 0;
+    color: var(--color-muted);
+    font-size: 0.875rem;
+  }
+  
+  .search-hint i {
+    color: #9a5d26;
+  }
+  
+  .search-tag {
+    display: inline-block;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    background: rgba(20, 87, 255, 0.1);
+    color: var(--color-primary-link);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .search-tag:hover {
+    background: rgba(20, 87, 255, 0.2);
+    transform: translateY(-1px);
+  }
+  
+  /* Quick Links */
+  .quick-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+  
+  .quick-links-label {
+    color: var(--color-muted);
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  
+  .quick-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    color: var(--color-body);
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+  
+  .quick-link:hover {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(20, 87, 255, 0.2);
+    color: var(--color-primary-link);
+    transform: translateY(-1px);
+  }
+  
+  .quick-link i {
+    font-size: 0.9rem;
+  }
+  
+  /* FAQ Categories */
+  .faq-categories {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .faq-category {
+    transition: opacity 0.3s ease;
+  }
+  
+  .faq-category.hidden {
+    display: none;
+  }
+  
+  .category-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  }
+  
+  .category-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 0.75rem;
+    background: linear-gradient(135deg, rgba(20, 87, 255, 0.1), rgba(201, 114, 52, 0.1));
+    color: var(--color-primary-link);
+    font-size: 1.25rem;
+  }
+  
+  .category-title {
+    margin: 0;
+    color: var(--color-heading);
+    font-size: 1.5rem;
+    line-height: 1.2;
+    flex: 1;
+  }
+  
+  .category-count {
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.06);
+    color: var(--color-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  
+  /* FAQ Items */
+  .faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .faq-item {
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    overflow: hidden;
+    transition: all 0.2s ease;
+  }
+  
+  .faq-item:hover {
+    background: rgba(255, 255, 255, 0.7);
+    border-color: rgba(15, 23, 42, 0.1);
+  }
+  
+  .faq-item.highlighted {
+    background: rgba(20, 87, 255, 0.08);
+    border-color: rgba(20, 87, 255, 0.2);
+  }
+  
+  .faq-item.hidden {
+    display: none;
+  }
+  
+  .faq-question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    width: 100%;
+    padding: 1.25rem 1.5rem;
+    border: none;
+    background: none;
+    color: var(--color-heading);
+    font-size: 1.05rem;
+    font-weight: 600;
+    font-family: var(--font-body);
+    text-align: left;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  
+  .faq-question:hover {
+    color: var(--color-primary-link);
+  }
+  
+  .faq-question:focus-visible {
+    outline: none;
+    box-shadow: inset 0 0 0 2px rgba(20, 87, 255, 0.3);
+  }
+  
+  .question-text {
+    flex: 1;
+    padding-right: 1rem;
+  }
+  
+  .question-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: rgba(15, 23, 42, 0.06);
+    color: var(--color-muted);
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+  }
+  
+  .faq-question:hover .question-icon {
+    background: rgba(20, 87, 255, 0.1);
+    color: var(--color-primary-link);
+  }
+  
+  .faq-question[aria-expanded="true"] .question-icon {
+    background: rgba(20, 87, 255, 0.15);
+    color: var(--color-primary-link);
+  }
+  
+  .faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+  
+  .faq-answer.is-open {
+    max-height: 2000px; /* Ensure enough space for long content */
+    overflow: visible;
+  }
+  
+  .answer-content {
+    padding: 0 1.5rem 1.5rem;
+    color: var(--color-body);
+    line-height: 1.7;
+  }
+  
+  .answer-content :global(ul) {
+    margin: 0.75rem 0;
+    padding-left: 1.25rem;
+  }
+  
+  .answer-content :global(li) {
+    margin: 0.4rem 0;
+  }
+  
+  .answer-content :global(strong) {
+    color: var(--color-heading);
+  }
+  
+  .answer-content :global(a) {
+    color: var(--color-primary-link);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  
+  .answer-content :global(a:hover) {
+    text-decoration: underline;
+  }
+  
+  .answer-content :global(code) {
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.35rem;
+    background: rgba(15, 23, 42, 0.08);
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+  }
+  
+  /* No Results */
+  .no-results {
+    margin: 2rem 0;
+  }
+  
+  .no-results-content {
+    text-align: center;
+    padding: 3rem 2rem;
+  }
+  
+  .no-results-content > i {
+    font-size: 3rem;
+    color: var(--color-muted);
+    margin-bottom: 1rem;
+    display: block;
+  }
+  
+  .no-results-content h3 {
+    margin: 0 0 0.5rem;
+    color: var(--color-heading);
+    font-size: 1.5rem;
+  }
+  
+  .no-results-content p {
+    margin: 0 0 1.5rem;
+    color: var(--color-muted);
+  }
+  
+  /* Support CTA */
+  .support-cta {
+    margin-top: 2rem;
+  }
+  
+  .support-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+    align-items: start;
+  }
+  
+  .support-title {
+    margin: 0.5rem 0 0.75rem;
+    color: var(--color-heading);
+    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    line-height: 1.1;
+  }
+  
+  .support-description {
+    margin: 0;
+    color: var(--color-body);
+    line-height: 1.7;
+  }
+  
+  .support-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .support-option {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    color: var(--color-heading);
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+  
+  .support-option:hover {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(20, 87, 255, 0.2);
+    transform: translateX(4px);
+  }
+  
+  .support-option-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.6rem;
+    background: linear-gradient(135deg, rgba(20, 87, 255, 0.1), rgba(201, 114, 52, 0.1));
+    color: var(--color-primary-link);
+    font-size: 1.1rem;
+  }
+  
+  .support-option-text {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+  
+  .support-option-text strong {
+    color: var(--color-heading);
+    font-size: 1rem;
+  }
+  
+  .support-option-text span {
+    color: var(--color-muted);
+    font-size: 0.85rem;
+  }
+  
+  .support-option-arrow {
+    color: var(--color-muted);
+    font-size: 0.9rem;
+  }
+  
+  .support-option:hover .support-option-arrow {
+    color: var(--color-primary-link);
+  }
+  
+  .support-alternative {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(15, 23, 42, 0.08);
+    text-align: center;
+  }
+  
+  .support-alternative p {
+    margin: 0;
+    color: var(--color-muted);
+    font-size: 0.95rem;
+  }
+  
+  .support-alternative a {
+    color: var(--color-primary-link);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  
+  .support-alternative a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Related Resources */
+  .related-resources {
+    margin-top: 3rem;
+    text-align: center;
+  }
+  
+  .related-title {
+    margin: 0 0 1.5rem;
+    color: var(--color-heading);
+    font-size: 1.5rem;
+  }
+  
+  .resources-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .resource-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.5rem 1rem;
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    color: var(--color-body);
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+  
+  .resource-card:hover {
+    background: rgba(255, 255, 255, 0.85);
+    border-color: rgba(20, 87, 255, 0.2);
+    color: var(--color-primary-link);
+    transform: translateY(-3px);
+  }
+  
+  .resource-card i {
+    font-size: 1.75rem;
+  }
+  
+  .resource-card span {
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  
+  /* Responsive */
+  @media (max-width: 991.98px) {
+    .support-content {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+    
+    .resources-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width: 767.98px) {
+    .faq-title {
+      font-size: clamp(2rem, 8vw, 2.75rem);
+    }
+    
+    .category-header {
+      flex-wrap: wrap;
+    }
+    
+    .category-title {
+      font-size: 1.25rem;
+      width: calc(100% - 4rem);
+    }
+    
+    .faq-question {
+      padding: 1rem 1.25rem;
+      font-size: 0.95rem;
+    }
+    
+    .answer-content {
+      padding: 0 1.25rem 1.25rem;
+      font-size: 0.95rem;
+    }
+    
+    .quick-links {
+      gap: 0.5rem;
+    }
+    
+    .quick-link {
+      padding: 0.4rem 0.75rem;
+      font-size: 0.8rem;
+    }
+    
+    .search-hint {
+      flex-wrap: wrap;
+      font-size: 0.8rem;
+    }
+  }
+  
+  @media (max-width: 575.98px) {
+    .resources-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+    
+    .resource-card {
+      padding: 1rem 0.75rem;
+    }
+    
+    .resource-card i {
+      font-size: 1.5rem;
+    }
+    
+    .support-option {
+      padding: 0.875rem 1rem;
+    }
+  }
+</style>

@@ -1,0 +1,1948 @@
+---
+/**
+ * getting-started.astro
+ *
+ * Comprehensive onboarding guide for new LichtFeld Studio users.
+ * Targets search queries: "how to use gaussian splatting", "lichtfeld studio tutorial", "3dgs getting started"
+ *
+ * Features:
+ * - Schema.org HowTo structured data for rich search results
+ * - Step-by-step numbered instructions with progress indicator
+ * - Screenshot placeholders for visual guidance
+ * - Code blocks for commands
+ * - Tips and warnings callouts
+ * - Video tutorial embeds
+ * - Sponsor/donor CTA
+ */
+
+import Layout from "@/layouts/Layout.astro";
+import { SITE } from "@/config/site.config";
+import {
+  GITHUB_RELEASES_URL,
+  GITHUB_WIKI_URL,
+  GITHUB_REPO_URL,
+  DISCORD_URL,
+  GITHUB_SPONSORS_URL,
+  PAYPAL_URL,
+  DONORBOX_URL,
+} from "@/constants/project";
+
+const base = import.meta.env.BASE_URL;
+
+// SEO metadata
+const seoTitle = "Getting Started with LichtFeld Studio: 3D Gaussian Splatting Tutorial";
+const seoDescription =
+  "Learn how to use LichtFeld Studio for 3D Gaussian Splatting. Step-by-step tutorial covering installation, your first training run, and basic editing.";
+
+// HowTo structured data for Schema.org
+const howToSchema = {
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  name: "Getting Started with LichtFeld Studio",
+  description: seoDescription,
+  image: `${SITE.url}/static/social-card.png`,
+  totalTime: "PT30M",
+  estimatedCost: {
+    "@type": "MonetaryAmount",
+    currency: "USD",
+    value: "0",
+  },
+  supply: [
+    {
+      "@type": "HowToSupply",
+      name: "NVIDIA GPU with 8GB+ VRAM",
+    },
+    {
+      "@type": "HowToSupply",
+      name: "Windows 10/11 or Linux",
+    },
+    {
+      "@type": "HowToSupply",
+      name: "Dataset of images (20-200 photos)",
+    },
+  ],
+  tool: [
+    {
+      "@type": "HowToTool",
+      name: "LichtFeld Studio",
+    },
+    {
+      "@type": "HowToTool",
+      name: "COLMAP (optional, for custom datasets)",
+    },
+  ],
+  step: [
+    {
+      "@type": "HowToStep",
+      position: 1,
+      name: "Prepare Your Images",
+      text: "Capture 20-200 photos of your subject with 60-80% overlap between shots. Ensure good lighting and avoid reflective or transparent surfaces.",
+      url: `${SITE.url}/getting-started/#step-1`,
+    },
+    {
+      "@type": "HowToStep",
+      position: 2,
+      name: "Import Dataset",
+      text: "Import your images into LichtFeld Studio. The app will automatically run COLMAP to estimate camera positions, or you can import an existing COLMAP dataset.",
+      url: `${SITE.url}/getting-started/#step-2`,
+    },
+    {
+      "@type": "HowToStep",
+      position: 3,
+      name: "Start Training",
+      text: "Configure training parameters and start the 3D Gaussian Splatting training process. Monitor progress in real-time.",
+      url: `${SITE.url}/getting-started/#step-3`,
+    },
+    {
+      "@type": "HowToStep",
+      position: 4,
+      name: "View and Edit Your Scene",
+      text: "Use the built-in editor to clean up your scene with brush, lasso, and polygon tools. Adjust alignment and crop as needed.",
+      url: `${SITE.url}/getting-started/#step-4`,
+    },
+    {
+      "@type": "HowToStep",
+      position: 5,
+      name: "Export Your Splat",
+      text: "Export your trained scene in standard 3D Gaussian Splatting format (.ply) for use in other applications or web viewers.",
+      url: `${SITE.url}/getting-started/#step-5`,
+    },
+  ],
+};
+
+// Progress steps data
+const steps = [
+  { id: "prerequisites", label: "Prerequisites", icon: "cpu" },
+  { id: "installation", label: "Installation", icon: "download" },
+  { id: "step-1", label: "Prepare Images", icon: "camera" },
+  { id: "step-2", label: "Import Dataset", icon: "folder-open" },
+  { id: "step-3", label: "Start Training", icon: "play-circle" },
+  { id: "step-4", label: "Edit Scene", icon: "vector-pen" },
+  { id: "step-5", label: "Export", icon: "box-arrow-up-right" },
+  { id: "next-steps", label: "Next Steps", icon: "rocket" },
+];
+
+// Hardware requirements
+const hardwareRequirements = [
+  { item: "GPU", value: "NVIDIA with 8GB+ VRAM", recommended: "RTX 3060 or better" },
+  { item: "RAM", value: "16GB minimum", recommended: "32GB+ for large scenes" },
+  { item: "Storage", value: "10GB free space", recommended: "SSD for faster I/O" },
+  { item: "OS", value: "Windows 10/11 or Linux", recommended: "Windows 11 / Ubuntu 22.04" },
+];
+
+// Video tutorials from wiki
+const videoTutorials = [
+  {
+    title: "First Training Run Walkthrough",
+    embedId: "zWIzBHRc-60",
+    duration: "12:34",
+    description: "Complete walkthrough of your first 3D Gaussian Splatting training session.",
+  },
+];
+
+// Troubleshooting quick links
+const troubleshootingLinks = [
+  { label: "Training fails to start", href: `${base}faq/#training-fails` },
+  { label: "Out of memory errors", href: `${base}faq/#oom-errors` },
+  { label: "Poor reconstruction quality", href: `${base}faq/#quality-issues` },
+  { label: "Importing custom datasets", href: `${base}faq/#custom-datasets` },
+];
+
+// Next steps resources
+const nextSteps = [
+  {
+    title: "Plugin Development",
+    description: "Extend LichtFeld Studio with Python plugins for custom workflows.",
+    href: `${base}docs/`,
+    icon: "code-square",
+  },
+  {
+    title: "MCP Integration",
+    description: "Control the editor programmatically via Model Context Protocol.",
+    href: `${base}docs/mcp/`,
+    icon: "command",
+  },
+  {
+    title: "Advanced Training",
+    description: "Learn about advanced training parameters and optimization techniques.",
+    href: GITHUB_WIKI_URL,
+    icon: "sliders",
+    external: true,
+  },
+  {
+    title: "Capture Tips",
+    description: "Best practices for capturing photos that reconstruct well.",
+    href: `${base}tutorials/capture-tips/`,
+    icon: "camera-fill",
+  },
+];
+---
+
+<Layout title={seoTitle} description={seoDescription}>
+  <!-- Schema.org HowTo Structured Data -->
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(howToSchema)} />
+
+  <!-- Hero Section -->
+  <header class="guide-hero">
+    <div class="container content-frame px-4">
+      <div class="guide-hero__content">
+        <nav class="guide-breadcrumb" aria-label="Breadcrumb">
+          <ol class="guide-breadcrumb__list">
+            <li class="guide-breadcrumb__item">
+              <a href={base} class="guide-breadcrumb__link">Home</a>
+            </li>
+            <li class="guide-breadcrumb__item" aria-current="page">
+              <span>Getting Started</span>
+            </li>
+          </ol>
+        </nav>
+        
+        <h1 class="guide-hero__title">Getting Started with LichtFeld Studio</h1>
+        <p class="guide-hero__lead">
+          From your first photo capture to a finished 3D scene—follow this step-by-step tutorial to master 3D Gaussian
+          Splatting with the open-source studio built for artists and researchers.
+        </p>
+        
+        <div class="guide-hero__meta">
+          <span class="guide-hero__reading-time">
+            <svg class="bi" width="16" height="16" aria-hidden="true">
+              <use href={`${base}static/bootstrap-icons.svg#clock`}></use>
+            </svg>
+            ~30 minutes
+          </span>
+          <span class="guide-hero__updated">
+            Beginner friendly
+          </span>
+          <span class="guide-hero__updated">
+            Free & open source
+          </span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Progress Indicator -->
+  <nav class="guide-progress" aria-label="Getting started progress">
+    <div class="container content-frame px-4">
+      <div class="guide-progress__track">
+        {
+          steps.map((step, index) => (
+            <a href={`#${step.id}`} class="guide-progress__item" data-step={index + 1}>
+              <span class="guide-progress__icon" aria-hidden="true">
+                <svg class="bi" width="1em" height="1em">
+                  <use href={`${base}static/bootstrap-icons.svg#${step.icon}`} />
+                </svg>
+              </span>
+              <span class="guide-progress__label">{step.label}</span>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="guide-content">
+    <div class="container content-frame px-4">
+      <div class="guide-content__layout">
+        <!-- Article Body -->
+        <div class="guide-content__main">
+          
+          <!-- Prerequisites Section -->
+          <section id="prerequisites" class="guide-section">
+            <h2 class="guide-section__title">Prerequisites</h2>
+
+            <div class="guide-innovation">
+              <h3>Hardware Requirements</h3>
+              <p>
+                3D Gaussian Splatting requires a modern NVIDIA GPU for training. Ensure your system meets these
+                requirements before proceeding.
+              </p>
+
+              <div class="guide-specs-list">
+                {hardwareRequirements.map((req) => (
+                  <div class="guide-requirement">
+                    <span class="guide-requirement__item">{req.item}</span>
+                    <span class="guide-requirement__value">{req.value}</span>
+                    <span class="guide-requirement__rec">Recommended: {req.recommended}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div class="guide-info-box">
+                <div class="guide-info-box__icon" aria-hidden="true">
+                  <svg class="bi" width="24" height="24">
+                    <use href={`${base}static/bootstrap-icons.svg#info-circle`}></use>
+                  </svg>
+                </div>
+                <div class="guide-info-box__content">
+                  <strong>Don't have a suitable GPU?</strong>
+                  <p>
+                    You can still use LichtFeld Studio to view and edit splats on lower-end hardware. Training requires the
+                    GPU, but viewing works on most modern systems.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="guide-innovation">
+              <h3>Software Requirements</h3>
+              <ul class="guide-list">
+                <li>Windows 10/11 (64-bit) or Linux (Ubuntu 20.04+)</li>
+                <li>NVIDIA Driver >= 570 required</li>
+                <li>CUDA Toolkit 12.8+ (for building from source)</li>
+                <li>CMake 3.20+ (for building from source)</li>
+              </ul>
+            </div>
+          </section>
+
+          <!-- Installation Section -->
+          <section id="installation" class="guide-section">
+            <h2 class="guide-section__title">Installation</h2>
+
+            <div class="guide-install-tabs">
+              <div class="guide-install-tab guide-install-tab--active" data-tab="windows">
+                <svg class="bi" width="16" height="16" aria-hidden="true">
+                  <use href={`${base}static/bootstrap-icons.svg#windows`}></use>
+                </svg>
+                Windows Binary
+              </div>
+              <div class="guide-install-tab" data-tab="source">
+                <svg class="bi" width="16" height="16" aria-hidden="true">
+                  <use href={`${base}static/bootstrap-icons.svg#terminal`}></use>
+                </svg>
+                Build from Source
+              </div>
+            </div>
+
+            <!-- Windows Binary -->
+            <div class="guide-install-content guide-install-content--active" data-content="windows">
+              <div class="guide-innovation">
+                <h3>Download Pre-built Windows Binary</h3>
+                <p>
+                  The fastest way to get started. Download the latest stable release and run the installer.
+                </p>
+
+                <div class="guide-cta-box">
+                  <a
+                    href={GITHUB_RELEASES_URL}
+                    class="btn btn-primary btn-lg"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <svg class="bi" width="20" height="20" aria-hidden="true">
+                      <use href={`${base}static/bootstrap-icons.svg#download`}></use>
+                    </svg>
+                    Download for Windows
+                  </a>
+                </div>
+
+                <ol class="guide-list guide-list--numbered">
+                  <li>Download the <code>LichtFeld-Studio_Windows_vX.X.X.zip</code> file</li>
+                  <li>Extract the ZIP file to your preferred location</li>
+                  <li>Run <code>bin/LichtFeld-Studio.exe</code> from the extracted folder</li>
+                </ol>
+              </div>
+            </div>
+
+            <!-- Build from Source -->
+            <div class="guide-install-content" data-content="source">
+              <div class="guide-innovation">
+                <h3>Build from Source</h3>
+                <p>
+                  For Linux users or those who want the latest development features, build from source.
+                </p>
+
+                <div class="guide-warning-box">
+                  <div class="guide-warning-box__icon" aria-hidden="true">
+                    <svg class="bi" width="24" height="24">
+                      <use href={`${base}static/bootstrap-icons.svg#exclamation-triangle`}></use>
+                    </svg>
+                  </div>
+                  <div class="guide-warning-box__content">
+                    <strong>Advanced users only</strong>
+                    <p>
+                      Building from source requires familiarity with CMake, C++ compilers, and CUDA development tools.
+                    </p>
+                  </div>
+                </div>
+
+                <h4>Quick Build Commands</h4>
+                <div class="guide-code-block">
+                  <pre><code># Set up vcpkg (one-time setup)
+git clone https://github.com/microsoft/vcpkg.git
+cd vcpkg && ./bootstrap-vcpkg.sh -disableMetrics && cd ..
+
+## If you want you can specify vcpkg locally without globally setting env variable (see -DCMAKE_TOOLCHAIN_FILE version)
+export VCPKG_ROOT=/path/to/vcpkg  # Add to ~/.bashrc
+
+# Clone repository and submodules
+git clone --recursive https://github.com/MrNeRF/LichtFeld-Studio
+cd LichtFeld-Studio
+
+# Build
+cmake -B build -DCMAKE_BUILD_TYPE=Release -G Ninja
+
+## Or if you want you can specify your own vcpkg 
+# cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="&lt;path-to-vcpkg&gt;/scripts/buildsystems/vcpkg.cmake" -G Ninja 
+
+cmake --build build -- -j$(nproc)</code></pre>
+                  <button class="guide-code-block__copy" aria-label="Copy code to clipboard">
+                    <svg class="bi" width="16" height="16">
+                      <use href={`${base}static/bootstrap-icons.svg#clipboard`}></use>
+                    </svg>
+                  </button>
+                </div>
+
+                <p>
+                  For detailed build instructions, see the <a href={GITHUB_WIKI_URL} target="_blank" rel="noopener noreferrer" class="guide-link">Build Guide on our Wiki</a>.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <!-- Step 1: Prepare Your Images -->
+          <section id="step-1" class="guide-section">
+            <h2 class="guide-section__title">Step 1: Prepare Your Images</h2>
+
+            <div class="guide-innovation">
+              <h3>Capture Guidelines</h3>
+              <p>
+                Good input photos are essential for quality 3D reconstructions. Follow these guidelines for best results:
+              </p>
+
+              <div class="guide-tips-grid">
+                <div class="guide-tip-card guide-tip-card--do">
+                  <span class="guide-tip-card__icon">
+                    <svg class="bi" width="24" height="24" aria-hidden="true">
+                      <use href={`${base}static/bootstrap-icons.svg#check-circle-fill`}></use>
+                    </svg>
+                  </span>
+                  <div class="guide-tip-card__content">
+                    <h4>Do</h4>
+                    <ul>
+                      <li>Use 20-200 photos with 60-80% overlap</li>
+                      <li>Capture from multiple angles and heights</li>
+                      <li>Ensure good, even lighting</li>
+                      <li>Keep the subject static during capture</li>
+                      <li>Use a tripod for challenging lighting</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div class="guide-tip-card guide-tip-card--dont">
+                  <span class="guide-tip-card__icon">
+                    <svg class="bi" width="24" height="24" aria-hidden="true">
+                      <use href={`${base}static/bootstrap-icons.svg#x-circle-fill`}></use>
+                    </svg>
+                  </span>
+                  <div class="guide-tip-card__content">
+                    <h4>Don't</h4>
+                    <ul>
+                      <li>Capture reflective or transparent surfaces</li>
+                      <li>Move too quickly between shots</li>
+                      <li>Use extreme wide-angle lenses</li>
+                      <li>Include moving objects in the scene</li>
+                      <li>Shoot in harsh, direct sunlight</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <p>
+                <a href={`${base}tutorials/capture-tips/`} class="guide-link">
+                  Read the full Capture Tips guide
+                  <svg class="bi" width="16" height="16" aria-hidden="true">
+                    <use href={`${base}static/bootstrap-icons.svg#arrow-right`}></use>
+                  </svg>
+                </a>
+              </p>
+            </div>
+          </section>
+
+          <!-- Step 2: Import Dataset -->
+          <section id="step-2" class="guide-section">
+            <h2 class="guide-section__title">Step 2: Import Dataset (COLMAP)</h2>
+
+            <div class="guide-innovation">
+              <h3>Import Your COLMAP Dataset</h3>
+              <p>
+                <strong>Important:</strong> You must run structure from motion separately before importing into LichtFeld Studio. 
+                LFS does not run COLMAP automatically. Use COLMAP CLI, RealityScan, or similar tools 
+                to process your images first, then import the COLMAP output into LFS.
+              </p>
+
+              <h4>Prerequisites</h4>
+              <ul class="guide-list">
+                <li>Process your images with COLMAP CLI, RealityScan, or similar SfM tools</li>
+                <li>Ensure you have a valid COLMAP-format sparse reconstruction (cameras.txt, images.txt, points3D.txt)</li>
+              </ul>
+
+              <h4>Import Steps</h4>
+              <ol class="guide-list guide-list--numbered">
+                <li>
+                  <strong>Launch LichtFeld Studio</strong>
+                  <p>Start the application and wait for the main workspace to load.</p>
+                </li>
+                <li>
+                  <strong>Import COLMAP Dataset</strong>
+                  <p>Click <kbd>Import</kbd> → <kbd>COLMAP Dataset</kbd> and select your folder containing the COLMAP sparse reconstruction</p>
+                  <p>Alternatively you can drag and drop the COLMAP sparse reconstruction folder into the application</p>
+                </li>
+                <li>
+                  <strong>Verify Import</strong>
+                  <p>
+                    Check that camera poses and point cloud data loaded correctly in the preview.
+                  </p>
+                </li>
+              </ol>
+
+              <div class="guide-info-box">
+                <div class="guide-info-box__icon" aria-hidden="true">
+                  <svg class="bi" width="24" height="24">
+                    <use href={`${base}static/bootstrap-icons.svg#info-circle`}></use>
+                  </svg>
+                </div>
+                <div class="guide-info-box__content">
+                  <strong>Using External COLMAP Tools</strong>
+                  <p>
+                    Popular alternatives include: <a href="https://colmap.github.io/" target="_blank" rel="noopener noreferrer" class="guide-link">COLMAP CLI</a>, 
+                    <a href="https://www.unrealengine.com/realityscan" target="_blank" rel="noopener noreferrer" class="guide-link">RealityScan</a>. 
+                    Export your results in COLMAP format, then import into LFS.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Step 3: Start Training -->
+          <section id="step-3" class="guide-section">
+            <h2 class="guide-section__title">Step 3: Start Training</h2>
+
+            <div class="guide-innovation">
+              <h3>Configure and Launch Training</h3>
+              <p>
+                Once your dataset is imported with camera poses, you're ready to start 3D Gaussian Splatting training.
+              </p>
+
+              <ol class="guide-list guide-list--numbered">
+                <li>
+                  <strong>Open Training Panel</strong>
+                  <p>Click on the <kbd>Training</kbd> panel on the right-hand side</p>
+                </li>
+                <li>
+                  <strong>Verify Dataset</strong>
+                  <p>Confirm the image count and camera poses look correct in the viewport and scene graph</p>
+                </li>
+                <li>
+                  <strong>Adjust Settings (Optional)</strong>
+                  <p>
+                    For your first run, use defaults. Advanced users can tweak iterations, learning rates, and densification
+                    settings.
+                  </p>
+                </li>
+                <li>
+                  <strong>Start Training</strong>
+                  <p>Click <kbd>Start Training</kbd> and monitor progress in real-time. You can navigate, rotate, and zoom in the viewport while training progresses.</p>
+                </li>
+              </ol>
+
+              <p>
+                <a href={`${base}tutorials/first-training/`} class="guide-link">
+                  Read the detailed First Training tutorial
+                  <svg class="bi" width="16" height="16" aria-hidden="true">
+                    <use href={`${base}static/bootstrap-icons.svg#arrow-right`}></use>
+                  </svg>
+                </a>
+              </p>
+            </div>
+          </section>
+
+          <!-- Step 4: View and Edit -->
+          <section id="step-4" class="guide-section">
+            <h2 class="guide-section__title">Step 4: View and Edit Your Scene</h2>
+
+            <div class="guide-innovation">
+              <h3>Interactive Scene Editor</h3>
+              <p>
+                Once training completes, your 3D scene appears in the viewer. Use the built-in editing tools to clean up
+                and refine the result.
+              </p>
+
+              <div class="guide-editor-tools">
+                <div class="guide-editor-tool">
+                  <span class="guide-editor-tool__icon">
+                    <svg class="bi" width="24" height="24" aria-hidden="true">
+                      <use href={`${base}static/bootstrap-icons.svg#brush`}></use>
+                    </svg>
+                  </span>
+                  <h4 class="guide-editor-tool__name">Brush Tool</h4>
+                  <p class="guide-editor-tool__desc">Paint over splats to select or delete them</p>
+                </div>
+                <div class="guide-editor-tool">
+                  <span class="guide-editor-tool__icon">
+                    <svg class="bi" width="24" height="24" aria-hidden="true">
+                      <use href={`${base}static/bootstrap-icons.svg#bullseye`}></use>
+                    </svg>
+                  </span>
+                  <h4 class="guide-editor-tool__name">Lasso Select</h4>
+                  <p class="guide-editor-tool__desc">Draw freehand selections around regions</p>
+                </div>
+                <div class="guide-editor-tool">
+                  <span class="guide-editor-tool__icon">
+                    <svg class="bi" width="24" height="24" aria-hidden="true">
+                      <use href={`${base}static/bootstrap-icons.svg#hexagon`}></use>
+                    </svg>
+                  </span>
+                  <h4 class="guide-editor-tool__name">Polygon Tool</h4>
+                  <p class="guide-editor-tool__desc">Create precise polygonal selections</p>
+                </div>
+                <div class="guide-editor-tool">
+                  <span class="guide-editor-tool__icon">
+                    <svg class="bi" width="24" height="24" aria-hidden="true">
+                      <use href={`${base}static/bootstrap-icons.svg#crop`}></use>
+                    </svg>
+                  </span>
+                  <h4 class="guide-editor-tool__name">Crop & Align</h4>
+                  <p class="guide-editor-tool__desc">Adjust scene boundaries and alignment</p>
+                </div>
+              </div>
+
+              <h4>Basic Editing Workflow</h4>
+              <ol class="guide-list guide-list--numbered">
+                <li>
+                  <strong>Navigate the Scene</strong>
+                  <p>Left-click and drag to rotate, right-click to pan, scroll to zoom</p>
+                </li>
+                <li>
+                  <strong>Identify Artifacts</strong>
+                  <p>Look for floating splats, noise, or reconstruction errors</p>
+                </li>
+                <li>
+                  <strong>Select and Delete</strong>
+                  <p>Use the Brush or Lasso tool to select unwanted splats, then press <kbd>Delete</kbd></p>
+                </li>
+                <li>
+                  <strong>Refine Selections</strong>
+                  <p>Adjust brush size and use the mask view to verify selections</p>
+                </li>
+              </ol>
+
+              <div class="guide-info-box">
+                <div class="guide-info-box__icon" aria-hidden="true">
+                  <svg class="bi" width="24" height="24">
+                    <use href={`${base}static/bootstrap-icons.svg#lightbulb`}></use>
+                  </svg>
+                </div>
+                <div class="guide-info-box__content">
+                  <strong>Multiple Render Modes</strong>
+                  <p>
+                    Switch between render modes (RGB, Depth, Normal, etc.) to better identify artifacts and verify your
+                    edits.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Step 5: Export -->
+          <section id="step-5" class="guide-section">
+            <h2 class="guide-section__title">Step 5: Export Your Splat</h2>
+
+            <div class="guide-innovation">
+              <h3>Export Options</h3>
+              <p>
+                Save your trained and edited scene in standard formats for use in other applications, web viewers, or
+                rendering pipelines.
+              </p>
+
+              <div class="guide-export-formats">
+                <div class="guide-export-format guide-export-format--recommended">
+                  <span class="guide-export-format__badge">Primary</span>
+                  <h4 class="guide-export-format__name">PLY (Standard 3DGS)</h4>
+                  <p class="guide-export-format__desc">
+                    Standard 3D Gaussian Splatting format compatible with most viewers and renderers
+                  </p>
+                  <code class="guide-export-format__ext">.ply</code>
+                </div>
+                <div class="guide-export-format">
+                  <h4 class="guide-export-format__name">SOG (Compressed)</h4>
+                  <p class="guide-export-format__desc">Compressed format specifically for efficient storage and web deployment</p>
+                  <code class="guide-export-format__ext">.sog</code>
+                </div>
+              </div>
+
+              <h4>Export Steps</h4>
+              <ol class="guide-list guide-list--numbered">
+                <li>
+                  <strong>Open Export Dialog</strong>
+                  <p>Click <kbd>File</kbd> → <kbd>Export</kbd> → <kbd>Export Scene</kbd></p>
+                </li>
+                <li>
+                  <strong>Choose Format</strong>
+                  <p>Select PLY for maximum compatibility</p>
+                </li>
+                <li>
+                  <strong>Configure Options</strong>
+                  <p>Choose whether to export the full scene or only selected regions</p>
+                </li>
+                <li>
+                  <strong>Save</strong>
+                  <p>Choose your output location and click Export</p>
+                </li>
+              </ol>
+
+              <div class="guide-info-box">
+                <div class="guide-info-box__icon" aria-hidden="true">
+                  <svg class="bi" width="24" height="24">
+                    <use href={`${base}static/bootstrap-icons.svg#info-circle`}></use>
+                  </svg>
+                </div>
+                <div class="guide-info-box__content">
+                  <strong>Web Viewer Compatible</strong>
+                  <p>
+                    PLY and SOG files exported from LichtFeld Studio work with <a href="https://playcanvas.com/supersplat" target="_blank" rel="noopener noreferrer" class="guide-link">SuperSplat</a>.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Troubleshooting -->
+          <section class="guide-section">
+            <h2 class="guide-section__title">Troubleshooting</h2>
+
+            <div class="guide-innovation">
+              <h3>Common Issues</h3>
+              <div class="guide-troubleshooting-links">
+                {
+                  troubleshootingLinks.map((link) => (
+                    <a href={link.href} class="guide-troubleshooting-link">
+                      <span class="guide-troubleshooting-link__icon">
+                        <svg class="bi" width="20" height="20" aria-hidden="true">
+                          <use href={`${base}static/bootstrap-icons.svg#question-circle`}></use>
+                        </svg>
+                      </span>
+                      <span class="guide-troubleshooting-link__text">{link.label}</span>
+                      <svg class="bi" width="16" height="16" aria-hidden="true">
+                        <use href={`${base}static/bootstrap-icons.svg#arrow-right`}></use>
+                      </svg>
+                    </a>
+                  ))
+                }
+              </div>
+
+              <div class="guide-info-box">
+                <div class="guide-info-box__icon" aria-hidden="true">
+                  <svg class="bi" width="24" height="24">
+                    <use href={`${base}static/bootstrap-icons.svg#discord`}></use>
+                  </svg>
+                </div>
+                <div class="guide-info-box__content">
+                  <strong>Need more help?</strong>
+                  <p>
+                    Join our <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer" class="guide-link">Discord community</a> for
+                    real-time support from the team and community members.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Next Steps -->
+          <section id="next-steps" class="guide-section">
+            <h2 class="guide-section__title">Next Steps</h2>
+            
+            <p class="guide-section__lead">
+              Continue your Gaussian Splatting journey with these related resources.
+            </p>
+
+            <div class="guide-resources">
+              {nextSteps.map((item) => (
+                <a
+                  href={item.href}
+                  class="guide-resource"
+                  target={item.external ? "_blank" : undefined}
+                  rel={item.external ? "noopener noreferrer" : undefined}
+                >
+                  <div class="guide-resource__icon" aria-hidden="true">
+                    <svg class="bi" width="24" height="24">
+                      <use href={`${base}static/bootstrap-icons.svg#${item.icon}`}></use>
+                    </svg>
+                  </div>
+                  <div class="guide-resource__content">
+                    <h3 class="guide-resource__title">{item.title}</h3>
+                    <p class="guide-resource__desc">{item.description}</p>
+                  </div>
+                  <svg class="guide-resource__arrow" width="20" height="20" aria-hidden="true">
+                    <use href={`${base}static/bootstrap-icons.svg#${item.external ? 'box-arrow-up-right' : 'arrow-right'}`}></use>
+                  </svg>
+                </a>
+              ))}
+            </div>
+          </section>
+
+          <!-- Sponsor CTA -->
+          <section class="guide-section">
+            <div class="guide-cta-box">
+              <h3>Support LichtFeld Studio</h3>
+              <p>
+                This tutorial and the entire open-source platform are made possible by community support. Consider donating
+                to help us build more tutorials, features, and improvements.
+              </p>
+              <div class="guide-cta-box__actions">
+                <a href={GITHUB_SPONSORS_URL} target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+                  <svg class="bi" width="18" height="18" aria-hidden="true">
+                    <use href={`${base}static/bootstrap-icons.svg#github`}></use>
+                  </svg>
+                  GitHub Sponsors
+                </a>
+                <a href={PAYPAL_URL} target="_blank" rel="noopener noreferrer" class="btn btn-outline-primary">
+                  <svg class="bi" width="18" height="18" aria-hidden="true">
+                    <use href={`${base}static/bootstrap-icons.svg#paypal`}></use>
+                  </svg>
+                  PayPal
+                </a>
+                <a href={DONORBOX_URL} target="_blank" rel="noopener noreferrer" class="btn btn-outline-primary">
+                  <svg class="bi" width="18" height="18" aria-hidden="true">
+                    <use href={`${base}static/bootstrap-icons.svg#gift`}></use>
+                  </svg>
+                  DonorBox
+                </a>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Sidebar -->
+        <aside class="guide-sidebar">
+          <div class="guide-sidebar__sticky">
+            <!-- Quick Links -->
+            <div class="guide-sidebar__box">
+              <h3>Quick Links</h3>
+              <ul class="guide-sidebar__links">
+                <li>
+                  <a href={`${base}tutorials/first-training/`}>
+                    <svg class="bi" width="16" height="16" aria-hidden="true">
+                      <use href={`${base}static/bootstrap-icons.svg#play-circle`}></use>
+                    </svg>
+                    First Training Run
+                  </a>
+                </li>
+                <li>
+                  <a href={`${base}tutorials/capture-tips/`}>
+                    <svg class="bi" width="16" height="16" aria-hidden="true">
+                      <use href={`${base}static/bootstrap-icons.svg#camera`}></use>
+                    </svg>
+                    Capture Tips
+                  </a>
+                </li>
+                <li>
+                  <a href={GITHUB_REPO_URL} target="_blank" rel="noopener noreferrer">
+                    <svg class="bi" width="16" height="16" aria-hidden="true">
+                      <use href={`${base}static/bootstrap-icons.svg#github`}></use>
+                    </svg>
+                    GitHub Repository
+                  </a>
+                </li>
+                <li>
+                  <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer">
+                    <svg class="bi" width="16" height="16" aria-hidden="true">
+                      <use href={`${base}static/bootstrap-icons.svg#discord`}></use>
+                    </svg>
+                    Community Discord
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Share -->
+            <div class="guide-sidebar__box">
+              <h3>Share This Page</h3>
+              <div class="guide-sidebar__share">
+                <button 
+                  type="button" 
+                  class="btn btn-outline-secondary guide-sidebar__share-btn"
+                  id="share-page-btn"
+                  aria-label="Copy page link to clipboard"
+                >
+                  <svg class="bi" width="18" height="18" aria-hidden="true">
+                    <use href={`${base}static/bootstrap-icons.svg#link-45deg`}></use>
+                  </svg>
+                  Copy Link
+                </button>
+                <a 
+                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(seoTitle)}&url=${encodeURIComponent(new URL(Astro.url.pathname, Astro.site).toString())}`}
+                  class="btn btn-outline-secondary guide-sidebar__share-btn"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Share on Twitter"
+                >
+                  <svg class="bi" width="18" height="18" aria-hidden="true">
+                    <use href={`${base}static/bootstrap-icons.svg#twitter-x`}></use>
+                  </svg>
+                  Twitter
+                </a>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast notification -->
+  <div class="guide-toast" id="share-toast" aria-live="polite" aria-hidden="true">
+    <svg class="bi" width="20" height="20" aria-hidden="true">
+      <use href={`${base}static/bootstrap-icons.svg#check-circle`}></use>
+    </svg>
+    Link copied to clipboard!
+  </div>
+</Layout>
+
+<script>
+  // Installation tab switching
+  document.addEventListener("DOMContentLoaded", () => {
+    const tabs = document.querySelectorAll(".guide-install-tab");
+    const contents = document.querySelectorAll(".guide-install-content");
+
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        const target = tab.getAttribute("data-tab");
+
+        // Update tabs
+        tabs.forEach((t) => t.classList.remove("guide-install-tab--active"));
+        tab.classList.add("guide-install-tab--active");
+
+        // Update content
+        contents.forEach((c) => {
+          c.classList.remove("guide-install-content--active");
+          if (c.getAttribute("data-content") === target) {
+            c.classList.add("guide-install-content--active");
+          }
+        });
+      });
+    });
+
+    // Code block copy functionality
+    const copyButtons = document.querySelectorAll(".guide-code-block__copy");
+    copyButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const code = btn.previousElementSibling?.textContent;
+        if (code) {
+          navigator.clipboard.writeText(code).then(() => {
+            const originalIcon = btn.innerHTML;
+            btn.innerHTML = '<svg class="bi" width="16" height="16"><use href="' + document.querySelector('base')?.href + 'static/bootstrap-icons.svg#check-lg"></use></svg>';
+            setTimeout(() => {
+              btn.innerHTML = originalIcon;
+            }, 2000);
+          });
+        }
+      });
+    });
+
+    // Progress indicator active state on scroll
+    const sections = document.querySelectorAll(".guide-section[id]");
+    const progressItems = document.querySelectorAll(".guide-progress__item");
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const id = entry.target.getAttribute("id");
+            progressItems.forEach((item) => {
+              item.classList.remove("guide-progress__item--active");
+              if (item.getAttribute("href") === `#${id}`) {
+                item.classList.add("guide-progress__item--active");
+              }
+            });
+          }
+        });
+      },
+      { rootMargin: "-20% 0px -60% 0px" }
+    );
+
+    sections.forEach((section) => observer.observe(section));
+
+    // Share button functionality
+    const shareBtn = document.getElementById('share-page-btn');
+    const toast = document.getElementById('share-toast');
+
+    if (shareBtn && toast) {
+      shareBtn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(window.location.href);
+          
+          // Show toast
+          toast.classList.add('is-visible');
+          toast.setAttribute('aria-hidden', 'false');
+          
+          // Hide after 3 seconds
+          setTimeout(() => {
+            toast.classList.remove('is-visible');
+            toast.setAttribute('aria-hidden', 'true');
+          }, 3000);
+        } catch (err) {
+          console.error('Failed to copy:', err);
+        }
+      });
+    }
+  });
+</script>
+
+<style>
+  /* ============================================================================
+   * Guide Page Layout (from what-is-gaussian-splatting.astro)
+   * ============================================================================ */
+
+  .guide-page {
+    padding-bottom: 4rem;
+  }
+
+  /* ============================================================================
+   * Hero Section
+   * ============================================================================ */
+
+  .guide-hero {
+    padding: 3rem 0 2rem;
+    background: 
+      radial-gradient(circle at top left, rgba(20, 87, 255, 0.06), transparent 40%),
+      radial-gradient(circle at top right, rgba(201, 114, 52, 0.06), transparent 35%);
+    border-bottom: 1px solid var(--surface-border);
+  }
+
+  .guide-hero__content {
+    max-width: 800px;
+  }
+
+  .guide-breadcrumb {
+    margin-bottom: 1.5rem;
+  }
+
+  .guide-breadcrumb__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+
+  .guide-breadcrumb__item:not(:last-child)::after {
+    content: "/";
+    margin-left: 0.5rem;
+    opacity: 0.5;
+  }
+
+  .guide-breadcrumb__link {
+    color: var(--color-primary-link);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .guide-breadcrumb__link:hover {
+    color: var(--color-primary-link-hover);
+    text-decoration: underline;
+  }
+
+  .guide-hero__title {
+    font-size: clamp(2rem, 5vw, 3rem);
+    line-height: 1.1;
+    margin: 0 0 1.5rem;
+    color: var(--color-heading);
+  }
+
+  .guide-hero__lead {
+    font-size: 1.25rem;
+    line-height: 1.6;
+    color: var(--color-body);
+    margin: 0 0 1.5rem;
+  }
+
+  .guide-hero__meta {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+
+  .guide-hero__reading-time {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* ============================================================================
+   * Progress Indicator
+   * ============================================================================ */
+
+  .guide-progress {
+    position: sticky;
+    top: var(--nav-height);
+    z-index: 100;
+    background: rgba(251, 248, 242, 0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+    padding: 0.75rem 0;
+  }
+
+  .guide-progress__track {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 0.25rem;
+  }
+
+  .guide-progress__track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .guide-progress__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    text-decoration: none;
+    color: var(--color-body);
+    font-size: 0.875rem;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+  }
+
+  .guide-progress__item:hover {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+
+  .guide-progress__item--active {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: white;
+  }
+
+  .guide-progress__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ============================================================================
+   * Content Layout
+   * ============================================================================ */
+
+  .guide-content {
+    padding: 1rem 0 3rem;
+  }
+
+  .guide-content__layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  @media (min-width: 1024px) {
+    .guide-content__layout {
+      grid-template-columns: 1fr 300px;
+      gap: 4rem;
+    }
+  }
+
+  .guide-content__main {
+    min-width: 0;
+  }
+
+  /* ============================================================================
+   * Guide Sections
+   * ============================================================================ */
+
+  .guide-section {
+    margin-bottom: 4rem;
+  }
+
+  .guide-section__title {
+    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    line-height: 1.2;
+    margin: 0 0 1.5rem;
+    color: var(--color-heading);
+    scroll-margin-top: calc(var(--nav-height) + 2rem);
+  }
+
+  .guide-section__lead {
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: var(--color-body);
+    margin: 0 0 1.5rem;
+  }
+
+  .guide-section h3 {
+    font-size: 1.375rem;
+    line-height: 1.3;
+    margin: 2rem 0 1rem;
+    color: var(--color-heading);
+    scroll-margin-top: calc(var(--nav-height) + 2rem);
+  }
+
+  .guide-section h4 {
+    font-size: 1.125rem;
+    line-height: 1.4;
+    margin: 1.5rem 0 0.75rem;
+    color: var(--color-heading);
+  }
+
+  .guide-section p {
+    font-size: 1.0625rem;
+    line-height: 1.8;
+    color: var(--color-body);
+    margin: 0 0 1.25rem;
+  }
+
+  .guide-section ul,
+  .guide-section ol {
+    font-size: 1.0625rem;
+    line-height: 1.8;
+    color: var(--color-body);
+    margin: 0 0 1.5rem;
+    padding-left: 1.5rem;
+  }
+
+  .guide-section li {
+    margin-bottom: 0.5rem;
+  }
+
+  .guide-link {
+    color: var(--color-primary-link);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+  }
+
+  .guide-link:hover {
+    color: var(--color-primary-link-hover);
+    text-decoration: underline;
+  }
+
+  /* ============================================================================
+   * Info Box
+   * ============================================================================ */
+
+  .guide-info-box {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, rgba(20, 87, 255, 0.08), rgba(20, 87, 255, 0.02));
+    border: 1px solid rgba(20, 87, 255, 0.15);
+    border-radius: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-info-box__icon {
+    flex-shrink: 0;
+    color: var(--color-primary);
+  }
+
+  .guide-info-box__content {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--color-body);
+  }
+
+  /* ============================================================================
+   * Warning Box
+   * ============================================================================ */
+
+  .guide-warning-box {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(239, 68, 68, 0.02));
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-warning-box__icon {
+    flex-shrink: 0;
+    color: #ef4444;
+  }
+
+  .guide-warning-box__content {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--color-body);
+  }
+
+  /* ============================================================================
+   * Innovations & Parameters
+   * ============================================================================ */
+
+  .guide-innovation,
+  .guide-parameter {
+    padding: 1.5rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-innovation h3,
+  .guide-parameter h3 {
+    margin: 0 0 0.75rem;
+    font-size: 1.125rem;
+  }
+
+  .guide-innovation p,
+  .guide-parameter p {
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
+  }
+
+  .guide-innovation p:last-child,
+  .guide-parameter p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* ============================================================================
+   * Lists
+   * ============================================================================ */
+
+  .guide-list {
+    margin: 0 0 1.5rem;
+    padding-left: 1.5rem;
+  }
+
+  .guide-list--numbered {
+    counter-reset: step;
+    list-style: none;
+    padding-left: 0;
+  }
+
+  .guide-list--numbered li {
+    position: relative;
+    padding-left: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  .guide-list--numbered li::before {
+    counter-increment: step;
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-primary);
+    color: white;
+    font-weight: 700;
+    font-size: 0.875rem;
+    border-radius: 0.5rem;
+  }
+
+  .guide-list--numbered li strong {
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  .guide-list--numbered li p {
+    margin: 0;
+    font-size: 0.95rem;
+  }
+
+  /* ============================================================================
+   * Installation Tabs
+   * ============================================================================ */
+
+  .guide-install-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .guide-install-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.75rem;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  .guide-install-tab:hover {
+    background: rgba(255, 255, 255, 0.8);
+  }
+
+  .guide-install-tab--active {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: white;
+  }
+
+  .guide-install-content {
+    display: none;
+  }
+
+  .guide-install-content--active {
+    display: block;
+  }
+
+  /* ============================================================================
+   * CTA Box
+   * ============================================================================ */
+
+  .guide-cta-box {
+    padding: 2rem;
+    background: linear-gradient(135deg, rgba(20, 87, 255, 0.1), rgba(201, 114, 52, 0.05));
+    border: 1px solid rgba(20, 87, 255, 0.2);
+    border-radius: 1.25rem;
+    margin: 2.5rem 0;
+    text-align: center;
+  }
+
+  .guide-cta-box h3 {
+    margin: 0 0 1rem;
+    font-size: 1.5rem;
+  }
+
+  .guide-cta-box p {
+    margin: 0 0 1.5rem;
+    font-size: 1.0625rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .guide-cta-box__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+  }
+
+  .guide-cta-box__actions .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* ============================================================================
+   * Tips Grid
+   * ============================================================================ */
+
+  .guide-tips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-tip-card {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem;
+    border: 1px solid;
+    border-radius: 1rem;
+  }
+
+  .guide-tip-card--do {
+    background: rgba(34, 197, 94, 0.08);
+    border-color: rgba(34, 197, 94, 0.2);
+  }
+
+  .guide-tip-card--dont {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.2);
+  }
+
+  .guide-tip-card__icon {
+    flex-shrink: 0;
+  }
+
+  .guide-tip-card--do .guide-tip-card__icon {
+    color: #22c55e;
+  }
+
+  .guide-tip-card--dont .guide-tip-card__icon {
+    color: #ef4444;
+  }
+
+  .guide-tip-card__content h4 {
+    margin: 0 0 0.75rem;
+    font-size: 1.1rem;
+  }
+
+  .guide-tip-card__content ul {
+    margin: 0;
+    padding-left: 1.25rem;
+  }
+
+  .guide-tip-card__content li {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  /* ============================================================================
+   * Editor Tools
+   * ============================================================================ */
+
+  .guide-editor-tools {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-editor-tool {
+    text-align: center;
+    padding: 1.25rem;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 1rem;
+    border: 1px solid rgba(15, 23, 42, 0.06);
+  }
+
+  .guide-editor-tool__icon {
+    color: var(--color-primary);
+    margin-bottom: 0.75rem;
+    display: block;
+  }
+
+  .guide-editor-tool__name {
+    font-size: 1rem;
+    margin: 0 0 0.25rem;
+  }
+
+  .guide-editor-tool__desc {
+    font-size: 0.85rem;
+    color: var(--color-muted);
+    margin: 0;
+  }
+
+  /* ============================================================================
+   * Export Formats
+   * ============================================================================ */
+
+  .guide-export-formats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-export-format {
+    position: relative;
+    padding: 1.25rem;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 1rem;
+    border: 1px solid rgba(15, 23, 42, 0.06);
+  }
+
+  .guide-export-format--recommended {
+    border-color: var(--color-primary);
+    background: rgba(20, 87, 255, 0.06);
+  }
+
+  .guide-export-format__badge {
+    position: absolute;
+    top: -0.5rem;
+    left: 1rem;
+    padding: 0.25rem 0.75rem;
+    background: var(--color-primary);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-radius: 999px;
+  }
+
+  .guide-export-format__name {
+    font-size: 1.1rem;
+    margin: 0 0 0.5rem;
+  }
+
+  .guide-export-format__desc {
+    font-size: 0.9rem;
+    color: var(--color-muted);
+    margin: 0 0 0.75rem;
+  }
+
+  .guide-export-format__ext {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    background: rgba(15, 23, 42, 0.08);
+    border-radius: 0.375rem;
+    font-size: 0.8rem;
+    font-family: monospace;
+    color: var(--color-muted);
+  }
+
+  /* ============================================================================
+   * Troubleshooting Links
+   * ============================================================================ */
+
+  .guide-troubleshooting-links {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .guide-troubleshooting-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 0.75rem;
+    text-decoration: none;
+    color: var(--color-body);
+    transition: all 0.2s ease;
+  }
+
+  .guide-troubleshooting-link:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: translateX(4px);
+  }
+
+  .guide-troubleshooting-link__icon {
+    color: var(--color-primary);
+  }
+
+  .guide-troubleshooting-link__text {
+    flex: 1;
+    font-weight: 500;
+  }
+
+  /* ============================================================================
+   * Code Block
+   * ============================================================================ */
+
+  .guide-code-block {
+    position: relative;
+    background: #1a1a2e;
+    border-radius: 1rem;
+    overflow: hidden;
+    margin: 1rem 0;
+  }
+
+  .guide-code-block pre {
+    padding: 1.25rem;
+    margin: 0;
+    overflow-x: auto;
+  }
+
+  .guide-code-block code {
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: #e2e8f0;
+  }
+
+  .guide-code-block__copy {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 0.5rem;
+    color: white;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+
+  .guide-code-block__copy:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  /* ============================================================================
+   * Requirements
+   * ============================================================================ */
+
+  .guide-specs-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-requirement {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 0.75rem;
+    border: 1px solid rgba(15, 23, 42, 0.06);
+  }
+
+  .guide-requirement__item {
+    font-weight: 600;
+    color: var(--color-heading);
+  }
+
+  .guide-requirement__value {
+    font-size: 0.9rem;
+    color: var(--color-body);
+  }
+
+  .guide-requirement__rec {
+    font-size: 0.8rem;
+    color: var(--color-muted);
+  }
+
+  /* ============================================================================
+   * Resources
+   * ============================================================================ */
+
+  .guide-resources {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  @media (min-width: 640px) {
+    .guide-resources {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .guide-resource {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  .guide-resource:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--surface-shadow);
+    border-color: var(--color-border-hover);
+  }
+
+  .guide-resource__icon {
+    flex-shrink: 0;
+    color: var(--color-primary);
+  }
+
+  .guide-resource__content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .guide-resource__title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem;
+    color: var(--color-heading);
+  }
+
+  .guide-resource__desc {
+    font-size: 0.875rem;
+    color: var(--color-muted);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .guide-resource__arrow {
+    flex-shrink: 0;
+    color: var(--color-muted);
+    transition: transform 0.2s ease, color 0.2s ease;
+  }
+
+  .guide-resource:hover .guide-resource__arrow {
+    transform: translateX(4px);
+    color: var(--color-primary);
+  }
+
+  /* ============================================================================
+   * Sidebar
+   * ============================================================================ */
+
+  .guide-sidebar {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    .guide-sidebar {
+      display: block;
+    }
+  }
+
+  .guide-sidebar__sticky {
+    position: sticky;
+    top: calc(var(--nav-height) + 2rem);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .guide-sidebar__box {
+    padding: 1.5rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+  }
+
+  .guide-sidebar__box h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 1rem;
+    color: var(--color-heading);
+  }
+
+  .guide-sidebar__links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .guide-sidebar__links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-body);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    transition: color 0.2s ease;
+  }
+
+  .guide-sidebar__links a:hover {
+    color: var(--color-primary-link);
+  }
+
+  .guide-sidebar__share {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .guide-sidebar__share-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem;
+    font-size: 0.875rem;
+  }
+
+  /* ============================================================================
+   * Toast
+   * ============================================================================ */
+
+  .guide-toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(1rem);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: var(--color-heading);
+    color: white;
+    font-weight: 500;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+  }
+
+  .guide-toast.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ============================================================================
+   * Keyboard styling
+   * ============================================================================ */
+
+  kbd {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    background: rgba(15, 23, 42, 0.08);
+    border: 1px solid rgba(15, 23, 42, 0.15);
+    border-radius: 0.375rem;
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+    font-size: 0.875rem;
+    color: var(--color-body);
+  }
+
+  /* ============================================================================
+   * Responsive Adjustments
+   * ============================================================================ */
+
+  @media (max-width: 767px) {
+    .guide-hero {
+      padding: 2rem 0 1.5rem;
+    }
+
+    .guide-hero__lead {
+      font-size: 1.125rem;
+    }
+
+    .guide-section {
+      margin-bottom: 3rem;
+    }
+
+    .guide-cta-box {
+      padding: 1.5rem;
+    }
+
+    .guide-cta-box__actions {
+      flex-direction: column;
+    }
+
+    .guide-cta-box__actions .btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .guide-innovation,
+    .guide-parameter {
+      padding: 1.25rem;
+    }
+
+    .guide-install-tabs {
+      flex-direction: column;
+    }
+
+    .guide-tips-grid,
+    .guide-editor-tools,
+    .guide-export-formats {
+      grid-template-columns: 1fr;
+    }
+
+    .guide-progress__label {
+      display: none;
+    }
+
+    .guide-progress__item {
+      padding: 0.5rem;
+    }
+  }
+</style>

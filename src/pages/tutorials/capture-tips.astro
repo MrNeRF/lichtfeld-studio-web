@@ -1,0 +1,1028 @@
+---
+/**
+ * capture-tips.astro
+ *
+ * Basic capture guidelines for 3D Gaussian Splatting.
+ * For detailed instructions, see external resources linked below.
+ */
+
+import Layout from "@/layouts/Layout.astro";
+import { SITE } from "@/config/site.config";
+import BreadcrumbSchema from "@/components/seo/BreadcrumbSchema.astro";
+
+const base = import.meta.env.BASE_URL;
+
+// SEO metadata
+const seoTitle = "Capture Tips for 3D Gaussian Splatting | LichtFeld Studio";
+const seoDescription =
+  "Basic photography guidelines for 3D Gaussian Splatting capture. Learn about overlap, image count, and camera options.";
+
+// Breadcrumb items
+const breadcrumbItems = [
+  { name: "Home", url: "/" },
+  { name: "Tutorials", url: "/tutorials/" },
+  { name: "Capture Tips", url: "/tutorials/capture-tips/" },
+];
+
+// Camera type comparison
+const cameraTypes = [
+  {
+    type: "Smartphone",
+    pros: ["Convenient", "Always available", "Good for beginners"],
+    cons: ["Limited manual control", "Smaller sensor", "Wide-angle distortion"],
+    bestFor: "Quick captures, small objects, learning",
+  },
+  {
+    type: "DSLR/Mirrorless",
+    pros: ["Full manual control", "Large sensor", "Interchangeable lenses"],
+    cons: ["Bulky", "Expensive", "Steeper learning curve"],
+    bestFor: "Professional work, large scenes, challenging lighting",
+  },
+  {
+    type: "360 Camera",
+    pros: ["Captures entire scene at once", "No missed angles", "Fast capture"],
+    cons: ["Requires special processing", "Lower resolution per angle", "Longer workflow"],
+    bestFor: "Complex interiors, outdoor scenes, time-sensitive captures",
+    note: "360 workflows take longer due to special processing requirements",
+  },
+];
+
+// Related tutorials
+const relatedTutorials = [
+  {
+    title: "Getting Started",
+    description: "Complete beginner's guide to LichtFeld Studio.",
+    href: `${base}getting-started/`,
+    icon: "rocket",
+  },
+  {
+    title: "First Training Run",
+    description: "Step-by-step guide to your first 3DGS training.",
+    href: `${base}tutorials/first-training/`,
+    icon: "play-circle",
+  },
+  {
+    title: "What is Gaussian Splatting?",
+    description: "Learn the fundamentals of 3D Gaussian Splatting.",
+    href: `${base}what-is-gaussian-splatting/`,
+    icon: "question-circle",
+  },
+];
+---
+
+<Layout title={seoTitle} description={seoDescription} ogType="article">
+  <BreadcrumbSchema items={breadcrumbItems} slot="head" />
+
+  <!-- Hero Section -->
+  <header class="guide-hero">
+    <div class="container content-frame px-4">
+      <div class="guide-hero__content">
+        <nav class="guide-breadcrumb" aria-label="Breadcrumb">
+          <ol class="guide-breadcrumb__list">
+            <li class="guide-breadcrumb__item">
+              <a href={base} class="guide-breadcrumb__link">Home</a>
+            </li>
+            <li class="guide-breadcrumb__item">
+              <a href={`${base}tutorials/`} class="guide-breadcrumb__link">Tutorials</a>
+            </li>
+            <li class="guide-breadcrumb__item" aria-current="page">
+              <span>Capture Tips</span>
+            </li>
+          </ol>
+        </nav>
+
+        <h1 class="guide-hero__title">Capture Tips for 3D Gaussian Splatting</h1>
+        <p class="guide-hero__lead">
+          Basic guidelines for capturing photos that work well with 3D Gaussian Splatting reconstruction.
+        </p>
+        
+        <div class="guide-hero__meta">
+          <span class="guide-hero__reading-time">
+            <svg class="bi" width="16" height="16" aria-hidden="true">
+              <use href={`${base}static/bootstrap-icons.svg#clock`}></use>
+            </svg>
+            5 min read
+          </span>
+          <span class="guide-hero__updated">
+            Updated March 2025
+          </span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="guide-content">
+    <div class="container content-frame px-4">
+      <div class="guide-content__layout">
+        <!-- Article Body -->
+        <div class="guide-content__main">
+          
+          <!-- External Resources -->
+          <section class="guide-section">
+            <h2 class="guide-section__title">Detailed Capture Guidelines</h2>
+            
+            <p class="guide-section__lead">
+              For comprehensive capture instructions, including coverage patterns, camera settings, and best practices:
+            </p>
+
+            <div class="guide-cta-box">
+              <a href="https://developer.playcanvas.com/user-manual/gaussian-splatting/creating/taking-photos/" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-lg">
+                <svg class="bi" width="20" height="20" aria-hidden="true">
+                  <use href={`${base}static/bootstrap-icons.svg#box-arrow-up-right`}></use>
+                </svg>
+                View Complete Capture Guide on PlayCanvas
+              </a>
+            </div>
+
+            <div class="guide-info-box">
+              <div class="guide-info-box__icon" aria-hidden="true">
+                <svg class="bi" width="24" height="24">
+                  <use href={`${base}static/bootstrap-icons.svg#info-circle`}></use>
+                </svg>
+              </div>
+              <div class="guide-info-box__content">
+                <strong>Why External Resources?</strong>
+                <p>
+                  Capture techniques for Gaussian Splatting are well-documented by the broader community. 
+                  We link to authoritative sources rather than duplicating content.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <!-- Basic Guidelines -->
+          <section id="basic-guidelines" class="guide-section">
+            <h2 class="guide-section__title">Basic Guidelines</h2>
+
+            <div class="guide-tips-grid">
+              <div class="guide-tip-card">
+                <span class="guide-tip-card__number">1</span>
+                <p class="guide-tip-card__text"><strong>Scene Overlap:</strong> Maintain 60-80% overlap between consecutive shots for proper feature matching.</p>
+              </div>
+              <div class="guide-tip-card">
+                <span class="guide-tip-card__number">2</span>
+                <p class="guide-tip-card__text"><strong>Image Count:</strong> Use 100-200 images for single objects, 200+ for larger scenes. More images improve accuracy but increase processing time.</p>
+              </div>
+              <div class="guide-tip-card">
+                <span class="guide-tip-card__number">3</span>
+                <p class="guide-tip-card__text"><strong>Lighting:</strong> Use soft, diffused, even lighting. Avoid harsh shadows, specular highlights, and changing light conditions.</p>
+              </div>
+            </div>
+          </section>
+
+          <!-- Camera Options -->
+          <section id="camera-options" class="guide-section">
+            <h2 class="guide-section__title">Camera Options</h2>
+
+            <div class="guide-innovation">
+              <h3>Smartphone</h3>
+              <p><strong>Best for:</strong> Quick captures, small objects, learning</p>
+              <ul class="guide-list">
+                <li><strong>Pros:</strong> Convenient, Always available, Good for beginners</li>
+                <li><strong>Cons:</strong> Limited manual control, Smaller sensor, Wide-angle distortion</li>
+              </ul>
+            </div>
+
+            <div class="guide-innovation">
+              <h3>DSLR/Mirrorless</h3>
+              <p><strong>Best for:</strong> Professional work, large scenes, challenging lighting</p>
+              <ul class="guide-list">
+                <li><strong>Pros:</strong> Full manual control, Large sensor, Interchangeable lenses</li>
+                <li><strong>Cons:</strong> Bulky, Expensive, Steeper learning curve</li>
+              </ul>
+            </div>
+
+            <div class="guide-innovation">
+              <h3>360 Camera</h3>
+              <p><strong>Best for:</strong> Complex interiors, outdoor scenes, time-sensitive captures</p>
+              <ul class="guide-list">
+                <li><strong>Pros:</strong> Captures entire scene at once, No missed angles, Fast capture</li>
+                <li><strong>Cons:</strong> Requires special processing, Lower resolution per angle, Longer workflow</li>
+              </ul>
+              <div class="guide-info-box guide-info-box--warning">
+                <div class="guide-info-box__icon" aria-hidden="true">
+                  <svg class="bi" width="24" height="24">
+                    <use href={`${base}static/bootstrap-icons.svg#exclamation-triangle`}></use>
+                  </svg>
+                </div>
+                <div class="guide-info-box__content">
+                  <strong>Note:</strong> 360 workflows take longer due to special processing requirements
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Reconstruction -->
+          <section id="reconstruction" class="guide-section">
+            <h2 class="guide-section__title">After Capture: Reconstruction</h2>
+            
+            <p class="guide-section__lead">
+              After capturing images, you must run them through reconstruction software to generate camera positions and a point cloud before importing into LichtFeld Studio.
+            </p>
+
+            <div class="guide-steps">
+              <div class="guide-step">
+                <span class="guide-step__number">1</span>
+                <div class="guide-step__content">
+                  <h4>RealityScan</h4>
+                  <p>A platform that processes your data and allows for scene reconstruction.</p>
+                  <ul>
+                    <li>Available for iOS and Android</li>
+                    <li>Cloud-based processing</li>
+                    <li>Exports to COLMAP format</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <div class="guide-step">
+                <span class="guide-step__number">2</span>
+                <div class="guide-step__content">
+                  <h4>COLMAP</h4>
+                  <p>Free, open-source photogrammetry software. Industry standard for 3DGS.</p>
+                  <ul>
+                    <li>Free and open source</li>
+                    <li>Local processing</li>
+                    <li>Full control over parameters</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="guide-warning-box">
+              <div class="guide-warning-box__icon" aria-hidden="true">
+                <svg class="bi" width="24" height="24">
+                  <use href={`${base}static/bootstrap-icons.svg#exclamation-triangle`}></use>
+                </svg>
+              </div>
+              <div class="guide-warning-box__content">
+                <strong>Required Step</strong>
+                <p>
+                  Raw images cannot be imported directly. Process through 
+                  <a href="https://www.unrealengine.com/realityscan" target="_blank" rel="noopener noreferrer" class="guide-link">RealityScan</a>
+                  or <a href="https://colmap.github.io/" target="_blank" rel="noopener noreferrer" class="guide-link">COLMAP</a> first.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <!-- Next Steps -->
+          <section id="next-steps" class="guide-section">
+            <h2 class="guide-section__title">Next Steps</h2>
+            
+            <p class="guide-section__lead">
+              Continue your Gaussian Splatting journey with these related resources.
+            </p>
+
+            <div class="guide-resources">
+              {relatedTutorials.map((resource) => (
+                <a href={resource.href} class="guide-resource">
+                  <div class="guide-resource__icon" aria-hidden="true">
+                    <svg class="bi" width="24" height="24">
+                      <use href={`${base}static/bootstrap-icons.svg#${resource.icon}`}></use>
+                    </svg>
+                  </div>
+                  <div class="guide-resource__content">
+                    <h3 class="guide-resource__title">{resource.title}</h3>
+                    <p class="guide-resource__desc">{resource.description}</p>
+                  </div>
+                  <svg class="guide-resource__arrow" width="20" height="20" aria-hidden="true">
+                    <use href={`${base}static/bootstrap-icons.svg#arrow-right`}></use>
+                  </svg>
+                </a>
+              ))}
+            </div>
+          </section>
+        </div>
+
+        <!-- Sidebar -->
+        <aside class="guide-sidebar">
+          <div class="guide-sidebar__sticky">
+            <!-- Quick Links -->
+            <div class="guide-sidebar__box">
+              <h3>Quick Links</h3>
+              <ul class="guide-sidebar__links">
+                <li>
+                  <a href={`${base}getting-started/`}>
+                    <svg class="bi" width="16" height="16" aria-hidden="true">
+                      <use href={`${base}static/bootstrap-icons.svg#book`}></use>
+                    </svg>
+                    Getting Started Guide
+                  </a>
+                </li>
+                <li>
+                  <a href={`${base}tutorials/first-training/`}>
+                    <svg class="bi" width="16" height="16" aria-hidden="true">
+                      <use href={`${base}static/bootstrap-icons.svg#play-circle`}></use>
+                    </svg>
+                    First Training Run
+                  </a>
+                </li>
+                <li>
+                  <a href={`${base}what-is-gaussian-splatting/`}>
+                    <svg class="bi" width="16" height="16" aria-hidden="true">
+                      <use href={`${base}static/bootstrap-icons.svg#question-circle`}></use>
+                    </svg>
+                    What is 3DGS?
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Share -->
+            <div class="guide-sidebar__box">
+              <h3>Share This Page</h3>
+              <div class="guide-sidebar__share">
+                <button 
+                  type="button" 
+                  class="btn btn-outline-secondary guide-sidebar__share-btn"
+                  id="share-page-btn"
+                  aria-label="Copy page link to clipboard"
+                >
+                  <svg class="bi" width="18" height="18" aria-hidden="true">
+                    <use href={`${base}static/bootstrap-icons.svg#link-45deg`}></use>
+                  </svg>
+                  Copy Link
+                </button>
+                <a 
+                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(seoTitle)}&url=${encodeURIComponent(new URL(Astro.url.pathname, Astro.site).toString())}`}
+                  class="btn btn-outline-secondary guide-sidebar__share-btn"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Share on Twitter"
+                >
+                  <svg class="bi" width="18" height="18" aria-hidden="true">
+                    <use href={`${base}static/bootstrap-icons.svg#twitter-x`}></use>
+                  </svg>
+                  Twitter
+                </a>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast notification -->
+  <div class="guide-toast" id="share-toast" aria-live="polite" aria-hidden="true">
+    <svg class="bi" width="20" height="20" aria-hidden="true">
+      <use href={`${base}static/bootstrap-icons.svg#check-circle`}></use>
+    </svg>
+    Link copied to clipboard!
+  </div>
+</Layout>
+
+<script>
+  // Share button functionality
+  document.addEventListener('DOMContentLoaded', () => {
+    const shareBtn = document.getElementById('share-page-btn');
+    const toast = document.getElementById('share-toast');
+
+    if (shareBtn && toast) {
+      shareBtn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(window.location.href);
+          
+          // Show toast
+          toast.classList.add('is-visible');
+          toast.setAttribute('aria-hidden', 'false');
+          
+          // Hide after 3 seconds
+          setTimeout(() => {
+            toast.classList.remove('is-visible');
+            toast.setAttribute('aria-hidden', 'true');
+          }, 3000);
+        } catch (err) {
+          console.error('Failed to copy:', err);
+        }
+      });
+    }
+  });
+</script>
+
+<style>
+  /* ============================================================================
+   * Guide Page Layout (from what-is-gaussian-splatting.astro)
+   * ============================================================================ */
+
+  .guide-page {
+    padding-bottom: 4rem;
+  }
+
+  /* ============================================================================
+   * Hero Section
+   * ============================================================================ */
+
+  .guide-hero {
+    padding: 3rem 0 2rem;
+    background: 
+      radial-gradient(circle at top left, rgba(20, 87, 255, 0.06), transparent 40%),
+      radial-gradient(circle at top right, rgba(201, 114, 52, 0.06), transparent 35%);
+    border-bottom: 1px solid var(--surface-border);
+  }
+
+  .guide-hero__content {
+    max-width: 800px;
+  }
+
+  .guide-breadcrumb {
+    margin-bottom: 1.5rem;
+  }
+
+  .guide-breadcrumb__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+
+  .guide-breadcrumb__item:not(:last-child)::after {
+    content: "/";
+    margin-left: 0.5rem;
+    opacity: 0.5;
+  }
+
+  .guide-breadcrumb__link {
+    color: var(--color-primary-link);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .guide-breadcrumb__link:hover {
+    color: var(--color-primary-link-hover);
+    text-decoration: underline;
+  }
+
+  .guide-hero__title {
+    font-size: clamp(2rem, 5vw, 3rem);
+    line-height: 1.1;
+    margin: 0 0 1.5rem;
+    color: var(--color-heading);
+  }
+
+  .guide-hero__lead {
+    font-size: 1.25rem;
+    line-height: 1.6;
+    color: var(--color-body);
+    margin: 0 0 1.5rem;
+  }
+
+  .guide-hero__meta {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+
+  .guide-hero__reading-time {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* ============================================================================
+   * Content Layout
+   * ============================================================================ */
+
+  .guide-content {
+    padding: 1rem 0 3rem;
+  }
+
+  .guide-content__layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  @media (min-width: 1024px) {
+    .guide-content__layout {
+      grid-template-columns: 1fr 300px;
+      gap: 4rem;
+    }
+  }
+
+  .guide-content__main {
+    min-width: 0;
+  }
+
+  /* ============================================================================
+   * Guide Sections
+   * ============================================================================ */
+
+  .guide-section {
+    margin-bottom: 4rem;
+  }
+
+  .guide-section__title {
+    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    line-height: 1.2;
+    margin: 0 0 1.5rem;
+    color: var(--color-heading);
+    scroll-margin-top: calc(var(--nav-height) + 2rem);
+  }
+
+  .guide-section__lead {
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: var(--color-body);
+    margin: 0 0 1.5rem;
+  }
+
+  .guide-section h3 {
+    font-size: 1.375rem;
+    line-height: 1.3;
+    margin: 2rem 0 1rem;
+    color: var(--color-heading);
+    scroll-margin-top: calc(var(--nav-height) + 2rem);
+  }
+
+  .guide-section h4 {
+    font-size: 1.125rem;
+    line-height: 1.4;
+    margin: 1.5rem 0 0.75rem;
+    color: var(--color-heading);
+  }
+
+  .guide-section p {
+    font-size: 1.0625rem;
+    line-height: 1.8;
+    color: var(--color-body);
+    margin: 0 0 1.25rem;
+  }
+
+  .guide-section ul,
+  .guide-section ol {
+    font-size: 1.0625rem;
+    line-height: 1.8;
+    color: var(--color-body);
+    margin: 0 0 1.5rem;
+    padding-left: 1.5rem;
+  }
+
+  .guide-section li {
+    margin-bottom: 0.5rem;
+  }
+
+  .guide-link {
+    color: var(--color-primary-link);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+  }
+
+  .guide-link:hover {
+    color: var(--color-primary-link-hover);
+    text-decoration: underline;
+  }
+
+  /* ============================================================================
+   * Info Box
+   * ============================================================================ */
+
+  .guide-info-box {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, rgba(20, 87, 255, 0.08), rgba(20, 87, 255, 0.02));
+    border: 1px solid rgba(20, 87, 255, 0.15);
+    border-radius: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-info-box--warning {
+    background: linear-gradient(135deg, rgba(201, 114, 52, 0.08), rgba(201, 114, 52, 0.02));
+    border-color: rgba(201, 114, 52, 0.15);
+  }
+
+  .guide-info-box--warning .guide-info-box__icon {
+    color: #c97234;
+  }
+
+  .guide-info-box__icon {
+    flex-shrink: 0;
+    color: var(--color-primary);
+  }
+
+  .guide-info-box__content {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--color-body);
+  }
+
+  /* ============================================================================
+   * Warning Box
+   * ============================================================================ */
+
+  .guide-warning-box {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(239, 68, 68, 0.02));
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-warning-box__icon {
+    flex-shrink: 0;
+    color: #ef4444;
+  }
+
+  .guide-warning-box__content {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--color-body);
+  }
+
+  /* ============================================================================
+   * CTA Box
+   * ============================================================================ */
+
+  .guide-cta-box {
+    padding: 2rem;
+    background: linear-gradient(135deg, rgba(20, 87, 255, 0.1), rgba(201, 114, 52, 0.05));
+    border: 1px solid rgba(20, 87, 255, 0.2);
+    border-radius: 1.25rem;
+    margin: 2.5rem 0;
+    text-align: center;
+  }
+
+  .guide-cta-box h3 {
+    margin: 0 0 1rem;
+    font-size: 1.5rem;
+  }
+
+  .guide-cta-box p {
+    margin: 0 0 1.5rem;
+    font-size: 1.0625rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .guide-cta-box__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+  }
+
+  .guide-cta-box__actions .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* ============================================================================
+   * Tips Grid
+   * ============================================================================ */
+
+  .guide-tips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-tip-card {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+  }
+
+  .guide-tip-card__number {
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-primary);
+    color: white;
+    font-weight: 700;
+    font-size: 0.875rem;
+    border-radius: 50%;
+  }
+
+  .guide-tip-card__text {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+
+  /* ============================================================================
+   * Steps
+   * ============================================================================ */
+
+  .guide-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-step {
+    display: flex;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+  }
+
+  .guide-step__number {
+    flex-shrink: 0;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-primary);
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+    border-radius: 50%;
+  }
+
+  .guide-step__content {
+    flex: 1;
+  }
+
+  .guide-step__content h4 {
+    margin: 0 0 0.5rem;
+    font-size: 1.125rem;
+  }
+
+  .guide-step__content p {
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
+  }
+
+  .guide-step__content ul {
+    margin: 0;
+    padding-left: 1.25rem;
+  }
+
+  .guide-step__content li {
+    margin-bottom: 0.25rem;
+    font-size: 0.9375rem;
+  }
+
+  /* ============================================================================
+   * Innovations & Parameters
+   * ============================================================================ */
+
+  .guide-innovation,
+  .guide-parameter {
+    padding: 1.5rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-innovation h3,
+  .guide-parameter h3 {
+    margin: 0 0 0.75rem;
+    font-size: 1.125rem;
+  }
+
+  .guide-innovation p,
+  .guide-parameter p {
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
+  }
+
+  .guide-innovation p:last-child,
+  .guide-parameter p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* ============================================================================
+   * Resources
+   * ============================================================================ */
+
+  .guide-resources {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  @media (min-width: 640px) {
+    .guide-resources {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .guide-resource {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  .guide-resource:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--surface-shadow);
+    border-color: var(--color-border-hover);
+  }
+
+  .guide-resource__icon {
+    flex-shrink: 0;
+    color: var(--color-primary);
+  }
+
+  .guide-resource__content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .guide-resource__title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem;
+    color: var(--color-heading);
+  }
+
+  .guide-resource__desc {
+    font-size: 0.875rem;
+    color: var(--color-muted);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .guide-resource__arrow {
+    flex-shrink: 0;
+    color: var(--color-muted);
+    transition: transform 0.2s ease, color 0.2s ease;
+  }
+
+  .guide-resource:hover .guide-resource__arrow {
+    transform: translateX(4px);
+    color: var(--color-primary);
+  }
+
+  /* ============================================================================
+   * Sidebar
+   * ============================================================================ */
+
+  .guide-sidebar {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    .guide-sidebar {
+      display: block;
+    }
+  }
+
+  .guide-sidebar__sticky {
+    position: sticky;
+    top: calc(var(--nav-height) + 2rem);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .guide-sidebar__box {
+    padding: 1.5rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+  }
+
+  .guide-sidebar__box h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 1rem;
+    color: var(--color-heading);
+  }
+
+  .guide-sidebar__links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .guide-sidebar__links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-body);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    transition: color 0.2s ease;
+  }
+
+  .guide-sidebar__links a:hover {
+    color: var(--color-primary-link);
+  }
+
+  .guide-sidebar__share {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .guide-sidebar__share-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem;
+    font-size: 0.875rem;
+  }
+
+  /* ============================================================================
+   * Toast
+   * ============================================================================ */
+
+  .guide-toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(1rem);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: var(--color-heading);
+    color: white;
+    font-weight: 500;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+  }
+
+  .guide-toast.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ============================================================================
+   * Responsive Adjustments
+   * ============================================================================ */
+
+  @media (max-width: 767px) {
+    .guide-hero {
+      padding: 2rem 0 1.5rem;
+    }
+
+    .guide-hero__lead {
+      font-size: 1.125rem;
+    }
+
+    .guide-section {
+      margin-bottom: 3rem;
+    }
+
+    .guide-cta-box {
+      padding: 1.5rem;
+    }
+
+    .guide-cta-box__actions {
+      flex-direction: column;
+    }
+
+    .guide-cta-box__actions .btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .guide-innovation,
+    .guide-parameter {
+      padding: 1.25rem;
+    }
+
+    .guide-step {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .guide-tip-card {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+  }
+</style>

@@ -136,11 +136,6 @@ interface PeriodDeltaRow {
   count: number;
 }
 
-interface ReleaseAssetRow {
-  asset_id: number;
-  last_download_count: number;
-}
-
 /**
  * Batch upserts all releases and returns a map of tag -> release ID.
  * Uses D1 batch to reduce round trips.
@@ -148,14 +143,12 @@ interface ReleaseAssetRow {
 async function batchUpsertReleases(db: D1Database, releases: ProcessedRelease[]): Promise<Map<string, number>> {
   const now = Date.now();
 
-  // Prepare upsert statements for all releases
-  // Uses MAX for total_downloads to handle nightly asset deletions
   const upsertStmt = db.prepare(`
         INSERT INTO releases (tag, name, total_downloads, published_at, first_seen, last_updated)
         VALUES (?, ?, ?, ?, ?, ?)
         ON CONFLICT(tag) DO UPDATE SET
             name = excluded.name,
-            total_downloads = MAX(releases.total_downloads, excluded.total_downloads),
+            total_downloads = excluded.total_downloads,
             published_at = COALESCE(releases.published_at, excluded.published_at),
             last_updated = excluded.last_updated
     `);
@@ -184,74 +177,132 @@ async function batchUpsertReleases(db: D1Database, releases: ProcessedRelease[])
 }
 
 /**
- * Rebuilds the nightly cumulative count from per-asset deltas.
- * This preserves recent download growth even when old nightly assets are deleted.
+ * Computes cumulative download counts for all releases via per-asset delta tracking.
+ * Ensures totals survive asset re-uploads (stable releases) and rolling asset
+ * deletion (nightly). On first run for a release (no prior asset rows), seeds the
+ * asset table and keeps the existing daily value as baseline.
  */
-async function computeNightlyCumulativeCount(
+async function computeAllCumulativeCounts(
   db: D1Database,
-  nightlyReleaseId: number,
-  assets: GitHubAsset[],
-): Promise<number> {
-  const [previousDaily, assetRows] = await Promise.all([
+  releases: ProcessedRelease[],
+  tagToId: Map<string, number>,
+): Promise<Map<string, number>> {
+  const releaseIds = releases.map((r) => tagToId.get(r.tag)!);
+  const placeholders = releaseIds.map(() => "?").join(", ");
+
+  const [dailyRows, assetRows] = await Promise.all([
     db
-      .prepare("SELECT count FROM downloads_daily WHERE release_id = ? ORDER BY date DESC LIMIT 1")
-      .bind(nightlyReleaseId)
-      .first<{ count: number | null }>(),
+      .prepare(
+        `SELECT d.release_id, d.count
+         FROM downloads_daily d
+         INNER JOIN (
+           SELECT release_id, MAX(date) as max_date
+           FROM downloads_daily
+           WHERE release_id IN (${placeholders})
+           GROUP BY release_id
+         ) latest ON d.release_id = latest.release_id AND d.date = latest.max_date`,
+      )
+      .bind(...releaseIds)
+      .all<{ release_id: number; count: number }>(),
     db
-      .prepare("SELECT asset_id, last_download_count FROM release_assets WHERE release_id = ?")
-      .bind(nightlyReleaseId)
-      .all<ReleaseAssetRow>(),
+      .prepare(
+        `SELECT asset_id, release_id, last_download_count FROM release_assets WHERE release_id IN (${placeholders})`,
+      )
+      .bind(...releaseIds)
+      .all<{ asset_id: number; release_id: number; last_download_count: number }>(),
   ]);
 
-  const previousCounts = new Map<number, number>();
+  const previousDailyByRelease = new Map<number, number>();
+
+  for (const row of dailyRows.results) {
+    previousDailyByRelease.set(row.release_id, row.count);
+  }
+
+  const assetsByRelease = new Map<number, Map<number, number>>();
 
   for (const row of assetRows.results) {
-    previousCounts.set(row.asset_id, row.last_download_count);
+    if (!assetsByRelease.has(row.release_id)) {
+      assetsByRelease.set(row.release_id, new Map());
+    }
+
+    assetsByRelease.get(row.release_id)!.set(row.asset_id, row.last_download_count);
   }
 
-  let delta = 0;
-
-  for (const asset of assets) {
-    const previousCount = previousCounts.get(asset.id) ?? 0;
-
-    delta += Math.max(0, asset.download_count - previousCount);
-  }
-
+  const result = new Map<string, number>();
+  const allAssetUpserts: D1PreparedStatement[] = [];
   const now = Date.now();
+
   const assetStmt = db.prepare(`
-        INSERT INTO release_assets (asset_id, release_id, name, last_download_count, created_at, first_seen, last_seen)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT(asset_id) DO UPDATE SET
-            release_id = excluded.release_id,
-            name = excluded.name,
-            last_download_count = MAX(release_assets.last_download_count, excluded.last_download_count),
-            created_at = COALESCE(release_assets.created_at, excluded.created_at),
-            last_seen = excluded.last_seen
-    `);
+    INSERT INTO release_assets (asset_id, release_id, name, last_download_count, created_at, first_seen, last_seen)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(asset_id) DO UPDATE SET
+      release_id = excluded.release_id,
+      name = excluded.name,
+      last_download_count = MAX(release_assets.last_download_count, excluded.last_download_count),
+      created_at = COALESCE(release_assets.created_at, excluded.created_at),
+      last_seen = excluded.last_seen
+  `);
 
-  if (assets.length > 0) {
-    const assetStatements = assets.map((asset) =>
-      assetStmt.bind(
-        asset.id,
-        nightlyReleaseId,
-        asset.name,
-        asset.download_count,
-        new Date(asset.created_at).getTime(),
-        now,
-        now,
-      ),
-    );
+  for (const release of releases) {
+    const releaseId = tagToId.get(release.tag)!;
+    const previousDaily = previousDailyByRelease.get(releaseId) ?? null;
+    const previousCounts = assetsByRelease.get(releaseId) ?? new Map();
 
-    await db.batch(assetStatements);
+    if (previousCounts.size === 0 && previousDaily !== null) {
+      for (const asset of release.assets) {
+        allAssetUpserts.push(
+          assetStmt.bind(
+            asset.id,
+            releaseId,
+            asset.name,
+            asset.download_count,
+            new Date(asset.created_at).getTime(),
+            now,
+            now,
+          ),
+        );
+      }
+
+      result.set(release.tag, previousDaily);
+      continue;
+    }
+
+    let delta = 0;
+
+    for (const asset of release.assets) {
+      const previousCount = previousCounts.get(asset.id) ?? 0;
+
+      delta += Math.max(0, asset.download_count - previousCount);
+    }
+
+    for (const asset of release.assets) {
+      allAssetUpserts.push(
+        assetStmt.bind(
+          asset.id,
+          releaseId,
+          asset.name,
+          asset.download_count,
+          new Date(asset.created_at).getTime(),
+          now,
+          now,
+        ),
+      );
+    }
+
+    result.set(release.tag, (previousDaily ?? 0) + delta);
   }
 
-  return (previousDaily?.count ?? 0) + delta;
+  if (allAssetUpserts.length > 0) {
+    await db.batch(allAssetUpserts);
+  }
+
+  return result;
 }
 
 /**
- * Batch inserts daily download snapshots for all releases.
- * For nightly releases, rebuilds a monotonic cumulative count from
- * per-asset deltas so rolling asset deletion does not flatten recency.
+ * Batch inserts daily download snapshots and updates release totals.
+ * Uses per-asset cumulative tracking for all releases so download counts
+ * survive asset re-uploads and nightly rolling deletions.
  */
 async function batchStoreDaily(
   db: D1Database,
@@ -259,36 +310,30 @@ async function batchStoreDaily(
   releases: ProcessedRelease[],
   tagToId: Map<string, number>,
 ): Promise<void> {
+  const cumulativeCounts = await computeAllCumulativeCounts(db, releases, tagToId);
+
   const dailyStmt = db.prepare(
     "INSERT INTO downloads_daily (date, release_id, count) VALUES (?, ?, ?) ON CONFLICT(date, release_id) DO UPDATE SET count = excluded.count",
   );
 
-  const nightlyRelease = releases.find((r) => r.tag === "nightly");
-  let nightlyCount: number | null = null;
-
-  if (nightlyRelease) {
-    const nightlyId = tagToId.get("nightly")!;
-
-    nightlyCount = await computeNightlyCumulativeCount(db, nightlyId, nightlyRelease.assets);
-  }
-
   const statements = releases.map((r) => {
     const releaseId = tagToId.get(r.tag)!;
-    const count = r.tag === "nightly" && nightlyCount !== null ? nightlyCount : r.count;
 
-    return dailyStmt.bind(date, releaseId, count);
+    return dailyStmt.bind(date, releaseId, cumulativeCounts.get(r.tag)!);
   });
 
   await db.batch(statements);
 
-  if (nightlyRelease && nightlyCount !== null) {
-    const nightlyId = tagToId.get("nightly")!;
+  const now = Date.now();
+  const updateStmt = db.prepare("UPDATE releases SET total_downloads = ?, last_updated = ? WHERE id = ?");
 
-    await db
-      .prepare("UPDATE releases SET total_downloads = ?, last_updated = ? WHERE id = ?")
-      .bind(nightlyCount, Date.now(), nightlyId)
-      .run();
-  }
+  const updateStatements = releases.map((r) => {
+    const releaseId = tagToId.get(r.tag)!;
+
+    return updateStmt.bind(cumulativeCounts.get(r.tag)!, now, releaseId);
+  });
+
+  await db.batch(updateStatements);
 }
 
 /**

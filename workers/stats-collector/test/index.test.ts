@@ -46,7 +46,10 @@ const mockReleases: MockRelease[] = [
     draft: false,
     prerelease: false,
     published_at: "2024-01-15T12:00:00Z",
-    assets: [{ download_count: 1000 }, { download_count: 500 }],
+    assets: [
+      { id: 101, name: "v1.0.0-windows.zip", download_count: 1000, created_at: "2024-01-15T12:00:00Z" },
+      { id: 102, name: "v1.0.0-linux.tar.gz", download_count: 500, created_at: "2024-01-15T12:00:00Z" },
+    ],
   },
   {
     tag_name: "v0.9.0",
@@ -54,7 +57,7 @@ const mockReleases: MockRelease[] = [
     draft: false,
     prerelease: false,
     published_at: "2024-01-01T12:00:00Z",
-    assets: [{ download_count: 200 }],
+    assets: [{ id: 201, name: "v0.9.0-windows.zip", download_count: 200, created_at: "2024-01-01T12:00:00Z" }],
   },
   {
     tag_name: "v0.8.0-draft",
@@ -62,7 +65,7 @@ const mockReleases: MockRelease[] = [
     draft: true,
     prerelease: false,
     published_at: "2023-12-15T12:00:00Z",
-    assets: [{ download_count: 50 }],
+    assets: [{ id: 301, name: "v0.8.0-draft.zip", download_count: 50, created_at: "2023-12-15T12:00:00Z" }],
   },
   {
     tag_name: "v1.1.0-beta",
@@ -70,7 +73,7 @@ const mockReleases: MockRelease[] = [
     draft: false,
     prerelease: true,
     published_at: "2024-01-20T12:00:00Z",
-    assets: [{ download_count: 75 }],
+    assets: [{ id: 401, name: "v1.1.0-beta.zip", download_count: 75, created_at: "2024-01-20T12:00:00Z" }],
   },
   {
     tag_name: "nightly",
@@ -371,8 +374,8 @@ describe("Stats Collector Worker", () => {
           prerelease: false,
           published_at: "2024-01-15T12:00:00Z",
           assets: [
-            { download_count: 1200 }, // Increased
-            { download_count: 600 }, // Increased
+            { id: 101, name: "v1.0.0-windows.zip", download_count: 1200, created_at: "2024-01-15T12:00:00Z" },
+            { id: 102, name: "v1.0.0-linux.tar.gz", download_count: 600, created_at: "2024-01-15T12:00:00Z" },
           ],
         },
         {
@@ -381,9 +384,7 @@ describe("Stats Collector Worker", () => {
           draft: false,
           prerelease: false,
           published_at: "2024-01-01T12:00:00Z",
-          assets: [
-            { download_count: 250 }, // Increased
-          ],
+          assets: [{ id: 201, name: "v0.9.0-windows.zip", download_count: 250, created_at: "2024-01-01T12:00:00Z" }],
         },
       ];
 
@@ -668,7 +669,12 @@ describe("Stats Collector Worker", () => {
           draft: false,
           prerelease: false,
           published_at: "2024-02-01T12:00:00Z",
-          assets: [{ download_count: 100 }, { download_count: 200 }, { download_count: 300 }, { download_count: 400 }],
+          assets: [
+            { id: 601, name: "v2.0.0-windows.zip", download_count: 100, created_at: "2024-02-01T12:00:00Z" },
+            { id: 602, name: "v2.0.0-linux.tar.gz", download_count: 200, created_at: "2024-02-01T12:00:00Z" },
+            { id: 603, name: "v2.0.0-macos.dmg", download_count: 300, created_at: "2024-02-01T12:00:00Z" },
+            { id: 604, name: "v2.0.0-source.tar.gz", download_count: 400, created_at: "2024-02-01T12:00:00Z" },
+          ],
         },
       ];
 
@@ -718,7 +724,7 @@ describe("Stats Collector Worker", () => {
           draft: false,
           prerelease: false,
           published_at: "2024-03-01T12:00:00Z",
-          assets: [{ download_count: 100 }],
+          assets: [{ id: 701, name: "v3.0.0-windows.zip", download_count: 100, created_at: "2024-03-01T12:00:00Z" }],
         },
       ];
 

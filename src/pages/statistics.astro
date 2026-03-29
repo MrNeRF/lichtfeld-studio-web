@@ -416,9 +416,7 @@ const seoDescription =
       mergedPoints.set(bucketStart, downloads);
     });
 
-    return [...mergedPoints.entries()]
-      .sort((a, b) => a[0] - b[0])
-      .map(([x, y]) => ({ x, y }));
+    return [...mergedPoints.entries()].sort((a, b) => a[0] - b[0]).map(([x, y]) => ({ x, y }));
   }
 
   /**
@@ -707,8 +705,8 @@ const seoDescription =
 
   /**
    * Gets total downloads for the last 30 days.
-   * Calculates from daily cumulative data by finding the difference
-   * between the latest value and the value from ~30 days ago.
+   * Uses each release's total as the current value and daily snapshots
+   * to find the baseline from ~30 days ago.
    */
   function getLast30DaysDownloads(releases: StatsResponse["releases"]): number {
     const now = Date.now();
@@ -717,15 +715,8 @@ const seoDescription =
     let total = 0;
 
     releases.forEach((release) => {
-      if (release.daily.length < 1) return;
-
-      // Sort by date ascending
       const sorted = [...release.daily].sort((a, b) => a.date - b.date);
 
-      // Get the latest cumulative value
-      const latestValue = sorted[sorted.length - 1].downloads;
-
-      // Find the value closest to 30 days ago (but not after it)
       let valueThirtyDaysAgo = 0;
       let foundDataPoint = false;
 
@@ -737,19 +728,15 @@ const seoDescription =
         }
       }
 
-      // If no data point before 30 days ago
       if (!foundDataPoint) {
-        // If the release was published within the last 30 days, all downloads are within this period
         if (release.publishedAt && release.publishedAt > thirtyDaysAgo) {
-          valueThirtyDaysAgo = 0; // No downloads before the release existed
-        } else {
-          // Release is older than 30 days but we don't have data going back that far
-          // Use the earliest available data point as a conservative estimate
+          valueThirtyDaysAgo = 0;
+        } else if (sorted.length > 0) {
           valueThirtyDaysAgo = sorted[0].downloads;
         }
       }
 
-      total += latestValue - valueThirtyDaysAgo;
+      total += Math.max(0, release.downloads - valueThirtyDaysAgo);
     });
 
     return total;

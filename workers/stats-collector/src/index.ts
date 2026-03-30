@@ -120,6 +120,30 @@ async function fetchReleases(env: Env): Promise<GitHubRelease[]> {
 // =============================================================================
 
 /**
+ * Ensures schema additions required by the collector exist in D1.
+ *
+ * Production can lag behind local schema changes; without this guard the
+ * collector can fail before writing fresh daily snapshots.
+ */
+async function ensureCollectorSchema(db: D1Database): Promise<void> {
+  await db
+    .prepare(`
+      CREATE TABLE IF NOT EXISTS release_assets (
+          asset_id INTEGER PRIMARY KEY,
+          release_id INTEGER NOT NULL,
+          name TEXT NOT NULL,
+          last_download_count INTEGER NOT NULL DEFAULT 0,
+          created_at INTEGER,
+          first_seen INTEGER NOT NULL,
+          last_seen INTEGER NOT NULL
+      )
+    `)
+    .run();
+
+  await db.prepare("CREATE INDEX IF NOT EXISTS idx_release_assets_release_id ON release_assets(release_id)").run();
+}
+
+/**
  * Processed release data with computed download count.
  */
 interface ProcessedRelease {
@@ -481,6 +505,8 @@ export async function collectWithStats(env: CollectorEnv): Promise<CollectResult
   console.log(`Repository: ${env.GITHUB_OWNER}/${env.GITHUB_REPO}`);
 
   const githubReleases = await fetchReleases(env);
+
+  await ensureCollectorSchema(env.STATS_DB);
 
   console.log(`Found ${githubReleases.length} releases`);
 

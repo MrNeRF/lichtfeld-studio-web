@@ -478,6 +478,30 @@ describe("Stats Collector Worker", () => {
       });
     });
 
+    it("should recreate release_assets when collecting against an older schema", async () => {
+      // Arrange
+      setupGitHubMock();
+      await env.STATS_DB.exec("DROP TABLE IF EXISTS release_assets;");
+
+      const request = createRequest("http://localhost/collect", {
+        method: "POST",
+      });
+      const ctx = createExecutionContext();
+
+      // Act
+      const response = await worker.fetch(request, env, ctx);
+      await waitOnExecutionContext(ctx);
+
+      // Assert
+      expect(response.status).toBe(200);
+
+      const assets = await env.STATS_DB.prepare("SELECT COUNT(*) as count FROM release_assets").first<{ count: number }>();
+      const daily = await env.STATS_DB.prepare("SELECT COUNT(*) as count FROM downloads_daily").first<{ count: number }>();
+
+      expect(assets?.count).toBeGreaterThan(0);
+      expect(daily?.count).toBe(3);
+    });
+
     it("should return error on GitHub API failure", async () => {
       // Arrange: Mock a failed GitHub API response
       vi.stubGlobal(

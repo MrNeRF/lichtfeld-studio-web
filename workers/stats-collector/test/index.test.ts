@@ -603,6 +603,93 @@ describe("Stats Collector Worker", () => {
       ]);
     });
 
+    it("should recover when asset tracking exists but cumulative totals are stale", async () => {
+      // Arrange: simulate a release where release_assets was seeded from the
+      // current GitHub count while releases/downloads_daily stayed stale.
+      const now = Date.now();
+      const today = Math.floor(now / 86400000) * 86400000;
+
+      await env.STATS_DB.prepare(
+        `
+          INSERT INTO releases (id, tag, name, total_downloads, published_at, first_seen, last_updated)
+          VALUES (1, 'v1.0.0', 'Version 1.0.0', 609, ?, ?, ?)
+        `,
+      )
+        .bind(now, now, now)
+        .run();
+
+      await env.STATS_DB.prepare(
+        `
+          INSERT INTO downloads_daily (date, release_id, count) VALUES (?, 1, 609)
+        `,
+      )
+        .bind(today - 86400000)
+        .run();
+
+      await env.STATS_DB.prepare(
+        `
+          INSERT INTO release_assets (asset_id, release_id, name, last_download_count, created_at, first_seen, last_seen)
+          VALUES (101, 1, 'v1.0.0-windows.zip', 1597, ?, ?, ?)
+        `,
+      )
+        .bind(now, now, now)
+        .run();
+
+      vi.stubGlobal(
+        "fetch",
+        vi.fn(async (url: string) => {
+          const urlObj = new URL(url);
+          const page = parseInt(urlObj.searchParams.get("page") || "1", 10);
+
+          if (page === 1) {
+            return new Response(
+              JSON.stringify([
+                {
+                  tag_name: "v1.0.0",
+                  name: "Version 1.0.0",
+                  draft: false,
+                  prerelease: false,
+                  published_at: "2024-01-15T12:00:00Z",
+                  assets: [{ id: 101, name: "v1.0.0-windows.zip", download_count: 1597, created_at: "2024-01-15T12:00:00Z" }],
+                },
+              ]),
+              {
+                status: 200,
+                headers: { "Content-Type": "application/json" },
+              },
+            );
+          }
+
+          return new Response(JSON.stringify([]), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          });
+        }),
+      );
+
+      const request = createRequest("http://localhost/collect", {
+        method: "POST",
+      });
+      const ctx = createExecutionContext();
+
+      // Act
+      const response = await worker.fetch(request, env, ctx);
+      await waitOnExecutionContext(ctx);
+
+      // Assert
+      expect(response.status).toBe(200);
+
+      const release = await env.STATS_DB.prepare("SELECT total_downloads FROM releases WHERE tag = ?")
+        .bind("v1.0.0")
+        .first<{ total_downloads: number }>();
+      const daily = await env.STATS_DB.prepare("SELECT count FROM downloads_daily WHERE release_id = 1 AND date = ?")
+        .bind(today)
+        .first<{ count: number }>();
+
+      expect(release?.total_downloads).toBe(1597);
+      expect(daily?.count).toBe(1597);
+    });
+
     it("should return error on GitHub API failure", async () => {
       // Arrange: Mock a failed GitHub API response
       vi.stubGlobal(

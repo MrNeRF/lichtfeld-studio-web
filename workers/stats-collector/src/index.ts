@@ -283,6 +283,7 @@ async function computeAllCumulativeCounts(
     const previousDaily = previousDailyByRelease.get(releaseId) ?? null;
     const storedTotal = storedTotalsByRelease.get(releaseId) ?? 0;
     const previousCounts = assetsByRelease.get(releaseId) ?? new Map();
+    const currentAssetTotal = release.assets.reduce((sum, asset) => sum + asset.download_count, 0);
 
     if (previousCounts.size === 0 && previousDaily !== null) {
       for (const asset of release.assets) {
@@ -302,7 +303,7 @@ async function computeAllCumulativeCounts(
       // Bootstrap asset tracking from the best known cumulative count.
       // This recovers from older deployments where release_assets did not exist
       // while preserving historical totals for rolling releases.
-      result.set(release.tag, Math.max(previousDaily, storedTotal, release.count));
+      result.set(release.tag, Math.max(previousDaily, storedTotal, currentAssetTotal));
       continue;
     }
 
@@ -328,7 +329,9 @@ async function computeAllCumulativeCounts(
       );
     }
 
-    result.set(release.tag, (previousDaily ?? 0) + delta);
+    // Keep cumulative totals consistent even if asset tracking was previously
+    // seeded from current GitHub counts while stale release totals remained.
+    result.set(release.tag, Math.max((previousDaily ?? 0) + delta, storedTotal, currentAssetTotal));
   }
 
   if (allAssetUpserts.length > 0) {

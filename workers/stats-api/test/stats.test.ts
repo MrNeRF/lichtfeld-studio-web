@@ -351,7 +351,7 @@ describe("Stats API Worker", () => {
       });
     });
 
-    it("should return asOf field with today's date", async () => {
+    it("should return asOf field with the latest daily snapshot date", async () => {
       // Arrange
       await seedDatabase();
 
@@ -359,10 +359,40 @@ describe("Stats API Worker", () => {
       const response = await worker.fetch(new Request("http://localhost/api/stats"), env);
       const body = (await response.json()) as StatsResponse;
 
-      // Assert: asOf should be today's date in YYYY-MM-DD format
+      // Assert: with fresh daily data, asOf should match today's snapshot
       const expectedDate = formatDate(todayTimestamp());
 
       expect(body.asOf).toBe(expectedDate);
+    });
+
+    it("should keep asOf pinned to the freshest stored snapshot when daily data is stale", async () => {
+      // Arrange
+      await seedReleases();
+
+      const latestSnapshot = daysBeforeToday(3);
+
+      await env.STATS_DB.prepare(
+        `
+            INSERT INTO downloads_daily (date, release_id, count) VALUES (?, 1, 1200)
+        `,
+      )
+        .bind(latestSnapshot)
+        .run();
+
+      await env.STATS_DB.prepare(
+        `
+            INSERT INTO downloads_daily (date, release_id, count) VALUES (?, 2, 400)
+        `,
+      )
+        .bind(latestSnapshot)
+        .run();
+
+      // Act
+      const response = await worker.fetch(new Request("http://localhost/api/stats"), env);
+      const body = (await response.json()) as StatsResponse;
+
+      // Assert
+      expect(body.asOf).toBe(formatDate(latestSnapshot));
     });
 
     it("should return correct all-time totals from releases table", async () => {

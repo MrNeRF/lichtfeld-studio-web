@@ -9,8 +9,8 @@
  * Endpoints:
  *   GET /api/stats - Download statistics from D1 database
  *
- * The response is cached for 24 hours and computed based on "today" (the current
- * day's snapshot) to ensure data is available immediately after collection.
+ * The response is cached for 24 hours and keyed by the latest known update so
+ * clients see a stable view for each stored snapshot version.
  */
 
 // =============================================================================
@@ -45,7 +45,7 @@ export interface StatsApiEnv {
  * Stats API response structure.
  */
 interface StatsResponse {
-    /** Date anchor for this response (yesterday's date in YYYY-MM-DD format) */
+    /** Date of the latest stored daily snapshot in YYYY-MM-DD format */
     asOf: string;
 
     totals: {
@@ -125,20 +125,52 @@ function errorResponse(message: string, status = 500): Response {
 // =============================================================================
 
 /**
- * Generates a cache key URL based on today's date.
- * This ensures the same cache key is used for all requests within a day.
+ * Generates a cache key URL based on the latest known data update.
+ * This keeps cached responses aligned with the underlying snapshot version.
  */
-function getCacheKey(request: Request): Request {
+function getCacheKey(request: Request, versionTimestamp: number): Request {
     const url = new URL(request.url);
-    const today = formatDate(todayTimestamp());
 
     // Create a deterministic cache key URL
-    url.pathname = `/api/stats/${today}`;
+    url.pathname = `/api/stats/${versionTimestamp}`;
     url.search = "";
 
     return new Request(url.toString(), {
         method: "GET",
     });
+}
+
+interface StatsFreshness {
+    /** Latest stored daily snapshot date, used for the user-visible as-of label */
+    asOf: number;
+    /** Latest update marker, used to version cached responses */
+    cacheVersion: number;
+}
+
+/**
+ * Computes freshness metadata for stats responses.
+ *
+ * `asOf` tracks the newest stored daily snapshot so charts and labels stay
+ * honest when collection falls behind. `cacheVersion` uses `last_updated`
+ * when available so cached responses roll forward after a successful collect.
+ */
+async function getStatsFreshness(db: D1Database): Promise<StatsFreshness> {
+    const today = todayTimestamp();
+    const freshness = await db
+        .prepare(`
+            SELECT
+                (SELECT MAX(date) FROM downloads_daily) AS latest_daily,
+                (SELECT MAX(last_updated) FROM releases) AS latest_update
+        `)
+        .first<{ latest_daily: number | null; latest_update: number | null }>();
+
+    const latestDaily = freshness?.latest_daily ?? null;
+    const latestUpdate = freshness?.latest_update ?? null;
+
+    return {
+        asOf: latestDaily ?? today,
+        cacheVersion: latestUpdate ?? latestDaily ?? today,
+    };
 }
 
 // =============================================================================
@@ -268,6 +300,8 @@ async function handleStats(request: Request, env: StatsApiEnv): Promise<Response
     }
 
     try {
+        const freshness = await getStatsFreshness(env.STATS_DB);
+
         // Skip cache entirely if disabled (e.g., in test environment)
         const cacheDisabled = env.DISABLE_CACHE === "true";
         let cache: Cache | undefined;
@@ -277,7 +311,7 @@ async function handleStats(request: Request, env: StatsApiEnv): Promise<Response
         if (!cacheDisabled) {
             try {
                 cache = caches.default;
-                cacheKey = getCacheKey(request);
+                cacheKey = getCacheKey(request, freshness.cacheVersion);
                 const cachedResponse = await cache.match(cacheKey);
 
                 if (cachedResponse) {
@@ -301,7 +335,7 @@ async function handleStats(request: Request, env: StatsApiEnv): Promise<Response
         ]);
 
         const statsResponse: StatsResponse = {
-            asOf: formatDate(todayTimestamp()),
+            asOf: formatDate(freshness.asOf),
             totals,
             releases,
         };

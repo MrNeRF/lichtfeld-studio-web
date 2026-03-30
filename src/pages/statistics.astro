@@ -120,7 +120,7 @@ const seoDescription =
     <div class="stats-shell stats-shell--compact shell shell--compact">
       <p class="stats-attribution">
         <i class="bi bi-info-circle"></i>
-        Statistics are updated hourly and reflect download counts from GitHub releases. Data shown is as of <span
+        Statistics reflect the latest stored GitHub release snapshot. Data shown is as of <span
           id="stats-as-of"
         >
           loading...
@@ -765,22 +765,6 @@ const seoDescription =
       }
 
       statsData = (await response.json()) as StatsResponse;
-
-      // Bridge gaps between daily snapshots and actual totals.
-      // Daily data may lag behind release.downloads when the collector
-      // missed runs or asset re-uploads reset GitHub counters.
-      const today = Math.floor(Date.now() / ONE_DAY_MS) * ONE_DAY_MS;
-
-      statsData.releases.forEach((release) => {
-        if (release.daily.length === 0) return;
-
-        const sorted = release.daily.sort((a, b) => a.date - b.date);
-        const latest = sorted[sorted.length - 1];
-
-        if (release.downloads > latest.downloads) {
-          release.daily.push({ date: Math.max(today, latest.date + ONE_DAY_MS), downloads: release.downloads });
-        }
-      });
 
       // Update stat cards
       updateStatCard(0, statsData.totals.allTime);

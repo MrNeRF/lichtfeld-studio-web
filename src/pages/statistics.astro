@@ -120,7 +120,7 @@ const seoDescription =
     <div class="stats-shell stats-shell--compact shell shell--compact">
       <p class="stats-attribution">
         <i class="bi bi-info-circle"></i>
-        Statistics reflect the latest stored GitHub release snapshot. Data shown is as of <span
+        Charts and totals are aligned to the latest stored GitHub release snapshot. Data shown is as of <span
           id="stats-as-of"
         >
           loading...
@@ -247,6 +247,37 @@ const seoDescription =
    */
   function formatNumber(num: number): string {
     return new Intl.NumberFormat().format(num);
+  }
+
+  /**
+   * Returns the latest cumulative snapshot currently visible for a release.
+   * The dashboard uses this value for all cards/tables so every widget stays
+   * aligned to the same as-of date as the charts.
+   */
+  function getLatestSnapshotDownloads(release: StatsResponse["releases"][number]): number {
+    if (release.daily.length === 0) {
+      return release.downloads;
+    }
+
+    const latestPoint = release.daily.reduce((latest, point) => (point.date > latest.date ? point : latest));
+
+    return latestPoint.downloads;
+  }
+
+  /**
+   * Normalizes totals to the latest stored daily snapshot.
+   * This prevents the dashboard from mixing stale chart history with newer
+   * totals when a collection run updated releases but missed daily rows.
+   */
+  function alignStatsToSnapshot(stats: StatsResponse): void {
+    let totalDownloads = 0;
+
+    stats.releases.forEach((release) => {
+      release.downloads = getLatestSnapshotDownloads(release);
+      totalDownloads += release.downloads;
+    });
+
+    stats.totals.allTime = totalDownloads;
   }
 
   /**
@@ -765,6 +796,7 @@ const seoDescription =
       }
 
       statsData = (await response.json()) as StatsResponse;
+      alignStatsToSnapshot(statsData);
 
       // Update stat cards
       updateStatCard(0, statsData.totals.allTime);

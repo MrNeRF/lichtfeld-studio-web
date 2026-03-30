@@ -139,6 +139,10 @@ interface PeriodDeltaRow {
 /**
  * Batch upserts all releases and returns a map of tag -> release ID.
  * Uses D1 batch to reduce round trips.
+ *
+ * Important: this step is metadata-only. It must not advance total_downloads
+ * or last_updated on its own, otherwise a failed collection can publish fresh
+ * totals without matching daily snapshots.
  */
 async function batchUpsertReleases(db: D1Database, releases: ProcessedRelease[]): Promise<Map<string, number>> {
   const now = Date.now();
@@ -148,12 +152,10 @@ async function batchUpsertReleases(db: D1Database, releases: ProcessedRelease[])
         VALUES (?, ?, ?, ?, ?, ?)
         ON CONFLICT(tag) DO UPDATE SET
             name = excluded.name,
-            total_downloads = excluded.total_downloads,
-            published_at = COALESCE(releases.published_at, excluded.published_at),
-            last_updated = excluded.last_updated
+            published_at = COALESCE(releases.published_at, excluded.published_at)
     `);
 
-  const upsertStatements = releases.map((r) => upsertStmt.bind(r.tag, r.name, r.count, r.publishedAt, now, now));
+  const upsertStatements = releases.map((r) => upsertStmt.bind(r.tag, r.name, 0, r.publishedAt, now, null));
 
   // Execute all upserts in a single batch
   await db.batch(upsertStatements);

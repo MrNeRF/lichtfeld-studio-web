@@ -428,6 +428,56 @@ describe("Stats Collector Worker", () => {
       expect(releases.results[2].total_downloads).toBe(250);
     });
 
+    it("should not advance totals when collection fails before daily snapshots are stored", async () => {
+      // Arrange
+      setupGitHubMock();
+
+      let batchCallCount = 0;
+      const failingDb = {
+        prepare: env.STATS_DB.prepare.bind(env.STATS_DB),
+        exec: env.STATS_DB.exec.bind(env.STATS_DB),
+        dump: env.STATS_DB.dump?.bind(env.STATS_DB),
+        batch: async (...args: Parameters<typeof env.STATS_DB.batch>) => {
+          batchCallCount++;
+
+          if (batchCallCount === 2) {
+            throw new Error("Simulated batch failure");
+          }
+
+          return env.STATS_DB.batch(...args);
+        },
+      } as D1Database;
+      const failingEnv = {
+        ...env,
+        STATS_DB: failingDb,
+      };
+
+      const request = createRequest("http://localhost/collect", {
+        method: "POST",
+      });
+      const ctx = createExecutionContext();
+
+      // Act
+      const response = await worker.fetch(request, failingEnv, ctx);
+      await waitOnExecutionContext(ctx);
+
+      // Assert
+      expect(response.status).toBe(500);
+
+      const releases = await env.STATS_DB.prepare(
+        "SELECT tag, total_downloads, last_updated FROM releases ORDER BY tag ASC",
+      ).all<{ tag: string; total_downloads: number; last_updated: number | null }>();
+      const daily = await env.STATS_DB.prepare("SELECT COUNT(*) as count FROM downloads_daily").first<{ count: number }>();
+
+      expect(daily?.count).toBe(0);
+      expect(releases.results).toHaveLength(3);
+
+      releases.results.forEach((release) => {
+        expect(release.total_downloads).toBe(0);
+        expect(release.last_updated).toBeNull();
+      });
+    });
+
     it("should return error on GitHub API failure", async () => {
       // Arrange: Mock a failed GitHub API response
       vi.stubGlobal(

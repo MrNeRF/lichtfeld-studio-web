@@ -216,7 +216,7 @@ async function computeAllCumulativeCounts(
   const releaseIds = releases.map((r) => tagToId.get(r.tag)!);
   const placeholders = releaseIds.map(() => "?").join(", ");
 
-  const [dailyRows, assetRows] = await Promise.all([
+  const [dailyRows, assetRows, releaseRows] = await Promise.all([
     db
       .prepare(
         `SELECT d.release_id, d.count
@@ -236,12 +236,21 @@ async function computeAllCumulativeCounts(
       )
       .bind(...releaseIds)
       .all<{ asset_id: number; release_id: number; last_download_count: number }>(),
+    db
+      .prepare(`SELECT id, total_downloads FROM releases WHERE id IN (${placeholders})`)
+      .bind(...releaseIds)
+      .all<{ id: number; total_downloads: number }>(),
   ]);
 
   const previousDailyByRelease = new Map<number, number>();
+  const storedTotalsByRelease = new Map<number, number>();
 
   for (const row of dailyRows.results) {
     previousDailyByRelease.set(row.release_id, row.count);
+  }
+
+  for (const row of releaseRows.results) {
+    storedTotalsByRelease.set(row.id, row.total_downloads);
   }
 
   const assetsByRelease = new Map<number, Map<number, number>>();
@@ -272,6 +281,7 @@ async function computeAllCumulativeCounts(
   for (const release of releases) {
     const releaseId = tagToId.get(release.tag)!;
     const previousDaily = previousDailyByRelease.get(releaseId) ?? null;
+    const storedTotal = storedTotalsByRelease.get(releaseId) ?? 0;
     const previousCounts = assetsByRelease.get(releaseId) ?? new Map();
 
     if (previousCounts.size === 0 && previousDaily !== null) {
@@ -289,7 +299,10 @@ async function computeAllCumulativeCounts(
         );
       }
 
-      result.set(release.tag, previousDaily);
+      // Bootstrap asset tracking from the best known cumulative count.
+      // This recovers from older deployments where release_assets did not exist
+      // while preserving historical totals for rolling releases.
+      result.set(release.tag, Math.max(previousDaily, storedTotal, release.count));
       continue;
     }
 

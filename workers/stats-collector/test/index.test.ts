@@ -502,6 +502,107 @@ describe("Stats Collector Worker", () => {
       expect(daily?.count).toBe(3);
     });
 
+    it("should recover current totals when asset tracking is recreated for existing releases", async () => {
+      // Arrange: seed an initial successful collection
+      setupGitHubMock();
+
+      const request1 = createRequest("http://localhost/collect", {
+        method: "POST",
+      });
+      const ctx1 = createExecutionContext();
+
+      await worker.fetch(request1, env, ctx1);
+      await waitOnExecutionContext(ctx1);
+
+      await env.STATS_DB.exec("DROP TABLE IF EXISTS release_assets;");
+
+      const updatedReleases: MockRelease[] = [
+        {
+          tag_name: "v1.0.0",
+          name: "Version 1.0.0",
+          draft: false,
+          prerelease: false,
+          published_at: "2024-01-15T12:00:00Z",
+          assets: [
+            { id: 101, name: "v1.0.0-windows.zip", download_count: 1200, created_at: "2024-01-15T12:00:00Z" },
+            { id: 102, name: "v1.0.0-linux.tar.gz", download_count: 600, created_at: "2024-01-15T12:00:00Z" },
+          ],
+        },
+        {
+          tag_name: "v0.9.0",
+          name: "Version 0.9.0",
+          draft: false,
+          prerelease: false,
+          published_at: "2024-01-01T12:00:00Z",
+          assets: [{ id: 201, name: "v0.9.0-windows.zip", download_count: 250, created_at: "2024-01-01T12:00:00Z" }],
+        },
+        {
+          tag_name: "nightly",
+          name: "Nightly Build",
+          draft: false,
+          prerelease: true,
+          published_at: "2024-01-25T12:00:00Z",
+          assets: [
+            {
+              id: 501,
+              name: "LichtFeld-Studio-windows-nightly-2024-01-25.zip",
+              download_count: 320,
+              created_at: "2024-01-25T02:00:00Z",
+            },
+            {
+              id: 502,
+              name: "LichtFeld-Studio-windows-nightly-2024-01-26.zip",
+              download_count: 180,
+              created_at: "2024-01-26T02:00:00Z",
+            },
+          ],
+        },
+      ];
+
+      vi.restoreAllMocks();
+      vi.stubGlobal(
+        "fetch",
+        vi.fn(async (url: string) => {
+          const urlObj = new URL(url);
+          const page = parseInt(urlObj.searchParams.get("page") || "1", 10);
+
+          if (page === 1) {
+            return new Response(JSON.stringify(updatedReleases), {
+              status: 200,
+              headers: { "Content-Type": "application/json" },
+            });
+          }
+
+          return new Response(JSON.stringify([]), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          });
+        }),
+      );
+
+      const request2 = createRequest("http://localhost/collect", {
+        method: "POST",
+      });
+      const ctx2 = createExecutionContext();
+
+      // Act
+      const response = await worker.fetch(request2, env, ctx2);
+      await waitOnExecutionContext(ctx2);
+
+      // Assert
+      expect(response.status).toBe(200);
+
+      const releases = await env.STATS_DB.prepare(
+        "SELECT tag, total_downloads FROM releases ORDER BY tag ASC",
+      ).all<{ tag: string; total_downloads: number }>();
+
+      expect(releases.results).toEqual([
+        { tag: "nightly", total_downloads: 500 },
+        { tag: "v0.9.0", total_downloads: 250 },
+        { tag: "v1.0.0", total_downloads: 1800 },
+      ]);
+    });
+
     it("should return error on GitHub API failure", async () => {
       // Arrange: Mock a failed GitHub API response
       vi.stubGlobal(

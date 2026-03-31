@@ -38,7 +38,7 @@ export const GITHUB_REPO_URL = `${GITHUB_PROFILE_URL}/${REPO_NAME}`;
 export const CONTRIBUTION_PROJECT_VIEW_URL = `https://github.com/users/${REPO_OWNER}/projects/${CONTRIBUTION_PROJECT_NUMBER}/views/${CONTRIBUTION_PROJECT_VIEW_NUMBER}`;
 
 /** Direct download URL for the current stable Windows build */
-export const GITHUB_RELEASES_URL = `${GITHUB_REPO_URL}/releases/download/v0.5.0/LichtFeld-Studio_Windows_v0.5.0.zip`;
+export const GITHUB_RELEASES_URL = `${GITHUB_REPO_URL}/releases/download/v0.5.1/LichtFeld-Studio-windows-v0.5.1.zip`;
 
 /** Nightly release page for the rolling development build */
 export const GITHUB_NIGHTLY_RELEASE_URL = `${GITHUB_REPO_URL}/releases/tag/nightly`;

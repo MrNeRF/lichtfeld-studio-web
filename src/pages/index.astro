@@ -39,7 +39,7 @@ import {
 const base = import.meta.env.BASE_URL;
 const featuredPlugins = await getFeaturedPlugins(3);
 const latestRelease = await getLatestRelease();
-const stableWindowsVersion = latestRelease?.tagName ?? "v0.5.0";
+const stableWindowsVersion = latestRelease?.tagName ?? "v0.5.1";
 const nightlyWindowsUrl = GITHUB_NIGHTLY_RELEASE_URL;
 const nightlyWindowsMeta = "Latest dev snapshot";
 const nightlyReleaseApiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases/tags/nightly`;

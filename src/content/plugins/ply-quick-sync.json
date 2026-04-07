@@ -1,0 +1,26 @@
+{
+  "id": "community:ply-quick-sync",
+  "namespace": "community",
+  "name": "ply-quick-sync",
+  "displayName": "PLY Quick Sync",
+  "summary": "Quick one-click overwrite of linked .ply files directly from LichtFeld Studio.",
+  "description": "Adds a lightweight one-click sync button for overwriting linked .ply files directly from LichtFeld Studio without requiring a Blender-oriented workflow.",
+  "author": "OlstFlow & Codex Bro",
+  "latestVersion": "0.1.0",
+  "lichtfeldVersion": ">=0.5.0",
+  "pluginApi": ">=1,<2",
+  "requiredFeatures": [],
+  "downloads": 0,
+  "keywords": ["sync", "ply", "overwrite", "gaussian-splat", "utility"],
+  "repository": "https://github.com/OlstFlow/Lichtfeld-PLY-Quick_Sync-Plugin",
+  "versions": [
+    {
+      "version": "0.1.0",
+      "pluginApi": ">=1,<2",
+      "lichtfeldVersion": ">=0.5.0",
+      "requiredFeatures": [],
+      "dependencies": [],
+      "gitRef": "main"
+    }
+  ]
+}

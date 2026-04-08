@@ -14,13 +14,7 @@
  * - https://ogp.me/
  */
 
-import {
-  REPO_OWNER,
-  TWITTER_HANDLE,
-  GITHUB_PROFILE_URL,
-  GITHUB_REPO_URL,
-  DISCORD_URL,
-} from "@/constants/project";
+import { REPO_OWNER, TWITTER_HANDLE, GITHUB_PROFILE_URL, GITHUB_REPO_URL, DISCORD_URL } from "@/constants/project";
 
 // ============================================================================
 // Site Identity
@@ -201,15 +195,13 @@ export const NAVIGATION = {
   "/contribute/": "Contribute",
   "/bounty/": "Bounties",
   "/what-is-gaussian-splatting/": "What is Gaussian Splatting",
-  "/getting-started/": "Getting Started",
-  "/faq/": "FAQ",
-  "/tutorials/first-training/": "First Training Tutorial",
-  "/tutorials/capture-tips/": "Capture Tips",
+  "/learn-lfs/getting-started/": "Getting Started",
+  "/learn-lfs/faq/": "FAQ",
+  "/learn-3dgs/capture-tips/": "Capture Tips",
   "/glossary/colmap/": "COLMAP Guide",
   "/glossary/3dgut/": "3DGUT Guide",
-  "/troubleshooting/": "Troubleshooting",
+  "/learn-lfs/troubleshooting/": "Troubleshooting",
   "/features/mcp-automation/": "MCP Automation",
-  "/integrations/mcp/": "MCP Integration",
   "/vs/postshot/": "vs Postshot",
   "/vs/brush/": "vs Brush",
   "/alternatives/": "Alternatives",

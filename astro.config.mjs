@@ -58,6 +58,17 @@ export default defineConfig({
 
   // Output to ./dist for Cloudflare Workers Static Assets
   outDir: "./dist",
+
+  // Redirects for migrated pages
+  redirects: {
+    "/getting-started": "/learn-lfs/getting-started",
+    "/faq": "/learn-lfs/faq",
+    "/troubleshooting": "/learn-lfs/troubleshooting",
+    "/tutorials/capture-tips": "/learn-3dgs/capture-tips",
+    "/tutorials/first-training": "/learn-lfs/getting-started",
+    "/integrations/mcp": "/features/mcp-automation",
+  },
+
   vite: {
     server: {
       watch: {

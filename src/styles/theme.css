@@ -116,6 +116,128 @@
 
   /* Section backgrounds */
   --section-bg-alt: #efe7d8;
+
+  /* ===========================
+   * Section Spacing Tokens
+   * =========================== */
+  --section-padding-y: 4rem;
+  --section-padding-y-lg: 5rem;
+  --section-padding-y-sm: 3rem;
+  --container-padding-x: 1.5rem;
+  --container-padding-x-mobile: 1rem;
+
+  /* ===========================
+   * Transition Tokens
+   * =========================== */
+  --transition-fast: 0.18s ease;
+  --transition-base: 0.25s ease;
+  --transition-slow: 0.4s ease;
+  --transition-bounce: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ===========================
+   * Shadow Tokens
+   * =========================== */
+  --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+  --shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+  --shadow-hover: 0 24px 40px rgba(15, 23, 42, 0.08);
+
+  /* ===========================
+   * Z-Index Scale
+   * =========================== */
+  --z-base: 0;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-fixed: 300;
+  --z-modal-backdrop: 400;
+  --z-modal: 500;
+  --z-popover: 600;
+  --z-tooltip: 700;
+
+  /* ===========================
+   * Border Radius Tokens
+   * =========================== */
+  --radius-none: 0px;
+  --radius-sm: 0.125rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+  --radius-full: 9999px;
+  --radius-pill: 999px;
+
+  /* ===========================
+   * Semantic Color Tokens
+   * =========================== */
+  --color-success: #22c55e;
+  --color-success-bg: rgba(34, 197, 94, 0.08);
+  --color-success-border: rgba(34, 197, 94, 0.2);
+
+  --color-warning: #f59e0b;
+  --color-warning-bg: rgba(245, 158, 11, 0.14);
+  --color-warning-border: rgba(245, 158, 11, 0.2);
+
+  --color-error: #ef4444;
+  --color-error-bg: rgba(239, 68, 68, 0.08);
+  --color-error-border: rgba(239, 68, 68, 0.2);
+
+  --color-info: #1457ff;
+  --color-info-bg: rgba(20, 87, 255, 0.08);
+  --color-info-border: rgba(20, 87, 255, 0.2);
+
+  /* Accent colors */
+  --color-amber: #f59e0b;
+  --color-amber-bg: rgba(245, 158, 11, 0.1);
+  --color-orange: #c97234;
+  --color-orange-bg: rgba(201, 114, 52, 0.08);
+
+  /* Dark theme tokens for hero sections */
+  --color-dark-bg: #0b0c10;
+  --color-dark-panel: rgba(9, 16, 28, 0.62);
+  --color-dark-border: rgba(255, 255, 255, 0.12);
+  --color-dark-text: rgba(255, 255, 255, 0.82);
+
+  /* Code block colors */
+  --color-code-bg: #1a1a2e;
+  --color-code-text: #e2e8f0;
+
+  /* Third-party brand colors */
+  --color-paypal: #0070ba;
+  --color-donorbox: #28a745;
+  --color-github: #24292f;
+  --color-bitcoin: #f7931a;
+  --color-discord: #5865f2;
+
+  /* ===========================
+   * Typography Scale
+   * =========================== */
+  --text-xs: 0.75rem; /* 12px */
+  --text-sm: 0.875rem; /* 14px */
+  --text-base: 1rem; /* 16px */
+  --text-lg: 1.125rem; /* 18px */
+  --text-xl: 1.25rem; /* 20px */
+  --text-2xl: 1.5rem; /* 24px */
+  --text-3xl: 1.875rem; /* 30px */
+  --text-4xl: 2.25rem; /* 36px */
+  --text-5xl: 3rem; /* 48px */
+
+  /* Letter spacing tokens */
+  --tracking-tight: -0.03em;
+  --tracking-tighter: -0.04em;
+  --tracking-wide: 0.1em;
+  --tracking-wider: 0.14em;
+  --tracking-widest: 0.18em;
+
+  /* ===========================
+   * Shell Variant Tokens
+   * =========================== */
+  --shell-padding: var(--spacing-6);
+  --shell-padding-spacious: var(--spacing-8);
+  --shell-padding-compact: var(--spacing-4);
+  --shell-radius: 1.4rem;
+  --shell-radius-mobile: 1.2rem;
 }
 
 /* ===========================
@@ -180,6 +302,14 @@
 .px-8 {
   padding-left: var(--spacing-8);
   padding-right: var(--spacing-8);
+}
+
+/* Responsive padding utilities */
+@media (min-width: 768px) {
+  .px-md-6 {
+    padding-left: var(--spacing-6);
+    padding-right: var(--spacing-6);
+  }
 }
 
 .py-0 {
@@ -885,24 +1015,43 @@
 }
 
 /* ===========================
+ * Section Spacing Utilities
+ * Standardized vertical spacing for sections
+ * =========================== */
+.section-py {
+  padding-top: var(--section-padding-y);
+  padding-bottom: var(--section-padding-y);
+}
+
+.section-py-lg {
+  padding-top: var(--section-padding-y-lg);
+  padding-bottom: var(--section-padding-y-lg);
+}
+
+.section-py-sm {
+  padding-top: var(--section-padding-y-sm);
+  padding-bottom: var(--section-padding-y-sm);
+}
+
+/* ===========================
  * Global Section Styling
  * =========================== */
 
 /**
  * Section spacing for visual separation.
- * Overrides Bootstrap's py-5 with adjusted padding.
+ * Uses standardized spacing scale values.
  */
 section > .container.py-5,
 section.py-5 > .container {
-  padding-top: 3.5rem !important;
-  padding-bottom: 3.5rem !important;
+  padding-top: var(--section-padding-y-sm) !important;
+  padding-bottom: var(--section-padding-y-sm) !important;
 }
 
 @media (min-width: 768px) {
   section > .container.py-5,
   section.py-5 > .container {
-    padding-top: 4.5rem !important;
-    padding-bottom: 4.5rem !important;
+    padding-top: var(--section-padding-y) !important;
+    padding-bottom: var(--section-padding-y) !important;
   }
 }
 
@@ -919,7 +1068,7 @@ section.py-5 > .container {
   font-family: var(--font-display);
   font-size: 0.74rem;
   font-weight: 700;
-  letter-spacing: 0.18em;
+  letter-spacing: var(--tracking-widest);
   text-transform: uppercase;
 }
 
@@ -1013,7 +1162,7 @@ section.py-5 > .container {
   position: relative;
   overflow: hidden;
   border-radius: 2rem;
-  padding: clamp(1.5rem, 3vw, 2.25rem);
+  padding: var(--container-padding-x);
   background: var(--surface-bg);
   border: 1px solid var(--surface-border);
   box-shadow: var(--surface-shadow);
@@ -1035,29 +1184,29 @@ section.py-5 > .container {
 }
 
 .shell--spacious {
-  padding: clamp(1.5rem, 3vw, 2.5rem);
+  padding: var(--spacing-8);
 }
 
 .shell--compact {
-  padding: clamp(1rem, 2vw, 1.35rem);
+  padding: var(--spacing-4);
 }
 
 @media (max-width: 767.98px) {
   .content-frame {
-    padding-inline: 1rem !important;
+    padding-inline: var(--container-padding-x-mobile) !important;
   }
 
   .shell {
     border-radius: 1.45rem;
-    padding: 1.15rem;
+    padding: var(--container-padding-x-mobile);
   }
 
   .shell--spacious {
-    padding: 1.2rem;
+    padding: var(--container-padding-x);
   }
 
   .shell--compact {
-    padding: 0.95rem;
+    padding: var(--container-padding-x-mobile);
   }
 
   .stat-block {
@@ -1067,17 +1216,17 @@ section.py-5 > .container {
 
 @media (max-width: 575.98px) {
   .content-frame {
-    padding-inline: 0.8rem !important;
+    padding-inline: var(--container-padding-x-mobile) !important;
   }
 
   .shell {
     border-radius: 1.2rem;
-    padding: 1rem;
+    padding: var(--container-padding-x-mobile);
   }
 
   .shell--spacious,
   .shell--compact {
-    padding: 0.9rem;
+    padding: var(--container-padding-x-mobile);
   }
 }
 

@@ -1,0 +1,119 @@
+---
+import PageHero from './PageHero.astro';
+import SupportCTA from './SupportCTA.astro';
+
+export interface Props {
+  title: string;
+  subtitle?: string;
+  competitor: string;
+  badge?: string;
+  showTechStack?: boolean;
+  showPricing?: boolean;
+  showRelated?: boolean;
+  className?: string;
+}
+
+const {
+  title,
+  subtitle,
+  competitor,
+  badge = '2026 Software Comparison',
+  showTechStack = false,
+  showPricing = false,
+  showRelated = false,
+  className = ''
+} = Astro.props;
+
+const base = import.meta.env.BASE_URL;
+---
+
+<div class:list={['comparison-layout', className]}>
+  <!-- Hero -->
+  <PageHero
+    variant="comparison"
+    title={title}
+    subtitle={subtitle}
+    badge={badge}
+  />
+  
+  <!-- Quick Comparison Table Slot -->
+  <section id="quick-comparison" class="comparison-layout__section">
+    <div class="container content-frame px-4 px-md-6 py-16">
+      <slot name="quick-comparison" />
+    </div>
+  </section>
+  
+  <!-- Tech Stack (optional) -->
+  {showTechStack && (
+    <section id="tech-stack" class="comparison-layout__section comparison-layout__section--alt">
+      <div class="container content-frame px-4 px-md-6 py-16">
+        <slot name="tech-stack" />
+      </div>
+    </section>
+  )}
+  
+  <!-- Detailed Comparison -->
+  <section id="detailed-comparison" class="comparison-layout__section">
+    <div class="container content-frame px-4 px-md-6 py-16">
+      <slot name="detailed-comparison" />
+    </div>
+  </section>
+  
+  <!-- Pricing (optional) -->
+  {showPricing && (
+    <section id="pricing" class="comparison-layout__section comparison-layout__section--highlight">
+      <div class="container content-frame px-4 px-md-6 py-16">
+        <slot name="pricing" />
+      </div>
+    </section>
+  )}
+  
+  <!-- FAQ -->
+  <section id="faq" class="comparison-layout__section">
+    <div class="container content-frame px-4 px-md-6 py-16">
+      <slot name="faq" />
+    </div>
+  </section>
+  
+  <!-- Related Comparisons (optional) -->
+  {showRelated && (
+    <section id="related" class="comparison-layout__section comparison-layout__section--alt">
+      <div class="container content-frame px-4 px-md-6 py-16">
+        <slot name="related" />
+      </div>
+    </section>
+  )}
+  
+  <!-- Final CTA -->
+  <section id="download" class="comparison-layout__section comparison-layout__section--cta">
+    <div class="container content-frame px-4 px-md-6 py-16">
+      <slot name="final-cta" />
+    </div>
+  </section>
+  
+  <!-- Support -->
+  <SupportCTA variant="boxed" />
+</div>
+
+<style>
+  .comparison-layout {
+    /* Layout wrapper */
+  }
+  
+  .comparison-layout__section {
+    /* Standard section */
+  }
+  
+  .comparison-layout__section--alt {
+    background: var(--section-bg-alt, #efe7d8);
+  }
+  
+  .comparison-layout__section--highlight {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+    color: white;
+  }
+  
+  .comparison-layout__section--cta {
+    background: var(--surface-bg);
+  }
+</style>

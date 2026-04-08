@@ -1,0 +1,468 @@
+---
+/**
+ * PageHero.astro
+ *
+ * Standardized hero component with multiple variants for different page types.
+ * Fixes the "blue bar" issue by making border-bottom optional and standardizes
+ * gradient opacity across all page types.
+ *
+ * Variants:
+ * - 'guide': Educational content pages (What is GS, Learn 3DGS, Glossary)
+ * - 'feature': Feature showcase pages (MCP Automation, Plugins)
+ * - 'comparison': VS pages (vs/brush, vs/postshot, alternatives)
+ * - 'minimal': Simple hero with just title and subtitle
+ *
+ * @example
+ * <PageHero
+ *   variant="guide"
+ *   title="What is 3D Gaussian Splatting?"
+ *   subtitle="A breakthrough in real-time 3D rendering"
+ *   kicker="Technical Guide"
+ *   breadcrumb={[{label: "Home", href: "/"}, {label: "Guides"}]}
+ *   meta={[{icon: "clock", label: "10 min read"}, {icon: "calendar", label: "Updated March 2025"}]}
+ * />
+ */
+
+// ============================================================================
+// Type Definitions
+// ============================================================================
+
+export interface BreadcrumbItem {
+  /** Display label for the breadcrumb item */
+  label: string;
+  /** Optional href - if omitted, item is current page */
+  href?: string;
+}
+
+export interface MetaItem {
+  /** Bootstrap icon name (without 'bi-' prefix) */
+  icon: string;
+  /** Display text for the meta item */
+  label: string;
+}
+
+export interface Props {
+  /** Visual variant determining layout and styling */
+  variant?: 'guide' | 'feature' | 'comparison' | 'minimal';
+  /** Main page title */
+  title: string;
+  /** Optional subtitle/lead text */
+  subtitle?: string;
+  /** Optional kicker text displayed above title */
+  kicker?: string;
+  /** Optional badge with icon and text */
+  badge?: {
+    icon: string;
+    text: string;
+  };
+  /** Breadcrumb navigation items */
+  breadcrumb?: BreadcrumbItem[];
+  /** Meta information items (reading time, date, etc.) */
+  meta?: MetaItem[];
+  /** Whether to show the gradient background (default: true) */
+  showGradient?: boolean;
+  /** Gradient opacity value (default: 0.06 for standardization) */
+  gradientOpacity?: number;
+  /** Whether to show border-bottom (default: false - fixes "blue bar" issue) */
+  showBorder?: boolean;
+  /** Optional additional CSS classes */
+  className?: string;
+}
+
+// ============================================================================
+// Props with Defaults
+// ============================================================================
+
+const {
+  variant = 'guide',
+  title,
+  subtitle,
+  kicker,
+  badge,
+  breadcrumb,
+  meta,
+  showGradient = true,
+  gradientOpacity = 0.06, // Standardized across all pages
+  showBorder = false, // Default false to fix "blue bar" issue
+  className = '',
+} = Astro.props;
+
+const base = import.meta.env.BASE_URL;
+
+// Variant-specific configurations
+const variantConfig = {
+  guide: {
+    titleSize: 'clamp(2rem, 5vw, 3rem)',
+    contentMaxWidth: '800px',
+    align: 'left',
+    paddingY: '3rem 0 2rem',
+  },
+  feature: {
+    titleSize: 'clamp(2rem, 5vw, 3.5rem)',
+    contentMaxWidth: '900px',
+    align: 'left',
+    paddingY: '3rem 0 2rem',
+  },
+  comparison: {
+    titleSize: 'clamp(2.5rem, 5vw, 4rem)',
+    contentMaxWidth: '650px',
+    align: 'center',
+    paddingY: 'clamp(4rem, 10vh, 8rem) 0 clamp(3rem, 6vh, 5rem)',
+  },
+  minimal: {
+    titleSize: 'clamp(1.75rem, 3vw, 2.5rem)',
+    contentMaxWidth: '700px',
+    align: 'left',
+    paddingY: '2rem 0 1.5rem',
+  },
+};
+
+const config = variantConfig[variant];
+---
+
+<header
+  class:list={[
+    'page-hero',
+    `page-hero--${variant}`,
+    { 'page-hero--gradient': showGradient },
+    { 'page-hero--border': showBorder },
+    className,
+  ]}
+  role="banner"
+>
+  <div class="container content-frame px-4 px-md-6">
+    <div class="page-hero__content">
+      {/* Breadcrumb Navigation */}
+      {breadcrumb && breadcrumb.length > 0 && (
+        <nav class="page-hero__breadcrumb" aria-label="Breadcrumb">
+          <ol class="page-hero__breadcrumb-list">
+            {breadcrumb.map((item, index) => (
+              <li class="page-hero__breadcrumb-item">
+                {item.href ? (
+                  <a href={item.href} class="page-hero__breadcrumb-link">
+                    {item.label}
+                  </a>
+                ) : (
+                  <span aria-current="page">{item.label}</span>
+                )}
+              </li>
+            ))}
+          </ol>
+        </nav>
+      )}
+
+      {/* Kicker (small text above title) */}
+      {kicker && (
+        <p class="page-hero__kicker">{kicker}</p>
+      )}
+
+      {/* Badge */}
+      {badge && (
+        <div class="page-hero__badge-wrapper">
+          <span class="page-hero__badge">
+            <svg class="bi" width="16" height="16" aria-hidden="true">
+              <use href={`${base}static/bootstrap-icons.svg#${badge.icon}`}></use>
+            </svg>
+            {badge.text}
+          </span>
+        </div>
+      )}
+
+      {/* Main Title */}
+      <h1 class="page-hero__title">{title}</h1>
+
+      {/* Subtitle/Lead */}
+      {subtitle && (
+        <p class="page-hero__subtitle">{subtitle}</p>
+      )}
+
+      {/* Meta Information */}
+      {meta && meta.length > 0 && (
+        <div class="page-hero__meta">
+          {meta.map((item) => (
+            <span class="page-hero__meta-item">
+              <svg class="bi" width="16" height="16" aria-hidden="true">
+                <use href={`${base}static/bootstrap-icons.svg#${item.icon}`}></use>
+              </svg>
+              {item.label}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Slot for custom content (CTA buttons, etc.) */}
+      <div class="page-hero__slot">
+        <slot />
+      </div>
+    </div>
+  </div>
+</header>
+
+<style
+  define:vars={{
+    titleSize: config.titleSize,
+    contentMaxWidth: config.contentMaxWidth,
+    align: config.align,
+    paddingY: config.paddingY,
+    gradientOpacity: gradientOpacity,
+  }}
+>
+  /* ============================================================================
+   * Page Hero - Base Styles
+   * ============================================================================ */
+
+  .page-hero {
+    padding: var(--paddingY);
+    position: relative;
+  }
+
+  /* Gradient Background - Standardized opacity (default 0.06) */
+  .page-hero--gradient {
+    background:
+      radial-gradient(circle at top left, rgba(20, 87, 255, var(--gradientOpacity)), transparent 40%),
+      radial-gradient(circle at top right, rgba(201, 114, 52, var(--gradientOpacity)), transparent 35%);
+  }
+
+  /* Optional Border - Default false to fix "blue bar" issue */
+  .page-hero--border {
+    border-bottom: 1px solid var(--surface-border);
+  }
+
+  /* Content Container */
+  .page-hero__content {
+    max-width: var(--contentMaxWidth);
+    text-align: var(--align);
+    margin-left: var(--align) === 'center' ? 'auto' : '0';
+    margin-right: var(--align) === 'center' ? 'auto' : '0';
+  }
+
+  /* ============================================================================
+   * Breadcrumb Navigation
+   * ============================================================================ */
+
+  .page-hero__breadcrumb {
+    margin-bottom: 1.5rem;
+  }
+
+  .page-hero__breadcrumb-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+
+  .page-hero__breadcrumb-item:not(:last-child)::after {
+    content: "/";
+    margin-left: 0.5rem;
+    opacity: 0.5;
+  }
+
+  .page-hero__breadcrumb-link {
+    color: var(--color-primary-link);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .page-hero__breadcrumb-link:hover {
+    color: var(--color-primary-link-hover);
+    text-decoration: underline;
+  }
+
+  /* ============================================================================
+   * Kicker
+   * ============================================================================ */
+
+  .page-hero__kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0 0 0.75rem;
+    color: #9a5d26;
+    font-family: var(--font-display);
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+  }
+
+  .page-hero__kicker::before {
+    content: "";
+    width: 1.35rem;
+    height: 1px;
+    background: rgba(154, 93, 38, 0.42);
+  }
+
+  /* ============================================================================
+   * Badge
+   * ============================================================================ */
+
+  .page-hero__badge-wrapper {
+    margin-bottom: 1rem;
+  }
+
+  .page-hero__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, rgba(20, 87, 255, 0.1), rgba(201, 114, 52, 0.1));
+    border: 1px solid rgba(20, 87, 255, 0.2);
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-primary);
+  }
+
+  /* ============================================================================
+   * Title
+   * ============================================================================ */
+
+  .page-hero__title {
+    font-size: var(--titleSize);
+    line-height: 1.1;
+    margin: 0 0 1.5rem;
+    color: var(--color-heading);
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
+
+  /* Comparison variant gets gradient text */
+  .page-hero--comparison .page-hero__title {
+    background: linear-gradient(135deg, var(--color-heading) 0%, var(--color-primary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ============================================================================
+   * Subtitle
+   * ============================================================================ */
+
+  .page-hero__subtitle {
+    font-size: clamp(1.125rem, 2vw, 1.375rem);
+    line-height: 1.6;
+    color: var(--color-body);
+    margin: 0 0 1.5rem;
+    max-width: 700px;
+  }
+
+  .page-hero--comparison .page-hero__subtitle {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* ============================================================================
+   * Meta Information
+   * ============================================================================ */
+
+  .page-hero__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    font-size: 0.9375rem;
+    color: var(--color-muted);
+    justify-content: var(--align);
+  }
+
+  .page-hero__meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* ============================================================================
+   * Slot Container
+   * ============================================================================ */
+
+  .page-hero__slot {
+    margin-top: 1.5rem;
+  }
+
+  .page-hero__slot:empty {
+    display: none;
+  }
+
+  /* ============================================================================
+   * Variant-Specific Adjustments
+   * ============================================================================ */
+
+  /* Guide variant - left aligned, reading time meta */
+  .page-hero--guide .page-hero__meta {
+    gap: 1.5rem;
+  }
+
+  /* Feature variant - larger title, badge prominent */
+  .page-hero--feature .page-hero__badge-wrapper {
+    margin-bottom: 1.25rem;
+  }
+
+  /* Comparison variant - centered, larger spacing */
+  .page-hero--comparison {
+    text-align: center;
+  }
+
+  .page-hero--comparison .page-hero__breadcrumb {
+    justify-content: center;
+  }
+
+  .page-hero--comparison .page-hero__breadcrumb-list {
+    justify-content: center;
+  }
+
+  /* Minimal variant - compact spacing */
+  .page-hero--minimal .page-hero__title {
+    margin-bottom: 0.75rem;
+  }
+
+  .page-hero--minimal .page-hero__subtitle {
+    margin-bottom: 0;
+  }
+
+  /* ============================================================================
+   * Responsive Adjustments
+   * ============================================================================ */
+
+  @media (max-width: 767.98px) {
+    .page-hero__title {
+      font-size: clamp(1.75rem, 6vw, 2.5rem);
+    }
+
+    .page-hero__subtitle {
+      font-size: 1.0625rem;
+    }
+
+    .page-hero__meta {
+      gap: 1rem;
+      font-size: 0.875rem;
+    }
+
+    .page-hero__breadcrumb {
+      margin-bottom: 1rem;
+    }
+
+    .page-hero__kicker {
+      font-size: 0.7rem;
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .page-hero__title {
+      font-size: 1.75rem;
+      line-height: 1.15;
+    }
+
+    .page-hero__subtitle {
+      font-size: 1rem;
+    }
+
+    .page-hero__badge {
+      font-size: 0.8125rem;
+      padding: 0.375rem 0.75rem;
+    }
+  }
+</style>

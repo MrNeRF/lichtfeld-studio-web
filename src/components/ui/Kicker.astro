@@ -1,0 +1,59 @@
+---
+interface Props {
+  variant?: 'default' | 'large' | 'card';
+  as?: 'p' | 'span' | 'div';
+  class?: string;
+}
+
+const { 
+  variant = 'default', 
+  as: Element = 'p',
+  class: className = ''
+} = Astro.props;
+---
+
+<Element class:list={['kicker', `kicker--${variant}`, className]}>
+  <slot />
+</Element>
+
+<style>
+  .kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0 0 0.75rem;
+    color: var(--color-orange);
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+  }
+  
+  .kicker::before {
+    content: "";
+    width: 1.35rem;
+    height: 1px;
+    background: var(--color-orange-bg);
+  }
+  
+  /* Size variants */
+  .kicker--default {
+    font-size: 0.74rem;
+  }
+  
+  .kicker--large {
+    font-size: 0.78rem;
+    letter-spacing: var(--tracking-wider);
+  }
+  
+  .kicker--card {
+    font-size: 0.79rem;
+    letter-spacing: var(--tracking-wide);
+    font-weight: 800;
+  }
+  
+  /* Remove line for card variant */
+  .kicker--card::before {
+    display: none;
+  }
+</style>

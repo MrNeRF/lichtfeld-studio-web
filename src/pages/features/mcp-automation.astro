@@ -12,7 +12,7 @@
  * - Technical feature showcase with code examples
  * - Architecture diagram placeholder
  * - Use case cards
- * - Internal links to /integrations/mcp/, /docs/
+ * - Internal links to /docs/
  */
 
 import Layout from "@/layouts/Layout.astro";
@@ -266,42 +266,6 @@ const productSchema = {
   }
 };
 
-// FAQ data for Schema.org
-const faqs = [
-  {
-    question: "What is Model Context Protocol (MCP)?",
-    answer: "MCP is an open protocol developed by Anthropic that standardizes how AI assistants connect to external tools and data sources. It enables AI systems to securely interact with applications like LichtFeld Studio to perform actions and retrieve information."
-  },
-  {
-    question: "Do I need coding experience to use MCP with LichtFeld Studio?",
-    answer: "Basic scripting knowledge helps, but isn't required. Many AI assistants can generate MCP commands from natural language. For advanced automation, Python knowledge allows you to build custom plugins and workflows."
-  },
-  {
-    question: "Is MCP integration secure?",
-    answer: "Yes. MCP connections are local-only by default, all commands are logged, and a permission system controls what operations are allowed. You can disable sensitive operations for untrusted clients."
-  },
-  {
-    question: "Which AI assistants support MCP?",
-    answer: "Claude Desktop has native MCP support. Other assistants can use MCP through adapters or by generating MCP-compatible JSON-RPC commands. The protocol is open and growing in adoption."
-  },
-  {
-    question: "Can I use MCP for batch processing multiple scenes?",
-    answer: "Yes. The batch processing API allows you to load multiple scenes and apply consistent operations across all of them—edits, renders, exports, or training runs."
-  }
-];
-
-const faqSchema = {
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": faqs.map(faq => ({
-    "@type": "Question",
-    "name": faq.question,
-    "acceptedAnswer": {
-      "@type": "Answer",
-      "text": faq.answer
-    }
-  }))
-};
 ---
 
 <Layout 
@@ -311,12 +275,11 @@ const faqSchema = {
 >
   <!-- Schema.org Structured Data -->
   <script type="application/ld+json" slot="head" set:html={JSON.stringify(productSchema)} />
-  <script type="application/ld+json" slot="head" set:html={JSON.stringify(faqSchema)} />
 
   <article class="mcp-page">
     <!-- Hero Section -->
     <header class="mcp-hero">
-      <div class="container content-frame px-4">
+      <div class="container content-frame px-4 px-md-6 py-16">
         <div class="mcp-hero__content">
           <nav class="mcp-breadcrumb" aria-label="Breadcrumb">
             <ol class="mcp-breadcrumb__list">
@@ -382,7 +345,7 @@ const faqSchema = {
 
     <!-- What is MCP Section -->
     <section id="what-is-mcp" class="mcp-section">
-      <div class="container content-frame px-4">
+      <div class="container content-frame px-4 px-md-6 py-16">
         <div class="mcp-section__header">
           <h2 class="mcp-section__title">What is MCP?</h2>
           <p class="mcp-section__subtitle">Model Context Protocol Explained</p>
@@ -464,7 +427,7 @@ const faqSchema = {
 
     <!-- Why MCP + 3DGS Section -->
     <section id="why-mcp-3dgs" class="mcp-section mcp-section--alt">
-      <div class="container content-frame px-4">
+      <div class="container content-frame px-4 px-md-6 py-16">
         <div class="mcp-section__header">
           <h2 class="mcp-section__title">Why MCP + 3D Gaussian Splatting?</h2>
           <p class="mcp-section__subtitle">The Perfect Match for AI-Driven 3D Workflows</p>
@@ -528,7 +491,7 @@ const faqSchema = {
 
     <!-- Capabilities Section -->
     <section id="capabilities" class="mcp-section">
-      <div class="container content-frame px-4">
+      <div class="container content-frame px-4 px-md-6 py-16">
         <div class="mcp-section__header">
           <h2 class="mcp-section__title">What You Can Do with MCP</h2>
           <p class="mcp-section__subtitle">Complete Control Over 3D Gaussian Splatting Workflows</p>
@@ -571,7 +534,7 @@ const faqSchema = {
 
     <!-- Use Cases Section -->
     <section id="use-cases" class="mcp-section mcp-section--alt">
-      <div class="container content-frame px-4">
+      <div class="container content-frame px-4 px-md-6 py-16">
         <div class="mcp-section__header">
           <h2 class="mcp-section__title">Example Use Cases</h2>
           <p class="mcp-section__subtitle">Real-World MCP Applications</p>
@@ -602,7 +565,7 @@ const faqSchema = {
 
     <!-- Python Integration Section -->
     <section id="python-integration" class="mcp-section">
-      <div class="container content-frame px-4">
+      <div class="container content-frame px-4 px-md-6 py-16">
         <div class="mcp-section__header">
           <h2 class="mcp-section__title">Python Integration</h2>
           <p class="mcp-section__subtitle">Build Custom Tools with Python + MCP</p>
@@ -689,75 +652,10 @@ lfs.plugins.register(BatchExporterPlugin())`}</code></pre>
       </div>
     </section>
 
-    <!-- Security Section -->
-    <section id="security" class="mcp-section mcp-section--alt">
-      <div class="container content-frame px-4">
-        <div class="mcp-section__header">
-          <h2 class="mcp-section__title">Security Considerations</h2>
-          <p class="mcp-section__subtitle">Built-In Protection for AI Integration</p>
-        </div>
-        
-        <div class="mcp-security-grid">
-          {securityFeatures.map((feature) => (
-            <div class="mcp-security-card">
-              <div class="mcp-security-card__icon">
-                <svg class="bi" width="32" height="32" aria-hidden="true">
-                  <use href={`${base}static/bootstrap-icons.svg#${feature.icon}`}></use>
-                </svg>
-              </div>
-              <h3 class="mcp-security-card__title">{feature.title}</h3>
-              <p class="mcp-security-card__desc">{feature.description}</p>
-            </div>
-          ))}
-        </div>
-        
-        <div class="mcp-security-note">
-          <div class="mcp-callout mcp-callout--info">
-            <svg class="bi" width="24" height="24" aria-hidden="true">
-              <use href={`${base}static/bootstrap-icons.svg#info-circle`}></use>
-            </svg>
-            <div>
-              <strong>Security Best Practices</strong>
-              <p>
-                Always review MCP permissions before connecting untrusted AI assistants. 
-                Use read-only permissions for testing, and enable audit logging to track all operations. 
-                See the <a href={`${base}docs/mcp/security/`}>Security Guide</a> for detailed recommendations.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-
-    <!-- FAQ Section -->
-    <section id="faq" class="mcp-section mcp-section--alt">
-      <div class="container content-frame px-4">
-        <div class="mcp-section__header">
-          <h2 class="mcp-section__title">Frequently Asked Questions</h2>
-        </div>
-        
-        <div class="mcp-faq">
-          {faqs.map((faq, index) => (
-            <details class="mcp-faq__item" open={index === 0}>
-              <summary class="mcp-faq__question">
-                {faq.question}
-                <svg class="mcp-faq__icon" width="20" height="20" aria-hidden="true">
-                  <use href={`${base}static/bootstrap-icons.svg#chevron-down`}></use>
-                </svg>
-              </summary>
-              <div class="mcp-faq__answer">
-                <p>{faq.answer}</p>
-              </div>
-            </details>
-          ))}
-        </div>
-      </div>
-    </section>
 
     <!-- Related Resources Section -->
     <section id="resources" class="mcp-section">
-      <div class="container content-frame px-4">
+      <div class="container content-frame px-4 px-md-6 py-16">
         <div class="mcp-section__header">
           <h2 class="mcp-section__title">Related Resources</h2>
           <p class="mcp-section__subtitle">Continue Your MCP Journey</p>
@@ -785,37 +683,6 @@ lfs.plugins.register(BatchExporterPlugin())`}</code></pre>
               </svg>
             </a>
           ))}
-        </div>
-      </div>
-    </section>
-
-    <!-- CTA Section -->
-    <section class="mcp-section mcp-section--cta">
-      <div class="container content-frame px-4">
-        <div class="mcp-cta">
-          <h2 class="mcp-cta__title">Ready to Automate Your 3DGS Workflow?</h2>
-          <p class="mcp-cta__desc">
-            Start using MCP with LichtFeld Studio today. Connect AI assistants, build automation pipelines, 
-            and unlock the full potential of programmatic 3D Gaussian Splatting.
-          </p>
-          <div class="mcp-cta__actions">
-            <a href={`${base}docs/mcp/`} class="btn btn-primary btn-lg">
-              <svg class="bi" width="20" height="20" aria-hidden="true">
-                <use href={`${base}static/bootstrap-icons.svg#book`}></use>
-              </svg>
-              Read Documentation
-            </a>
-            <a href={GITHUB_REPO_URL} class="btn btn-outline-light btn-lg" target="_blank" rel="noopener noreferrer">
-              <svg class="bi" width="20" height="20" aria-hidden="true">
-                <use href={`${base}static/bootstrap-icons.svg#github`}></use>
-              </svg>
-              View on GitHub
-            </a>
-          </div>
-          <p class="mcp-cta__support">
-            Need help? Join our <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer">Discord community</a> or 
-            <a href={GITHUB_SPONSORS_URL} target="_blank" rel="noopener noreferrer">support the project</a>.
-          </p>
         </div>
       </div>
     </section>
@@ -866,11 +733,10 @@ lfs.plugins.register(BatchExporterPlugin())`}</code></pre>
    * ============================================================================ */
 
   .mcp-hero {
-    padding: 3rem 0 2rem;
+    padding: clamp(4rem, 10vh, 8rem) 0 clamp(3rem, 6vh, 5rem);
     background: 
       radial-gradient(circle at top left, rgba(20, 87, 255, 0.08), transparent 40%),
       radial-gradient(circle at top right, rgba(201, 114, 52, 0.08), transparent 35%);
-    border-bottom: 1px solid var(--surface-border);
   }
 
   .mcp-hero__content {

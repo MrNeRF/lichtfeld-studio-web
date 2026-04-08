@@ -16,12 +16,12 @@ const copyrightLabel =
 
 // Navigation structure
 const footerNav = {
-  gettingStarted: {
-    title: 'Getting Started',
+  learnLfs: {
+    title: 'Learn LFS',
     links: [
-      { label: 'Quick Start', href: `${base}getting-started/` },
-      { label: 'First Training', href: `${base}tutorials/first-training/` },
-      { label: 'Capture Tips', href: `${base}tutorials/capture-tips/` },
+      { label: 'Quick Start', href: `${base}learn-lfs/getting-started/` },
+      { label: 'FAQ', href: `${base}learn-lfs/faq/` },
+      { label: 'Troubleshooting', href: `${base}learn-lfs/troubleshooting/` },
     ],
   },
   learn3dgs: {
@@ -30,9 +30,8 @@ const footerNav = {
       { label: 'What is 3DGS?', href: `${base}what-is-gaussian-splatting/` },
       { label: 'COLMAP Guide', href: `${base}glossary/colmap/` },
       { label: '3DGUT', href: `${base}glossary/3dgut/` },
-      { label: 'FAQ', href: `${base}faq/` },
-      { label: 'Troubleshooting', href: `${base}troubleshooting/` },
-    ],
+      { label: 'Capture Tips', href: `${base}learn-3dgs/capture-tips/` },
+    ] as { label: string; href: string; external?: boolean }[],
   },
   features: {
     title: 'Features',
@@ -40,7 +39,7 @@ const footerNav = {
       { label: 'MCP Automation', href: `${base}features/mcp-automation/` },
       { label: 'Plugins', href: `${base}plugins/` },
       { label: 'Showcase', href: `${base}showcase/` },
-    ],
+    ] as { label: string; href: string; external?: boolean }[],
   },
   comparisons: {
     title: 'Comparisons',
@@ -48,16 +47,15 @@ const footerNav = {
       { label: 'vs Postshot', href: `${base}vs/postshot/` },
       { label: 'vs Brush', href: `${base}vs/brush/` },
       { label: 'Alternatives', href: `${base}alternatives/` },
-    ],
+    ] as { label: string; href: string; external?: boolean }[],
   },
   developers: {
     title: 'Developers',
     links: [
       { label: 'Documentation', href: `${base}docs/` },
-      { label: 'MCP Integration', href: `${base}integrations/mcp/` },
       { label: 'Contribute', href: `${base}contribute/` },
       { label: 'GitHub', href: 'https://github.com/lichtfeld-studio', external: true },
-    ],
+    ] as { label: string; href: string; external?: boolean }[],
   },
   community: {
     title: 'Community',
@@ -66,13 +64,13 @@ const footerNav = {
       { label: 'Bounty Program', href: `${base}bounty/` },
       { label: 'Sponsors', href: `${base}sponsors/` },
       { label: 'Twitter/X', href: 'https://twitter.com/lichtfeldstudio', external: true },
-    ],
+    ] as { label: string; href: string; external?: boolean }[],
   },
 };
 ---
 
-<div class="container content-frame px-4">
-  <footer class="site-footer py-5 my-4">
+<div class="container content-frame px-4 px-md-6">
+  <footer class="site-footer py-16">
     <!-- Main footer content with navigation columns -->
     <div class="footer-grid">
       <!-- Brand column -->
@@ -102,9 +100,9 @@ const footerNav = {
       <!-- Navigation columns -->
       <div class="footer-nav">
         <div class="footer-nav__column">
-          <h3 class="footer-nav__title">{footerNav.gettingStarted.title}</h3>
+          <h3 class="footer-nav__title">{footerNav.learnLfs.title}</h3>
           <ul class="footer-nav__list">
-            {footerNav.gettingStarted.links.map((link) => (
+            {footerNav.learnLfs.links.map((link: { label: string; href: string; external?: boolean }) => (
               <li class="footer-nav__item">
                 <a 
                   href={link.href} 
@@ -123,7 +121,7 @@ const footerNav = {
         <div class="footer-nav__column">
           <h3 class="footer-nav__title">{footerNav.learn3dgs.title}</h3>
           <ul class="footer-nav__list">
-            {footerNav.learn3dgs.links.map((link) => (
+            {footerNav.learn3dgs.links.map((link: { label: string; href: string; external?: boolean }) => (
               <li class="footer-nav__item">
                 <a 
                   href={link.href} 
@@ -142,7 +140,7 @@ const footerNav = {
         <div class="footer-nav__column">
           <h3 class="footer-nav__title">{footerNav.features.title}</h3>
           <ul class="footer-nav__list">
-            {footerNav.features.links.map((link) => (
+            {footerNav.features.links.map((link: { label: string; href: string; external?: boolean }) => (
               <li class="footer-nav__item">
                 <a 
                   href={link.href} 
@@ -161,7 +159,7 @@ const footerNav = {
         <div class="footer-nav__column">
           <h3 class="footer-nav__title">{footerNav.comparisons.title}</h3>
           <ul class="footer-nav__list">
-            {footerNav.comparisons.links.map((link) => (
+            {footerNav.comparisons.links.map((link: { label: string; href: string; external?: boolean }) => (
               <li class="footer-nav__item">
                 <a 
                   href={link.href} 
@@ -180,7 +178,7 @@ const footerNav = {
         <div class="footer-nav__column">
           <h3 class="footer-nav__title">{footerNav.developers.title}</h3>
           <ul class="footer-nav__list">
-            {footerNav.developers.links.map((link) => (
+            {footerNav.developers.links.map((link: { label: string; href: string; external?: boolean }) => (
               <li class="footer-nav__item">
                 <a 
                   href={link.href} 
@@ -199,7 +197,7 @@ const footerNav = {
         <div class="footer-nav__column">
           <h3 class="footer-nav__title">{footerNav.community.title}</h3>
           <ul class="footer-nav__list">
-            {footerNav.community.links.map((link) => (
+            {footerNav.community.links.map((link: { label: string; href: string; external?: boolean }) => (
               <li class="footer-nav__item">
                 <a 
                   href={link.href} 

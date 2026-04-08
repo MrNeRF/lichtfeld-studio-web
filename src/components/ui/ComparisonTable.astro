@@ -1,0 +1,125 @@
+---
+export interface ComparisonRow {
+  feature: string;
+  lfs: string | boolean;
+  competitor: string | boolean;
+  highlight?: 'lfs' | 'competitor' | 'neutral';
+}
+
+export interface Props {
+  competitor: string;
+  rows: ComparisonRow[];
+  className?: string;
+}
+
+const { competitor, rows, className = '' } = Astro.props;
+
+const base = import.meta.env.BASE_URL;
+
+function renderValue(value: string | boolean): string {
+  if (value === true) return '✓';
+  if (value === false) return '✗';
+  return value;
+}
+---
+
+<div class:list={['comparison-table', className]}>
+  <table class="comparison-table__table">
+    <thead>
+      <tr>
+        <th class="comparison-table__feature-header">Feature</th>
+        <th class="comparison-table__lfs-header">LichtFeld Studio</th>
+        <th class="comparison-table__competitor-header">{competitor}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {rows.map((row) => (
+        <tr class:list={['comparison-table__row', { 
+          'comparison-table__row--highlight-lfs': row.highlight === 'lfs',
+          'comparison-table__row--highlight-competitor': row.highlight === 'competitor'
+        }]}>
+          <td class="comparison-table__feature">{row.feature}</td>
+          <td class="comparison-table__lfs">
+            <span class:list={['comparison-table__value', {
+              'comparison-table__value--yes': row.lfs === true,
+              'comparison-table__value--no': row.lfs === false
+            }]}>
+              {renderValue(row.lfs)}
+            </span>
+          </td>
+          <td class="comparison-table__competitor">
+            <span class:list={['comparison-table__value', {
+              'comparison-table__value--yes': row.competitor === true,
+              'comparison-table__value--no': row.competitor === false
+            }]}>
+              {renderValue(row.competitor)}
+            </span>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
+<style>
+  .comparison-table {
+    overflow-x: auto;
+  }
+  
+  .comparison-table__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-base);
+  }
+  
+  .comparison-table__feature-header,
+  .comparison-table__lfs-header,
+  .comparison-table__competitor-header {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid var(--border-color);
+    color: var(--color-heading);
+  }
+  
+  .comparison-table__lfs-header {
+    color: var(--color-primary);
+  }
+  
+  .comparison-table__feature,
+  .comparison-table__lfs,
+  .comparison-table__competitor {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--color-body);
+  }
+  
+  .comparison-table__row--highlight-lfs .comparison-table__lfs {
+    background: var(--color-success-bg);
+    font-weight: 600;
+  }
+  
+  .comparison-table__value--yes {
+    color: var(--color-success);
+    font-weight: 600;
+  }
+  
+  .comparison-table__value--no {
+    color: var(--color-error);
+  }
+  
+  @media (max-width: 767.98px) {
+    .comparison-table__table {
+      font-size: var(--text-sm);
+    }
+    
+    .comparison-table__feature-header,
+    .comparison-table__lfs-header,
+    .comparison-table__competitor-header,
+    .comparison-table__feature,
+    .comparison-table__lfs,
+    .comparison-table__competitor {
+      padding: 0.75rem 0.5rem;
+    }
+  }
+</style>

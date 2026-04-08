@@ -1,0 +1,140 @@
+---
+interface Props {
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'paypal' | 'github' | 'donorbox' | 'bitcoin';
+  size?: 'sm' | 'md' | 'lg';
+  href?: string;
+  external?: boolean;
+  type?: 'button' | 'submit';
+  disabled?: boolean;
+  class?: string;
+}
+
+const { 
+  variant = 'primary', 
+  size = 'md', 
+  href, 
+  external = false,
+  type = 'button',
+  disabled = false,
+  class: className = ''
+} = Astro.props;
+
+const base = import.meta.env.BASE_URL;
+
+const isExternal = external || (href && (href.startsWith('http') || href.startsWith('//')));
+const Element = href ? 'a' : 'button';
+---
+
+<Element 
+  class:list={['btn', `btn--${variant}`, `btn--${size}`, className]}
+  href={href}
+  type={!href ? type : undefined}
+  disabled={!href ? disabled : undefined}
+  target={isExternal ? '_blank' : undefined}
+  rel={isExternal ? 'noopener noreferrer' : undefined}
+>
+  <slot />
+</Element>
+
+<style>
+  /* Base button styles */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-family: var(--font-body);
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    white-space: nowrap;
+  }
+  
+  /* Size variants */
+  .btn--sm {
+    padding: 0.5rem 1rem;
+    font-size: var(--text-sm);
+  }
+  
+  .btn--md {
+    padding: 0.75rem 1.25rem;
+    font-size: var(--text-base);
+  }
+  
+  .btn--lg {
+    padding: 1rem 1.5rem;
+    font-size: var(--text-lg);
+  }
+  
+  /* Color variants using design tokens */
+  .btn--primary {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+  }
+  
+  .btn--primary:hover {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    transform: translateY(-1px);
+  }
+  
+  .btn--secondary {
+    background: var(--color-background);
+    color: var(--color-text);
+    border-color: var(--border-color);
+  }
+  
+  .btn--outline {
+    background: transparent;
+    color: var(--color-text);
+    border-color: var(--border-color);
+  }
+  
+  .btn--ghost {
+    background: transparent;
+    color: var(--color-primary-link);
+    border-color: transparent;
+  }
+  
+  /* Brand variants */
+  .btn--paypal {
+    background: var(--color-paypal);
+    color: white;
+    border-color: var(--color-paypal);
+  }
+  
+  .btn--github {
+    background: var(--color-github);
+    color: white;
+    border-color: var(--color-github);
+  }
+  
+  .btn--donorbox {
+    background: var(--color-donorbox);
+    color: white;
+    border-color: var(--color-donorbox);
+  }
+  
+  .btn--bitcoin {
+    background: var(--color-bitcoin);
+    color: white;
+    border-color: var(--color-bitcoin);
+  }
+  
+  /* Disabled state */
+  .btn[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  /* Focus state */
+  .btn:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-shadow);
+  }
+</style>

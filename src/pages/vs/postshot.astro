@@ -48,15 +48,12 @@ const detailedFeatures = [
   {
     category: "Core 3DGS & Performance",
     items: [
-      { name: "3D Gaussian Splatting Training", lfs: true, postshot: true },
       { name: "Custom LibTorch-Free Tensor Library", lfs: true, postshot: false },
       { name: "Custom CUDA Kernels (SSIM, L1, MCMC)", lfs: true, postshot: false },
       { name: "Custom LibTorch-Free Adam Optimizer", lfs: true, postshot: false },
       { name: "Higher Gaussians per GB VRAM", lfs: true, postshot: false },
       { name: "Real-time Viewer", lfs: true, postshot: true },
       { name: "PLY Export/Import", lfs: true, postshot: true },
-      { name: "Save & Resume Training", lfs: true, postshot: false },
-      { name: "Multi-GPU Support", lfs: false, postshot: false },
     ],
   },
   {
@@ -78,14 +75,15 @@ const detailedFeatures = [
       { name: "MCP Integration", lfs: true, postshot: false },
       { name: "Custom Panels", lfs: true, postshot: false },
       { name: "External Workflow Control", lfs: true, postshot: false },
-      { name: "Plugin Registry", lfs: true, postshot: false },
     ],
   },
   {
     category: "Export & Integration",
     items: [
       { name: "Standard PLY Export", lfs: true, postshot: true },
-      { name: "Web Viewer Export", lfs: true, postshot: true },
+      { name: "SOG Export", lfs: true, postshot: true },
+      { name: "OpenUSD Export", lfs: true, postshot: false },
+      { name: "Web Viewer Export", lfs: true, postshot: false },
       { name: "Unity Integration", lfs: true, postshot: true },
       { name: "Unreal Engine", lfs: true, postshot: true },
     ],
@@ -174,13 +172,13 @@ const comparisonSchema = {
 
   {/* Hero Section */}
   <header class="vs-hero">
-    <div class="container content-frame px-4">
+    <div class="container content-frame px-4 px-md-6 py-16">
       <div class="vs-hero__content">
         <div class="vs-hero__badge">
           <span class="vs-hero__badge-icon">
             <i class="bi bi-shield-check"></i>
           </span>
-          <span>2025 Software Comparison</span>
+          <span>2026 Software Comparison</span>
         </div>
         <h1 class="vs-hero__title">LichtFeld Studio vs Postshot</h1>
         <p class="vs-hero__subtitle">
@@ -193,7 +191,7 @@ const comparisonSchema = {
           </a>
           <a href={GITHUB_RELEASES_URL} class="btn btn-outline-primary btn-lg vs-hero__btn-secondary" target="_blank" rel="noopener noreferrer">
             <i class="bi bi-download mr-2"></i>
-            Download LFS Free
+            Download LFS
           </a>
         </div>
       </div>
@@ -202,7 +200,7 @@ const comparisonSchema = {
 
   {/* Quick Comparison Table */}
   <section id="quick-comparison" class="vs-section hash-section">
-    <div class="container content-frame px-4">
+    <div class="container content-frame px-4 px-md-6 py-16">
       <div class="shell shell--spacious">
         <div class="vs-section__header">
           <p class="kicker">At a Glance</p>
@@ -256,7 +254,7 @@ const comparisonSchema = {
 
   {/* LFS Technical Advantages Section */}
   <section id="lfs-advantages" class="vs-section hash-section">
-    <div class="container content-frame px-4">
+    <div class="container content-frame px-4 px-md-6 py-16">
       <div class="shell shell--spacious">
         <div class="vs-section__header">
           <p class="kicker">Why LFS Wins</p>
@@ -357,7 +355,7 @@ const comparisonSchema = {
           </div>
           <a href={GITHUB_RELEASES_URL} class="btn btn-primary vs-cta-box__btn" target="_blank" rel="noopener noreferrer">
             <i class="bi bi-download mr-2"></i>
-            Download LFS Free
+            Download LFS
           </a>
         </div>
       </div>
@@ -366,7 +364,7 @@ const comparisonSchema = {
 
   {/* Detailed Feature Comparison */}
   <section id="detailed-features" class="vs-section hash-section">
-    <div class="container content-frame px-4">
+    <div class="container content-frame px-4 px-md-6 py-16">
       <div class="shell shell--spacious">
         <div class="vs-section__header">
           <p class="kicker">Deep Dive</p>
@@ -465,7 +463,7 @@ const comparisonSchema = {
 
   {/* Pricing Comparison */}
   <section id="pricing" class="vs-section hash-section">
-    <div class="container content-frame px-4">
+    <div class="container content-frame px-4 px-md-6 py-16">
       <div class="shell shell--spacious">
         <div class="vs-section__header">
           <p class="kicker">Pricing</p>
@@ -601,7 +599,7 @@ const comparisonSchema = {
 
   {/* FAQ */}
   <section id="faq" class="vs-section hash-section">
-    <div class="container content-frame px-4">
+    <div class="container content-frame px-4 px-md-6 py-16">
       <div class="shell shell--spacious">
         <div class="vs-section__header">
           <p class="kicker">FAQ</p>
@@ -637,7 +635,7 @@ const comparisonSchema = {
 
   {/* Final CTA */}
   <section id="download" class="vs-section hash-section">
-    <div class="container content-frame px-4">
+    <div class="container content-frame px-4 px-md-6 py-16">
       <div class="shell shell--spacious vs-shell--cta">
         <div class="vs-final-cta">
           <h2 class="vs-final-cta__title">Make the Switch Today</h2>
@@ -665,7 +663,7 @@ const comparisonSchema = {
             </a>
           </div>
           <div class="vs-final-cta__links">
-            <a href={`${base}getting-started/`} class="vs-final-cta__link">
+            <a href={`${base}learn-lfs/getting-started/`} class="vs-final-cta__link">
               <i class="bi bi-arrow-right" />
               Getting Started Guide
             </a>
@@ -681,7 +679,7 @@ const comparisonSchema = {
 
   {/* Support Section */}
   <section id="support" class="vs-section hash-section">
-    <div class="container content-frame px-4">
+    <div class="container content-frame px-4 px-md-6 py-16">
       <div class="shell shell--spacious">
         <div class="vs-support">
           <div class="vs-support__content">

@@ -13,15 +13,28 @@ const seoDescription =
 
 <Layout title={seoTitle} description={seoDescription}>
   <section class="plugins-page">
-    <div class="container content-frame px-4 py-5">
-      <div class="shell plugins-shell--hero">
-        <p class="kicker">Plugin registry</p>
-        <h1 class="plugins-title">Python plugins for LichtFeld Studio</h1>
-        <p class="plugins-lead">
-          The plugin registry turns LichtFeld Studio into an extensible desktop platform. Install compatible plugins,
-          keep dependencies isolated per plugin, and extend the app with panels, operators, tools, overlays, and
-          workflow-specific capabilities.
-        </p>
+    <!-- Hero Section with Breadcrumb -->
+    <header class="plugins-hero">
+      <div class="container content-frame px-4 px-md-6 py-16">
+        <nav class="guide-breadcrumb" aria-label="Breadcrumb">
+          <ol class="guide-breadcrumb__list">
+            <li class="guide-breadcrumb__item">
+              <a href={base} class="guide-breadcrumb__link">Home</a>
+            </li>
+            <li class="guide-breadcrumb__item" aria-current="page">
+              <span>Plugins</span>
+            </li>
+          </ol>
+        </nav>
+        
+        <div class="shell plugins-shell--hero">
+          <p class="kicker">Plugin registry</p>
+          <h1 class="plugins-title">Python plugins for LichtFeld Studio</h1>
+          <p class="plugins-lead">
+            The plugin registry turns LichtFeld Studio into an extensible desktop platform. Install compatible plugins,
+            keep dependencies isolated per plugin, and extend the app with panels, operators, tools, overlays, and
+            workflow-specific capabilities.
+          </p>
 
         <div class="plugins-stats">
           <div class="stat-block">
@@ -42,7 +55,9 @@ const seoDescription =
           </div>
         </div>
       </div>
-
+    </header>
+    
+    <div class="container content-frame px-4 px-md-6 py-16">
       <div class="shell mt-4">
         <div class="section-head">
           <div>
@@ -146,5 +161,38 @@ const seoDescription =
       font-size: 0.98rem;
       line-height: 1.7;
     }
+  }
+  
+  /* Breadcrumb Styles */
+  .guide-breadcrumb {
+    margin-bottom: 1.5rem;
+  }
+
+  .guide-breadcrumb__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+
+  .guide-breadcrumb__item:not(:last-child)::after {
+    content: "/";
+    margin-left: 0.5rem;
+    opacity: 0.5;
+  }
+
+  .guide-breadcrumb__link {
+    color: var(--color-primary-link);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .guide-breadcrumb__link:hover {
+    color: var(--color-primary-link-hover);
+    text-decoration: underline;
   }
 </style>

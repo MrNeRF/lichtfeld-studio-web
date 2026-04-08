@@ -1,0 +1,637 @@
+---
+/**
+ * learn-lfs/faq.astro
+ *
+ * FAQ Page for LichtFeld Studio - Moved from /faq.astro
+ * Standardized version using PageLayout, PageHero, ContentSidebar, SupportCTA, RelatedResources
+ */
+
+import Layout from "@/layouts/Layout.astro";
+import PageLayout from "@/components/layouts/PageLayout.astro";
+import PageHero from "@/components/layouts/PageHero.astro";
+import ContentSidebar from "@/components/layouts/ContentSidebar.astro";
+import SupportCTA from "@/components/layouts/SupportCTA.astro";
+import RelatedResources from "@/components/layouts/RelatedResources.astro";
+import { GITHUB_REPO_URL, GITHUB_SPONSORS_URL, PAYPAL_URL, DONORBOX_URL, DISCORD_URL } from "@/constants/project";
+
+const base = import.meta.env.BASE_URL;
+
+// SEO metadata
+const seoTitle = "LichtFeld Studio FAQ: Common Questions & Solutions";
+const seoDescription = "Find answers to frequently asked questions about LichtFeld Studio. Installation, training, troubleshooting, and getting started with 3D Gaussian Splatting.";
+
+// FAQ Categories and Items
+const faqCategories = [
+  {
+    id: "installation",
+    title: "Installation & Getting Started",
+    icon: "bi-download",
+    items: [
+      {
+        id: "binary-download",
+        question: "Where can I find a binary download or installer?",
+        answer: `LichtFeld Studio (LFS) is currently distributed as source code via GitHub. You can find the latest releases and source code at our <a href="${GITHUB_REPO_URL}" target="_blank" rel="noopener noreferrer">GitHub repository</a>. For detailed installation instructions, check out our <a href="${base}learn-lfs/getting-started/">Getting Started guide</a>. We recommend using the latest nightly release to ensure you have the latest features and fixes.`,
+        keywords: ["download", "installer", "binary", "github", "source"]
+      },
+      {
+        id: "hardware-requirements",
+        question: "What hardware do I need for LichtFeld Studio?",
+        answer: `LichtFeld Studio requires an NVIDIA GPU with CUDA 12.8+ support. Minimum requirements include:
+        <ul>
+          <li><strong>GPU:</strong> NVIDIA GPU with Compute Capability SM 75+ (Turing or newer)</li>
+          <li><strong>VRAM:</strong> 8GB minimum (12GB+ recommended)</li>
+          <li><strong>CUDA:</strong> CUDA Toolkit 12.8+ required</li>
+          <li><strong>Driver:</strong> NVIDIA Driver >= 570 required</li>
+          <li><strong>RAM:</strong> 16GB system RAM minimum (32GB recommended for large scenes)</li>
+          <li><strong>Storage:</strong> SSD with at least 10GB free space</li>
+          <li><strong>OS:</strong> Windows 10/11 or Linux (macOS is not supported — <a href="https://github.com/ArthurBrussee/brush" target="_blank" rel="noopener noreferrer">use Brush for macOS</a>)</li>
+        </ul>
+        <p><strong>For macOS users:</strong> We recommend <a href="https://github.com/ArthurBrussee/brush" target="_blank" rel="noopener noreferrer">Brush</a>, a free and open-source alternative that works natively on macOS (both Intel and Apple Silicon). Brush uses WebGPU for rendering (no CUDA required) and supports training splats directly on your Mac. Build from source with <code>cargo run --release</code> or use the <a href="https://arthurbrussee.github.io/brush-demo" target="_blank" rel="noopener noreferrer">web demo</a> in Chrome/Edge.</p>
+        For optimal training performance, we recommend an RTX 3060 or better with 12GB+ VRAM.`,
+        keywords: ["hardware", "requirements", "gpu", "cuda", "ram", "system", "macos", "mac"]
+      },
+      {
+        id: "free-software",
+        question: "Is LichtFeld Studio really free?",
+        answer: `Yes! LichtFeld Studio is completely free and open-source software. It's released under the GPL-3.0 license that allows you to use, modify, and distribute the software at no cost. We believe in making 3D Gaussian Splatting technology accessible to everyone, from hobbyists to professional studios.`,
+        keywords: ["free", "cost", "price", "open source", "license"]
+      },
+      {
+        id: "commercial-use",
+        question: "Can I use LichtFeld Studio commercially?",
+        answer: `Absolutely! LichtFeld Studio can be used for commercial projects without any licensing fees or restrictions. Whether you're creating content for clients, building products, or running a business, you're free to use LFS. We appreciate attribution when possible, but it's not required. If you'd like to support continued development, consider <a href="#support">becoming a sponsor</a>.`,
+        keywords: ["commercial", "business", "license", "usage", "work"]
+      }
+    ]
+  },
+  {
+    id: "training",
+    title: "Training & Scene Creation",
+    icon: "bi-camera",
+    items: [
+      {
+        id: "scene-explodes",
+        question: "When I use LFS to train a scene, my scene \"explodes\". What could be the cause?",
+        answer: `Scene "explosion" typically occurs when Gaussians become unstable during training. Common causes include:
+        <ul>
+          <li><strong>Insufficient image overlap:</strong> Ensure your input images have adequate overlap (60-80% recommended)</li>
+          <li><strong>Poor camera calibration:</strong> Verify your camera parameters are correctly set</li>
+          <li><strong>Extreme depth variations:</strong> Scenes with very close and very far objects can cause instability</li>
+          <li><strong>Learning rate too high:</strong> Try reducing the learning rate in training settings</li>
+        </ul>
+        Check our <a href="${base}learn-lfs/troubleshooting/">troubleshooting guide</a> for detailed solutions.`,
+        keywords: ["explode", "explosion", "training", "unstable", "error"]
+      },
+      {
+        id: "max-images",
+        question: "What is the maximum number of images that LFS can train?",
+        answer: `There's no hard limit on the number of images, but practical limits depend on your hardware and image size:
+        <ul>
+          <li><strong>VRAM:</strong> Each image requires memory for processing during training</li>
+          <li><strong>Training speed:</strong> Number of images does NOT directly affect training speed - the number of Gaussians in the scene does</li>
+          <li><strong>Code limit:</strong> There is a code limit on maximum image size</li>
+          <li><strong>Tile mode:</strong> Use <code>--tile-mode</code> to bypass image size limitations</li>
+          <li><strong>HDR support:</strong> We do NOT support HDR images currently</li>
+          <li><strong>Recommended:</strong> 50-500 images for most scenes</li>
+          <li><strong>Large scenes:</strong> 1000+ images possible with 24GB+ VRAM</li>
+        </ul>
+        <p><strong>Important:</strong> Training speed depends on the number of Gaussians, not image count. However, too many Gaussians can cause out-of-memory (OOM) failures. If training fails with OOM errors, try reducing the maximum Gaussian cap in training settings.</p>
+        For best results, focus on image quality and coverage rather than quantity. 100 well-distributed images often outperform 1000 poorly positioned ones.`,
+        keywords: ["images", "maximum", "limit", "photos", "count", "tile-mode", "hdr"]
+      },
+      {
+        id: "viewport-navigation",
+        question: "Can I navigate the viewport while training is running?",
+        answer: `Yes! The scene updates live during training—you can navigate, rotate, and zoom in the viewport while training progresses. This allows you to:
+        <ul>
+          <li><strong>Inspect different angles:</strong> Rotate around the scene to see how reconstruction is progressing from all sides</li>
+          <li><strong>Zoom in on details:</strong> Check fine details as they emerge during training</li>
+          <li><strong>Pan and explore:</strong> Move through the scene to verify coverage and quality</li>
+        </ul>
+        The viewport remains fully interactive during training, so you can explore your scene as it develops without interrupting the training process.`,
+        keywords: ["viewport", "navigation", "training", "rotate", "zoom", "move"]
+      },
+      {
+        id: "max-resolution",
+        question: "What is the maximum resolution of the images that LFS can train?",
+        answer: `LFS can handle high-resolution images, but there are practical considerations:
+        <ul>
+          <li><strong>Input resolution:</strong> Up to 4K (3840×2160) and beyond</li>
+          <li><strong>Processing:</strong> Images are typically downscaled during training based on VRAM</li>
+          <li><strong>Recommended:</strong> 1920×1080 to 2560×1440 for balance of quality and speed</li>
+          <li><strong>Memory impact:</strong> Higher resolution = more VRAM required</li>
+        </ul>
+        You can configure the training resolution in the settings to optimize for your hardware.`,
+        keywords: ["resolution", "quality", "size", "pixels", "high"]
+      }
+    ]
+  },
+  {
+    id: "performance",
+    title: "Performance & Optimization",
+    icon: "bi-speedometer2",
+    items: [
+      {
+        id: "slow-training",
+        question: "My system / training is slow, even less than 1 iteration / second. What could be the cause?",
+        answer: `Slow training performance can be caused by several factors. Note that training requires an NVIDIA GPU with CUDA - CPU training is NOT supported:
+        <ul>
+          <li><strong>GPU not being used:</strong> Ensure CUDA is properly installed and GPU is being used. Training is GPU-only (CUDA required)</li>
+          <li><strong>Insufficient VRAM:</strong> Training may be using slower memory management</li>
+          <li><strong>Large image resolution:</strong> Try reducing training resolution</li>
+          <li><strong>Too many Gaussians:</strong> Scene complexity affects iteration speed</li>
+          <li><strong>Background processes:</strong> Close other GPU-intensive applications</li>
+        </ul>
+        Check GPU utilization in Task Manager (Windows) or <code>nvidia-smi</code> (Linux). GPU should be at 80-100% during training.`,
+        keywords: ["slow", "speed", "performance", "iteration", "training"]
+      },
+      {
+        id: "training-speed-factors",
+        question: "What affects training duration and VRAM usage?",
+        answer: `Training performance depends on several key factors:
+        <ul>
+          <li><strong>Duration affected by:</strong>
+            <ul>
+              <li>Number of Gaussians in the scene</li>
+              <li>SH (Spherical Harmonics) degree (0-3)</li>
+              <li>Number of iterations</li>
+            </ul>
+          </li>
+          <li><strong>VRAM affected by:</strong>
+            <ul>
+              <li>Number of Gaussians</li>
+              <li>SH degree</li>
+            </ul>
+          </li>
+        </ul>
+        <p><strong>Note:</strong> Training speed depends on Gaussian count, not image count. The number of input images affects initial Gaussian generation but does not directly impact iteration speed during training.</p>`,
+        keywords: ["training", "duration", "vram", "speed", "gaussians", "sh degree", "factors"]
+      },
+      {
+        id: "cpu-usage",
+        question: "My CPU is heavily used and at 100% all the time, is this normal?",
+        answer: `High CPU usage during training is not typical - the GPU should handle most of the computation. Training requires an NVIDIA GPU with CUDA; CPU-only training is NOT supported. If your CPU is at 100%:
+        <ul>
+          <li><strong>Check GPU utilization:</strong> If GPU is at 0-10%, verify CUDA and GPU drivers are properly installed - training cannot run without GPU</li>
+          <li><strong>CUDA installation:</strong> Verify CUDA and cuDNN are properly installed</li>
+          <li><strong>Data loading:</strong> CPU may be bottlenecked loading images - consider SSD storage</li>
+          <li><strong>Number of workers:</strong> Adjust data loader workers in settings</li>
+        </ul>
+        Normal behavior: GPU at 80-100%, CPU at 20-50% for data loading and coordination.`,
+        keywords: ["cpu", "usage", "100%", "performance", "bottleneck"]
+      },
+      {
+        id: "multi-gpu",
+        question: "Does LFS support multiple GPUs?",
+        answer: `LichtFeld Studio currently supports single GPU only. Multi-GPU training is not implemented. For now, if you have multiple GPUs:
+        <ul>
+          <li>Select your most powerful GPU in settings</li>
+          <li>Consider running multiple training jobs on different GPUs</li>
+        </ul>
+        Follow our <a href="${GITHUB_REPO_URL}/issues" target="_blank" rel="noopener noreferrer">GitHub issues</a> for updates on multi-GPU support.`,
+        keywords: ["multi-gpu", "multiple", "gpus", "sli", "nvlink"]
+      }
+    ]
+  },
+  {
+    id: "export",
+    title: "Export & Integration",
+    icon: "bi-box-arrow-up-right",
+    items: [
+      {
+        id: "export-splat",
+        question: "How do I export the created splat?",
+        answer: `Exporting your trained Gaussian Splat is straightforward:
+        <ul>
+          <li><strong>PLY format:</strong> Standard point cloud format compatible with most viewers</li>
+          <li><strong>SOG format:</strong> Compressed format specifically designed for efficient storage and transmission</li>
+          <li><strong>Export options:</strong> Choose compression level and format in the export dialog</li>
+        </ul>
+        Go to <strong>File → Export</strong> or use the export button in the toolbar.`,
+        keywords: ["export", "save", "output", "ply", "splat"]
+      },
+      {
+        id: "install-plugins",
+        question: "How do I install plugins?",
+        answer: `LichtFeld Studio supports plugins to extend functionality:
+        <ul>
+          <li><strong>Plugin Marketplace:</strong> Go to <strong>Tools → Plugin Marketplace</strong> in the UI to browse all registry plugins</li>
+          <li><strong>Registry plugins:</strong> Access all official plugins from the registry directly in the marketplace</li>
+          <li><strong>Custom plugins:</strong> You can also download and install custom plugins not in the registry</li>
+          <li><strong>Enable/Disable:</strong> Use the Plugin Manager in Settings to enable/disable installed plugins</li>
+          <li><strong>Development:</strong> Create your own using our <a href="${base}docs/">plugin API documentation</a></li>
+        </ul>
+        Plugins can add new export formats, processing filters, and UI enhancements.`,
+        keywords: ["plugins", "extensions", "addons", "install", "marketplace"]
+      },
+      {
+        id: "mcp-integration",
+        question: "What is MCP integration?",
+        answer: `MCP (Model Context Protocol) integration allows LichtFeld Studio to communicate with AI assistants and external tools. This enables:
+        <ul>
+          <li><strong>AI-assisted workflows:</strong> Use natural language to control LFS operations</li>
+          <li><strong>Automation:</strong> Script and automate repetitive tasks</li>
+          <li><strong>Pipeline integration:</strong> Fit LFS into your existing production workflow</li>
+        </ul>
+        MCP is available in the latest builds. See <a href="${base}docs/">documentation</a> for setup instructions.`,
+        keywords: ["mcp", "integration", "api", "automation", "ai"]
+      }
+    ]
+  },
+  {
+    id: "mcp",
+    title: "MCP & Automation",
+    icon: "bi-robot",
+    items: [
+      {
+        id: "what-is-mcp",
+        question: "What is Model Context Protocol (MCP)?",
+        answer: `MCP is an open protocol developed by Anthropic that standardizes how AI assistants connect to external tools and data sources. It enables AI systems to securely interact with applications like LichtFeld Studio to perform actions and retrieve information.`,
+        keywords: ["mcp", "model context protocol", "ai", "automation"]
+      },
+      {
+        id: "mcp-coding-required",
+        question: "Do I need coding experience to use MCP with LichtFeld Studio?",
+        answer: `Basic scripting knowledge helps, but isn't required. Many AI assistants can generate MCP commands from natural language. For advanced automation, Python knowledge allows you to build custom plugins and workflows.`,
+        keywords: ["mcp", "coding", "programming", "python", "experience"]
+      },
+      {
+        id: "mcp-security",
+        question: "Is MCP integration secure?",
+        answer: `Yes. MCP connections are local-only by default, all commands are logged, and a permission system controls what operations are allowed. You can disable sensitive operations for untrusted clients.`,
+        keywords: ["mcp", "security", "safe", "local", "permissions"]
+      },
+      {
+        id: "mcp-ai-assistants",
+        question: "Which AI assistants support MCP?",
+        answer: `Claude Desktop has native MCP support. Other assistants can use MCP through adapters or by generating MCP-compatible JSON-RPC commands. The protocol is open and growing in adoption.`,
+        keywords: ["mcp", "ai", "claude", "assistants", "support"]
+      },
+      {
+        id: "mcp-batch-processing",
+        question: "Can I use MCP for batch processing multiple scenes?",
+        answer: `Yes. The batch processing API allows you to load multiple scenes and apply consistent operations across all of them—edits, renders, exports, or training runs.`,
+        keywords: ["mcp", "batch", "multiple", "scenes", "automation"]
+      }
+    ]
+  },
+  {
+    id: "general",
+    title: "General Questions",
+    icon: "bi-question-circle",
+    items: [
+      {
+        id: "report-bugs",
+        question: "How do I report bugs or request features?",
+        answer: `We welcome bug reports and feature requests! Here's how to contribute:
+        <ul>
+          <li><strong>GitHub Issues:</strong> Submit detailed reports at <a href="${GITHUB_REPO_URL}/issues" target="_blank" rel="noopener noreferrer">our issue tracker</a></li>
+          <li><strong>Bug reports:</strong> Include system specs, LFS version, and steps to reproduce</li>
+          <li><strong>Feature requests:</strong> Describe the use case and expected behavior</li>
+          <li><strong>Discussions:</strong> For questions and ideas, use <a href="${GITHUB_REPO_URL}/discussions" target="_blank" rel="noopener noreferrer">GitHub Discussions</a></li>
+        </ul>
+        Check existing issues first to avoid duplicates.`,
+        keywords: ["bugs", "report", "features", "request", "issues"]
+      },
+      {
+        id: "find-tutorials",
+        question: "Where can I find tutorials?",
+        answer: `We have multiple resources to help you learn LichtFeld Studio:
+        <ul>
+          <li><strong>Documentation:</strong> Comprehensive guides at <a href="${base}docs/">our docs</a></li>
+          <li><strong>Getting Started:</strong> Step-by-step <a href="${base}learn-lfs/getting-started/">tutorial for beginners</a></li>
+          <li><strong>Community:</strong> User-contributed tutorials in <a href="${GITHUB_REPO_URL}/discussions" target="_blank" rel="noopener noreferrer">GitHub Discussions</a></li>
+          <li><strong>Showcase:</strong> See what others have created at <a href="${base}showcase/">our showcase</a></li>
+        </ul>
+        Start with the Getting Started guide if you're new to 3D Gaussian Splatting.`,
+        keywords: ["tutorials", "learn", "guide", "help", "documentation"]
+      }
+    ]
+  }
+];
+
+// Flatten all FAQ items for search and structured data
+const allFaqItems = faqCategories.flatMap(cat => cat.items);
+
+// Generate Schema.org FAQPage structured data
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": allFaqItems.map(item => ({
+    "@type": "Question",
+    "name": item.question,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": item.answer.replace(/<[^>]*>/g, '') // Strip HTML tags for schema
+    }
+  }))
+};
+
+// Support options for CTA
+const supportOptions = [
+  { label: "GitHub Sponsors", href: GITHUB_SPONSORS_URL, detail: "Recurring monthly support", icon: "github", variant: "primary" as const },
+  { label: "PayPal", href: PAYPAL_URL, detail: "One-time contribution", icon: "paypal", variant: "outline" as const },
+  { label: "Donorbox", href: DONORBOX_URL, detail: "Card donations", icon: "credit-card", variant: "outline" as const },
+];
+
+// Related resources
+const relatedResources = [
+  { title: "Getting Started", description: "Step-by-step tutorial for beginners", href: `${base}learn-lfs/getting-started/`, icon: "rocket" },
+  { title: "Troubleshooting", description: "Solutions to common issues", href: `${base}learn-lfs/troubleshooting/`, icon: "wrench" },
+  { title: "Documentation", description: "Comprehensive guides and API reference", href: `${base}docs/`, icon: "book" },
+  { title: "Community", description: "Join our Discord for real-time support", href: DISCORD_URL, icon: "chat-dots", external: true },
+];
+
+// Sidebar items
+const sidebarItems = [
+  { label: "Installation", href: "#installation", icon: "download" },
+  { label: "Training", href: "#training", icon: "camera" },
+  { label: "Performance", href: "#performance", icon: "speedometer2" },
+  { label: "Export", href: "#export", icon: "box-arrow-up-right" },
+  { label: "MCP & Automation", href: "#mcp", icon: "robot" },
+  { label: "General", href: "#general", icon: "question-circle" },
+];
+---
+
+<Layout title={seoTitle} description={seoDescription}>
+  {/* Schema.org structured data */}
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} slot="head" />
+  
+  <PageHero
+    variant="guide"
+    title="Frequently Asked Questions"
+    subtitle="Find answers to common questions about LichtFeld Studio. From installation and training to troubleshooting and export - we've got you covered."
+    kicker="Help Center"
+    breadcrumb={[
+      { label: "Home", href: base },
+      { label: "Learn LFS", href: `${base}learn-lfs/` },
+      { label: "FAQ" },
+    ]}
+    meta={[
+      { icon: "clock", label: "5 min read" },
+      { icon: "calendar", label: "Updated March 2025" },
+    ]}
+  />
+
+  <PageLayout layout="sidebar-right" hasRelatedResources={true} hasSupportCta={true}>
+    <main slot="main">
+      <div class="faq-categories">
+        {faqCategories.map((category) => (
+          <section class="faq-category shell" id={category.id} data-category={category.id}>
+            <div class="category-header">
+              <div class="category-icon">
+                <i class={`bi ${category.icon}`}></i>
+              </div>
+              <h2 class="category-title">{category.title}</h2>
+              <span class="category-count">{category.items.length} questions</span>
+            </div>
+            
+            <div class="faq-list">
+              {category.items.map((item, itemIndex) => (
+                <div 
+                  class="faq-item" 
+                  data-question={item.question.toLowerCase()}
+                  data-keywords={item.keywords.join(',')}
+                  data-category={category.id}
+                >
+                  <details class="faq-details">
+                    <summary class="faq-question">
+                      <span class="question-text">{item.question}</span>
+                      <span class="question-icon">
+                        <i class="bi bi-chevron-down"></i>
+                      </span>
+                    </summary>
+                    <div class="faq-answer">
+                      <div class="answer-content" set:html={item.answer} />
+                    </div>
+                  </details>
+                </div>
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
+    </main>
+
+    <aside slot="sidebar">
+      <ContentSidebar
+        type="quick-links"
+        title="Jump to"
+        items={sidebarItems}
+      />
+    </aside>
+
+    <div slot="resources">
+      <RelatedResources
+        title="Still need help?"
+        subtitle="Explore these related resources"
+        resources={relatedResources}
+        columns={2}
+      />
+    </div>
+
+    <div slot="support">
+      <SupportCTA
+        variant="boxed"
+        title="Support the Project"
+        description="LichtFeld Studio is developed and maintained by a small team of volunteers. Your support helps us continue improving the software, adding new features, and keeping it free for everyone."
+        actions={supportOptions}
+        discordUrl={DISCORD_URL}
+      />
+    </div>
+  </PageLayout>
+</Layout>
+
+<style>
+  .faq-categories {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .faq-category {
+    transition: opacity 0.3s ease;
+  }
+
+  .faq-category.hidden {
+    display: none;
+  }
+
+  .category-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  }
+
+  .category-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 0.75rem;
+    background: linear-gradient(135deg, rgba(20, 87, 255, 0.1), rgba(201, 114, 52, 0.1));
+    color: var(--color-primary-link);
+    font-size: 1.25rem;
+  }
+
+  .category-title {
+    margin: 0;
+    color: var(--color-heading);
+    font-size: 1.5rem;
+    line-height: 1.2;
+    flex: 1;
+  }
+
+  .category-count {
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.06);
+    color: var(--color-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .faq-item {
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    overflow: hidden;
+    transition: all 0.2s ease;
+  }
+
+  .faq-item:hover {
+    background: rgba(255, 255, 255, 0.7);
+    border-color: rgba(15, 23, 42, 0.1);
+  }
+
+  .faq-details {
+    width: 100%;
+  }
+
+  .faq-question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    width: 100%;
+    padding: 1.25rem 1.5rem;
+    border: none;
+    background: none;
+    color: var(--color-heading);
+    font-size: 1.05rem;
+    font-weight: 600;
+    font-family: var(--font-body);
+    text-align: left;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    list-style: none;
+  }
+
+  .faq-question:hover {
+    color: var(--color-primary-link);
+  }
+
+  .faq-question::-webkit-details-marker {
+    display: none;
+  }
+
+  .question-text {
+    flex: 1;
+    padding-right: 1rem;
+  }
+
+  .question-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: rgba(15, 23, 42, 0.06);
+    color: var(--color-muted);
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+  }
+
+  .faq-question:hover .question-icon {
+    background: rgba(20, 87, 255, 0.1);
+    color: var(--color-primary-link);
+  }
+
+  .faq-details[open] .question-icon {
+    background: rgba(20, 87, 255, 0.15);
+    color: var(--color-primary-link);
+    transform: rotate(180deg);
+  }
+
+  .faq-answer {
+    padding: 0 1.5rem 1.5rem;
+  }
+
+  .answer-content {
+    color: var(--color-body);
+    line-height: 1.7;
+  }
+
+  .answer-content :global(ul) {
+    margin: 0.75rem 0;
+    padding-left: 1.25rem;
+  }
+
+  .answer-content :global(li) {
+    margin: 0.4rem 0;
+  }
+
+  .answer-content :global(strong) {
+    color: var(--color-heading);
+  }
+
+  .answer-content :global(a) {
+    color: var(--color-primary-link);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .answer-content :global(a:hover) {
+    text-decoration: underline;
+  }
+
+  .answer-content :global(code) {
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.35rem;
+    background: rgba(15, 23, 42, 0.08);
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+  }
+
+  @media (max-width: 767.98px) {
+    .category-header {
+      flex-wrap: wrap;
+    }
+
+    .category-title {
+      font-size: 1.25rem;
+      width: calc(100% - 4rem);
+    }
+
+    .faq-question {
+      padding: 1rem 1.25rem;
+      font-size: 0.95rem;
+    }
+
+    .faq-answer {
+      padding: 0 1.25rem 1.25rem;
+      font-size: 0.95rem;
+    }
+  }
+</style>

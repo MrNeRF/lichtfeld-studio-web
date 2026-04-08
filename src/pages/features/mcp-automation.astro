@@ -1,0 +1,1762 @@
+---
+/**
+ * mcp-automation.astro
+ *
+ * Feature page targeting:
+ * - "mcp gaussian splatting"
+ * - "model context protocol 3dgs"
+ * - "lichtfeld studio automation"
+ *
+ * Features:
+ * - Schema.org Product/SoftwareApplication structured data
+ * - Technical feature showcase with code examples
+ * - Architecture diagram placeholder
+ * - Use case cards
+ * - Internal links to /docs/
+ */
+
+import Layout from "@/layouts/Layout.astro";
+import { SITE, SOFTWARE_APP } from "@/config/site.config";
+import {
+  GITHUB_REPO_URL,
+  GITHUB_WIKI_URL,
+  DISCORD_URL,
+  GITHUB_SPONSORS_URL,
+} from "@/constants/project";
+
+const base = import.meta.env.BASE_URL;
+
+// SEO metadata
+const seoTitle = "MCP Integration: Automate LichtFeld Studio with AI";
+const seoDescription = "Control LichtFeld Studio via Model Context Protocol (MCP). Automate training, editing, and rendering with AI assistants and custom scripts.";
+
+// MCP Capabilities data
+const mcpCapabilities = [
+  {
+    title: "Camera Control",
+    description: "Programmatically control camera position, rotation, FOV, and focus. Create automated camera paths and cinematic sequences.",
+    icon: "camera",
+    code: `// Move camera to specific position
+await mcp.camera.setPosition({
+  x: 1.5, y: 2.0, z: -3.0
+});
+
+// Set camera rotation (quaternion)
+await mcp.camera.setRotation({
+  x: 0, y: 0.707, z: 0, w: 0.707
+});
+
+// Animate camera along path
+await mcp.camera.animatePath(keyframes, {
+  duration: 5.0,
+  easing: "ease-in-out"
+});`
+  },
+  {
+    title: "Render Automation",
+    description: "Automate rendering workflows with configurable output formats, resolutions, and quality settings. Batch render multiple views.",
+    icon: "image",
+    code: `// Configure render settings
+await mcp.render.configure({
+  width: 1920,
+  height: 1080,
+  samples: 256,
+  format: "png"
+});
+
+// Render current view
+const image = await mcp.render.capture();
+
+// Batch render multiple angles
+await mcp.render.batch(angles, {
+  outputDir: "./renders/",
+  prefix: "frame_"
+});`
+  },
+  {
+    title: "Scene Editing",
+    description: "Manipulate scenes programmatically. Select, delete, transform, and modify Gaussian splats via API calls.",
+    icon: "vector-pen",
+    code: `// Select splats by region
+const selection = await mcp.scene.select({
+  mode: "brush",
+  center: { x: 0.5, y: 0.5 },
+  radius: 0.1
+});
+
+// Delete selected splats
+await mcp.scene.delete(selection);
+
+// Transform splats
+await mcp.scene.transform(selection, {
+  scale: { x: 1.2, y: 1.2, z: 1.2 },
+  translate: { x: 0, y: 1.0, z: 0 }
+});`
+  },
+  {
+    title: "Training Workflows",
+    description: "Start, monitor, and control training runs. Adjust parameters on-the-fly and export checkpoints programmatically.",
+    icon: "play-circle",
+    code: `// Start training with config
+const training = await mcp.training.start({
+  iterations: 30000,
+  learningRate: 0.01,
+  densifyInterval: 100
+});
+
+// Monitor progress
+training.onProgress((stats) => {
+  console.log(\`Loss: \${stats.loss}, PSNR: \${stats.psnr}\`);
+});
+
+// Export checkpoint
+await training.exportCheckpoint("./checkpoints/step_30000.ply");`
+  },
+  {
+    title: "Batch Processing",
+    description: "Process multiple scenes in parallel. Apply consistent edits, renders, or exports across entire datasets.",
+    icon: "collection",
+    code: `// Process multiple scenes
+const scenes = await mcp.batch.load([
+  "./scene1.ply",
+  "./scene2.ply",
+  "./scene3.ply"
+]);
+
+// Apply consistent edits
+await mcp.batch.edit(scenes, async (scene) => {
+  await scene.crop({ bounds: cropBox });
+  await scene.export({ format: "splat" });
+});
+
+// Parallel rendering
+await mcp.batch.render(scenes, renderConfig);`
+  }
+];
+
+// Use cases data
+const useCases = [
+  {
+    title: "Automated Rendering Pipeline",
+    description: "Build CI/CD pipelines that automatically render preview images when scenes are updated. Generate thumbnails, turntable animations, and quality reports.",
+    icon: "gear",
+    tags: ["CI/CD", "Automation", "Rendering"]
+  },
+  {
+    title: "AI-Assisted Scene Editing",
+    description: "Integrate with AI assistants that can understand natural language instructions to edit scenes. 'Remove all background splats' or 'Make the object 20% larger.'",
+    icon: "robot",
+    tags: ["AI", "NLP", "Editing"]
+  },
+  {
+    title: "Batch Training Jobs",
+    description: "Queue and manage multiple training runs with different parameters. Automatically evaluate results and select the best model.",
+    icon: "stack",
+    tags: ["Batch", "Training", "Optimization"]
+  },
+  {
+    title: "Custom Tool Integration",
+    description: "Build custom panels and tools in Python that interact with the main application. Create specialized workflows for your team.",
+    icon: "tools",
+    tags: ["Python", "Plugins", "Customization"]
+  }
+];
+
+// Architecture steps
+const architectureSteps = [
+  { step: 1, title: "AI Assistant / Script", description: "User or automation script sends MCP command" },
+  { step: 2, title: "MCP Protocol Layer", description: "JSON-RPC 2.0 messages over stdio or SSE" },
+  { step: 3, title: "LichtFeld Studio Core", description: "C++23 engine processes commands" },
+  { step: 4, title: "3DGS Operations", description: "Camera, render, edit, or training executed" },
+  { step: 5, title: "Response", description: "Results returned to caller" }
+];
+
+// Security considerations
+const securityFeatures = [
+  {
+    title: "Local-Only by Default",
+    description: "MCP connections are restricted to localhost. No external network access without explicit configuration.",
+    icon: "shield-check"
+  },
+  {
+    title: "Permission System",
+    description: "Granular permissions control which MCP operations are allowed. Disable sensitive operations for untrusted clients.",
+    icon: "lock"
+  },
+  {
+    title: "Audit Logging",
+    description: "All MCP commands are logged with timestamps and results. Review what AI assistants have done.",
+    icon: "journal-text"
+  },
+  {
+    title: "Sandboxed Execution",
+    description: "Python plugins run in isolated environments with limited access to system resources.",
+    icon: "box-seam"
+  }
+];
+
+// Future roadmap
+const roadmapItems = [
+  { phase: "Q2 2025", title: "MCP Server Stable", description: "Production-ready MCP server with full protocol compliance", status: "in-progress" },
+  { phase: "Q3 2025", title: "Remote MCP", description: "Secure remote MCP connections for distributed workflows", status: "planned" },
+  { phase: "Q4 2025", title: "AI Agent Templates", description: "Pre-built AI agent configurations for common 3DGS tasks", status: "planned" },
+  { phase: "2026", title: "Multi-User MCP", description: "Collaborative editing with multiple AI assistants and users", status: "planned" }
+];
+
+// Related resources
+const relatedResources = [
+  {
+    title: "MCP Documentation",
+    description: "Complete API reference and integration guides",
+    href: `${base}docs/mcp/`,
+    icon: "book",
+    external: false
+  },
+  {
+    title: "Python Plugin System",
+    description: "Extend LichtFeld Studio with custom Python plugins",
+    href: `${base}docs/plugins/`,
+    icon: "code-square",
+    external: false
+  },
+  {
+    title: "Model Context Protocol Spec",
+    description: "Official MCP specification from Anthropic",
+    href: "https://modelcontextprotocol.io/",
+    icon: "box-arrow-up-right",
+    external: true
+  },
+  {
+    title: "GitHub Repository",
+    description: "Source code and MCP implementation details",
+    href: GITHUB_REPO_URL,
+    icon: "github",
+    external: true
+  }
+];
+
+// Build Schema.org Product structured data
+const productSchema = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "LichtFeld Studio MCP Integration",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": ["Windows", "Linux"],
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "featureList": [
+    "Model Context Protocol (MCP) server for AI integration",
+    "Camera control via MCP commands",
+    "Render automation and batch processing",
+    "Scene editing through programmatic API",
+    "Training workflow automation",
+    "Python plugin system integration",
+    "Local-only secure connections",
+    "Audit logging and permission system"
+  ],
+  "softwareVersion": SOFTWARE_APP.softwareVersion,
+  "downloadUrl": GITHUB_REPO_URL,
+  "author": {
+    "@type": "Organization",
+    "name": SITE.name,
+    "url": SITE.url
+  }
+};
+
+---
+
+<Layout 
+  title={seoTitle} 
+  description={seoDescription}
+  ogType="article"
+>
+  <!-- Schema.org Structured Data -->
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(productSchema)} />
+
+  <article class="mcp-page">
+    <!-- Hero Section -->
+    <header class="mcp-hero">
+      <div class="container content-frame px-4 px-md-6 py-16">
+        <div class="mcp-hero__content">
+          <nav class="mcp-breadcrumb" aria-label="Breadcrumb">
+            <ol class="mcp-breadcrumb__list">
+              <li class="mcp-breadcrumb__item">
+                <a href={base} class="mcp-breadcrumb__link">Home</a>
+              </li>
+              <li class="mcp-breadcrumb__item">
+                <a href={`${base}features/`} class="mcp-breadcrumb__link">Features</a>
+              </li>
+              <li class="mcp-breadcrumb__item" aria-current="page">
+                <span>MCP Automation</span>
+              </li>
+            </ol>
+          </nav>
+          
+          <div class="mcp-hero__badge">
+            <span class="mcp-badge">
+              <svg class="bi" width="16" height="16" aria-hidden="true">
+                <use href={`${base}static/bootstrap-icons.svg#lightning-charge`}></use>
+              </svg>
+              AI-Powered Automation
+            </span>
+          </div>
+          
+          <h1 class="mcp-hero__title">MCP Integration: Automate LichtFeld Studio with AI</h1>
+          <p class="mcp-hero__lead">
+            Control every aspect of LichtFeld Studio through the Model Context Protocol (MCP). 
+            Connect AI assistants, build automation pipelines, and script complex 3D Gaussian Splatting workflows.
+          </p>
+          
+          <div class="mcp-hero__actions">
+            <a href={GITHUB_REPO_URL} class="btn btn-outline-primary btn-lg" target="_blank" rel="noopener noreferrer">
+              <svg class="bi" width="20" height="20" aria-hidden="true">
+                <use href={`${base}static/bootstrap-icons.svg#github`}></use>
+              </svg>
+              View on GitHub
+            </a>
+          </div>
+          
+          <div class="mcp-hero__meta">
+            <span class="mcp-hero__meta-item">
+              <svg class="bi" width="16" height="16" aria-hidden="true">
+                <use href={`${base}static/bootstrap-icons.svg#check-circle`}></use>
+              </svg>
+              Open Protocol
+            </span>
+            <span class="mcp-hero__meta-item">
+              <svg class="bi" width="16" height="16" aria-hidden="true">
+                <use href={`${base}static/bootstrap-icons.svg#shield-check`}></use>
+              </svg>
+              Secure by Default
+            </span>
+            <span class="mcp-hero__meta-item">
+              <svg class="bi" width="16" height="16" aria-hidden="true">
+                <use href={`${base}static/bootstrap-icons.svg#code-slash`}></use>
+              </svg>
+              Python + JSON-RPC
+            </span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- What is MCP Section -->
+    <section id="what-is-mcp" class="mcp-section">
+      <div class="container content-frame px-4 px-md-6 py-16">
+        <div class="mcp-section__header">
+          <h2 class="mcp-section__title">What is MCP?</h2>
+          <p class="mcp-section__subtitle">Model Context Protocol Explained</p>
+        </div>
+        
+        <div class="mcp-intro-grid">
+          <div class="mcp-intro-content">
+            <p class="mcp-intro__lead">
+              The <strong>Model Context Protocol (MCP)</strong> is an open standard developed by Anthropic that enables 
+              AI assistants to securely connect with external tools and data sources. Think of it as a universal 
+              remote control for applications—standardizing how AI systems interact with software.
+            </p>
+            
+            <p>
+              With MCP integration, LichtFeld Studio becomes a controllable endpoint for AI assistants like Claude, 
+              allowing natural language commands to translate into precise 3D Gaussian Splatting operations.
+            </p>
+            
+            <div class="mcp-intro__features">
+              <div class="mcp-intro__feature">
+                <svg class="bi" width="24" height="24" aria-hidden="true">
+                  <use href={`${base}static/bootstrap-icons.svg#arrow-left-right`}></use>
+                </svg>
+                <span>JSON-RPC 2.0 protocol</span>
+              </div>
+              <div class="mcp-intro__feature">
+                <svg class="bi" width="24" height="24" aria-hidden="true">
+                  <use href={`${base}static/bootstrap-icons.svg#plug`}></use>
+                </svg>
+                <span>stdio or SSE transport</span>
+              </div>
+              <div class="mcp-intro__feature">
+                <svg class="bi" width="24" height="24" aria-hidden="true">
+                  <use href={`${base}static/bootstrap-icons.svg#infinity`}></use>
+                </svg>
+                <span>Bi-directional streaming</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mcp-intro-diagram">
+            <div class="mcp-diagram-box">
+              <div class="mcp-diagram__title">MCP Architecture</div>
+              <div class="mcp-diagram__flow">
+                <div class="mcp-diagram__node mcp-diagram__node--ai">
+                  <svg class="bi" width="24" height="24" aria-hidden="true">
+                    <use href={`${base}static/bootstrap-icons.svg#robot`}></use>
+                  </svg>
+                  <span>AI Assistant</span>
+                </div>
+                <div class="mcp-diagram__arrow">
+                  <svg class="bi" width="20" height="20" aria-hidden="true">
+                    <use href={`${base}static/bootstrap-icons.svg#arrow-down`}></use>
+                  </svg>
+                </div>
+                <div class="mcp-diagram__node mcp-diagram__node--protocol">
+                  <svg class="bi" width="24" height="24" aria-hidden="true">
+                    <use href={`${base}static/bootstrap-icons.svg#arrow-left-right`}></use>
+                  </svg>
+                  <span>MCP Protocol</span>
+                </div>
+                <div class="mcp-diagram__arrow">
+                  <svg class="bi" width="20" height="20" aria-hidden="true">
+                    <use href={`${base}static/bootstrap-icons.svg#arrow-down`}></use>
+                  </svg>
+                </div>
+                <div class="mcp-diagram__node mcp-diagram__node--studio">
+                  <svg class="bi" width="24" height="24" aria-hidden="true">
+                    <use href={`${base}static/bootstrap-icons.svg#box`}></use>
+                  </svg>
+                  <span>LichtFeld Studio</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Why MCP + 3DGS Section -->
+    <section id="why-mcp-3dgs" class="mcp-section mcp-section--alt">
+      <div class="container content-frame px-4 px-md-6 py-16">
+        <div class="mcp-section__header">
+          <h2 class="mcp-section__title">Why MCP + 3D Gaussian Splatting?</h2>
+          <p class="mcp-section__subtitle">The Perfect Match for AI-Driven 3D Workflows</p>
+        </div>
+        
+        <div class="mcp-benefits-grid">
+          <div class="mcp-benefit-card">
+            <div class="mcp-benefit-card__icon">
+              <svg class="bi" width="32" height="32" aria-hidden="true">
+                <use href={`${base}static/bootstrap-icons.svg#lightning-charge`}></use>
+              </svg>
+            </div>
+            <h3 class="mcp-benefit-card__title">Natural Language Control</h3>
+            <p class="mcp-benefit-card__desc">
+              Tell AI assistants what you want in plain English. "Render a turntable animation of this scene" 
+              becomes a series of precise MCP commands—no memorizing complex APIs.
+            </p>
+          </div>
+          
+          <div class="mcp-benefit-card">
+            <div class="mcp-benefit-card__icon">
+              <svg class="bi" width="32" height="32" aria-hidden="true">
+                <use href={`${base}static/bootstrap-icons.svg#repeat`}></use>
+              </svg>
+            </div>
+            <h3 class="mcp-benefit-card__title">Workflow Automation</h3>
+            <p class="mcp-benefit-card__desc">
+              Build CI/CD pipelines that automatically process scenes, generate previews, and export deliverables 
+              when source files change. Scale from one scene to thousands.
+            </p>
+          </div>
+          
+          <div class="mcp-benefit-card">
+            <div class="mcp-benefit-card__icon">
+              <svg class="bi" width="32" height="32" aria-hidden="true">
+                <use href={`${base}static/bootstrap-icons.svg#puzzle`}></use>
+              </svg>
+            </div>
+            <h3 class="mcp-benefit-card__title">Ecosystem Integration</h3>
+            <p class="mcp-benefit-card__desc">
+              MCP is an open standard. Connect LichtFeld Studio to any MCP-compatible tool—vector databases, 
+              code editors, automation platforms, and more.
+            </p>
+          </div>
+          
+          <div class="mcp-benefit-card">
+            <div class="mcp-benefit-card__icon">
+              <svg class="bi" width="32" height="32" aria-hidden="true">
+                <use href={`${base}static/bootstrap-icons.svg#shield-check`}></use>
+              </svg>
+            </div>
+            <h3 class="mcp-benefit-card__title">Secure & Auditable</h3>
+            <p class="mcp-benefit-card__desc">
+              Every MCP command is logged. Granular permissions control what AI can do. 
+              Local-only connections keep your data safe.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Capabilities Section -->
+    <section id="capabilities" class="mcp-section">
+      <div class="container content-frame px-4 px-md-6 py-16">
+        <div class="mcp-section__header">
+          <h2 class="mcp-section__title">What You Can Do with MCP</h2>
+          <p class="mcp-section__subtitle">Complete Control Over 3D Gaussian Splatting Workflows</p>
+        </div>
+        
+        <div class="mcp-capabilities">
+          {mcpCapabilities.map((cap, index) => (
+            <div class="mcp-capability" data-capability={index}>
+              <div class="mcp-capability__header">
+                <div class="mcp-capability__icon">
+                  <svg class="bi" width="28" height="28" aria-hidden="true">
+                    <use href={`${base}static/bootstrap-icons.svg#${cap.icon}`}></use>
+                  </svg>
+                </div>
+                <div class="mcp-capability__info">
+                  <h3 class="mcp-capability__title">{cap.title}</h3>
+                  <p class="mcp-capability__desc">{cap.description}</p>
+                </div>
+              </div>
+              <div class="mcp-capability__code">
+                <div class="mcp-code-block">
+                  <div class="mcp-code-block__header">
+                    <span class="mcp-code-block__lang">JavaScript</span>
+                    <button class="mcp-code-block__copy" aria-label="Copy code" data-code={cap.code}>
+                      <svg class="bi" width="16" height="16" aria-hidden="true">
+                        <use href={`${base}static/bootstrap-icons.svg#clipboard`}></use>
+                      </svg>
+                    </button>
+                  </div>
+                  <pre><code>{cap.code}</code></pre>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+
+
+    <!-- Use Cases Section -->
+    <section id="use-cases" class="mcp-section mcp-section--alt">
+      <div class="container content-frame px-4 px-md-6 py-16">
+        <div class="mcp-section__header">
+          <h2 class="mcp-section__title">Example Use Cases</h2>
+          <p class="mcp-section__subtitle">Real-World MCP Applications</p>
+        </div>
+        
+        <div class="mcp-use-cases">
+          {useCases.map((useCase) => (
+            <div class="mcp-use-case">
+              <div class="mcp-use-case__header">
+                <div class="mcp-use-case__icon">
+                  <svg class="bi" width="32" height="32" aria-hidden="true">
+                    <use href={`${base}static/bootstrap-icons.svg#${useCase.icon}`}></use>
+                  </svg>
+                </div>
+                <div class="mcp-use-case__tags">
+                  {useCase.tags.map(tag => (
+                    <span class="mcp-tag">{tag}</span>
+                  ))}
+                </div>
+              </div>
+              <h3 class="mcp-use-case__title">{useCase.title}</h3>
+              <p class="mcp-use-case__desc">{useCase.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Python Integration Section -->
+    <section id="python-integration" class="mcp-section">
+      <div class="container content-frame px-4 px-md-6 py-16">
+        <div class="mcp-section__header">
+          <h2 class="mcp-section__title">Python Integration</h2>
+          <p class="mcp-section__subtitle">Build Custom Tools with Python + MCP</p>
+        </div>
+        
+        <div class="mcp-python-grid">
+          <div class="mcp-python-content">
+            <p class="mcp-python__lead">
+              LichtFeld Studio's Python plugin system works seamlessly with MCP. Build custom panels, 
+              tools, and automation scripts that can be triggered via MCP commands.
+            </p>
+            
+            <h4>Key Integration Points</h4>
+            <ul class="mcp-python__list">
+              <li>
+                <strong>Plugin Panels:</strong> Create custom UI panels that expose functionality to MCP
+              </li>
+              <li>
+                <strong>Custom Operators:</strong> Define operations that can be called via MCP methods
+              </li>
+              <li>
+                <strong>Event Hooks:</strong> Respond to MCP commands with custom Python logic
+              </li>
+              <li>
+                <strong>Data Processing:</strong> Use Python libraries to process scene data before/after MCP operations
+              </li>
+            </ul>
+            
+            <a href={`${base}docs/plugins/`} class="btn btn-outline-primary">
+              <svg class="bi" width="18" height="18" aria-hidden="true">
+                <use href={`${base}static/bootstrap-icons.svg#code-square`}></use>
+              </svg>
+              Plugin Documentation
+            </a>
+          </div>
+          
+          <div class="mcp-python-code">
+            <div class="mcp-code-block">
+              <div class="mcp-code-block__header">
+                <span class="mcp-code-block__lang">Python</span>
+                <button class="mcp-code-block__copy" aria-label="Copy code">
+                  <svg class="bi" width="16" height="16" aria-hidden="true">
+                    <use href={`${base}static/bootstrap-icons.svg#clipboard`}></use>
+                  </svg>
+                </button>
+              </div>
+              <pre><code>{`# my_plugin.py - Custom MCP-enabled plugin
+import lfs
+
+class BatchExporterPlugin(lfs.Plugin):
+    def register(self):
+        # Register custom MCP method
+        self.mcp.register_method(
+            "custom/batchExport",
+            self.batch_export
+        )
+    
+    def batch_export(self, scenes, config):
+        """Export multiple scenes with custom processing"""
+        results = []
+        for scene_path in scenes:
+            scene = lfs.load(scene_path)
+            
+            # Custom processing
+            scene = self.preprocess(scene)
+            
+            # Export
+            output = scene.export(config)
+            results.append(output)
+        
+        return {"exported": results}
+    
+    def preprocess(self, scene):
+        # Apply custom filters
+        scene.remove_noise(threshold=0.1)
+        scene.normalize_scale()
+        return scene
+
+# Register plugin
+lfs.plugins.register(BatchExporterPlugin())`}</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- Related Resources Section -->
+    <section id="resources" class="mcp-section">
+      <div class="container content-frame px-4 px-md-6 py-16">
+        <div class="mcp-section__header">
+          <h2 class="mcp-section__title">Related Resources</h2>
+          <p class="mcp-section__subtitle">Continue Your MCP Journey</p>
+        </div>
+        
+        <div class="mcp-resources">
+          {relatedResources.map((resource) => (
+            <a 
+              href={resource.href} 
+              class="mcp-resource"
+              target={resource.external ? "_blank" : undefined}
+              rel={resource.external ? "noopener noreferrer" : undefined}
+            >
+              <div class="mcp-resource__icon">
+                <svg class="bi" width="24" height="24" aria-hidden="true">
+                  <use href={`${base}static/bootstrap-icons.svg#${resource.icon}`}></use>
+                </svg>
+              </div>
+              <div class="mcp-resource__content">
+                <h3 class="mcp-resource__title">{resource.title}</h3>
+                <p class="mcp-resource__desc">{resource.description}</p>
+              </div>
+              <svg class="mcp-resource__arrow" width="20" height="20" aria-hidden="true">
+                <use href={`${base}static/bootstrap-icons.svg#${resource.external ? "box-arrow-up-right" : "arrow-right"}`}></use>
+              </svg>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  </article>
+</Layout>
+
+<script>
+  // Copy code functionality
+  document.addEventListener('DOMContentLoaded', () => {
+    const copyButtons = document.querySelectorAll('.mcp-code-block__copy');
+    
+    copyButtons.forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const codeBlock = btn.closest('.mcp-code-block')?.querySelector('code');
+        if (!codeBlock) return;
+        
+        try {
+          await navigator.clipboard.writeText(codeBlock.textContent || '');
+          
+          // Show success state
+          const originalHTML = btn.innerHTML;
+          btn.innerHTML = `<svg class="bi" width="16" height="16" aria-hidden="true"><use href="${document.querySelector('base')?.getAttribute('href') || '/'}static/bootstrap-icons.svg#check-lg"></use></svg>`;
+          btn.classList.add('mcp-code-block__copy--success');
+          
+          setTimeout(() => {
+            btn.innerHTML = originalHTML;
+            btn.classList.remove('mcp-code-block__copy--success');
+          }, 2000);
+        } catch (err) {
+          console.error('Failed to copy:', err);
+        }
+      });
+    });
+  });
+</script>
+
+<style>
+  /* ============================================================================
+   * MCP Page Layout
+   * ============================================================================ */
+
+  .mcp-page {
+    padding-bottom: 4rem;
+  }
+
+  /* ============================================================================
+   * Hero Section
+   * ============================================================================ */
+
+  .mcp-hero {
+    padding: clamp(4rem, 10vh, 8rem) 0 clamp(3rem, 6vh, 5rem);
+    background: 
+      radial-gradient(circle at top left, rgba(20, 87, 255, 0.08), transparent 40%),
+      radial-gradient(circle at top right, rgba(201, 114, 52, 0.08), transparent 35%);
+  }
+
+  .mcp-hero__content {
+    max-width: 900px;
+  }
+
+  .mcp-breadcrumb {
+    margin-bottom: 1.5rem;
+  }
+
+  .mcp-breadcrumb__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+
+  .mcp-breadcrumb__item:not(:last-child)::after {
+    content: "/";
+    margin-left: 0.5rem;
+    opacity: 0.5;
+  }
+
+  .mcp-breadcrumb__link {
+    color: var(--color-primary-link);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .mcp-breadcrumb__link:hover {
+    color: var(--color-primary-link-hover);
+    text-decoration: underline;
+  }
+
+  .mcp-hero__badge {
+    margin-bottom: 1rem;
+  }
+
+  .mcp-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, rgba(20, 87, 255, 0.1), rgba(201, 114, 52, 0.1));
+    border: 1px solid rgba(20, 87, 255, 0.2);
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-primary);
+  }
+
+  .mcp-hero__title {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    line-height: 1.1;
+    margin: 0 0 1.5rem;
+    color: var(--color-heading);
+  }
+
+  .mcp-hero__lead {
+    font-size: 1.25rem;
+    line-height: 1.6;
+    color: var(--color-body);
+    margin: 0 0 1.5rem;
+    max-width: 700px;
+  }
+
+  .mcp-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .mcp-hero__actions .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .mcp-hero__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    font-size: 0.9375rem;
+    color: var(--color-muted);
+  }
+
+  .mcp-hero__meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* ============================================================================
+   * Section Styles
+   * ============================================================================ */
+
+  .mcp-section {
+    padding: 4rem 0;
+  }
+
+  .mcp-section--alt {
+    background: rgba(15, 23, 42, 0.02);
+  }
+
+  .mcp-section--cta {
+    background: linear-gradient(135deg, var(--color-primary), #0f46d3);
+    color: var(--color-text-light, #fff);
+    padding: 4rem 0;
+  }
+
+  .mcp-section__header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .mcp-section__title {
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    line-height: 1.2;
+    margin: 0 0 0.75rem;
+    color: var(--color-heading);
+  }
+
+  .mcp-section--cta .mcp-section__title {
+    color: var(--color-text-light, #fff);
+  }
+
+  .mcp-section__subtitle {
+    font-size: 1.125rem;
+    color: var(--color-muted);
+    margin: 0;
+  }
+
+  .mcp-section--cta .mcp-section__subtitle {
+    color: var(--color-text-light, #fff);
+    opacity: 0.8;
+  }
+
+  /* ============================================================================
+   * What is MCP Section
+   * ============================================================================ */
+
+  .mcp-intro-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  @media (min-width: 1024px) {
+    .mcp-intro-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .mcp-intro__lead {
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: var(--color-body);
+    margin: 0 0 1.25rem;
+  }
+
+  .mcp-intro__features {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+
+  .mcp-intro__feature {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.9375rem;
+    color: var(--color-body);
+  }
+
+  .mcp-intro__feature svg {
+    color: var(--color-primary);
+  }
+
+  .mcp-intro-diagram {
+    display: flex;
+    justify-content: center;
+  }
+
+  .mcp-diagram-box {
+    padding: 2rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1.25rem;
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .mcp-diagram__title {
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: var(--color-heading);
+  }
+
+  .mcp-diagram__flow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .mcp-diagram__node {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    border-radius: 1rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .mcp-diagram__node--ai {
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    color: #8b5cf6;
+  }
+
+  .mcp-diagram__node--protocol {
+    background: rgba(20, 87, 255, 0.1);
+    border: 1px solid rgba(20, 87, 255, 0.2);
+    color: var(--color-primary);
+  }
+
+  .mcp-diagram__node--studio {
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+  }
+
+  .mcp-diagram__arrow {
+    color: var(--color-muted);
+  }
+
+  /* ============================================================================
+   * Benefits Grid
+   * ============================================================================ */
+
+  .mcp-benefits-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  @media (min-width: 640px) {
+    .mcp-benefits-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .mcp-benefit-card {
+    padding: 1.75rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1.25rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .mcp-benefit-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--surface-shadow);
+  }
+
+  .mcp-benefit-card__icon {
+    color: var(--color-primary);
+    margin-bottom: 1rem;
+  }
+
+  .mcp-benefit-card__title {
+    font-size: 1.25rem;
+    margin: 0 0 0.75rem;
+    color: var(--color-heading);
+  }
+
+  .mcp-benefit-card__desc {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--color-body);
+    margin: 0;
+  }
+
+  /* ============================================================================
+   * Capabilities Section
+   * ============================================================================ */
+
+  .mcp-capabilities {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .mcp-capability {
+    padding: 1.75rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1.25rem;
+  }
+
+  .mcp-capability__header {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .mcp-capability__icon {
+    flex-shrink: 0;
+    width: 3.5rem;
+    height: 3.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(20, 87, 255, 0.1);
+    border-radius: 1rem;
+    color: var(--color-primary);
+  }
+
+  .mcp-capability__info {
+    flex: 1;
+  }
+
+  .mcp-capability__title {
+    font-size: 1.375rem;
+    margin: 0 0 0.5rem;
+    color: var(--color-heading);
+  }
+
+  .mcp-capability__desc {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--color-body);
+    margin: 0;
+  }
+
+  /* ============================================================================
+   * Code Blocks
+   * ============================================================================ */
+
+  .mcp-code-block {
+    background: #1a1a2e;
+    border-radius: 1rem;
+    overflow: hidden;
+  }
+
+  .mcp-code-block--compact {
+    font-size: 0.875rem;
+  }
+
+  .mcp-code-block__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .mcp-code-block__lang {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .mcp-code-block__copy {
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 0.5rem;
+    color: white;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+
+  .mcp-code-block__copy:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .mcp-code-block__copy--success {
+    background: rgba(34, 197, 94, 0.3) !important;
+  }
+
+  .mcp-code-block pre {
+    padding: 1.25rem;
+    margin: 0;
+    overflow-x: auto;
+  }
+
+  .mcp-code-block code {
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: #e2e8f0;
+  }
+
+  /* ============================================================================
+   * Architecture Section
+   * ============================================================================ */
+
+  .mcp-architecture {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  @media (min-width: 1024px) {
+    .mcp-architecture {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .mcp-arch-diagram {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .mcp-arch-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    position: relative;
+  }
+
+  .mcp-arch-step__number {
+    flex-shrink: 0;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-primary);
+    color: white;
+    font-weight: 700;
+    border-radius: 0.75rem;
+  }
+
+  .mcp-arch-step__content {
+    flex: 1;
+    padding-top: 0.25rem;
+  }
+
+  .mcp-arch-step__title {
+    font-size: 1.125rem;
+    margin: 0 0 0.25rem;
+    color: var(--color-heading);
+  }
+
+  .mcp-arch-step__desc {
+    font-size: 0.875rem;
+    color: var(--color-muted);
+    margin: 0;
+  }
+
+  .mcp-arch-step__arrow {
+    position: absolute;
+    left: 1.25rem;
+    bottom: -1.25rem;
+    color: var(--color-muted);
+    transform: translateX(-50%);
+  }
+
+  .mcp-arch-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .mcp-arch-detail {
+    padding: 1.5rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+  }
+
+  .mcp-arch-detail h4 {
+    font-size: 1rem;
+    margin: 0 0 0.75rem;
+    color: var(--color-heading);
+  }
+
+  .mcp-arch-detail ul {
+    margin: 0;
+    padding-left: 1.25rem;
+    font-size: 0.9375rem;
+    color: var(--color-body);
+  }
+
+  .mcp-arch-detail li {
+    margin-bottom: 0.5rem;
+  }
+
+  .mcp-arch-detail p {
+    font-size: 0.9375rem;
+    color: var(--color-muted);
+    margin: 0 0 0.75rem;
+  }
+
+  /* ============================================================================
+   * Getting Started Steps
+   * ============================================================================ */
+
+  .mcp-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .mcp-step {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+  }
+
+  .mcp-step__number {
+    flex-shrink: 0;
+    width: 3.5rem;
+    height: 3.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--color-primary), #0f46d3);
+    color: var(--color-text-light, #fff);
+    font-size: 1.5rem;
+    font-weight: 700;
+    border-radius: 1rem;
+  }
+
+  .mcp-step__content {
+    flex: 1;
+    padding-top: 0.5rem;
+  }
+
+  .mcp-step__title {
+    font-size: 1.375rem;
+    margin: 0 0 0.75rem;
+    color: var(--color-heading);
+  }
+
+  .mcp-step__desc {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--color-body);
+    margin: 0 0 1rem;
+  }
+
+  .mcp-step__code {
+    margin-top: 1rem;
+  }
+
+  .mcp-step__code code {
+    display: inline-block;
+    padding: 0.5rem 0.75rem;
+    background: rgba(15, 23, 42, 0.05);
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--color-body);
+  }
+
+  .mcp-step__actions {
+    margin-top: 1rem;
+  }
+
+  /* ============================================================================
+   * Use Cases
+   * ============================================================================ */
+
+  .mcp-use-cases {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .mcp-use-cases {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .mcp-use-case {
+    padding: 1.75rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1.25rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .mcp-use-case:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--surface-shadow);
+  }
+
+  .mcp-use-case__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+
+  .mcp-use-case__icon {
+    color: var(--color-primary);
+  }
+
+  .mcp-use-case__tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .mcp-tag {
+    padding: 0.25rem 0.5rem;
+    background: rgba(20, 87, 255, 0.1);
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-primary);
+  }
+
+  .mcp-use-case__title {
+    font-size: 1.25rem;
+    margin: 0 0 0.75rem;
+    color: var(--color-heading);
+  }
+
+  .mcp-use-case__desc {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--color-body);
+    margin: 0;
+  }
+
+  /* ============================================================================
+   * Python Integration
+   * ============================================================================ */
+
+  .mcp-python-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  @media (min-width: 1024px) {
+    .mcp-python-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .mcp-python__lead {
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: var(--color-body);
+    margin: 0 0 1.5rem;
+  }
+
+  .mcp-python__list {
+    margin: 0 0 1.5rem;
+    padding-left: 1.25rem;
+    font-size: 0.9375rem;
+    color: var(--color-body);
+  }
+
+  .mcp-python__list li {
+    margin-bottom: 0.75rem;
+  }
+
+  .mcp-python-code .mcp-code-block {
+    height: 100%;
+  }
+
+  /* ============================================================================
+   * Security Section
+   * ============================================================================ */
+
+  .mcp-security-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  @media (min-width: 640px) {
+    .mcp-security-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .mcp-security-card {
+    padding: 1.75rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1.25rem;
+  }
+
+  .mcp-security-card__icon {
+    color: var(--color-primary);
+    margin-bottom: 1rem;
+  }
+
+  .mcp-security-card__title {
+    font-size: 1.25rem;
+    margin: 0 0 0.75rem;
+    color: var(--color-heading);
+  }
+
+  .mcp-security-card__desc {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--color-body);
+    margin: 0;
+  }
+
+  .mcp-callout {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem;
+    border-radius: 1rem;
+  }
+
+  .mcp-callout--info {
+    background: rgba(59, 130, 246, 0.08);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+  }
+
+  .mcp-callout svg {
+    flex-shrink: 0;
+    color: #3b82f6;
+  }
+
+  .mcp-callout strong {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--color-heading);
+  }
+
+  .mcp-callout p {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--color-body);
+  }
+
+  .mcp-callout a {
+    color: var(--color-primary-link);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .mcp-callout a:hover {
+    text-decoration: underline;
+  }
+
+  /* ============================================================================
+   * Roadmap
+   * ============================================================================ */
+
+  .mcp-roadmap {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .mcp-roadmap__item {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.25rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+  }
+
+  .mcp-roadmap__item--in-progress {
+    border-color: rgba(20, 87, 255, 0.3);
+    background: rgba(20, 87, 255, 0.05);
+  }
+
+  .mcp-roadmap__phase {
+    flex-shrink: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-muted);
+    min-width: 80px;
+  }
+
+  .mcp-roadmap__content {
+    flex: 1;
+  }
+
+  .mcp-roadmap__title {
+    font-size: 1.125rem;
+    margin: 0 0 0.25rem;
+    color: var(--color-heading);
+  }
+
+  .mcp-roadmap__desc {
+    font-size: 0.875rem;
+    color: var(--color-muted);
+    margin: 0;
+  }
+
+  .mcp-roadmap__status {
+    flex-shrink: 0;
+  }
+
+  .mcp-status {
+    padding: 0.375rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .mcp-status--in-progress {
+    background: rgba(20, 87, 255, 0.1);
+    color: var(--color-primary);
+  }
+
+  .mcp-status--planned {
+    background: rgba(15, 23, 42, 0.08);
+    color: var(--color-muted);
+  }
+
+  /* ============================================================================
+   * FAQ
+   * ============================================================================ */
+
+  .mcp-faq {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .mcp-faq__item {
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+    overflow: hidden;
+  }
+
+  .mcp-faq__question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem;
+    font-size: 1.0625rem;
+    font-weight: 600;
+    color: var(--color-heading);
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .mcp-faq__question::-webkit-details-marker {
+    display: none;
+  }
+
+  .mcp-faq__icon {
+    color: var(--color-muted);
+    transition: transform 0.2s ease;
+  }
+
+  .mcp-faq__item[open] .mcp-faq__icon {
+    transform: rotate(180deg);
+  }
+
+  .mcp-faq__answer {
+    padding: 0 1.25rem 1.25rem;
+  }
+
+  .mcp-faq__answer p {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--color-body);
+  }
+
+  /* ============================================================================
+   * Resources
+   * ============================================================================ */
+
+  .mcp-resources {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .mcp-resources {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .mcp-resource {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  .mcp-resource:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--surface-shadow);
+    border-color: var(--color-primary);
+  }
+
+  .mcp-resource__icon {
+    flex-shrink: 0;
+    width: 3rem;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(20, 87, 255, 0.1);
+    border-radius: 0.75rem;
+    color: var(--color-primary);
+  }
+
+  .mcp-resource__content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .mcp-resource__title {
+    font-size: 1.0625rem;
+    margin: 0 0 0.25rem;
+    color: var(--color-heading);
+  }
+
+  .mcp-resource__desc {
+    font-size: 0.875rem;
+    color: var(--color-muted);
+    margin: 0;
+  }
+
+  .mcp-resource__arrow {
+    flex-shrink: 0;
+    color: var(--color-muted);
+  }
+
+  .mcp-resource:hover .mcp-resource__arrow {
+    color: var(--color-primary);
+  }
+
+  /* ============================================================================
+   * CTA Section
+   * ============================================================================ */
+
+  .mcp-cta {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .mcp-cta__title {
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    margin: 0 0 1rem;
+    color: var(--color-text-light, #fff);
+  }
+
+  .mcp-cta__desc {
+    font-size: 1.125rem;
+    line-height: 1.6;
+    color: var(--color-text-light, #fff);
+    opacity: 0.9;
+    margin: 0 0 2rem;
+  }
+
+  .mcp-cta__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .mcp-cta__actions .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .mcp-cta__support {
+    font-size: 0.9375rem;
+    color: var(--color-text-light, #fff);
+    opacity: 0.8;
+    margin: 0;
+  }
+
+  .mcp-cta__support a {
+    color: var(--color-text-light, #fff);
+    text-decoration: underline;
+  }
+
+  .mcp-cta__support a:hover {
+    text-decoration: none;
+  }
+</style>

@@ -22,7 +22,7 @@ const ROUTES = {
   plugins: withBase(base, "/plugins"),
   docs: withBase(base, "/docs"),
   showcase: withBase(base, "/showcase"),
-
+  gettingStarted: withBase(base, "/learn-lfs/getting-started"),
   statistics: withBase(base, "/statistics"),
 
   contribute: withBase(base, "/contribute"),
@@ -33,6 +33,7 @@ const normalize = (p: string) => (p.endsWith("/") ? p.slice(0, -1) : p);
 
 /** Active checks for top-level items. */
 const isHomeActive = normalize(currentPath) === normalize(base);
+const isGettingStartedActive = normalize(currentPath) === normalize(ROUTES.gettingStarted);
 const isBountiesActive = currentPath.startsWith(`${normalize(base)}/bounty/`);
 const isShowcaseActive = normalize(currentPath) === normalize(ROUTES.showcase);
 const isStatisticsActive = normalize(currentPath) === normalize(ROUTES.statistics);
@@ -48,6 +49,18 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
   <li class="nav-menu__item">
     <a href={base} class:list={["nav-menu__link", { "is-active": isHomeActive }]}>Home</a>
   </li>
+
+  <!-- Getting Started -->
+  <li class="nav-menu__item">
+    <a
+      href={ROUTES.gettingStarted}
+      class:list={["nav-menu__link", { "is-active": isGettingStartedActive }]}
+      aria-current={isGettingStartedActive ? "page" : undefined}
+    >
+      Getting Started
+    </a>
+  </li>
+
 <!--- TODO: Uncomment this when ready -->
 {false &&
   <!-- Showcase -->

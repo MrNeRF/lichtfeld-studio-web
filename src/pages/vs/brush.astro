@@ -1,0 +1,1746 @@
+---
+/**
+ * brush.astro
+ *
+ * Comparison page: LichtFeld Studio vs Brush
+ * Targets searches for "brush alternative", "brush vs lichtfeld",
+ * "rust gaussian splatting", "web-based 3d gaussian splatting"
+ */
+import Layout from "@/layouts/Layout.astro";
+import { SITE } from "@/config/site.config";
+import {
+  GITHUB_REPO_URL,
+  GITHUB_RELEASES_URL,
+  GITHUB_WIKI_URL,
+  DISCORD_URL,
+  GITHUB_SPONSORS_URL,
+  PAYPAL_URL,
+} from "@/constants/project";
+
+const base = import.meta.env.BASE_URL;
+
+// SEO metadata
+const seoTitle = "LichtFeld Studio vs Brush: 3D Gaussian Splatting Comparison";
+const seoDescription =
+  "Compare LichtFeld Studio vs Brush for 3D Gaussian Splatting. Desktop app vs web-based, C++ vs Rust, features, and best use cases.";
+
+// Comparison data
+const quickComparison = [
+  { feature: "Type", lfs: "Desktop Application", brush: "Web-based (WASM)", neutral: true },
+  { feature: "Tech Stack", lfs: "C++23 / CUDA", brush: "Rust / WebGPU", neutral: true },
+  { feature: "Installation", lfs: "Download & Install", brush: "No Install (Browser)", brushAdvantage: true },
+  { feature: "Offline Workflow", lfs: "Full Offline Support", brush: "Requires Internet", lfsAdvantage: true },
+  { feature: "Training Pipeline", lfs: "Complete Native Training", brush: "Web-based Training", neutral: true },
+  { feature: "Editing Tools", lfs: "Full Suite (Brush, Lasso, etc.)", brush: "Basic Viewing", lfsAdvantage: true },
+  { feature: "Plugin System", lfs: "Python + MCP", brush: "None", lfsAdvantage: true },
+  { feature: "Performance", lfs: "Native GPU (Max Performance)", brush: "Browser Limited", lfsAdvantage: true },
+  { feature: "Cross-Platform", lfs: "Windows & Linux", brush: "Any Modern Browser", brushAdvantage: true },
+  { feature: "Price", lfs: "Free (GPL-3.0)", brush: "Free (Open Source)", neutral: true },
+];
+
+const detailedFeatures = [
+  {
+    category: "Core 3DGS",
+    items: [
+      { name: "3D Gaussian Splatting Training", lfs: true, brush: true },
+      { name: "Real-time Viewer", lfs: true, brush: true },
+      { name: "PLY Export/Import", lfs: true, brush: true },
+      { name: "Save & Resume Training", lfs: true, brush: false },
+      { name: "Multi-GPU Support", lfs: false, brush: false },
+      { name: "WebGPU Rendering", lfs: false, brush: true },
+    ],
+  },
+  {
+    category: "Editing & Tools",
+    items: [
+      { name: "Brush Selection", lfs: true, brush: false },
+      { name: "Lasso/Polygon Tools", lfs: true, brush: false },
+      { name: "Masking & Cropping", lfs: true, brush: true },
+      { name: "Scene Alignment", lfs: true, brush: false },
+      { name: "Transform & Scale", lfs: true, brush: true },
+      { name: "Camera Controls", lfs: true, brush: true },
+    ],
+  },
+  {
+    category: "Workflow & Integration",
+    items: [
+      { name: "Python Plugin API", lfs: true, brush: false },
+      { name: "MCP Integration", lfs: true, brush: false },
+      { name: "Command Line Interface", lfs: true, brush: true },
+      { name: "Batch Processing", lfs: true, brush: false },
+      { name: "URL Sharing", lfs: false, brush: true },
+      { name: "Embed in Web Pages", lfs: "Export Only", brush: true },
+    ],
+  },
+  {
+    category: "Export & Output",
+    items: [
+      { name: "Standard PLY Export", lfs: true, brush: true },
+      { name: "Web Viewer Export", lfs: true, brush: "Native" },
+      { name: "Unity Integration", lfs: true, brush: false },
+      { name: "Unreal Engine", lfs: true, brush: false },
+      { name: "Blender Plugin", lfs: "Community", brush: false },
+      { name: "Video Recording", lfs: true, brush: false },
+    ],
+  },
+];
+
+const lfsAdvantages = [
+  {
+    icon: "cpu",
+    title: "Native Desktop Performance",
+    description:
+      "Built with C++23 and CUDA for maximum performance. No browser limitations—access your full GPU power for training and rendering massive scenes.",
+  },
+  {
+    icon: "wifi-off",
+    title: "Complete Offline Workflow",
+    description:
+      "Train, edit, and export without an internet connection. Your data stays local and secure. Perfect for sensitive projects or working in the field.",
+  },
+  {
+    icon: "code-square",
+    title: "Python Plugin System + MCP",
+    description:
+      "Extend functionality with Python plugins and control workflows via MCP. Build custom tools, automate pipelines, and integrate with your existing stack.",
+  },
+  {
+    icon: "arrow-repeat",
+    title: "Full Training Pipeline",
+    description:
+      "Complete training from images to splats with save/resume capability. No need for external tools—everything happens in one application.",
+  },
+  {
+    icon: "tools",
+    title: "Advanced Editing Suite",
+    description:
+      "Brush selection, lasso tools, masking, cropping, scene alignment, and composition tools. Professional-grade editing for production workflows.",
+  },
+  {
+    icon: "box-arrow-up-right",
+    title: "Production Exports",
+    description:
+      "Export to Unity, Unreal Engine, Blender, and custom web viewers. Full pipeline integration for games, VFX, and web applications.",
+  },
+];
+
+const brushAdvantages = [
+  {
+    icon: "globe",
+    title: "No Installation Required",
+    description: "Runs directly in any modern browser. No downloads, no setup—just open a URL and start viewing splats immediately.",
+  },
+  {
+    icon: "share",
+    title: "Easy Sharing",
+    description: "Share splats via URL. Perfect for quick client reviews, portfolio showcases, or embedding in web pages and documentation.",
+  },
+  {
+    icon: "laptop",
+    title: "True Cross-Platform",
+    description: "Works on any device with a modern browser—Windows, macOS, Linux, ChromeOS, even tablets and mobile devices.",
+  },
+  {
+    icon: "apple",
+    title: "Native macOS Support",
+    description: "Brush is the best free option for macOS users. Train splats natively on both Intel and Apple Silicon Macs using WebGPU (no CUDA required). Build from source with cargo run --release or use the web demo in Chrome/Edge.",
+  },
+  {
+    icon: "lightning",
+    title: "Instant Access",
+    description: "Zero startup time. Load the page and you're ready to view. Great for quick checks and demonstrations.",
+  },
+];
+
+const faqs = [
+  {
+    question: "Can I use Brush and LichtFeld Studio together?",
+    answer:
+      "Absolutely! Many users use both tools—Brush for training, and LichtFeld Studio for editing, and production workflows. You can export PLY files from LFS and view them in Brush.",
+  },
+  {
+    question: "Which is better for training 3D Gaussian Splats?",
+    answer:
+      "Both tools support training. LichtFeld Studio offers native C++23/CUDA training with maximum performance and advanced features. Brush provides web-based training that works across platforms without installation. Choose based on your workflow needs.",
+  },
+  {
+    question: "Is Brush completely free like LichtFeld Studio?",
+    answer:
+      "Yes, both are free and open source. Brush is available on GitHub under an open license. LichtFeld Studio is GPL-3.0 licensed. Both can be used commercially without cost.",
+  },
+  {
+    question: "Why choose LichtFeld Studio over Brush for viewing?",
+    answer:
+      "LFS offers superior performance for large scenes, offline access, advanced editing tools, and integration with training workflows. Brush is better for quick, casual viewing and sharing.",
+  },
+  {
+    question: "Does Brush work on mobile devices?",
+    answer:
+      "Yes, Brush runs in mobile browsers. However, performance is limited by mobile GPU capabilities. LichtFeld Studio requires Windows or Linux desktop but offers full desktop GPU performance.",
+  },
+  {
+    question: "Is my data private with Brush?",
+    answer:
+      "Brush processes data in your browser, but you need an internet connection to load the application. LichtFeld Studio works completely offline—your data never leaves your machine unless you choose to export it.",
+  },
+];
+
+// Schema.org structured data for comparison
+const comparisonSchema = {
+  "@context": "https://schema.org",
+  "@type": "Comparison",
+  name: "LichtFeld Studio vs Brush Comparison",
+  description: seoDescription,
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      item: {
+        "@type": "SoftwareApplication",
+        name: "LichtFeld Studio",
+        applicationCategory: "DeveloperApplication",
+        operatingSystem: ["Windows", "Linux"],
+        offers: {
+          "@type": "Offer",
+          price: "0",
+          priceCurrency: "USD",
+        },
+        softwareVersion: "0.5.0",
+        downloadUrl: GITHUB_REPO_URL,
+      },
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      item: {
+        "@type": "SoftwareApplication",
+        name: "Brush",
+        applicationCategory: "WebApplication",
+        operatingSystem: ["Any (Browser-based)"],
+        offers: {
+          "@type": "Offer",
+          price: "0",
+          priceCurrency: "USD",
+        },
+      },
+    },
+  ],
+};
+---
+
+<Layout title={seoTitle} description={seoDescription}>
+  {/* Schema.org structured data */}
+  <script type="application/ld+json" set:html={JSON.stringify(comparisonSchema)} />
+
+  {/* Hero Section */}
+  <header class="vs-hero">
+    <div class="container content-frame px-4 px-md-6 py-16">
+      <div class="vs-hero__content">
+        <div class="vs-hero__badge">
+          <span class="vs-hero__badge-icon">
+            <i class="bi bi-shield-check"></i>
+          </span>
+          <span>2026 Software Comparison</span>
+        </div>
+        <h1 class="vs-hero__title">LichtFeld Studio vs Brush</h1>
+        <p class="vs-hero__subtitle">
+          Desktop power meets web convenience. Compare native C++23/CUDA performance against Rust/WASM browser-based viewing for 3D Gaussian Splatting.
+        </p>
+        <div class="vs-hero__cta">
+          <a href="#quick-comparison" class="btn btn-primary btn-lg vs-hero__btn-primary">
+            <i class="bi bi-table mr-2"></i>
+            See the Comparison
+          </a>
+          <a href={GITHUB_RELEASES_URL} class="btn btn-outline-primary btn-lg vs-hero__btn-secondary" target="_blank" rel="noopener noreferrer">
+            <i class="bi bi-download mr-2"></i>
+            Download LFS
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  {/* Quick Comparison Table */}
+  <section id="quick-comparison" class="vs-section hash-section">
+    <div class="container content-frame px-4 px-md-6 py-16">
+      <div class="shell shell--spacious">
+        <div class="vs-section__header">
+          <p class="kicker">At a Glance</p>
+          <h2 class="vs-section__title">Quick Comparison</h2>
+          <p class="vs-section__desc">See how LichtFeld Studio and Brush stack up on the essentials.</p>
+        </div>
+
+        <div class="vs-table-wrapper">
+          <table class="vs-table">
+            <thead>
+              <tr>
+                <th class="vs-table__feature">Feature</th>
+                <th class="vs-table__lfs">
+                  <span class="vs-table__logo">LichtFeld Studio</span>
+                  <span class="vs-table__tag vs-table__tag--open">Desktop App</span>
+                </th>
+                <th class="vs-table__brush">
+                  <span class="vs-table__logo">Brush</span>
+                  <span class="vs-table__tag vs-table__tag--web">Web-based</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                quickComparison.map((row) => (
+                  <tr>
+                    <td class="vs-table__feature">{row.feature}</td>
+                    <td class="vs-table__lfs">
+                      <span class:list={["vs-table__value", row.lfsAdvantage && "vs-table__value--highlight"]}>
+                        {row.lfsAdvantage ? <i class="bi bi-check-circle-fill vs-table__check" /> : null}
+                        {row.neutral ? <i class="bi bi-check-circle vs-table__check-neutral" /> : null}
+                        {row.lfs}
+                      </span>
+                    </td>
+                    <td class="vs-table__brush">
+                      <span class:list={["vs-table__value", row.brushAdvantage && "vs-table__value--highlight-brush"]}>
+                        {row.brushAdvantage ? <i class="bi bi-check-circle-fill vs-table__check-brush" /> : null}
+                        {row.neutral ? <i class="bi bi-check-circle vs-table__check-neutral" /> : null}
+                        {!row.neutral && !row.brushAdvantage && !row.lfsAdvantage ? <i class="bi bi-x-circle vs-table__cross" /> : null}
+                        {row.brush}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* Technology Stack Comparison */}
+  <section id="tech-stack" class="vs-section hash-section">
+    <div class="container content-frame px-4 px-md-6 py-16">
+      <div class="shell shell--spacious">
+        <div class="vs-section__header">
+          <p class="kicker">Technology</p>
+          <h2 class="vs-section__title">Technology Stack Comparison</h2>
+          <p class="vs-section__desc">Different architectures for different use cases.</p>
+        </div>
+
+        <div class="vs-tech-grid">
+          <div class="vs-tech-card vs-tech-card--lfs">
+            <div class="vs-tech-card__header">
+              <div class="vs-tech-card__icon">
+                <i class="bi bi-pc-display"></i>
+              </div>
+              <h3 class="vs-tech-card__title">LichtFeld Studio</h3>
+              <span class="vs-tech-card__subtitle">Native Desktop Application</span>
+            </div>
+            <div class="vs-tech-card__stack">
+              <div class="vs-tech-item">
+                <span class="vs-tech-item__label">Core</span>
+                <span class="vs-tech-item__value">C++23</span>
+              </div>
+              <div class="vs-tech-item">
+                <span class="vs-tech-item__label">GPU Compute</span>
+                <span class="vs-tech-item__value">CUDA</span>
+              </div>
+              <div class="vs-tech-item">
+                <span class="vs-tech-item__label">UI Framework</span>
+                <span class="vs-tech-item__value">Qt6 / QML</span>
+              </div>
+              <div class="vs-tech-item">
+                <span class="vs-tech-item__label">Scripting</span>
+                <span class="vs-tech-item__value">Python 3.12 (embedded)</span>
+              </div>
+              <div class="vs-tech-item">
+                <span class="vs-tech-item__label">Integration</span>
+                <span class="vs-tech-item__value">MCP Protocol</span>
+              </div>
+            </div>
+            <div class="vs-tech-card__pros">
+              <h4>Strengths</h4>
+              <ul>
+                <li><i class="bi bi-check-lg" /> Maximum GPU performance</li>
+                <li><i class="bi bi-check-lg" /> Full hardware access</li>
+                <li><i class="bi bi-check-lg" /> Complete offline operation</li>
+                <li><i class="bi bi-check-lg" /> Native file system access</li>
+                <li><i class="bi bi-check-lg" /> Extensible with plugins</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="vs-tech-card vs-tech-card--brush">
+            <div class="vs-tech-card__header">
+              <div class="vs-tech-card__icon vs-tech-card__icon--brush">
+                <i class="bi bi-globe"></i>
+              </div>
+              <h3 class="vs-tech-card__title">Brush</h3>
+              <span class="vs-tech-card__subtitle">Web-based Viewer</span>
+            </div>
+            <div class="vs-tech-card__stack">
+              <div class="vs-tech-item">
+                <span class="vs-tech-item__label">Core</span>
+                <span class="vs-tech-item__value">Rust</span>
+              </div>
+              <div class="vs-tech-item">
+                <span class="vs-tech-item__label">Web Target</span>
+                <span class="vs-tech-item__value">WebAssembly (WASM)</span>
+              </div>
+              <div class="vs-tech-item">
+                <span class="vs-tech-item__label">Graphics</span>
+                <span class="vs-tech-item__value">WebGL 2.0</span>
+              </div>
+              <div class="vs-tech-item">
+                <span class="vs-tech-item__label">UI</span>
+                <span class="vs-tech-item__value">HTML5 / Web Components</span>
+              </div>
+              <div class="vs-tech-item">
+                <span class="vs-tech-item__label">Distribution</span>
+                <span class="vs-tech-item__value">URL / Embed</span>
+              </div>
+            </div>
+            <div class="vs-tech-card__pros">
+              <h4>Strengths</h4>
+              <ul>
+                <li><i class="bi bi-check-lg" /> No installation needed</li>
+                <li><i class="bi bi-check-lg" /> Instant access via URL</li>
+                <li><i class="bi bi-check-lg" /> Works on any device</li>
+                <li><i class="bi bi-check-lg" /> Easy to share</li>
+                <li><i class="bi bi-check-lg" /> Embeddable in websites</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* Detailed Feature Comparison */}
+  <section id="detailed-features" class="vs-section hash-section">
+    <div class="container content-frame px-4 px-md-6 py-16">
+      <div class="shell shell--spacious">
+        <div class="vs-section__header">
+          <p class="kicker">Deep Dive</p>
+          <h2 class="vs-section__title">Detailed Feature Comparison</h2>
+          <p class="vs-section__desc">A comprehensive breakdown of capabilities across both platforms.</p>
+        </div>
+
+        <div class="vs-features">
+          {
+            detailedFeatures.map((category) => (
+              <div class="vs-feature-category">
+                <h3 class="vs-feature-category__title">{category.category}</h3>
+                <div class="vs-feature-list">
+                  {category.items.map((item) => (
+                    <div class="vs-feature-item">
+                      <span class="vs-feature-item__name">{item.name}</span>
+                      <div class="vs-feature-item__status">
+                        <span
+                          class:list={[
+                            "vs-feature-item__badge",
+                            typeof item.lfs === "boolean" && item.lfs
+                              ? "vs-feature-item__badge--yes"
+                              : typeof item.lfs === "string"
+                                ? "vs-feature-item__badge--partial"
+                                : "vs-feature-item__badge--no",
+                          ]}
+                        >
+                          {typeof item.lfs === "boolean" ? (
+                            item.lfs ? (
+                              <>
+                                <i class="bi bi-check-lg" /> Yes
+                              </>
+                            ) : (
+                              <>
+                                <i class="bi bi-x-lg" /> No
+                              </>
+                            )
+                          ) : (
+                            item.lfs
+                          )}
+                        </span>
+                        <span
+                          class:list={[
+                            "vs-feature-item__badge",
+                            typeof item.brush === "boolean" && item.brush
+                              ? "vs-feature-item__badge--yes"
+                              : typeof item.brush === "string"
+                                ? "vs-feature-item__badge--partial"
+                                : "vs-feature-item__badge--no",
+                          ]}
+                        >
+                          {typeof item.brush === "boolean" ? (
+                            item.brush ? (
+                              <>
+                                <i class="bi bi-check-lg" /> Yes
+                              </>
+                            ) : (
+                              <>
+                                <i class="bi bi-x-lg" /> No
+                              </>
+                            )
+                          ) : (
+                            item.brush
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))
+          }
+        </div>
+
+        <div class="vs-legend">
+          <div class="vs-legend__item">
+            <span class="vs-legend__badge vs-legend__badge--yes">
+              <i class="bi bi-check-lg" />
+            </span>
+            <span>Available</span>
+          </div>
+          <div class="vs-legend__item">
+            <span class="vs-legend__badge vs-legend__badge--partial">Partial</span>
+            <span>Limited</span>
+          </div>
+          <div class="vs-legend__item">
+            <span class="vs-legend__badge vs-legend__badge--no">
+              <i class="bi bi-x-lg" />
+            </span>
+            <span>Not Available</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* FAQ */}
+  <section id="faq" class="vs-section hash-section">
+    <div class="container content-frame px-4 px-md-6 py-16">
+      <div class="shell shell--spacious">
+        <div class="vs-section__header">
+          <p class="kicker">FAQ</p>
+          <h2 class="vs-section__title">Frequently Asked Questions</h2>
+          <p class="vs-section__desc">Common questions about both tools answered.</p>
+        </div>
+
+        <div class="vs-faq">
+          {
+            faqs.map((faq, index) => (
+              <details class="vs-faq__item" open={index === 0}>
+                <summary class="vs-faq__question">
+                  <span>{faq.question}</span>
+                  <i class="bi bi-chevron-down vs-faq__icon" />
+                </summary>
+                <div class="vs-faq__answer">
+                  <p>{faq.answer}</p>
+                </div>
+              </details>
+            ))
+          }
+        </div>
+
+        <div class="vs-faq__more">
+          <p>Have more questions?</p>
+          <a href={DISCORD_URL} class="section-link" target="_blank" rel="noopener noreferrer">
+            Join our Discord community
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* Related Comparisons */}
+  <section id="related" class="vs-section hash-section">
+    <div class="container content-frame px-4 px-md-6 py-16">
+      <div class="shell shell--spacious">
+        <div class="vs-section__header">
+          <p class="kicker">Explore More</p>
+          <h2 class="vs-section__title">Related Comparisons</h2>
+          <p class="vs-section__desc">See how LichtFeld Studio compares to other 3D Gaussian Splatting tools.</p>
+        </div>
+
+        <div class="vs-related">
+          <a href={`${base}vs/postshot/`} class="vs-related__card">
+            <div class="vs-related__icon">
+              <i class="bi bi-arrow-left-right" />
+            </div>
+            <h3 class="vs-related__title">vs Postshot</h3>
+            <p class="vs-related__desc">Open source vs paid proprietary. Feature and pricing comparison.</p>
+            <span class="vs-related__link">
+              Read Comparison <i class="bi bi-arrow-right" />
+            </span>
+          </a>
+
+          <a href={`${base}alternatives/`} class="vs-related__card">
+            <div class="vs-related__icon">
+              <i class="bi bi-grid-3x3-gap" />
+            </div>
+            <h3 class="vs-related__title">All Alternatives</h3>
+            <p class="vs-related__desc">Explore the complete landscape of 3D Gaussian Splatting software.</p>
+            <span class="vs-related__link">
+              View All <i class="bi bi-arrow-right" />
+            </span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* Final CTA */}
+  <section id="download" class="vs-section hash-section">
+    <div class="container content-frame px-4 px-md-6 py-16">
+      <div class="shell shell--spacious vs-shell--cta">
+        <div class="vs-final-cta">
+          <h2 class="vs-final-cta__title">Get Started with LichtFeld Studio</h2>
+          <p class="vs-final-cta__desc">
+            Free, open source, and built for production. The complete 3D Gaussian Splatting solution.
+          </p>
+          <div class="vs-final-cta__actions">
+            <a
+              href={GITHUB_RELEASES_URL}
+              class="btn btn-primary btn-lg vs-final-cta__btn-primary"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <i class="bi bi-windows mr-2"></i>
+              Download for Windows
+            </a>
+            <a
+              href={GITHUB_WIKI_URL}
+              class="btn btn-outline-primary btn-lg vs-final-cta__btn-secondary"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <i class="bi bi-book mr-2"></i>
+              Build Instructions
+            </a>
+          </div>
+          <div class="vs-final-cta__links">
+            <a href={`${base}learn-lfs/getting-started/`} class="vs-final-cta__link">
+              <i class="bi bi-arrow-right" />
+              Getting Started Guide
+            </a>
+            <a href={`${base}alternatives/`} class="vs-final-cta__link">
+              <i class="bi bi-arrow-right" />
+              Explore All Alternatives
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* Support Section */}
+  <section id="support" class="vs-section hash-section">
+    <div class="container content-frame px-4 px-md-6 py-16">
+      <div class="shell shell--spacious">
+        <div class="vs-support">
+          <div class="vs-support__content">
+            <h2 class="vs-support__title">Support the Project</h2>
+            <p class="vs-support__desc">
+              LichtFeld Studio is free and open source, but development takes time and resources. Your support helps us
+              build better tools for everyone.
+            </p>
+          </div>
+          <div class="vs-support__actions">
+            <a
+              href={GITHUB_SPONSORS_URL}
+              class="btn btn-primary vs-support__btn"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <i class="bi bi-heart-fill mr-2"></i>
+              Become a Sponsor
+            </a>
+            <a href={PAYPAL_URL} class="btn btn-outline-primary vs-support__btn" target="_blank" rel="noopener noreferrer">
+              <i class="bi bi-paypal mr-2"></i>
+              Donate via PayPal
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style lang="scss">
+  /* Hero Section */
+  .vs-hero {
+    padding: clamp(4rem, 10vh, 8rem) 0 clamp(3rem, 6vh, 5rem);
+    text-align: center;
+    background:
+      radial-gradient(circle at top left, rgba(20, 87, 255, 0.08), transparent 40%),
+      radial-gradient(circle at top right, rgba(201, 114, 52, 0.08), transparent 35%);
+  }
+
+  .vs-hero__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    background: rgba(20, 87, 255, 0.1);
+    border: 1px solid rgba(20, 87, 255, 0.2);
+    color: var(--color-primary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+  }
+
+  .vs-hero__badge-icon {
+    display: flex;
+    align-items: center;
+  }
+
+  .vs-hero__title {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--color-heading) 0%, var(--color-primary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .vs-hero__subtitle {
+    font-size: clamp(1.125rem, 2vw, 1.375rem);
+    color: var(--color-body);
+    max-width: 650px;
+    margin: 0 auto 2rem;
+    line-height: 1.6;
+  }
+
+  .vs-hero__cta {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .vs-hero__btn-primary {
+    border-radius: 999px;
+    padding: 0.875rem 1.75rem;
+    font-weight: 600;
+  }
+
+  .vs-hero__btn-secondary {
+    border-radius: 999px;
+    padding: 0.875rem 1.75rem;
+    font-weight: 600;
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+
+  /* Section Styles */
+  .vs-section {
+    padding: 2rem 0;
+  }
+
+  .vs-section__header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+
+  .vs-section__title {
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+  }
+
+  .vs-section__desc {
+    font-size: 1.125rem;
+    color: var(--color-body);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  /* Comparison Table */
+  .vs-table-wrapper {
+    overflow-x: auto;
+    border-radius: var(--rounded-2xl);
+    border: 1px solid var(--surface-border);
+  }
+
+  .vs-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9375rem;
+  }
+
+  .vs-table th,
+  .vs-table td {
+    padding: 1rem 1.25rem;
+    text-align: left;
+    border-bottom: 1px solid var(--surface-border);
+  }
+
+  .vs-table th {
+    background: rgba(255, 255, 255, 0.6);
+    font-weight: 600;
+    color: var(--color-heading);
+  }
+
+  .vs-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .vs-table tbody tr:hover {
+    background: rgba(20, 87, 255, 0.03);
+  }
+
+  .vs-table__feature {
+    font-weight: 500;
+    color: var(--color-heading);
+    width: 25%;
+  }
+
+  .vs-table__lfs,
+  .vs-table__brush {
+    width: 37.5%;
+  }
+
+  .vs-table__logo {
+    display: block;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .vs-table__tag {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .vs-table__tag--open {
+    background: rgba(34, 197, 94, 0.15);
+    color: rgb(21, 128, 61);
+  }
+
+  .vs-table__tag--web {
+    background: rgba(139, 92, 246, 0.15);
+    color: rgb(124, 58, 237);
+  }
+
+  .vs-table__value {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .vs-table__value--highlight {
+    font-weight: 600;
+    color: rgb(21, 128, 61);
+  }
+
+  .vs-table__value--highlight-brush {
+    font-weight: 600;
+    color: rgb(124, 58, 237);
+  }
+
+  .vs-table__check {
+    color: rgb(34, 197, 94);
+    font-size: 1.125rem;
+  }
+
+  .vs-table__check-brush {
+    color: rgb(139, 92, 246);
+    font-size: 1.125rem;
+  }
+
+  .vs-table__check-neutral {
+    color: var(--color-muted);
+    font-size: 1.125rem;
+  }
+
+  .vs-table__cross {
+    color: rgb(239, 68, 68);
+    font-size: 1.125rem;
+  }
+
+  /* Tech Stack Cards */
+  .vs-tech-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .vs-tech-card {
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: var(--rounded-2xl);
+    padding: 2rem;
+    border: 1px solid var(--surface-border);
+  }
+
+  .vs-tech-card--lfs {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(219, 234, 254, 0.5));
+    border-color: rgba(20, 87, 255, 0.3);
+  }
+
+  .vs-tech-card--brush {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(237, 233, 254, 0.5));
+    border-color: rgba(139, 92, 246, 0.3);
+  }
+
+  .vs-tech-card__header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--surface-border);
+  }
+
+  .vs-tech-card__icon {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--rounded-xl);
+    background: rgba(20, 87, 255, 0.1);
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    margin: 0 auto 1rem;
+  }
+
+  .vs-tech-card__icon--brush {
+    background: rgba(139, 92, 246, 0.1);
+    color: rgb(139, 92, 246);
+  }
+
+  .vs-tech-card__title {
+    font-size: 1.375rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+
+  .vs-tech-card__subtitle {
+    font-size: 0.9375rem;
+    color: var(--color-muted);
+  }
+
+  .vs-tech-card__stack {
+    display: grid;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .vs-tech-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.625rem 0;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  }
+
+  .vs-tech-item:last-child {
+    border-bottom: none;
+  }
+
+  .vs-tech-item__label {
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+
+  .vs-tech-item__value {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--color-heading);
+    font-family: var(--font-mono, monospace);
+  }
+
+  .vs-tech-card__pros {
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--surface-border);
+  }
+
+  .vs-tech-card__pros h4 {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--color-heading);
+    margin-bottom: 0.75rem;
+  }
+
+  .vs-tech-card__pros ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .vs-tech-card__pros li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0;
+    font-size: 0.9375rem;
+    color: var(--color-body);
+  }
+
+  .vs-tech-card__pros li i {
+    color: rgb(34, 197, 94);
+    font-size: 1rem;
+  }
+
+  /* Detailed Features */
+  .vs-features {
+    display: grid;
+    gap: 2rem;
+  }
+
+  .vs-feature-category {
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: var(--rounded-xl);
+    padding: 1.5rem;
+    border: 1px solid var(--surface-border);
+  }
+
+  .vs-feature-category__title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--color-heading);
+  }
+
+  .vs-feature-list {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .vs-feature-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  }
+
+  .vs-feature-item:last-child {
+    border-bottom: none;
+  }
+
+  .vs-feature-item__name {
+    font-weight: 500;
+    color: var(--color-body);
+  }
+
+  .vs-feature-item__status {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .vs-feature-item__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    min-width: 80px;
+    justify-content: center;
+  }
+
+  .vs-feature-item__badge--yes {
+    background: rgba(34, 197, 94, 0.15);
+    color: rgb(21, 128, 61);
+  }
+
+  .vs-feature-item__badge--no {
+    background: rgba(239, 68, 68, 0.1);
+    color: rgb(185, 28, 28);
+  }
+
+  .vs-feature-item__badge--partial {
+    background: rgba(245, 158, 11, 0.15);
+    color: rgb(180, 83, 9);
+  }
+
+  .vs-legend {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .vs-legend__item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+
+  .vs-legend__badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .vs-legend__badge--yes {
+    background: rgba(34, 197, 94, 0.15);
+    color: rgb(21, 128, 61);
+  }
+
+  .vs-legend__badge--no {
+    background: rgba(239, 68, 68, 0.1);
+    color: rgb(185, 28, 28);
+  }
+
+  .vs-legend__badge--partial {
+    background: rgba(245, 158, 11, 0.15);
+    color: rgb(180, 83, 9);
+    width: auto;
+    padding: 0 0.5rem;
+  }
+
+  /* Performance Section */
+  .vs-performance__grid {
+    display: grid;
+    gap: 1.5rem;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .vs-performance__item {
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: var(--rounded-xl);
+    padding: 1.25rem 1.5rem;
+    border: 1px solid var(--surface-border);
+  }
+
+  .vs-performance__metric {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-heading);
+    margin-bottom: 1rem;
+  }
+
+  .vs-performance__bars {
+    display: grid;
+    gap: 0.875rem;
+  }
+
+  .vs-performance__bar-group {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .vs-performance__label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-muted);
+  }
+
+  .vs-performance__bar {
+    padding: 0.625rem 1rem;
+    border-radius: var(--rounded-lg);
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .vs-performance__bar--lfs {
+    background: rgba(20, 87, 255, 0.1);
+    color: var(--color-primary);
+    border: 1px solid rgba(20, 87, 255, 0.2);
+  }
+
+  .vs-performance__bar--brush {
+    background: rgba(139, 92, 246, 0.1);
+    color: rgb(139, 92, 246);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+  }
+
+  .vs-performance__note {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: rgba(245, 158, 11, 0.08);
+    border-radius: var(--rounded-lg);
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+
+  .vs-performance__note i {
+    color: rgb(245, 158, 11);
+    margin-top: 0.125rem;
+  }
+
+  /* Advantages Grid */
+  .vs-advantages {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .vs-advantages--neutral {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .vs-advantage-card {
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: var(--rounded-xl);
+    padding: 1.5rem;
+    border: 1px solid var(--surface-border);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .vs-advantage-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--card-shadow-hover);
+  }
+
+  .vs-advantage-card--neutral {
+    background: rgba(255, 255, 255, 0.5);
+  }
+
+  .vs-advantage-card__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--rounded-lg);
+    background: rgba(20, 87, 255, 0.1);
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .vs-advantage-card__icon--neutral {
+    background: rgba(139, 92, 246, 0.1);
+    color: rgb(139, 92, 246);
+  }
+
+  .vs-advantage-card__title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--color-heading);
+  }
+
+  .vs-advantage-card__desc {
+    font-size: 0.9375rem;
+    color: var(--color-body);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* Use Cases */
+  .vs-use-cases {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .vs-use-case {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(219, 234, 254, 0.5));
+    border-radius: var(--rounded-xl);
+    padding: 1.75rem;
+    border: 1px solid rgba(20, 87, 255, 0.2);
+  }
+
+  .vs-use-case--brush {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(237, 233, 254, 0.5));
+    border-color: rgba(139, 92, 246, 0.2);
+  }
+
+  .vs-use-case__title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--color-heading);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .vs-use-case__title i {
+    color: rgb(34, 197, 94);
+  }
+
+  .vs-use-case__icon--brush {
+    color: rgb(139, 92, 246) !important;
+  }
+
+  .vs-use-case__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .vs-use-case__list li {
+    padding: 0.5rem 0;
+    padding-left: 1.25rem;
+    position: relative;
+    font-size: 0.9375rem;
+    color: var(--color-body);
+    border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  }
+
+  .vs-use-case__list li:last-child {
+    border-bottom: none;
+  }
+
+  .vs-use-case__list li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: var(--color-primary);
+    font-weight: 700;
+  }
+
+  .vs-use-case--brush .vs-use-case__list li::before {
+    color: rgb(139, 92, 246);
+  }
+
+  /* CTA Box */
+  .vs-cta-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-top: 2.5rem;
+    padding: 1.5rem 2rem;
+    background: linear-gradient(135deg, rgba(20, 87, 255, 0.08), rgba(20, 87, 255, 0.03));
+    border-radius: var(--rounded-xl);
+    border: 1px solid rgba(20, 87, 255, 0.2);
+    flex-wrap: wrap;
+  }
+
+  .vs-cta-box__content {
+    flex: 1;
+    min-width: 250px;
+  }
+
+  .vs-cta-box__title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    color: var(--color-heading);
+  }
+
+  .vs-cta-box__desc {
+    font-size: 0.9375rem;
+    color: var(--color-body);
+    margin: 0;
+  }
+
+  .vs-cta-box__btn {
+    border-radius: 999px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  /* Note */
+  .vs-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-top: 2rem;
+    padding: 1rem 1.25rem;
+    background: rgba(15, 23, 42, 0.04);
+    border-radius: var(--rounded-lg);
+    font-size: 0.9375rem;
+    color: var(--color-body);
+  }
+
+  .vs-note i {
+    color: var(--color-muted);
+    margin-top: 0.25rem;
+  }
+
+  .vs-note p {
+    margin: 0;
+  }
+
+  /* Testimonials */
+  .vs-testimonials {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .vs-testimonial {
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: var(--rounded-xl);
+    padding: 1.5rem;
+    border: 1px solid var(--surface-border);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .vs-testimonial__quote {
+    flex: 1;
+    position: relative;
+    padding-left: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .vs-testimonial__quote p {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--color-body);
+    font-style: italic;
+    margin: 0;
+  }
+
+  .vs-testimonial__icon {
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: 1.25rem;
+    color: var(--color-primary);
+    opacity: 0.5;
+  }
+
+  .vs-testimonial__author {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+  }
+
+  .vs-testimonial__avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    background: rgba(20, 87, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-primary);
+    font-size: 1.5rem;
+  }
+
+  .vs-testimonial__info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .vs-testimonial__name {
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: var(--color-heading);
+  }
+
+  .vs-testimonial__role {
+    font-size: 0.8125rem;
+    color: var(--color-muted);
+  }
+
+  /* FAQ */
+  .vs-faq {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .vs-faq__item {
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: var(--rounded-lg);
+    border: 1px solid var(--surface-border);
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+  }
+
+  .vs-faq__question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    font-weight: 600;
+    color: var(--color-heading);
+    cursor: pointer;
+    list-style: none;
+    transition: background 0.2s ease;
+  }
+
+  .vs-faq__question:hover {
+    background: rgba(255, 255, 255, 0.8);
+  }
+
+  .vs-faq__question::-webkit-details-marker {
+    display: none;
+  }
+
+  .vs-faq__icon {
+    font-size: 0.875rem;
+    color: var(--color-muted);
+    transition: transform 0.2s ease;
+  }
+
+  .vs-faq__item[open] .vs-faq__icon {
+    transform: rotate(180deg);
+  }
+
+  .vs-faq__answer {
+    padding: 0 1.25rem 1.25rem;
+  }
+
+  .vs-faq__answer p {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    color: var(--color-body);
+  }
+
+  .vs-faq__more {
+    text-align: center;
+    margin-top: 1.5rem;
+  }
+
+  .vs-faq__more p {
+    color: var(--color-muted);
+    margin-bottom: 0.75rem;
+  }
+
+  /* Related Comparisons */
+  .vs-related {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .vs-related__card {
+    display: flex;
+    flex-direction: column;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: var(--rounded-xl);
+    padding: 1.75rem;
+    border: 1px solid var(--surface-border);
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  .vs-related__card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--card-shadow-hover);
+    border-color: rgba(20, 87, 255, 0.3);
+  }
+
+  .vs-related__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--rounded-lg);
+    background: rgba(20, 87, 255, 0.1);
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .vs-related__title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-heading);
+    margin-bottom: 0.5rem;
+  }
+
+  .vs-related__desc {
+    font-size: 0.9375rem;
+    color: var(--color-body);
+    line-height: 1.6;
+    margin: 0 0 1rem;
+    flex: 1;
+  }
+
+  .vs-related__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-primary);
+    font-weight: 600;
+    font-size: 0.9375rem;
+  }
+
+  .vs-related__link i {
+    transition: transform 0.2s ease;
+  }
+
+  .vs-related__card:hover .vs-related__link i {
+    transform: translateX(4px);
+  }
+
+  /* Final CTA */
+  .vs-shell--cta {
+    background: linear-gradient(135deg, rgba(20, 87, 255, 0.08), rgba(201, 114, 52, 0.05));
+  }
+
+  .vs-final-cta {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .vs-final-cta__title {
+    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+  }
+
+  .vs-final-cta__desc {
+    font-size: 1.125rem;
+    color: var(--color-body);
+    margin-bottom: 1.5rem;
+  }
+
+  .vs-final-cta__actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+
+  .vs-final-cta__btn-primary {
+    border-radius: 999px;
+    padding: 0.875rem 1.75rem;
+    font-weight: 600;
+  }
+
+  .vs-final-cta__btn-secondary {
+    border-radius: 999px;
+    padding: 0.875rem 1.75rem;
+    font-weight: 600;
+  }
+
+  .vs-final-cta__links {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .vs-final-cta__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-primary);
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .vs-final-cta__link:hover {
+    color: var(--color-primary-link-hover);
+  }
+
+  /* Support Section */
+  .vs-support {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .vs-support__content {
+    flex: 1;
+    min-width: 280px;
+  }
+
+  .vs-support__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .vs-support__desc {
+    font-size: 1rem;
+    color: var(--color-body);
+    margin: 0;
+  }
+
+  .vs-support__actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .vs-support__btn {
+    border-radius: 999px;
+    padding: 0.625rem 1.25rem;
+    font-weight: 600;
+  }
+
+  /* Shell Gradient Variant */
+  .vs-shell--gradient {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(219, 234, 254, 0.4));
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 767.98px) {
+    .vs-hero__title {
+      font-size: 2rem;
+    }
+
+    .vs-table th,
+    .vs-table td {
+      padding: 0.75rem;
+      font-size: 0.875rem;
+    }
+
+    .vs-performance__bar-group {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+    }
+
+    .vs-cta-box {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .vs-support {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .vs-support__actions {
+      justify-content: center;
+    }
+
+    .vs-tech-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .vs-advantages {
+      grid-template-columns: 1fr;
+    }
+
+    .vs-testimonials {
+      grid-template-columns: 1fr;
+    }
+
+    .vs-use-cases {
+      grid-template-columns: 1fr;
+    }
+
+    .vs-related {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

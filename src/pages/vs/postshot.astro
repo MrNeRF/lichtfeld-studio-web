@@ -1,0 +1,1643 @@
+---
+/**
+ * postshot.astro
+ *
+ * Comparison page: LichtFeld Studio vs Postshot
+ * Targets searches for "postshot alternative", "postshot vs lichtfeld",
+ * "3d gaussian splatting software comparison"
+ */
+import Layout from "@/layouts/Layout.astro";
+import { SITE } from "@/config/site.config";
+import {
+  GITHUB_REPO_URL,
+  GITHUB_RELEASES_URL,
+  GITHUB_WIKI_URL,
+  DISCORD_URL,
+  GITHUB_SPONSORS_URL,
+  PAYPAL_URL,
+  DONORBOX_URL,
+  CRYPTO_WALLET_BITCOIN,
+} from "@/constants/project";
+
+const base = import.meta.env.BASE_URL;
+
+// SEO metadata
+const seoTitle = "LichtFeld Studio vs Postshot: Best 3D Gaussian Splatting Software 2025";
+const seoDescription =
+  "Compare LichtFeld Studio vs Postshot for 3D Gaussian Splatting. Open source vs paid, features, performance, and which is right for your workflow.";
+
+// Comparison data
+const quickComparison = [
+  { feature: "Price", lfs: "Free (GPL-3.0)", postshot: "Paid (Subscription)", lfsAdvantage: true },
+  { feature: "License", lfs: "Open Source", postshot: "Proprietary", lfsAdvantage: true },
+  { feature: "Source Code", lfs: "Full Access", postshot: "Closed", lfsAdvantage: true },
+  { feature: "Custom Tensor Library", lfs: "LibTorch-Free", postshot: "Standard", lfsAdvantage: true },
+  { feature: "VRAM Efficiency", lfs: "More Gaussians/GB", postshot: "Standard", lfsAdvantage: true },
+  { feature: "Custom CUDA Kernels", lfs: "SSIM, L1, MCMC, Densification", postshot: "Limited", lfsAdvantage: true },
+  { feature: "Custom Optimizer", lfs: "LibTorch-Free Adam", postshot: "Standard", lfsAdvantage: true },
+  { feature: "Training", lfs: "Native (C++23/CUDA)", postshot: "Native", neutral: true },
+  { feature: "Editing Tools", lfs: "Full Suite", postshot: "Basic", lfsAdvantage: true },
+  { feature: "Plugin System", lfs: "Python + MCP", postshot: "Limited", lfsAdvantage: true },
+  { feature: "Save & Resume Training", lfs: "Yes", postshot: "No", lfsAdvantage: true },
+  { feature: "Platform", lfs: "Windows & Linux", postshot: "Windows & macOS", neutral: true },
+  { feature: "Vendor Lock-in", lfs: "None", postshot: "Yes", lfsAdvantage: true },
+  { feature: "Community", lfs: "Active (Discord/GitHub)", postshot: "Smaller", lfsAdvantage: true },
+];
+
+const detailedFeatures = [
+  {
+    category: "Core 3DGS & Performance",
+    items: [
+      { name: "Custom LibTorch-Free Tensor Library", lfs: true, postshot: false },
+      { name: "Custom CUDA Kernels (SSIM, L1, MCMC)", lfs: true, postshot: false },
+      { name: "Custom LibTorch-Free Adam Optimizer", lfs: true, postshot: false },
+      { name: "Higher Gaussians per GB VRAM", lfs: true, postshot: false },
+      { name: "Real-time Viewer", lfs: true, postshot: true },
+      { name: "PLY Export/Import", lfs: true, postshot: true },
+    ],
+  },
+  {
+    category: "Editing & Tools",
+    items: [
+      { name: "Brush Selection", lfs: true, postshot: true },
+      { name: "Lasso/Polygon Tools", lfs: true, postshot: false },
+      { name: "Masking & Cropping", lfs: true, postshot: false },
+      { name: "Scene Alignment", lfs: true, postshot: false },
+      { name: "Composition Tools", lfs: true, postshot: false },
+      { name: "Transform & Scale", lfs: true, postshot: true },
+    ],
+  },
+  {
+    category: "Extensibility & Access",
+    items: [
+      { name: "Full Source Code (GPL-3.0)", lfs: true, postshot: false },
+      { name: "Python Plugin API", lfs: true, postshot: false },
+      { name: "MCP Integration", lfs: true, postshot: false },
+      { name: "Custom Panels", lfs: true, postshot: false },
+      { name: "External Workflow Control", lfs: true, postshot: false },
+    ],
+  },
+  {
+    category: "Export & Integration",
+    items: [
+      { name: "Standard PLY Export", lfs: true, postshot: true },
+      { name: "SOG Export", lfs: true, postshot: true },
+      { name: "OpenUSD Export", lfs: true, postshot: false },
+      { name: "Web Viewer Export", lfs: true, postshot: false },
+      { name: "Unity Integration", lfs: true, postshot: true },
+      { name: "Unreal Engine", lfs: true, postshot: true },
+    ],
+  },
+];
+
+const faqs = [
+  {
+    question: "Is LichtFeld Studio really free compared to PostShot?",
+    answer:
+      "Yes, LichtFeld Studio is 100% free and open source under the GPL-3.0 license. There are no subscription fees, no feature tiers, and no hidden costs. PostShot requires a paid subscription—but paying doesn't mean better performance.",
+  },
+  {
+    question: "Does paid software like PostShot perform better than free alternatives?",
+    answer:
+      "Not in this case. LichtFeld Studio outperforms or matches paid alternatives thanks to our custom LibTorch-free tensor library, hand-optimized CUDA kernels, and superior VRAM efficiency. You're not paying for performance—you're paying for a paywall.",
+  },
+  {
+    question: "Can I migrate my PostShot projects to LichtFeld Studio?",
+    answer:
+      "Absolutely. Both tools use standard 3D Gaussian Splatting formats (PLY). You can export your trained splats from PostShot and open them in LichtFeld Studio for superior editing and further processing.",
+  },
+  {
+    question: "Which tool has better performance?",
+    answer:
+      "LichtFeld Studio delivers superior performance through our custom tensor library, optimized CUDA kernels (SSIM, L1, MCMC, densification), and LibTorch-free Adam optimizer. We pack more Gaussians per GB of VRAM than standard implementations like PostShot.",
+  },
+  {
+    question: "What are LichtFeld Studio's key technical advantages?",
+    answer:
+      "LFS features a custom LibTorch-free tensor library for low-level GPU memory control, hand-optimized CUDA kernels, a custom Adam optimizer, significantly higher Gaussians-per-GB VRAM efficiency, save/resume training capability, and full source code access under GPL-3.0.",
+  },
+  {
+    question: "Is LichtFeld Studio suitable for commercial use?",
+    answer:
+      "Yes, the GPL-3.0 license allows commercial use. Many studios and professionals use LichtFeld Studio for client work without any licensing concerns or ongoing costs. Keep your profits instead of paying software subscriptions.",
+  },
+  {
+    question: "How active is LichtFeld Studio development?",
+    answer:
+      "Very active. With an open-source model, contributions come from the community and core team. Check our GitHub repository for the latest commits, releases, and roadmap. Features are added based on user needs, not corporate roadmaps.",
+  },
+];
+
+// Schema.org structured data for comparison
+const comparisonSchema = {
+  "@context": "https://schema.org",
+  "@type": "Comparison",
+  name: "LichtFeld Studio vs Postshot Comparison",
+  description: seoDescription,
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      item: {
+        "@type": "SoftwareApplication",
+        name: "LichtFeld Studio",
+        applicationCategory: "DeveloperApplication",
+        operatingSystem: ["Windows", "Linux"],
+        offers: {
+          "@type": "Offer",
+          price: "0",
+          priceCurrency: "USD",
+        },
+        softwareVersion: "0.5.0",
+        downloadUrl: GITHUB_REPO_URL,
+      },
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      item: {
+        "@type": "SoftwareApplication",
+        name: "Postshot",
+        applicationCategory: "DeveloperApplication",
+        operatingSystem: ["Windows", "macOS"],
+      },
+    },
+  ],
+};
+---
+
+<Layout title={seoTitle} description={seoDescription}>
+  {/* Schema.org structured data */}
+  <script type="application/ld+json" set:html={JSON.stringify(comparisonSchema)} />
+
+  {/* Hero Section */}
+  <header class="vs-hero">
+    <div class="container content-frame px-4 px-md-6 py-16">
+      <div class="vs-hero__content">
+        <div class="vs-hero__badge">
+          <span class="vs-hero__badge-icon">
+            <i class="bi bi-shield-check"></i>
+          </span>
+          <span>2026 Software Comparison</span>
+        </div>
+        <h1 class="vs-hero__title">LichtFeld Studio vs Postshot</h1>
+        <p class="vs-hero__subtitle">
+          Why pay for less? LichtFeld Studio outperforms PostShot with custom CUDA kernels, superior VRAM efficiency, and zero subscription fees.
+        </p>
+        <div class="vs-hero__cta">
+          <a href="#quick-comparison" class="btn btn-primary btn-lg vs-hero__btn-primary">
+            <i class="bi bi-table mr-2"></i>
+            See the Comparison
+          </a>
+          <a href={GITHUB_RELEASES_URL} class="btn btn-outline-primary btn-lg vs-hero__btn-secondary" target="_blank" rel="noopener noreferrer">
+            <i class="bi bi-download mr-2"></i>
+            Download LFS
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  {/* Quick Comparison Table */}
+  <section id="quick-comparison" class="vs-section hash-section">
+    <div class="container content-frame px-4 px-md-6 py-16">
+      <div class="shell shell--spacious">
+        <div class="vs-section__header">
+          <p class="kicker">At a Glance</p>
+          <h2 class="vs-section__title">Quick Comparison</h2>
+          <p class="vs-section__desc">See how LichtFeld Studio and Postshot stack up on the essentials.</p>
+        </div>
+
+        <div class="vs-table-wrapper">
+          <table class="vs-table">
+            <thead>
+              <tr>
+                <th class="vs-table__feature">Feature</th>
+                <th class="vs-table__lfs">
+                  <span class="vs-table__logo">LichtFeld Studio</span>
+                  <span class="vs-table__tag vs-table__tag--open">Open Source</span>
+                </th>
+                <th class="vs-table__postshot">
+                  <span class="vs-table__logo">Postshot</span>
+                  <span class="vs-table__tag vs-table__tag--paid">Paid</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                quickComparison.map((row) => (
+                  <tr>
+                    <td class="vs-table__feature">{row.feature}</td>
+                    <td class="vs-table__lfs">
+                      <span class:list={["vs-table__value", row.lfsAdvantage && "vs-table__value--highlight"]}>
+                        {row.lfsAdvantage ? <i class="bi bi-check-circle-fill vs-table__check" /> : null}
+                        {row.neutral ? <i class="bi bi-check-circle vs-table__check-neutral" /> : null}
+                        {row.lfs}
+                      </span>
+                    </td>
+                    <td class="vs-table__postshot">
+                      <span class="vs-table__value">
+                        {row.neutral ? <i class="bi bi-check-circle vs-table__check-neutral" /> : null}
+                        {!row.neutral && !row.lfsAdvantage ? <i class="bi bi-x-circle vs-table__cross" /> : null}
+                        {row.postshot}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* LFS Technical Advantages Section */}
+  <section id="lfs-advantages" class="vs-section hash-section">
+    <div class="container content-frame px-4 px-md-6 py-16">
+      <div class="shell shell--spacious">
+        <div class="vs-section__header">
+          <p class="kicker">Why LFS Wins</p>
+          <h2 class="vs-section__title">Technical Advantages Over PostShot</h2>
+          <p class="vs-section__desc">
+            Paid doesn't mean better performance. LichtFeld Studio's custom-built infrastructure delivers superior results at zero cost.
+          </p>
+        </div>
+
+        <div class="vs-advantages">
+          <div class="vs-advantage-card">
+            <div class="vs-advantage-card__icon">
+              <i class="bi bi-cpu"></i>
+            </div>
+            <h3 class="vs-advantage-card__title">Custom Tensor Library</h3>
+            <p class="vs-advantage-card__desc">
+              Our LibTorch-free tensor library provides low-level GPU memory control that standard implementations can't match. No bloated dependencies—just pure performance.
+            </p>
+          </div>
+
+          <div class="vs-advantage-card">
+            <div class="vs-advantage-card__icon">
+              <i class="bi bi-memory"></i>
+            </div>
+            <h3 class="vs-advantage-card__title">Maximum VRAM Efficiency</h3>
+            <p class="vs-advantage-card__desc">
+              Pack significantly more Gaussians per GB of VRAM than PostShot and other standard implementations. Train larger scenes on the same hardware.
+            </p>
+          </div>
+
+          <div class="vs-advantage-card">
+            <div class="vs-advantage-card__icon">
+              <i class="bi bi-lightning-charge"></i>
+            </div>
+            <h3 class="vs-advantage-card__title">Custom CUDA Kernels</h3>
+            <p class="vs-advantage-card__desc">
+              Hand-optimized CUDA kernels for SSIM, L1 loss, MCMC sampling, and densification—tailored specifically for 3D Gaussian Splatting workloads.
+            </p>
+          </div>
+
+          <div class="vs-advantage-card">
+            <div class="vs-advantage-card__icon">
+              <i class="bi bi-gear-wide-connected"></i>
+            </div>
+            <h3 class="vs-advantage-card__title">Custom Adam Optimizer</h3>
+            <p class="vs-advantage-card__desc">
+              Our LibTorch-free Adam optimizer eliminates framework overhead, giving you faster training iterations and lower memory consumption.
+            </p>
+          </div>
+
+          <div class="vs-advantage-card">
+            <div class="vs-advantage-card__icon">
+              <i class="bi bi-code-square"></i>
+            </div>
+            <h3 class="vs-advantage-card__title">Full Source Access</h3>
+            <p class="vs-advantage-card__desc">
+              GPL-3.0 licensed means complete transparency. Modify, extend, and understand every aspect of the training pipeline. No black boxes.
+            </p>
+          </div>
+
+          <div class="vs-advantage-card">
+            <div class="vs-advantage-card__icon">
+              <i class="bi bi-plug"></i>
+            </div>
+            <h3 class="vs-advantage-card__title">Python Plugin System + MCP</h3>
+            <p class="vs-advantage-card__desc">
+              Extend functionality with Python plugins and Model Context Protocol integration. Build custom workflows that PostShot's closed ecosystem can't support.
+            </p>
+          </div>
+
+          <div class="vs-advantage-card">
+            <div class="vs-advantage-card__icon">
+              <i class="bi bi-save"></i>
+            </div>
+            <h3 class="vs-advantage-card__title">Save & Resume Training</h3>
+            <p class="vs-advantage-card__desc">
+              Checkpoint your training state at any point and resume later. Experiment freely without losing progress—essential for professional workflows.
+            </p>
+          </div>
+
+          <div class="vs-advantage-card">
+            <div class="vs-advantage-card__icon">
+              <i class="bi bi-cash-stack"></i>
+            </div>
+            <h3 class="vs-advantage-card__title">Zero Subscription Fees</h3>
+            <p class="vs-advantage-card__desc">
+              No monthly charges, no feature tiers, no surprises. Free forever with all features included. Invest in better hardware instead of software subscriptions.
+            </p>
+          </div>
+        </div>
+
+        <div class="vs-cta-box">
+          <div class="vs-cta-box__content">
+            <h3 class="vs-cta-box__title">Don't Pay for Less Performance</h3>
+            <p class="vs-cta-box__desc">
+              PostShot charges subscription fees for software that can't match LFS's technical capabilities. Get superior performance for free.
+            </p>
+          </div>
+          <a href={GITHUB_RELEASES_URL} class="btn btn-primary vs-cta-box__btn" target="_blank" rel="noopener noreferrer">
+            <i class="bi bi-download mr-2"></i>
+            Download LFS
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* Detailed Feature Comparison */}
+  <section id="detailed-features" class="vs-section hash-section">
+    <div class="container content-frame px-4 px-md-6 py-16">
+      <div class="shell shell--spacious">
+        <div class="vs-section__header">
+          <p class="kicker">Deep Dive</p>
+          <h2 class="vs-section__title">Detailed Feature Comparison</h2>
+          <p class="vs-section__desc">A comprehensive breakdown of capabilities across both platforms.</p>
+        </div>
+
+        <div class="vs-features">
+          {
+            detailedFeatures.map((category) => (
+              <div class="vs-feature-category">
+                <h3 class="vs-feature-category__title">{category.category}</h3>
+                <div class="vs-feature-list">
+                  {category.items.map((item) => (
+                    <div class="vs-feature-item">
+                      <span class="vs-feature-item__name">{item.name}</span>
+                      <div class="vs-feature-item__status">
+                        <span
+                          class:list={[
+                            "vs-feature-item__badge",
+                            typeof item.lfs === "boolean" && item.lfs
+                              ? "vs-feature-item__badge--yes"
+                              : typeof item.lfs === "string"
+                                ? "vs-feature-item__badge--partial"
+                                : "vs-feature-item__badge--no",
+                          ]}
+                        >
+                          {typeof item.lfs === "boolean" ? (
+                            item.lfs ? (
+                              <>
+                                <i class="bi bi-check-lg" /> Yes
+                              </>
+                            ) : (
+                              <>
+                                <i class="bi bi-x-lg" /> No
+                              </>
+                            )
+                          ) : (
+                            item.lfs
+                          )}
+                        </span>
+                        <span
+                          class:list={[
+                            "vs-feature-item__badge",
+                            typeof item.postshot === "boolean" && item.postshot
+                              ? "vs-feature-item__badge--yes"
+                              : typeof item.postshot === "string"
+                                ? "vs-feature-item__badge--partial"
+                                : "vs-feature-item__badge--no",
+                          ]}
+                        >
+                          {typeof item.postshot === "boolean" ? (
+                            item.postshot ? (
+                              <>
+                                <i class="bi bi-check-lg" /> Yes
+                              </>
+                            ) : (
+                              <>
+                                <i class="bi bi-x-lg" /> No
+                              </>
+                            )
+                          ) : (
+                            item.postshot
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))
+          }
+        </div>
+
+        <div class="vs-legend">
+          <div class="vs-legend__item">
+            <span class="vs-legend__badge vs-legend__badge--yes">
+              <i class="bi bi-check-lg" />
+            </span>
+            <span>Available</span>
+          </div>
+          <div class="vs-legend__item">
+            <span class="vs-legend__badge vs-legend__badge--partial">Partial</span>
+            <span>Limited/Community</span>
+          </div>
+          <div class="vs-legend__item">
+            <span class="vs-legend__badge vs-legend__badge--no">
+              <i class="bi bi-x-lg" />
+            </span>
+            <span>Not Available</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* Pricing Comparison */}
+  <section id="pricing" class="vs-section hash-section">
+    <div class="container content-frame px-4 px-md-6 py-16">
+      <div class="shell shell--spacious">
+        <div class="vs-section__header">
+          <p class="kicker">Pricing</p>
+          <h2 class="vs-section__title">Pricing Comparison</h2>
+          <p class="vs-section__desc">Transparent pricing vs subscription model.</p>
+        </div>
+
+        <div class="vs-pricing-grid">
+          {/* LichtFeld Studio Pricing */}
+          <div class="vs-pricing-card vs-pricing-card--highlight">
+            <div class="vs-pricing-card__header">
+              <h3 class="vs-pricing-card__name">LichtFeld Studio</h3>
+              <div class="vs-pricing-card__price">
+                <span class="vs-pricing-card__amount">Free</span>
+                <span class="vs-pricing-card__period">Forever</span>
+              </div>
+              <span class="vs-pricing-card__badge">GPL-3.0 Open Source</span>
+            </div>
+            <ul class="vs-pricing-card__features">
+              <li>
+                <i class="bi bi-check-lg" />
+                Full training capabilities
+              </li>
+              <li>
+                <i class="bi bi-check-lg" />
+                Custom tensor library (LibTorch-free)
+              </li>
+              <li>
+                <i class="bi bi-check-lg" />
+                Superior VRAM efficiency
+              </li>
+              <li>
+                <i class="bi bi-check-lg" />
+                Custom CUDA kernels
+              </li>
+              <li>
+                <i class="bi bi-check-lg" />
+                Complete editing suite
+              </li>
+              <li>
+                <i class="bi bi-check-lg" />
+                Python plugin system + MCP
+              </li>
+              <li>
+                <i class="bi bi-check-lg" />
+                Save & resume training
+              </li>
+              <li>
+                <i class="bi bi-check-lg" />
+                All export formats
+              </li>
+              <li>
+                <i class="bi bi-check-lg" />
+                Full source code access
+              </li>
+              <li>
+                <i class="bi bi-check-lg" />
+                No vendor lock-in
+              </li>
+            </ul>
+            <a
+              href={GITHUB_RELEASES_URL}
+              class="btn btn-primary btn-lg vs-pricing-card__cta"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <i class="bi bi-download mr-2"></i>
+              Download Now
+            </a>
+          </div>
+
+          {/* PostShot Pricing */}
+          <div class="vs-pricing-card">
+            <div class="vs-pricing-card__header">
+              <h3 class="vs-pricing-card__name">PostShot</h3>
+              <div class="vs-pricing-card__price">
+                <span class="vs-pricing-card__amount">Paid</span>
+                <span class="vs-pricing-card__period">Subscription</span>
+              </div>
+              <span class="vs-pricing-card__badge vs-pricing-card__badge--paid">Proprietary</span>
+            </div>
+            <ul class="vs-pricing-card__features">
+              <li>
+                <i class="bi bi-check-lg" />
+                Training capabilities
+              </li>
+              <li>
+                <i class="bi bi-x-lg" />
+                No custom tensor library
+              </li>
+              <li>
+                <i class="bi bi-x-lg" />
+                Standard VRAM efficiency
+              </li>
+              <li>
+                <i class="bi bi-x-lg" />
+                No custom CUDA kernels
+              </li>
+              <li>
+                <i class="bi bi-check-lg" />
+                Basic editing tools
+              </li>
+              <li>
+                <i class="bi bi-x-lg" />
+                No plugin system
+              </li>
+              <li>
+                <i class="bi bi-x-lg" />
+                No save/resume training
+              </li>
+              <li>
+                <i class="bi bi-check-lg" />
+                Standard exports
+              </li>
+              <li>
+                <i class="bi bi-x-lg" />
+                Closed source
+              </li>
+              <li>
+                <i class="bi bi-check-lg" />
+                macOS support (paid)
+              </li>
+            </ul>
+            <div class="vs-pricing-card__note">
+              Paying subscription fees for fewer features. 
+              <strong>macOS users:</strong> Try <a href="https://github.com/ArthurBrussee/brush" target="_blank" rel="noopener noreferrer">Brush</a> — free, open-source, native macOS training.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* FAQ */}
+  <section id="faq" class="vs-section hash-section">
+    <div class="container content-frame px-4 px-md-6 py-16">
+      <div class="shell shell--spacious">
+        <div class="vs-section__header">
+          <p class="kicker">FAQ</p>
+          <h2 class="vs-section__title">Frequently Asked Questions</h2>
+          <p class="vs-section__desc">Common questions about both tools answered.</p>
+        </div>
+
+        <div class="vs-faq">
+          {
+            faqs.map((faq, index) => (
+              <details class="vs-faq__item" open={index === 0}>
+                <summary class="vs-faq__question">
+                  <span>{faq.question}</span>
+                  <i class="bi bi-chevron-down vs-faq__icon" />
+                </summary>
+                <div class="vs-faq__answer">
+                  <p>{faq.answer}</p>
+                </div>
+              </details>
+            ))
+          }
+        </div>
+
+        <div class="vs-faq__more">
+          <p>Have more questions?</p>
+          <a href={DISCORD_URL} class="section-link" target="_blank" rel="noopener noreferrer">
+            Join our Discord community
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* Final CTA */}
+  <section id="download" class="vs-section hash-section">
+    <div class="container content-frame px-4 px-md-6 py-16">
+      <div class="shell shell--spacious vs-shell--cta">
+        <div class="vs-final-cta">
+          <h2 class="vs-final-cta__title">Make the Switch Today</h2>
+          <p class="vs-final-cta__desc">
+            Join the open-source revolution in 3D Gaussian Splatting. Free, powerful, and community-driven.
+          </p>
+          <div class="vs-final-cta__actions">
+            <a
+              href={GITHUB_RELEASES_URL}
+              class="btn btn-primary btn-lg vs-final-cta__btn-primary"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <i class="bi bi-windows mr-2"></i>
+              Download for Windows
+            </a>
+            <a
+              href={GITHUB_WIKI_URL}
+              class="btn btn-outline-primary btn-lg vs-final-cta__btn-secondary"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <i class="bi bi-book mr-2"></i>
+              Build Instructions
+            </a>
+          </div>
+          <div class="vs-final-cta__links">
+            <a href={`${base}learn-lfs/getting-started/`} class="vs-final-cta__link">
+              <i class="bi bi-arrow-right" />
+              Getting Started Guide
+            </a>
+            <a href={DISCORD_URL} class="vs-final-cta__link" target="_blank" rel="noopener noreferrer">
+              <i class="bi bi-arrow-right" />
+              Join Our Community
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* Support Section */}
+  <section id="support" class="vs-section hash-section">
+    <div class="container content-frame px-4 px-md-6 py-16">
+      <div class="shell shell--spacious">
+        <div class="vs-support">
+          <div class="vs-support__content">
+            <h2 class="vs-support__title">Support the Project</h2>
+            <p class="vs-support__desc">
+              LichtFeld Studio is free and open source, but development takes time and resources. Your support helps us
+              build better tools for everyone.
+            </p>
+          </div>
+          <div class="vs-support__actions">
+            <a
+              href={GITHUB_SPONSORS_URL}
+              class="btn btn-primary vs-support__btn"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <i class="bi bi-heart-fill mr-2"></i>
+              Become a Sponsor
+            </a>
+            <a href={PAYPAL_URL} class="btn btn-outline-primary vs-support__btn" target="_blank" rel="noopener noreferrer">
+              <i class="bi bi-paypal mr-2"></i>
+              Donate via PayPal
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style lang="scss">
+  /* Hero Section */
+  .vs-hero {
+    padding: clamp(4rem, 10vh, 8rem) 0 clamp(3rem, 6vh, 5rem);
+    text-align: center;
+    background:
+      radial-gradient(circle at top left, rgba(20, 87, 255, 0.08), transparent 40%),
+      radial-gradient(circle at top right, rgba(201, 114, 52, 0.08), transparent 35%);
+  }
+
+  .vs-hero__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    background: rgba(20, 87, 255, 0.1);
+    border: 1px solid rgba(20, 87, 255, 0.2);
+    color: var(--color-primary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+  }
+
+  .vs-hero__badge-icon {
+    display: flex;
+    align-items: center;
+  }
+
+  .vs-hero__title {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--color-heading) 0%, var(--color-primary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .vs-hero__subtitle {
+    font-size: clamp(1.125rem, 2vw, 1.375rem);
+    color: var(--color-body);
+    max-width: 600px;
+    margin: 0 auto 2rem;
+    line-height: 1.6;
+  }
+
+  .vs-hero__cta {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .vs-hero__btn-primary {
+    border-radius: 999px;
+    padding: 0.875rem 1.75rem;
+    font-weight: 600;
+  }
+
+  .vs-hero__btn-secondary {
+    border-radius: 999px;
+    padding: 0.875rem 1.75rem;
+    font-weight: 600;
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+
+  /* Section Styles */
+  .vs-section {
+    padding: 2rem 0;
+  }
+
+  .vs-section__header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+
+  .vs-section__title {
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+  }
+
+  .vs-section__desc {
+    font-size: 1.125rem;
+    color: var(--color-body);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  /* Comparison Table */
+  .vs-table-wrapper {
+    overflow-x: auto;
+    border-radius: var(--rounded-2xl);
+    border: 1px solid var(--surface-border);
+  }
+
+  .vs-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9375rem;
+  }
+
+  .vs-table th,
+  .vs-table td {
+    padding: 1rem 1.25rem;
+    text-align: left;
+    border-bottom: 1px solid var(--surface-border);
+  }
+
+  .vs-table th {
+    background: rgba(255, 255, 255, 0.6);
+    font-weight: 600;
+    color: var(--color-heading);
+  }
+
+  .vs-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .vs-table tbody tr:hover {
+    background: rgba(20, 87, 255, 0.03);
+  }
+
+  .vs-table__feature {
+    font-weight: 500;
+    color: var(--color-heading);
+    width: 30%;
+  }
+
+  .vs-table__lfs,
+  .vs-table__postshot {
+    width: 35%;
+  }
+
+  .vs-table__logo {
+    display: block;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .vs-table__tag {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .vs-table__tag--open {
+    background: rgba(34, 197, 94, 0.15);
+    color: rgb(21, 128, 61);
+  }
+
+  .vs-table__tag--paid {
+    background: rgba(245, 158, 11, 0.15);
+    color: rgb(180, 83, 9);
+  }
+
+  .vs-table__value {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .vs-table__value--highlight {
+    font-weight: 600;
+    color: rgb(21, 128, 61);
+  }
+
+  .vs-table__check {
+    color: rgb(34, 197, 94);
+    font-size: 1.125rem;
+  }
+
+  .vs-table__check-neutral {
+    color: var(--color-muted);
+    font-size: 1.125rem;
+  }
+
+  .vs-table__cross {
+    color: rgb(239, 68, 68);
+    font-size: 1.125rem;
+  }
+
+  /* Detailed Features */
+  .vs-features {
+    display: grid;
+    gap: 2rem;
+  }
+
+  .vs-feature-category {
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: var(--rounded-xl);
+    padding: 1.5rem;
+    border: 1px solid var(--surface-border);
+  }
+
+  .vs-feature-category__title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--color-heading);
+  }
+
+  .vs-feature-list {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .vs-feature-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  }
+
+  .vs-feature-item:last-child {
+    border-bottom: none;
+  }
+
+  .vs-feature-item__name {
+    font-weight: 500;
+    color: var(--color-body);
+  }
+
+  .vs-feature-item__status {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .vs-feature-item__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    min-width: 80px;
+    justify-content: center;
+  }
+
+  .vs-feature-item__badge--yes {
+    background: rgba(34, 197, 94, 0.15);
+    color: rgb(21, 128, 61);
+  }
+
+  .vs-feature-item__badge--no {
+    background: rgba(239, 68, 68, 0.1);
+    color: rgb(185, 28, 28);
+  }
+
+  .vs-feature-item__badge--partial {
+    background: rgba(245, 158, 11, 0.15);
+    color: rgb(180, 83, 9);
+  }
+
+  .vs-legend {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .vs-legend__item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+
+  .vs-legend__badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .vs-legend__badge--yes {
+    background: rgba(34, 197, 94, 0.15);
+    color: rgb(21, 128, 61);
+  }
+
+  .vs-legend__badge--no {
+    background: rgba(239, 68, 68, 0.1);
+    color: rgb(185, 28, 28);
+  }
+
+  .vs-legend__badge--partial {
+    background: rgba(245, 158, 11, 0.15);
+    color: rgb(180, 83, 9);
+    width: auto;
+    padding: 0 0.5rem;
+  }
+
+  /* Pricing Cards */
+  .vs-pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .vs-pricing-card {
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: var(--rounded-2xl);
+    padding: 2rem;
+    border: 1px solid var(--surface-border);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .vs-pricing-card--highlight {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(219, 234, 254, 0.5));
+    border-color: rgba(20, 87, 255, 0.3);
+    box-shadow: 0 20px 40px rgba(20, 87, 255, 0.1);
+    position: relative;
+  }
+
+  .vs-pricing-card--highlight::before {
+    content: "RECOMMENDED";
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--color-primary);
+    color: white;
+    padding: 0.375rem 1rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+
+  .vs-pricing-card__header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--surface-border);
+  }
+
+  .vs-pricing-card__name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .vs-pricing-card__price {
+    margin-bottom: 0.75rem;
+  }
+
+  .vs-pricing-card__amount {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--color-heading);
+    line-height: 1;
+  }
+
+  .vs-pricing-card--highlight .vs-pricing-card__amount {
+    color: var(--color-primary);
+  }
+
+  .vs-pricing-card__period {
+    display: block;
+    font-size: 1rem;
+    color: var(--color-muted);
+    margin-top: 0.25rem;
+  }
+
+  .vs-pricing-card__badge {
+    display: inline-block;
+    padding: 0.375rem 0.875rem;
+    border-radius: 999px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    background: rgba(34, 197, 94, 0.15);
+    color: rgb(21, 128, 61);
+  }
+
+  .vs-pricing-card__badge--paid {
+    background: rgba(245, 158, 11, 0.15);
+    color: rgb(180, 83, 9);
+  }
+
+  .vs-pricing-card__features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem;
+    flex: 1;
+  }
+
+  .vs-pricing-card__features li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 0;
+    font-size: 0.9375rem;
+    color: var(--color-body);
+  }
+
+  .vs-pricing-card__features li i {
+    font-size: 1rem;
+  }
+
+  .vs-pricing-card__features li i.bi-check-lg {
+    color: rgb(34, 197, 94);
+  }
+
+  .vs-pricing-card__features li i.bi-x-lg {
+    color: rgb(239, 68, 68);
+    opacity: 0.6;
+  }
+
+  .vs-pricing-card__cta {
+    width: 100%;
+    border-radius: 999px;
+    padding: 0.875rem;
+    font-weight: 600;
+  }
+
+  .vs-pricing-card__note {
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--color-muted);
+    margin-top: 1rem;
+  }
+
+  /* Performance Section */
+  .vs-performance__grid {
+    display: grid;
+    gap: 1.5rem;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .vs-performance__item {
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: var(--rounded-xl);
+    padding: 1.25rem 1.5rem;
+    border: 1px solid var(--surface-border);
+  }
+
+  .vs-performance__metric {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-heading);
+    margin-bottom: 1rem;
+  }
+
+  .vs-performance__bars {
+    display: grid;
+    gap: 0.875rem;
+  }
+
+  .vs-performance__bar-group {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .vs-performance__label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-muted);
+  }
+
+  .vs-performance__bar {
+    padding: 0.625rem 1rem;
+    border-radius: var(--rounded-lg);
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .vs-performance__bar--lfs {
+    background: rgba(20, 87, 255, 0.1);
+    color: var(--color-primary);
+    border: 1px solid rgba(20, 87, 255, 0.2);
+  }
+
+  .vs-performance__bar--postshot {
+    background: rgba(15, 23, 42, 0.05);
+    color: var(--color-body);
+    border: 1px solid var(--surface-border);
+  }
+
+  .vs-performance__note {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: rgba(245, 158, 11, 0.08);
+    border-radius: var(--rounded-lg);
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+
+  .vs-performance__note i {
+    color: rgb(245, 158, 11);
+    margin-top: 0.125rem;
+  }
+
+  /* Advantages Grid */
+  .vs-advantages {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .vs-advantages--neutral {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .vs-advantage-card {
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: var(--rounded-xl);
+    padding: 1.5rem;
+    border: 1px solid var(--surface-border);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .vs-advantage-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--card-shadow-hover);
+  }
+
+  .vs-advantage-card--neutral {
+    background: rgba(255, 255, 255, 0.5);
+  }
+
+  .vs-advantage-card__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--rounded-lg);
+    background: rgba(20, 87, 255, 0.1);
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .vs-advantage-card__icon--neutral {
+    background: rgba(15, 23, 42, 0.06);
+    color: var(--color-muted);
+  }
+
+  .vs-advantage-card__title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--color-heading);
+  }
+
+  .vs-advantage-card__desc {
+    font-size: 0.9375rem;
+    color: var(--color-body);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* CTA Box */
+  .vs-cta-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-top: 2.5rem;
+    padding: 1.5rem 2rem;
+    background: linear-gradient(135deg, rgba(20, 87, 255, 0.08), rgba(20, 87, 255, 0.03));
+    border-radius: var(--rounded-xl);
+    border: 1px solid rgba(20, 87, 255, 0.2);
+    flex-wrap: wrap;
+  }
+
+  .vs-cta-box__content {
+    flex: 1;
+    min-width: 250px;
+  }
+
+  .vs-cta-box__title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    color: var(--color-heading);
+  }
+
+  .vs-cta-box__desc {
+    font-size: 0.9375rem;
+    color: var(--color-body);
+    margin: 0;
+  }
+
+  .vs-cta-box__btn {
+    border-radius: 999px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  /* Note */
+  .vs-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-top: 2rem;
+    padding: 1rem 1.25rem;
+    background: rgba(15, 23, 42, 0.04);
+    border-radius: var(--rounded-lg);
+    font-size: 0.9375rem;
+    color: var(--color-body);
+  }
+
+  .vs-note i {
+    color: var(--color-muted);
+    margin-top: 0.25rem;
+  }
+
+  .vs-note p {
+    margin: 0;
+  }
+
+  /* Testimonials */
+  .vs-testimonials {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .vs-testimonial {
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: var(--rounded-xl);
+    padding: 1.5rem;
+    border: 1px solid var(--surface-border);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .vs-testimonial__quote {
+    flex: 1;
+    position: relative;
+    padding-left: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .vs-testimonial__quote p {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--color-body);
+    font-style: italic;
+    margin: 0;
+  }
+
+  .vs-testimonial__icon {
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: 1.25rem;
+    color: var(--color-primary);
+    opacity: 0.5;
+  }
+
+  .vs-testimonial__author {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+  }
+
+  .vs-testimonial__avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    background: rgba(20, 87, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-primary);
+    font-size: 1.5rem;
+  }
+
+  .vs-testimonial__info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .vs-testimonial__name {
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: var(--color-heading);
+  }
+
+  .vs-testimonial__role {
+    font-size: 0.8125rem;
+    color: var(--color-muted);
+  }
+
+  /* FAQ */
+  .vs-faq {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .vs-faq__item {
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: var(--rounded-lg);
+    border: 1px solid var(--surface-border);
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+  }
+
+  .vs-faq__question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    font-weight: 600;
+    color: var(--color-heading);
+    cursor: pointer;
+    list-style: none;
+    transition: background 0.2s ease;
+  }
+
+  .vs-faq__question:hover {
+    background: rgba(255, 255, 255, 0.8);
+  }
+
+  .vs-faq__question::-webkit-details-marker {
+    display: none;
+  }
+
+  .vs-faq__icon {
+    font-size: 0.875rem;
+    color: var(--color-muted);
+    transition: transform 0.2s ease;
+  }
+
+  .vs-faq__item[open] .vs-faq__icon {
+    transform: rotate(180deg);
+  }
+
+  .vs-faq__answer {
+    padding: 0 1.25rem 1.25rem;
+  }
+
+  .vs-faq__answer p {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    color: var(--color-body);
+  }
+
+  .vs-faq__more {
+    text-align: center;
+    margin-top: 1.5rem;
+  }
+
+  .vs-faq__more p {
+    color: var(--color-muted);
+    margin-bottom: 0.75rem;
+  }
+
+  /* Final CTA */
+  .vs-shell--cta {
+    background: linear-gradient(135deg, rgba(20, 87, 255, 0.08), rgba(201, 114, 52, 0.05));
+  }
+
+  .vs-final-cta {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .vs-final-cta__title {
+    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+  }
+
+  .vs-final-cta__desc {
+    font-size: 1.125rem;
+    color: var(--color-body);
+    margin-bottom: 1.5rem;
+  }
+
+  .vs-final-cta__actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+
+  .vs-final-cta__btn-primary {
+    border-radius: 999px;
+    padding: 0.875rem 1.75rem;
+    font-weight: 600;
+  }
+
+  .vs-final-cta__btn-secondary {
+    border-radius: 999px;
+    padding: 0.875rem 1.75rem;
+    font-weight: 600;
+  }
+
+  .vs-final-cta__links {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .vs-final-cta__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-primary);
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .vs-final-cta__link:hover {
+    color: var(--color-primary-link-hover);
+  }
+
+  /* Support Section */
+  .vs-support {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .vs-support__content {
+    flex: 1;
+    min-width: 280px;
+  }
+
+  .vs-support__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .vs-support__desc {
+    font-size: 1rem;
+    color: var(--color-body);
+    margin: 0;
+  }
+
+  .vs-support__actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .vs-support__btn {
+    border-radius: 999px;
+    padding: 0.625rem 1.25rem;
+    font-weight: 600;
+  }
+
+  /* Shell Gradient Variant */
+  .vs-shell--gradient {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(219, 234, 254, 0.4));
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 767.98px) {
+    .vs-hero__title {
+      font-size: 2rem;
+    }
+
+    .vs-table th,
+    .vs-table td {
+      padding: 0.75rem;
+      font-size: 0.875rem;
+    }
+
+    .vs-performance__bar-group {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+    }
+
+    .vs-cta-box {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .vs-support {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .vs-support__actions {
+      justify-content: center;
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .vs-pricing-card__amount {
+      font-size: 2.5rem;
+    }
+
+    .vs-advantages {
+      grid-template-columns: 1fr;
+    }
+
+    .vs-testimonials {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

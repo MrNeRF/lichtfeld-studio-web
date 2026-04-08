@@ -1,0 +1,1081 @@
+---
+/**
+ * what-is-gaussian-splatting.astro
+ *
+ * Comprehensive SEO pillar page targeting:
+ * - "what is gaussian splatting"
+ * - "3d gaussian splatting explained"
+ * - "gaussian splatting tutorial"
+ *
+ * Features:
+ * - 2000+ words of educational content
+ * - Schema.org Article structured data
+ * - Internal linking strategy
+ * - FAQ section
+ * - Sponsor/Donor CTA
+ * - Related resources
+ */
+
+import Layout from "@/layouts/Layout.astro";
+import PageLayout from "@/components/layouts/PageLayout.astro";
+import PageHero from "@/components/layouts/PageHero.astro";
+import ContentSidebar from "@/components/layouts/ContentSidebar.astro";
+import SupportCTA from "@/components/layouts/SupportCTA.astro";
+import RelatedResources from "@/components/layouts/RelatedResources.astro";
+import { SITE } from "@/config/site.config";
+import {
+  GITHUB_REPO_URL,
+  GITHUB_WIKI_URL,
+  GITHUB_RELEASES_URL,
+  DISCORD_URL,
+  PAYPAL_URL,
+  DONORBOX_URL,
+  GITHUB_SPONSORS_URL,
+} from "@/constants/project";
+
+const base = import.meta.env.BASE_URL;
+
+// SEO metadata
+const seoTitle = "What is 3D Gaussian Splatting? Technical Guide 2025";
+const seoDescription = "Learn what 3D Gaussian Splatting is, how it works technically, and why it's revolutionizing real-time 3D rendering. Based on the original SIGGRAPH 2023 research.";
+
+// Article metadata for Schema.org
+const articlePublishedDate = new Date("2025-01-15");
+const articleModifiedDate = new Date("2025-03-29");
+
+// FAQ data
+const faqs = [
+  {
+    question: "What is Gaussian Splatting in simple terms?",
+    answer: "Gaussian Splatting is a 3D rendering technique that represents scenes using millions of tiny colored blobs (3D Gaussians) instead of traditional polygons or neural networks. Each blob has position, color, size, and transparency, allowing for photorealistic real-time rendering."
+  },
+  {
+    question: "How is 3DGS different from NeRF?",
+    answer: "Unlike NeRF, which uses a neural network to represent scenes implicitly, 3D Gaussian Splatting uses an explicit representation (millions of individual Gaussians). This makes it 100-200x faster to render, faster to train (minutes vs hours), and directly editable."
+  },
+  {
+    question: "What hardware do I need for Gaussian Splatting?",
+    answer: "Training requires an NVIDIA GPU with at least 8GB VRAM (RTX 3070 or better recommended). Viewing pre-trained scenes works on most modern GPUs and even some integrated graphics."
+  },
+  {
+    question: "What are Spherical Harmonics in 3DGS?",
+    answer: "Spherical Harmonics (SH) are mathematical functions that encode how a Gaussian's color changes based on viewing angle. Higher SH degrees (0-3) capture more complex view-dependent effects like reflections and specular highlights."
+  },
+  {
+    question: "How long does training take?",
+    answer: "Training typically takes 5-10 minutes (7K iterations) to 30-45 minutes (30K iterations) depending on quality settings and GPU. A fast 7K iteration run takes ~5-10 minutes, while a high-quality 30K iteration run takes ~30-45 minutes on a modern GPU."
+  },
+  {
+    question: "What is densification in 3DGS?",
+    answer: "Densification is the process of adding Gaussians during training. The algorithm clones Gaussians in under-reconstructed regions and splits them in over-reconstructed regions, adapting the representation to scene complexity."
+  }
+];
+
+// Related resources
+const relatedResources = [
+  {
+    title: "Getting Started Guide",
+    description: "Step-by-step tutorial to create your first Gaussian Splat with LichtFeld Studio.",
+    href: `${base}learn-lfs/getting-started/`,
+    icon: "book"
+  },
+  {
+    title: "FAQ & Troubleshooting",
+    description: "Common questions, issues, and solutions for Gaussian Splatting workflows.",
+    href: `${base}learn-lfs/faq/`,
+    icon: "question-circle"
+  },
+  {
+    title: "LichtFeld vs Postshot",
+    description: "Compare features and workflows between leading Gaussian Splatting tools.",
+    href: `${base}vs/postshot/`,
+    icon: "arrow-left-right"
+  },
+  {
+    title: "Interactive Showcase",
+    description: "Explore photorealistic Gaussian Splatting scenes directly in your browser.",
+    href: `${base}showcase/`,
+    icon: "eye"
+  }
+];
+
+// Sidebar items
+const sidebarItems = [
+  { label: "GitHub Repository", href: GITHUB_REPO_URL, icon: "github" },
+  { label: "Documentation", href: GITHUB_WIKI_URL, icon: "book" },
+  { label: "Community Discord", href: DISCORD_URL, icon: "discord" },
+  { label: "Interactive Showcase", href: `${base}showcase/`, icon: "eye" },
+];
+
+// Support options
+const supportOptions = [
+  { label: "GitHub Sponsors", href: GITHUB_SPONSORS_URL, icon: "github", variant: "primary" as const },
+  { label: "PayPal", href: PAYPAL_URL, icon: "paypal", variant: "outline" as const },
+  { label: "DonorBox", href: DONORBOX_URL, icon: "gift", variant: "outline" as const },
+];
+
+// Build Schema.org Article structured data
+const articleSchema = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": seoTitle,
+  "description": seoDescription,
+  "image": new URL(`${base}static/social-card.png`, Astro.site).toString(),
+  "author": {
+    "@type": "Organization",
+    "name": SITE.name,
+    "url": SITE.url
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": SITE.name,
+    "logo": {
+      "@type": "ImageObject",
+      "url": new URL(`${base}static/favicon.svg`, Astro.site).toString()
+    }
+  },
+  "datePublished": articlePublishedDate.toISOString(),
+  "dateModified": articleModifiedDate.toISOString(),
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": new URL(Astro.url.pathname, Astro.site).toString()
+  }
+};
+
+// Build FAQ Schema
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": faqs.map(faq => ({
+    "@type": "Question",
+    "name": faq.question,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": faq.answer
+    }
+  }))
+};
+---
+
+<Layout 
+  title={seoTitle} 
+  description={seoDescription}
+  ogType="article"
+>
+  <!-- Schema.org Structured Data -->
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(articleSchema)} />
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(faqSchema)} />
+
+  <PageHero
+    variant="guide"
+    title="What is 3D Gaussian Splatting?"
+    subtitle="A breakthrough in real-time 3D rendering that represents scenes with millions of colored 3D Gaussians—achieving photorealistic quality at 100+ FPS without neural networks."
+    breadcrumb={[
+      { label: "Home", href: base },
+      { label: "What is Gaussian Splatting" },
+    ]}
+    meta={[
+      { icon: "clock", label: "10 min read" },
+      { icon: "calendar", label: "Updated March 2025" },
+    ]}
+  />
+
+  <PageLayout layout="sidebar-right" hasRelatedResources={true} hasSupportCta={true}>
+    <main slot="main">
+      <!-- Section 1: What is 3D Gaussian Splatting? -->
+      <section id="what-is" class="guide-section">
+        <h2 class="guide-section__title">What is 3D Gaussian Splatting?</h2>
+        
+        <p class="guide-section__lead">
+          <strong>3D Gaussian Splatting (3DGS)</strong> is a method for representing and rendering 3D scenes 
+          using millions of colored 3D Gaussians. Introduced at SIGGRAPH 2023 by Kerbl et al. from INRIA and 
+          the Max Planck Institute, it has rapidly become a foundational technology for real-time photorealistic 
+          3D reconstruction.
+        </p>
+
+        <h3>The Core Concept</h3>
+        <p>
+          Instead of representing a scene with traditional polygons (meshes) or neural networks, 3DGS uses 
+          an <strong>explicit representation</strong>: millions of individual 3D Gaussian "blobs." Each Gaussian 
+          has properties that define its appearance in 3D space:
+        </p>
+        <ul class="guide-list">
+          <li><strong>Position (x, y, z):</strong> Where the Gaussian is located in 3D space</li>
+          <li><strong>Covariance (scale & rotation):</strong> The shape and orientation of the Gaussian</li>
+          <li><strong>Color (RGB + Spherical Harmonics):</strong> Base color and view-dependent appearance</li>
+          <li><strong>Opacity (α):</strong> How transparent or solid the Gaussian appears</li>
+        </ul>
+        <p>
+          When millions of these Gaussians are projected onto the screen and blended together, they create 
+          a photorealistic image that can be rendered in real-time.
+        </p>
+
+        <h3>How It Differs from NeRF</h3>
+        <p>
+          Neural Radiance Fields (NeRF), introduced in 2020, also create photorealistic 3D scenes from images. 
+          However, NeRF uses an <strong>implicit neural representation</strong>—a multi-layer perceptron (MLP) 
+          that outputs color and density for any 3D point and viewing direction. This requires hundreds of 
+          neural network evaluations per pixel, making rendering slow (1-2 FPS).
+        </p>
+        <p>
+          3D Gaussian Splatting takes a fundamentally different approach:
+        </p>
+        <ul class="guide-list">
+          <li><strong>No neural networks:</strong> The representation is purely geometric</li>
+          <li><strong>Explicit storage:</strong> Each Gaussian is stored directly, not learned as network weights</li>
+          <li><strong>GPU rasterization:</strong> Uses optimized tile-based rendering instead of ray marching</li>
+          <li><strong>Real-time speed:</strong> 100-200 FPS vs NeRF's 1-2 FPS</li>
+          <li><strong>Editable:</strong> Individual Gaussians can be selected, moved, or deleted</li>
+        </ul>
+
+        <h3>Three Key Innovations from the Paper</h3>
+        <p>
+          The SIGGRAPH 2023 paper introduced three breakthroughs that made 3DGS practical:
+        </p>
+        
+        <div class="guide-innovation">
+          <h4>1. 3D Gaussians as Flexible Scene Representation</h4>
+          <p>
+            Using anisotropic 3D Gaussians (ellipsoids that can be stretched and rotated) provides a 
+            differentiable representation that can efficiently model both sharp edges and smooth surfaces. 
+            Unlike points or voxels, Gaussians naturally blend together, creating continuous surfaces 
+            without aliasing artifacts.
+          </p>
+        </div>
+
+        <div class="guide-innovation">
+          <h4>2. Interleaved Optimization with Adaptive Density Control</h4>
+          <p>
+            The training process alternates between optimizing Gaussian parameters and adjusting their density. 
+            Gaussians are <strong>cloned</strong> in under-reconstructed regions (where detail is missing) and 
+            <strong>split</strong> in over-reconstructed regions (where Gaussians are too large). This 
+            automatically adapts the representation to scene complexity.
+          </p>
+        </div>
+
+        <div class="guide-innovation">
+          <h4>3. Fast Tile-Based Rasterizer</h4>
+          <p>
+            A custom CUDA rasterizer projects Gaussians onto 2D tiles, sorts them by depth, and blends them 
+            using α-blending. By processing tiles in parallel on the GPU and avoiding per-pixel ray marching, 
+            this achieves real-time performance even with millions of Gaussians.
+          </p>
+        </div>
+      </section>
+
+      <!-- Section 2: How It Works -->
+      <section id="how-it-works" class="guide-section">
+        <h2 class="guide-section__title">How It Works</h2>
+        
+        <p class="guide-section__lead">
+          Understanding 3D Gaussian Splatting requires grasping how Gaussians represent geometry, 
+          how view-dependent color works, and how the rendering process combines millions of elements 
+          into a coherent image.
+        </p>
+
+        <h3>Gaussian Representation</h3>
+        <p>
+          Each 3D Gaussian is defined by a center point and a covariance matrix that describes its shape. 
+          In practice, this is stored as:
+        </p>
+        <ul class="guide-list">
+          <li><strong>Position:</strong> A 3D coordinate (x, y, z) in world space</li>
+          <li><strong>Scale:</strong> Three values (sx, sy, sz) defining the Gaussian's size along each axis</li>
+          <li><strong>Rotation:</strong> A quaternion (4 values) defining the Gaussian's orientation</li>
+          <li><strong>Opacity:</strong> A single value α between 0 (fully transparent) and 1 (fully opaque)</li>
+          <li><strong>Color:</strong> Stored as Spherical Harmonics coefficients</li>
+        </ul>
+
+        <h3>Anisotropic Covariance</h3>
+        <p>
+          The covariance matrix determines how the Gaussian stretches in different directions. By decomposing 
+          it into scale and rotation, 3DGS can represent:
+        </p>
+        <ul class="guide-list">
+          <li><strong>Flat surfaces:</strong> One very small scale component, two larger ones</li>
+          <li><strong>Thin structures:</strong> Two small scale components, one larger one</li>
+          <li><strong>Round blobs:</strong> Three equal scale components</li>
+          <li><strong>Any orientation:</strong> Rotation aligns the Gaussian with surface normals</li>
+        </ul>
+        <p>
+          This anisotropic property is crucial—unlike isotropic spheres, anisotropic Gaussians can efficiently 
+          represent flat surfaces with fewer elements.
+        </p>
+
+        <h3>Spherical Harmonics for View-Dependent Color</h3>
+        <p>
+          Real-world materials change appearance based on viewing angle. A car's paint looks different from 
+          different angles due to specular reflections. 3DGS captures this using <strong>Spherical Harmonics (SH)</strong>.
+        </p>
+        <p>
+          Spherical Harmonics are mathematical functions defined on the surface of a sphere. By storing SH 
+          coefficients instead of a fixed RGB color, each Gaussian can compute its color for any viewing 
+          direction. The degree of SH determines how complex these view-dependent effects can be:
+        </p>
+        <ul class="guide-list">
+          <li><strong>SH Degree 0:</strong> Constant color (3 coefficients) — no view dependence</li>
+          <li><strong>SH Degree 1:</strong> Linear variation (12 coefficients) — basic diffuse lighting</li>
+          <li><strong>SH Degree 2:</strong> Quadratic variation (27 coefficients) — specular highlights</li>
+          <li><strong>SH Degree 3:</strong> Cubic variation (48 coefficients) — complex reflections</li>
+        </ul>
+
+        <h3>The Rendering Process</h3>
+        <p>
+          Rendering a 3D Gaussian Splatting scene involves several steps:
+        </p>
+        <ol class="guide-list guide-list--numbered">
+          <li>
+            <strong>Projection:</strong> Each 3D Gaussian is projected onto the 2D image plane using 
+            perspective transformation. The 3D covariance becomes a 2D covariance on screen.
+          </li>
+          <li>
+            <strong>Tile Assignment:</strong> The screen is divided into 16×16 pixel tiles. Each Gaussian 
+            is assigned to the tiles it overlaps, enabling parallel processing.
+          </li>
+          <li>
+            <strong>Depth Sorting:</strong> Within each tile, Gaussians are sorted by their depth (z-coordinate) 
+            to ensure correct occlusion.
+          </li>
+          <li>
+            <strong>α-Blending:</strong> For each pixel, Gaussians are blended front-to-back using the 
+            over operator: C = C₁α₁ + C₂α₂(1-α₁) + C₃α₃(1-α₁)(1-α₂) + ...
+          </li>
+          <li>
+            <strong>Color Computation:</strong> For each Gaussian contributing to a pixel, its SH coefficients 
+            are evaluated at the viewing direction to get the final color.
+          </li>
+        </ol>
+        <p>
+          This entire process is implemented in CUDA, running massively parallel on the GPU to achieve 
+          real-time frame rates.
+        </p>
+      </section>
+
+      <!-- Section 3: Key Parameters -->
+      <section id="parameters" class="guide-section">
+        <h2 class="guide-section__title">Key Parameters & What They Control</h2>
+        
+        <p class="guide-section__lead">
+          Understanding these parameters helps you make informed decisions when training and optimizing 
+          Gaussian Splatting scenes.
+        </p>
+
+        <div class="guide-parameter">
+          <h3>SH Degree (0-3)</h3>
+          <p>
+            Controls the complexity of view-dependent color effects. Higher degrees capture more sophisticated 
+            lighting but require more storage and computation.
+          </p>
+          <ul class="guide-list">
+            <li><strong>Degree 0:</strong> Use for matte, diffuse surfaces with no reflections</li>
+            <li><strong>Degree 1:</strong> Good for basic lighting variation</li>
+            <li><strong>Degree 2:</strong> Recommended default — captures most specular effects</li>
+            <li><strong>Degree 3:</strong> Use for highly reflective materials like glass or polished metal</li>
+          </ul>
+          <p>
+            <strong>Storage impact:</strong> Degree 0 uses 3 floats per Gaussian; Degree 3 uses 48 floats.
+          </p>
+          <p>
+            <strong>Spherical Harmonics (SH)</strong> coefficients enable view-dependent appearance—each Gaussian can show different colors from different viewing angles, capturing reflections and specular highlights. Higher SH degrees (0-3) provide richer angular detail.
+          </p>
+        </div>
+
+        <div class="guide-parameter">
+          <h3>Opacity (α)</h3>
+          <p>
+            Controls how "solid" each Gaussian appears. Values range from 0 (completely transparent) to 
+            1 (completely opaque). During training, opacity is optimized along with other parameters.
+          </p>
+          <ul class="guide-list">
+            <li>Low opacity creates soft, fuzzy edges and semi-transparent effects</li>
+            <li>High opacity creates sharp, well-defined surfaces</li>
+            <li>Opacity pruning removes Gaussians with α below a threshold (typically 0.005)</li>
+          </ul>
+        </div>
+
+        <div class="guide-parameter">
+          <h3>Covariance (Scale & Rotation)</h3>
+          <p>
+            Defines the shape and orientation of each Gaussian. Covariance is represented as <strong>scale (3D vector) + rotation (quaternion)</strong> defining the ellipsoid's shape and orientation. Scale is stored as a 3D vector (sx, sy, sz), and rotation as a quaternion (4 values).
+          </p>
+          <ul class="guide-list">
+            <li><strong>Scale:</strong> Larger values = bigger Gaussians; smaller values = finer detail</li>
+            <li><strong>Rotation:</strong> Aligns the Gaussian with local surface orientation</li>
+            <li>Scale is constrained during optimization to prevent Gaussians from becoming too large</li>
+          </ul>
+        </div>
+
+        <div class="guide-parameter">
+          <h3>Densification</h3>
+          <p>
+            The process of adding or removing Gaussians during training. Controlled by thresholds that 
+            determine when to clone or split:
+          </p>
+          <ul class="guide-list">
+            <li><strong>Clone:</strong> Creates a copy of a Gaussian in under-reconstructed regions 
+            (high view-space gradient, small scale) — used where Gaussians are too small to capture detail</li>
+            <li><strong>Split:</strong> Divides a large Gaussian into two smaller ones in over-reconstructed regions 
+            (high view-space gradient, large scale) — used where Gaussians are too large for fine detail</li>
+            <li><strong>Prune:</strong> Removes Gaussians with very low opacity or extreme scale</li>
+          </ul>
+          <p>
+            Densification occurs when view-space position gradients exceed τ<sub>pos</sub> = 0.0002. 
+            Opacity reset happens every 3,000 iterations to prevent accumulation of transparent Gaussians.
+            Densification typically occurs at specific iterations (e.g., 500, 1000, 1500, 2000) during training.
+          </p>
+        </div>
+
+        <div class="guide-parameter">
+          <h3>Iterations</h3>
+          <p>
+            The number of optimization steps during training. More iterations generally produce higher 
+            quality but take longer.
+          </p>
+          <ul class="guide-list">
+            <li><strong>7K iterations:</strong> Fast preview quality (~5 minutes on RTX 4070)</li>
+            <li><strong>15K iterations:</strong> Good quality for most use cases (~15 minutes)</li>
+            <li><strong>30K iterations:</strong> Maximum quality (~30-35 minutes)</li>
+          </ul>
+          <p>
+            Training uses the Adam optimizer with a learning rate that decays over time. Loss combines 
+            L1 (pixel difference) and <strong>D-SSIM (structural dissimilarity) with λ=0.2 weighting</strong>.
+          </p>
+        </div>
+      </section>
+
+      <!-- Section 4: Training Process -->
+      <section id="training" class="guide-section">
+        <h2 class="guide-section__title">Training Process</h2>
+        
+        <p class="guide-section__lead">
+          Training a 3D Gaussian Splatting model transforms a set of images into an optimized 
+          collection of millions of Gaussians. Here's how the process works step by step.
+        </p>
+
+        <h3>Starting Point: Structure from Motion</h3>
+        <p>
+          Training begins with a point cloud generated by Structure from Motion (SfM), typically using 
+          COLMAP. This process:
+        </p>
+        <ol class="guide-list guide-list--numbered">
+          <li>Estimates camera positions and orientations for each input image</li>
+          <li>Triangulates 3D points that appear in multiple images</li>
+          <li>Produces a sparse point cloud (typically 10K-100K points) with associated colors</li>
+        </ol>
+        <p>
+          Each SfM point becomes the initial position of a 3D Gaussian. The initial scale is set based 
+          on the average distance to neighboring points, and initial color comes from the SfM point color.
+        </p>
+
+        <h3>Optimization Loop</h3>
+        <p>
+          The core training loop alternates between rendering and parameter updates:
+        </p>
+        <ol class="guide-list guide-list--numbered">
+          <li>
+            <strong>Render:</strong> Project Gaussians to a random training camera view and render an image
+          </li>
+          <li>
+            <strong>Compute Loss:</strong> Compare rendered image to ground truth using L1 + λ·SSIM loss
+          </li>
+          <li>
+            <strong>Backpropagate:</strong> Compute gradients for all Gaussian parameters
+          </li>
+          <li>
+            <strong>Update:</strong> Apply Adam optimizer step to adjust positions, scales, rotations, 
+            colors, and opacities
+          </li>
+          <li>
+            <strong>Densify (periodic):</strong> Clone or split Gaussians based on reconstruction quality
+          </li>
+          <li>
+            <strong>Prune (periodic):</strong> Remove low-opacity or oversized Gaussians
+          </li>
+        </ol>
+
+        <h3>Clone vs Split Strategy</h3>
+        <p>
+          The adaptive density control uses two complementary strategies:
+        </p>
+        <div class="guide-strategy">
+          <h4>Cloning</h4>
+          <p>
+            When a Gaussian has high view-space gradient (the rendered image changes significantly 
+            when the camera moves), it indicates under-reconstruction. The Gaussian is cloned—duplicated 
+            at the same position—and both copies move in opposite directions during subsequent optimization 
+            to fill in missing detail.
+          </p>
+        </div>
+        <div class="guide-strategy">
+          <h4>Splitting</h4>
+          <p>
+            When a Gaussian is large but covers an area with fine detail, it's split into two smaller 
+            Gaussians. The new Gaussians are positioned along the axis of largest scale, with scales 
+            reduced by a factor. This increases resolution where needed.
+          </p>
+        </div>
+
+        <h3>Typical Training Results</h3>
+        <p>
+          After 30K iterations, a typical scene contains:
+        </p>
+        <ul class="guide-list">
+          <li><strong>1-5 million Gaussians</strong> for a standard outdoor or indoor scene</li>
+          <li><strong>Training time:</strong> 5-10 minutes (7K iterations) to 30-45 minutes (30K iterations) depending on GPU</li>
+          <li><strong>File size:</strong> 50-500 MB in raw .ply format (can be compressed to 10-50 MB)</li>
+          <li><strong>Rendering speed:</strong> 30-200 FPS at 1080p on modern GPUs</li>
+        </ul>
+
+        <div class="guide-info-box">
+          <div class="guide-info-box__icon" aria-hidden="true">
+            <svg class="bi" width="24" height="24">
+              <use href={`${base}static/bootstrap-icons.svg#lightbulb`}></use>
+            </svg>
+          </div>
+          <div class="guide-info-box__content">
+            <strong>Pro Tip:</strong> The final Gaussian count depends on scene complexity. Simple scenes 
+            with flat surfaces may use fewer than 1M Gaussians, while complex scenes with foliage or fine 
+            detail can exceed 5M. You can control this through densification thresholds.
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Why It Matters -->
+      <section id="why-matters" class="guide-section">
+        <h2 class="guide-section__title">Why It Matters</h2>
+        
+        <p class="guide-section__lead">
+          3D Gaussian Splatting represents a paradigm shift in 3D graphics, combining the photorealism 
+          of neural rendering with the speed and editability of traditional methods.
+        </p>
+
+        <h3>Real-Time Rendering</h3>
+        <p>
+          The most immediate impact of 3DGS is performance. Where NeRF requires seconds per frame, 
+          3DGS renders at 30+ FPS even at 1080p, often reaching 100-200 FPS on high-end GPUs. This 
+          enables:
+        </p>
+        <ul class="guide-list">
+          <li>Interactive web-based 3D experiences without plugins</li>
+          <li>VR/AR applications with photorealistic environments</li>
+          <li>Real-time VFX and virtual production</li>
+          <li>Video games with true-to-life captured environments</li>
+        </ul>
+
+        <h3>Quality Matching (and Surpassing) NeRF</h3>
+        <p>
+          Despite being orders of magnitude faster, 3DGS achieves comparable or better visual quality 
+          than NeRF on standard benchmarks. The explicit representation captures fine detail that 
+          neural networks sometimes smooth away, particularly for:
+        </p>
+        <ul class="guide-list">
+          <li>Thin structures like wires, branches, and hair</li>
+          <li>High-frequency textures and patterns</li>
+          <li>Semi-transparent materials like glass and water</li>
+          <li>View-dependent specular effects</li>
+        </ul>
+
+        <h3>Explicit, Editable Representation</h3>
+        <p>
+          Unlike neural representations that are "black boxes," 3D Gaussians are explicit and manipulable. 
+          This enables workflows impossible with NeRF:
+        </p>
+        <ul class="guide-list">
+          <li><strong>Object removal:</strong> Select and delete Gaussians to remove unwanted elements</li>
+          <li><strong>Color correction:</strong> Adjust the SH coefficients of selected regions</li>
+          <li><strong>Composition:</strong> Merge multiple splats into a single scene</li>
+          <li><strong>Animation:</strong> Deform or move Gaussian groups over time</li>
+          <li><strong>Export:</strong> Convert to other formats like meshes or point clouds</li>
+        </ul>
+        <p>
+          Tools like <a href={base} class="guide-link">LichtFeld Studio</a> provide brush, lasso, and 
+          polygon selection tools that let artists directly manipulate the underlying representation.
+        </p>
+
+        <h3>Accessibility and Open Ecosystem</h3>
+        <p>
+          Today there are:
+        </p>
+        <ul class="guide-list">
+          <li>Web viewers that run in any browser</li>
+          <li>Plugins for Unreal Engine, Unity, and Blender</li>
+          <li>Compression formats reducing file sizes by 10x</li>
+          <li>Mobile implementations for iOS and Android</li>
+          <li>Training optimizations reducing time from hours to minutes</li>
+        </ul>
+
+        <div class="guide-cta-box">
+          <h3>Start Creating with 3D Gaussian Splatting</h3>
+          <p>
+            Ready to explore the possibilities? LichtFeld Studio provides everything you need to train, 
+            edit, and export Gaussian Splatting scenes—completely free and open-source.
+          </p>
+          <div class="guide-cta-box__actions">
+            <a href={GITHUB_RELEASES_URL} class="btn btn-primary btn-lg" target="_blank" rel="noopener noreferrer">
+              <svg class="bi" width="20" height="20" aria-hidden="true">
+                <use href={`${base}static/bootstrap-icons.svg#download`}></use>
+              </svg>
+              Download Now
+            </a>
+            <a href={`${base}learn-lfs/getting-started/`} class="btn btn-outline-primary btn-lg">
+              <svg class="bi" width="20" height="20" aria-hidden="true">
+                <use href={`${base}static/bootstrap-icons.svg#book`}></use>
+              </svg>
+              Getting Started
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: FAQ -->
+      <section id="faq" class="guide-section">
+        <h2 class="guide-section__title">Frequently Asked Questions</h2>
+        
+        <div class="guide-faq">
+          {faqs.map((faq, index) => (
+            <details class="guide-faq__item" open={index === 0}>
+              <summary class="guide-faq__question">
+                {faq.question}
+                <svg class="guide-faq__icon" width="20" height="20" aria-hidden="true">
+                  <use href={`${base}static/bootstrap-icons.svg#chevron-down`}></use>
+                </svg>
+              </summary>
+              <div class="guide-faq__answer">
+                <p>{faq.answer}</p>
+              </div>
+            </details>
+          ))}
+        </div>
+      </section>
+
+      <!-- Section 7: Citation -->
+      <section id="citation" class="guide-section">
+        <h2 class="guide-section__title">Citation</h2>
+        
+        <p class="guide-section__lead">
+          If you use 3D Gaussian Splatting in your research, please cite the original paper:
+        </p>
+
+        <div class="guide-code-block">
+          <pre><code>@article&#123;kerbl3Dgaussians,
+  author = &#123;Kerbl, Bernhard and Kopanas, Georgios and Leimkühler, Thomas and Drettakis, George&#125;,
+  title = &#123;3D Gaussian Splatting for Real-Time Radiance Field Rendering&#125;,
+  journal = &#123;ACM Transactions on Graphics&#125;,
+  number = &#123;4&#125;,
+  volume = &#123;42&#125;,
+  month = &#123;July&#125;,
+  year = &#123;2023&#125;,
+  url = &#123;https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/&#125;
+&#125;</code></pre>
+        </div>
+
+        <h3>Paper Details</h3>
+        <ul class="guide-list">
+          <li><strong>Authors:</strong> Bernhard Kerbl, Georgios Kopanas, Thomas Leimkühler, George Drettakis</li>
+          <li><strong>Venue:</strong> SIGGRAPH 2023 / ACM Transactions on Graphics (TOG), Volume 42, Number 4</li>
+          <li><strong>Institution:</strong> INRIA and Max Planck Institute</li>
+          <li><strong>Year:</strong> 2023</li>
+        </ul>
+
+        <h3>Related Resources</h3>
+        <ul class="guide-list">
+          <li>
+            <a href="https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/" target="_blank" rel="noopener noreferrer" class="guide-link">
+              Official Project Page
+            </a> — Paper, code, and supplementary materials
+          </li>
+          <li>
+            <a href={GITHUB_REPO_URL} target="_blank" rel="noopener noreferrer" class="guide-link">
+              LichtFeld Studio GitHub Repository
+            </a> — Open-source implementation
+          </li>
+          <li>
+            <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer" class="guide-link">
+              Community Discord
+            </a> — Get help and share your work
+          </li>
+        </ul>
+      </section>
+    </main>
+
+    <aside slot="sidebar">
+      <ContentSidebar
+        type="quick-links"
+        title="Quick Links"
+        items={sidebarItems}
+      />
+    </aside>
+
+    <div slot="resources">
+      <RelatedResources
+        title="Related Resources"
+        subtitle="Continue your Gaussian Splatting journey"
+        resources={relatedResources}
+        columns={2}
+      />
+    </div>
+
+    <div slot="support">
+      <SupportCTA
+        variant="boxed"
+        title="Support the Project"
+        description="LichtFeld Studio is free and open-source. Your support helps us build better tools for the Gaussian Splatting community."
+        actions={supportOptions}
+        discordUrl={DISCORD_URL}
+      />
+    </div>
+  </PageLayout>
+
+  <!-- Toast notification -->
+  <div class="guide-toast" id="share-toast" aria-live="polite" aria-hidden="true">
+    <svg class="bi" width="20" height="20" aria-hidden="true">
+      <use href={`${base}static/bootstrap-icons.svg#check-circle`}></use>
+    </svg>
+    Link copied to clipboard!
+  </div>
+</Layout>
+
+<script>
+  // Share button functionality
+  document.addEventListener('DOMContentLoaded', () => {
+    const shareBtn = document.getElementById('share-page-btn');
+    const toast = document.getElementById('share-toast');
+
+    if (shareBtn && toast) {
+      shareBtn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(window.location.href);
+          
+          // Show toast
+          toast.classList.add('is-visible');
+          toast.setAttribute('aria-hidden', 'false');
+          
+          // Hide after 3 seconds
+          setTimeout(() => {
+            toast.classList.remove('is-visible');
+            toast.setAttribute('aria-hidden', 'true');
+          }, 3000);
+        } catch (err) {
+          console.error('Failed to copy:', err);
+        }
+      });
+    }
+  });
+</script>
+
+<style>
+  /* ============================================================================
+   * Guide Sections
+   * ============================================================================ */
+
+  .guide-section {
+    margin-bottom: 4rem;
+  }
+
+  .guide-section__title {
+    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    line-height: 1.2;
+    margin: 0 0 1.5rem;
+    color: var(--color-heading);
+    scroll-margin-top: calc(var(--nav-height) + 2rem);
+  }
+
+  .guide-section__lead {
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: var(--color-body);
+    margin: 0 0 1.5rem;
+  }
+
+  .guide-section h3 {
+    font-size: 1.375rem;
+    line-height: 1.3;
+    margin: 2rem 0 1rem;
+    color: var(--color-heading);
+    scroll-margin-top: calc(var(--nav-height) + 2rem);
+  }
+
+  .guide-section h4 {
+    font-size: 1.125rem;
+    line-height: 1.4;
+    margin: 1.5rem 0 0.75rem;
+    color: var(--color-heading);
+  }
+
+  .guide-section p {
+    font-size: 1.0625rem;
+    line-height: 1.8;
+    color: var(--color-body);
+    margin: 0 0 1.25rem;
+  }
+
+  .guide-section ul,
+  .guide-section ol {
+    font-size: 1.0625rem;
+    line-height: 1.8;
+    color: var(--color-body);
+    margin: 0 0 1.5rem;
+    padding-left: 1.5rem;
+  }
+
+  .guide-section li {
+    margin-bottom: 0.5rem;
+  }
+
+  .guide-link {
+    color: var(--color-primary-link);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+  }
+
+  .guide-link:hover {
+    color: var(--color-primary-link-hover);
+    text-decoration: underline;
+  }
+
+  /* ============================================================================
+   * Info Box
+   * ============================================================================ */
+
+  .guide-info-box {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, rgba(20, 87, 255, 0.08), rgba(20, 87, 255, 0.02));
+    border: 1px solid rgba(20, 87, 255, 0.15);
+    border-radius: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-info-box__icon {
+    flex-shrink: 0;
+    color: var(--color-primary);
+  }
+
+  .guide-info-box__content {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--color-body);
+  }
+
+  /* ============================================================================
+   * Innovations, Parameters, Strategy
+   * ============================================================================ */
+
+  .guide-innovation,
+  .guide-parameter,
+  .guide-strategy {
+    padding: 1.5rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-innovation h4,
+  .guide-parameter h3,
+  .guide-strategy h4 {
+    margin: 0 0 0.75rem;
+    font-size: 1.125rem;
+  }
+
+  .guide-innovation p,
+  .guide-parameter p,
+  .guide-strategy p {
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
+  }
+
+  .guide-innovation p:last-child,
+  .guide-parameter p:last-child,
+  .guide-strategy p:last-child {
+    margin-bottom: 0;
+  }
+
+  .guide-parameter h3 {
+    margin-top: 0;
+  }
+
+  /* ============================================================================
+   * CTA Box
+   * ============================================================================ */
+
+  .guide-cta-box {
+    padding: 2rem;
+    background: linear-gradient(135deg, rgba(20, 87, 255, 0.1), rgba(201, 114, 52, 0.05));
+    border: 1px solid rgba(20, 87, 255, 0.2);
+    border-radius: 1.25rem;
+    margin: 2.5rem 0;
+    text-align: center;
+  }
+
+  .guide-cta-box h3 {
+    margin: 0 0 1rem;
+    font-size: 1.5rem;
+  }
+
+  .guide-cta-box p {
+    margin: 0 0 1.5rem;
+    font-size: 1.0625rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .guide-cta-box__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+  }
+
+  .guide-cta-box__actions .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* ============================================================================
+   * FAQ
+   * ============================================================================ */
+
+  .guide-faq {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-faq__item {
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+    overflow: hidden;
+  }
+
+  .guide-faq__question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.25rem;
+    font-weight: 600;
+    color: var(--color-heading);
+    cursor: pointer;
+    list-style: none;
+    transition: background 0.2s ease;
+  }
+
+  .guide-faq__question:hover {
+    background: rgba(15, 23, 42, 0.02);
+  }
+
+  .guide-faq__question::-webkit-details-marker {
+    display: none;
+  }
+
+  .guide-faq__icon {
+    flex-shrink: 0;
+    color: var(--color-muted);
+    transition: transform 0.2s ease;
+  }
+
+  .guide-faq__item[open] .guide-faq__icon {
+    transform: rotate(180deg);
+  }
+
+  .guide-faq__answer {
+    padding: 0 1.25rem 1.25rem;
+  }
+
+  .guide-faq__answer p {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  /* ============================================================================
+   * Code Block (for citations)
+   * ============================================================================ */
+
+  .guide-code-block {
+    margin: 1rem 0;
+    border-radius: 1rem;
+    background: #1a1a2e;
+    overflow: hidden;
+  }
+
+  .guide-code-block pre {
+    margin: 0;
+    padding: 1.25rem;
+    overflow-x: auto;
+  }
+
+  .guide-code-block code {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #e4e4e7;
+    background: transparent;
+  }
+
+  /* ============================================================================
+   * Toast
+   * ============================================================================ */
+
+  .guide-toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(1rem);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: var(--color-heading);
+    color: white;
+    font-weight: 500;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+  }
+
+  .guide-toast.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ============================================================================
+   * Responsive Adjustments
+   * ============================================================================ */
+
+  @media (max-width: 767px) {
+    .guide-section {
+      margin-bottom: 3rem;
+    }
+
+    .guide-cta-box {
+      padding: 1.5rem;
+    }
+
+    .guide-cta-box__actions {
+      flex-direction: column;
+    }
+
+    .guide-cta-box__actions .btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .guide-innovation,
+    .guide-parameter,
+    .guide-strategy {
+      padding: 1.25rem;
+    }
+  }
+</style>

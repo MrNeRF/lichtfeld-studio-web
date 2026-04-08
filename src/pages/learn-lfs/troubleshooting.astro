@@ -1,0 +1,670 @@
+---
+/**
+ * learn-lfs/troubleshooting.astro
+ *
+ * Troubleshooting Page for LichtFeld Studio - Moved from /troubleshooting.astro
+ * Standardized version using PageLayout, PageHero, ContentSidebar, SupportCTA, RelatedResources
+ */
+
+import Layout from "@/layouts/Layout.astro";
+import PageLayout from "@/components/layouts/PageLayout.astro";
+import PageHero from "@/components/layouts/PageHero.astro";
+import ContentSidebar from "@/components/layouts/ContentSidebar.astro";
+import SupportCTA from "@/components/layouts/SupportCTA.astro";
+import RelatedResources from "@/components/layouts/RelatedResources.astro";
+import { GITHUB_REPO_URL, DISCORD_URL, GITHUB_SPONSORS_URL, PAYPAL_URL } from "@/constants/project";
+
+const base = import.meta.env.BASE_URL;
+
+// SEO metadata
+const seoTitle = "LichtFeld Studio Troubleshooting: Fix Common Issues";
+const seoDescription = "Troubleshoot common LichtFeld Studio and 3D Gaussian Splatting issues. Scene explosions, slow training, CUDA errors, and more solutions.";
+
+// Severity levels for issues
+const SEVERITY = {
+  CRITICAL: { label: "Critical", class: "severity-critical", icon: "exclamation-octagon" },
+  WARNING: { label: "Warning", class: "severity-warning", icon: "exclamation-triangle" },
+  INFO: { label: "Info", class: "severity-info", icon: "info-circle" }
+} as const;
+
+// Problem Categories and Issues
+const problemCategories = [
+  {
+    id: "installation",
+    title: "Installation Issues",
+    icon: "download",
+    description: "Problems getting LichtFeld Studio installed and running",
+    issues: [
+      {
+        id: "install-cuda-missing",
+        title: "CUDA not found or not installed",
+        severity: SEVERITY.CRITICAL,
+        symptoms: ["CUDA not available", "RuntimeError: CUDA error", "No CUDA-capable device detected"],
+        solution: `Verify NVIDIA GPU is installed: nvidia-smi (NVIDIA Driver >= 570 required). Download CUDA Toolkit 12.8+ from NVIDIA. Install cuDNN matching your CUDA version. Restart your system after installation.`,
+        keywords: ["cuda", "install", "missing", "nvidia", "gpu"]
+      },
+      {
+        id: "install-build-fails",
+        title: "Build fails with compiler errors",
+        severity: SEVERITY.CRITICAL,
+        symptoms: ["CMake error", "MSVC not found", "gcc/g++ error", "Linker error"],
+        solution: `Windows: Install Visual Studio 2022 with "Desktop development with C++" workload. Linux: Install build essentials. Verify CMake version 3.20+. Clear build cache and rebuild.`,
+        keywords: ["build", "compile", "cmake", "visual studio", "gcc"]
+      },
+    ]
+  },
+  {
+    id: "training",
+    title: "Training Problems",
+    icon: "camera",
+    description: "Issues during scene training and optimization",
+    issues: [
+      {
+        id: "train-scene-explodes",
+        title: 'Scene "Explodes" - Gaussians scatter everywhere',
+        severity: SEVERITY.CRITICAL,
+        symptoms: ["Scene becomes a cloud of points", "Loss becomes NaN", "View shows scattered blobs"],
+        solution: `Lower learning rate to 0.001 or 0.0005. Check image overlap (60-80% recommended). Verify camera calibration. Reduce depth complexity. Enable gradient clipping.`,
+        keywords: ["explode", "explosion", "scatter", "nan", "unstable", "training"]
+      },
+      {
+        id: "train-slow-iteration",
+        title: "Slow Training - Less than 1 iter/sec",
+        severity: SEVERITY.WARNING,
+        symptoms: ["Training takes hours", "Iteration counter increments slowly", "GPU utilization low"],
+        solution: `Check GPU utilization with nvidia-smi (should be 80-100%). Reduce image resolution. Close other applications. Reduce batch size. Use SSD for datasets.`,
+        keywords: ["slow", "speed", "performance", "iteration", "training", "fps"]
+      },
+      {
+        id: "train-cuda-oom",
+        title: "CUDA Out of Memory",
+        severity: SEVERITY.CRITICAL,
+        symptoms: ["RuntimeError: CUDA out of memory", "Allocation error", "Tried to allocate X MB"],
+        solution: `Reduce resolution to 1024 or 512. Limit Gaussians with --max_num_gaussians. Reduce batch size to 1. Enable memory efficient mode. Close other GPU apps.`,
+        keywords: ["cuda", "memory", "oom", "out of memory", "allocate", "vram"]
+      },
+    ]
+  },
+  {
+    id: "performance",
+    title: "Performance Issues",
+    icon: "speedometer2",
+    description: "System performance and responsiveness problems",
+    issues: [
+      {
+        id: "perf-cpu-100",
+        title: "CPU at 100% usage",
+        severity: SEVERITY.WARNING,
+        symptoms: ["System unresponsive", "Task Manager shows 100% CPU", "Fan noise high"],
+        solution: `Check GPU utilization - if 0-10%, CUDA is not working. Verify NVIDIA Driver >= 570 and CUDA 12.8+ are installed. Reduce data loader workers.`,
+        keywords: ["cpu", "usage", "100%", "performance", "bottleneck", "slow"]
+      },
+      {
+        id: "perf-low-fps",
+        title: "Low FPS in viewer",
+        severity: SEVERITY.INFO,
+        symptoms: ["Viewer stuttering", "FPS counter shows low numbers", "Lag when rotating"],
+        solution: `Reduce splat count. Lower render resolution. Disable effects. Update GPU drivers. Close other GPU apps.`,
+        keywords: ["fps", "viewer", "lag", "stutter", "performance", "render"]
+      },
+    ]
+  },
+];
+
+// Help resources
+const helpResources = [
+  { title: "Discord Community", description: "Get real-time help from the community", icon: "discord", href: DISCORD_URL, external: true },
+  { title: "GitHub Issues", description: "Report bugs and request features", icon: "github", href: `${GITHUB_REPO_URL}/issues`, external: true },
+  { title: "FAQ", description: "Answers to common questions", icon: "question-circle", href: `${base}learn-lfs/faq/` },
+  { title: "Documentation", description: "Comprehensive guides", icon: "book", href: `${base}docs/` },
+];
+
+// Related resources
+const relatedResources = [
+  { title: "Getting Started", description: "Complete beginner's guide", href: `${base}learn-lfs/getting-started/`, icon: "rocket" },
+  { title: "FAQ", description: "Common questions answered", href: `${base}learn-lfs/faq/`, icon: "question-circle" },
+  { title: "Documentation", description: "Comprehensive guides", href: `${base}docs/`, icon: "book" },
+  { title: "Community", description: "Join our Discord", href: DISCORD_URL, icon: "chat-dots", external: true },
+];
+
+// Sidebar items
+const sidebarItems = [
+  { label: "Installation", href: "#installation", icon: "download" },
+  { label: "Training", href: "#training", icon: "camera" },
+  { label: "Performance", href: "#performance", icon: "speedometer2" },
+];
+
+// Support options
+const supportOptions = [
+  { label: "GitHub Sponsors", href: GITHUB_SPONSORS_URL, icon: "github", variant: "primary" as const },
+  { label: "PayPal", href: PAYPAL_URL, icon: "paypal", variant: "outline" as const },
+];
+---
+
+<Layout title={seoTitle} description={seoDescription}>
+  <PageHero
+    variant="guide"
+    title="Troubleshooting Guide"
+    subtitle="Find solutions to common LichtFeld Studio and 3D Gaussian Splatting issues. From scene explosions to CUDA errors - we've got you covered."
+    kicker="Support Center"
+    breadcrumb={[
+      { label: "Home", href: base },
+      { label: "Learn LFS", href: `${base}learn-lfs/` },
+      { label: "Troubleshooting" },
+    ]}
+    meta={[
+      { icon: "clock", label: "10 min read" },
+      { icon: "calendar", label: "Updated March 2025" },
+    ]}
+  />
+
+  <PageLayout layout="sidebar-right" hasRelatedResources={true} hasSupportCta={true}>
+    <main slot="main">
+      {/* Quick Diagnostics */}
+      <section class="diagnostics-section shell" id="diagnostics">
+        <div class="diagnostics-header">
+          <div class="diagnostics-icon">
+            <i class="bi bi-activity"></i>
+          </div>
+          <div class="diagnostics-title-wrap">
+            <h2 class="diagnostics-title">Quick Diagnostics</h2>
+            <p class="diagnostics-subtitle">Run these checks to identify common problems</p>
+          </div>
+        </div>
+        
+        <div class="diagnostics-grid">
+          <div class="diagnostic-card">
+            <div class="diagnostic-header">
+              <i class="bi bi-gpu-card"></i>
+              <span class="diagnostic-name">CUDA Check</span>
+            </div>
+            <code class="diagnostic-command">nvidia-smi</code>
+            <p class="diagnostic-expected">Should show GPU name, driver version, and processes</p>
+          </div>
+          
+          <div class="diagnostic-card">
+            <div class="diagnostic-header">
+              <i class="bi bi-memory"></i>
+              <span class="diagnostic-name">VRAM Check</span>
+            </div>
+            <code class="diagnostic-command">nvidia-smi --query-gpu=memory.used,memory.total --format=csv</code>
+            <p class="diagnostic-expected">Should show available VRAM (need 6GB+)</p>
+          </div>
+          
+          <div class="diagnostic-card">
+            <div class="diagnostic-header">
+              <i class="bi bi-thermometer-half"></i>
+              <span class="diagnostic-name">GPU Temperature</span>
+            </div>
+            <code class="diagnostic-command">nvidia-smi --query-gpu=temperature.gpu --format=csv</code>
+            <p class="diagnostic-expected">Should be under 85°C during training</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Problem Categories */}
+      <div class="problem-categories">
+        {problemCategories.map((category) => (
+          <section class="category-section shell" id={category.id} data-category={category.id}>
+            <div class="category-header">
+              <div class="category-icon-wrap">
+                <i class={`bi bi-${category.icon}`}></i>
+              </div>
+              <div class="category-header-text">
+                <h2 class="category-name">{category.title}</h2>
+                <p class="category-description">{category.description}</p>
+              </div>
+              <span class="issue-count">{category.issues.length} issues</span>
+            </div>
+            
+            <div class="issues-list">
+              {category.issues.map((issue) => (
+                <div class="issue-item" data-keywords={issue.keywords.join(',')} data-title={issue.title.toLowerCase()}>
+                  <details class="issue-details">
+                    <summary class="issue-header">
+                      <div class="issue-title-wrap">
+                        <span class={`severity-indicator ${issue.severity.class}`} title={issue.severity.label}>
+                          <i class={`bi bi-${issue.severity.icon}`}></i>
+                        </span>
+                        <span class="issue-title-text">{issue.title}</span>
+                      </div>
+                      <i class="bi bi-chevron-down issue-toggle"></i>
+                    </summary>
+                    
+                    <div class="issue-solution">
+                      <div class="solution-inner">
+                        {issue.symptoms && (
+                          <div class="symptoms-block">
+                            <h4><i class="bi bi-bug"></i> Symptoms</h4>
+                            <ul>
+                              {issue.symptoms.map(symptom => (
+                                <li><code>{symptom}</code></li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        <div class="solution-block">
+                          <h4><i class="bi bi-wrench"></i> Solution</h4>
+                          <p>{issue.solution}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </details>
+                </div>
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
+
+      {/* Help Section */}
+      <section class="help-section shell" id="help">
+        <h2 class="section-title">Still Need Help?</h2>
+        <p class="section-subtitle">Connect with the community and get support</p>
+        
+        <div class="help-grid">
+          {helpResources.map(resource => (
+            <a 
+              href={resource.href} 
+              target={resource.external ? "_blank" : undefined}
+              rel={resource.external ? "noopener noreferrer" : undefined}
+              class="help-card"
+            >
+              <div class="help-icon">
+                <i class={`bi bi-${resource.icon}`}></i>
+              </div>
+              <div class="help-content">
+                <h3 class="help-title">{resource.title}</h3>
+                <p class="help-description">{resource.description}</p>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+    </main>
+
+    <aside slot="sidebar">
+      <ContentSidebar
+        type="quick-links"
+        title="Jump to"
+        items={sidebarItems}
+      />
+    </aside>
+
+    <div slot="resources">
+      <RelatedResources
+        title="Related Resources"
+        subtitle="Continue your learning journey"
+        resources={relatedResources}
+        columns={2}
+      />
+    </div>
+
+    <div slot="support">
+      <SupportCTA
+        variant="boxed"
+        title="Support the Project"
+        description="Your support helps us build better tools for the Gaussian Splatting community."
+        actions={supportOptions}
+        discordUrl={DISCORD_URL}
+      />
+    </div>
+  </PageLayout>
+</Layout>
+
+<style>
+  .diagnostics-section {
+    margin-bottom: 2rem;
+  }
+
+  .diagnostics-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .diagnostics-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.75rem;
+    background: linear-gradient(135deg, rgba(20, 87, 255, 0.1), rgba(201, 114, 52, 0.1));
+    color: var(--color-primary);
+    font-size: 1.5rem;
+  }
+
+  .diagnostics-title {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--color-heading);
+  }
+
+  .diagnostics-subtitle {
+    margin: 0;
+    color: var(--color-muted);
+    font-size: 0.9375rem;
+  }
+
+  .diagnostics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+
+  .diagnostic-card {
+    padding: 1.25rem;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+  }
+
+  .diagnostic-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    color: var(--color-heading);
+    font-weight: 600;
+  }
+
+  .diagnostic-command {
+    display: block;
+    padding: 0.75rem;
+    background: #1a1a2e;
+    color: #e4e4e7;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    border-radius: 0.5rem;
+    margin-bottom: 0.75rem;
+    overflow-x: auto;
+  }
+
+  .diagnostic-expected {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+
+  .problem-categories {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .category-section {
+    transition: opacity 0.3s ease;
+  }
+
+  .category-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  }
+
+  .category-icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 0.75rem;
+    background: linear-gradient(135deg, rgba(20, 87, 255, 0.1), rgba(201, 114, 52, 0.1));
+    color: var(--color-primary-link);
+    font-size: 1.25rem;
+  }
+
+  .category-header-text {
+    flex: 1;
+  }
+
+  .category-name {
+    margin: 0;
+    color: var(--color-heading);
+    font-size: 1.25rem;
+  }
+
+  .category-description {
+    margin: 0.25rem 0 0;
+    color: var(--color-muted);
+    font-size: 0.875rem;
+  }
+
+  .issue-count {
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.06);
+    color: var(--color-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .issues-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .issue-item {
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    overflow: hidden;
+    transition: all 0.2s ease;
+  }
+
+  .issue-item:hover {
+    background: rgba(255, 255, 255, 0.7);
+    border-color: rgba(15, 23, 42, 0.1);
+  }
+
+  .issue-details {
+    width: 100%;
+  }
+
+  .issue-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    width: 100%;
+    padding: 1rem 1.25rem;
+    border: none;
+    background: none;
+    color: var(--color-heading);
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: var(--font-body);
+    text-align: left;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    list-style: none;
+  }
+
+  .issue-header:hover {
+    color: var(--color-primary-link);
+  }
+
+  .issue-header::-webkit-details-marker {
+    display: none;
+  }
+
+  .issue-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+  }
+
+  .severity-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    font-size: 0.875rem;
+    flex-shrink: 0;
+  }
+
+  .severity-critical {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+  }
+
+  .severity-warning {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+  }
+
+  .severity-info {
+    background: rgba(20, 87, 255, 0.15);
+    color: var(--color-primary);
+  }
+
+  .issue-toggle {
+    color: var(--color-muted);
+    transition: transform 0.2s ease;
+  }
+
+  .issue-details[open] .issue-toggle {
+    transform: rotate(180deg);
+  }
+
+  .issue-solution {
+    padding: 0 1.25rem 1.25rem;
+  }
+
+  .solution-inner {
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--surface-border);
+  }
+
+  .symptoms-block,
+  .solution-block {
+    margin-bottom: 1rem;
+  }
+
+  .symptoms-block h4,
+  .solution-block h4 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 0 0.5rem;
+    font-size: 0.9375rem;
+    color: var(--color-heading);
+  }
+
+  .symptoms-block ul {
+    margin: 0;
+    padding-left: 1.25rem;
+    font-size: 0.875rem;
+    color: var(--color-body);
+  }
+
+  .symptoms-block li {
+    margin-bottom: 0.25rem;
+  }
+
+  .symptoms-block code {
+    padding: 0.125rem 0.375rem;
+    background: rgba(15, 23, 42, 0.08);
+    border-radius: 0.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+  }
+
+  .solution-block p {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--color-body);
+  }
+
+  .help-section {
+    margin-top: 2rem;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+    margin: 0 0 0.5rem;
+    color: var(--color-heading);
+  }
+
+  .section-subtitle {
+    margin: 0 0 1.5rem;
+    color: var(--color-muted);
+  }
+
+  .help-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .help-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .help-card:hover {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(20, 87, 255, 0.3);
+    transform: translateY(-2px);
+  }
+
+  .help-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.6rem;
+    background: linear-gradient(135deg, rgba(20, 87, 255, 0.1), rgba(201, 114, 52, 0.1));
+    color: var(--color-primary-link);
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  .help-title {
+    margin: 0 0 0.25rem;
+    font-size: 1rem;
+    color: var(--color-heading);
+  }
+
+  .help-description {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--color-body);
+  }
+
+  @media (max-width: 767.98px) {
+    .diagnostics-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .help-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .category-header {
+      flex-wrap: wrap;
+    }
+
+    .issue-count {
+      margin-left: auto;
+    }
+  }
+</style>

@@ -1,0 +1,371 @@
+---
+/**
+ * PageLayout.astro
+ *
+ * Standardized page wrapper component that provides consistent layout structures
+ * for different page types. Handles sidebar positioning, TOC integration, and
+ * content spacing.
+ *
+ * Layouts:
+ * - 'single': Single column, full-width content (features, comparisons)
+ * - 'sidebar-right': Main content + right sidebar (guides with quick links)
+ * - 'sidebar-left': Left sidebar + main content (docs-style navigation)
+ * - 'centered': Narrow centered content (FAQ, simple pages)
+ *
+ * @example
+ * <PageLayout layout="sidebar-right" hasToc={true}>
+ *   <main slot="main">...</main>
+ *   <aside slot="sidebar">...</aside>
+ * </PageLayout>
+ */
+
+// ============================================================================
+// Type Definitions
+// ============================================================================
+
+export interface Props {
+  /** Layout pattern for the page */
+  layout?: 'single' | 'sidebar-right' | 'sidebar-left' | 'centered';
+  /** Whether the page has a table of contents */
+  hasToc?: boolean;
+  /** Whether to show related resources section */
+  hasRelatedResources?: boolean;
+  /** Whether to show support CTA section */
+  hasSupportCta?: boolean;
+  /** Maximum width constraint for the layout */
+  maxWidth?: 'narrow' | 'default' | 'wide' | 'full';
+  /** Optional additional CSS classes */
+  class?: string;
+}
+
+// ============================================================================
+// Props with Defaults
+// ============================================================================
+
+const {
+  layout = 'single',
+  hasToc = false,
+  hasRelatedResources = false,
+  hasSupportCta = false,
+  maxWidth = 'default',
+  class: className = '',
+} = Astro.props;
+
+// Maximum width configurations
+const maxWidthConfig = {
+  narrow: '780px',
+  default: '1180px',
+  wide: '1400px',
+  full: '100%',
+};
+
+// Layout-specific configurations
+const layoutConfig = {
+  single: {
+    gridTemplate: '1fr',
+    gap: '0',
+    mainMaxWidth: '900px',
+  },
+  'sidebar-right': {
+    gridTemplate: '1fr 300px',
+    gap: '4rem',
+    mainMaxWidth: 'none',
+  },
+  'sidebar-left': {
+    gridTemplate: '280px 1fr',
+    gap: '3rem',
+    mainMaxWidth: 'none',
+  },
+  centered: {
+    gridTemplate: '1fr',
+    gap: '0',
+    mainMaxWidth: '720px',
+  },
+};
+
+const config = layoutConfig[layout];
+const contentMaxWidth = maxWidthConfig[maxWidth];
+---
+
+<div
+  class:list={[
+    'page-layout',
+    `page-layout--${layout}`,
+    { 'page-layout--with-toc': hasToc },
+    { 'page-layout--with-resources': hasRelatedResources },
+    { 'page-layout--with-support': hasSupportCta },
+    className,
+  ]}
+>
+  {/* Optional Table of Contents - appears before main content */}
+  {hasToc && (
+    <div class="page-layout__toc">
+      <div class="container content-frame px-4 px-md-6">
+        <slot name="toc" />
+      </div>
+    </div>
+  )}
+
+  {/* Main Content Area */}
+  <div class="page-layout__content">
+    <div class="container content-frame px-4 px-md-6">
+      <div class="page-layout__grid">
+        {/* Left Sidebar (for sidebar-left layout) */}
+        {layout === 'sidebar-left' && (
+          <aside class="page-layout__sidebar page-layout__sidebar--left" role="complementary">
+            <div class="page-layout__sidebar-sticky">
+              <slot name="sidebar" />
+            </div>
+          </aside>
+        )}
+
+        {/* Main Content */}
+        <main
+          class="page-layout__main"
+          role="main"
+          id="main-content"
+          tabindex="-1"
+        >
+          <slot name="main" />
+          <slot />
+        </main>
+
+        {/* Right Sidebar (for sidebar-right layout) */}
+        {layout === 'sidebar-right' && (
+          <aside class="page-layout__sidebar page-layout__sidebar--right" role="complementary">
+            <div class="page-layout__sidebar-sticky">
+              <slot name="sidebar" />
+            </div>
+          </aside>
+        )}
+      </div>
+    </div>
+  </div>
+
+  {/* Related Resources Section */}
+  {hasRelatedResources && (
+    <section class="page-layout__resources" aria-labelledby="resources-heading">
+      <div class="container content-frame px-4 px-md-6">
+        <slot name="resources" />
+      </div>
+    </section>
+  )}
+
+  {/* Support CTA Section */}
+  {hasSupportCta && (
+    <section class="page-layout__support" aria-labelledby="support-heading">
+      <div class="container content-frame px-4 px-md-6">
+        <slot name="support" />
+      </div>
+    </section>
+  )}
+</div>
+
+<style
+  define:vars={{
+    gridTemplate: config.gridTemplate,
+    gap: config.gap,
+    mainMaxWidth: config.mainMaxWidth,
+    contentMaxWidth: contentMaxWidth,
+  }}
+>
+  /* ============================================================================
+   * Page Layout - Base Styles
+   * ============================================================================ */
+
+  .page-layout {
+    --layout-padding-y: 2rem;
+    --layout-padding-y-lg: 3rem;
+  }
+
+  /* ============================================================================
+   * Table of Contents Section
+   * ============================================================================ */
+
+  .page-layout__toc {
+    padding: 2rem 0;
+  }
+
+  /* ============================================================================
+   * Main Content Area
+   * ============================================================================ */
+
+  .page-layout__content {
+    padding: var(--layout-padding-y) 0;
+  }
+
+  @media (min-width: 768px) {
+    .page-layout__content {
+      padding: var(--layout-padding-y-lg) 0;
+    }
+  }
+
+  /* ============================================================================
+   * Grid Layout
+   * ============================================================================ */
+
+  .page-layout__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    max-width: var(--contentMaxWidth);
+    margin: 0 auto;
+  }
+
+  /* Sidebar layouts - switch to 2-column on large screens */
+  @media (min-width: 1024px) {
+    .page-layout--sidebar-right .page-layout__grid,
+    .page-layout--sidebar-left .page-layout__grid {
+      grid-template-columns: var(--gridTemplate);
+      gap: var(--gap);
+    }
+  }
+
+  /* ============================================================================
+   * Main Content
+   * ============================================================================ */
+
+  .page-layout__main {
+    min-width: 0; /* Prevent overflow in grid */
+    max-width: var(--mainMaxWidth);
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  /* Single layout - center the main content */
+  .page-layout--single .page-layout__main {
+    margin: 0 auto;
+  }
+
+  /* Centered layout - always centered, narrow width */
+  .page-layout--centered .page-layout__main {
+    margin: 0 auto;
+    max-width: 720px;
+  }
+
+  /* Sidebar layouts - full width within grid cell */
+  .page-layout--sidebar-right .page-layout__main,
+  .page-layout--sidebar-left .page-layout__main {
+    max-width: none;
+    margin: 0;
+  }
+
+  /* ============================================================================
+   * Sidebars
+   * ============================================================================ */
+
+  .page-layout__sidebar {
+    display: none; /* Hidden on mobile */
+  }
+
+  @media (min-width: 1024px) {
+    .page-layout__sidebar {
+      display: block;
+    }
+  }
+
+  .page-layout__sidebar--left {
+    order: -1;
+  }
+
+  .page-layout__sidebar--right {
+    order: 1;
+  }
+
+  /* Sticky sidebar content */
+  .page-layout__sidebar-sticky {
+    position: sticky;
+    top: calc(var(--nav-height) + 2rem);
+    max-height: calc(100vh - var(--nav-height) - 4rem);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--surface-border) transparent;
+  }
+
+  .page-layout__sidebar-sticky::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .page-layout__sidebar-sticky::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .page-layout__sidebar-sticky::-webkit-scrollbar-thumb {
+    background-color: var(--surface-border);
+    border-radius: 3px;
+  }
+
+  /* ============================================================================
+   * Related Resources Section
+   * ============================================================================ */
+
+  .page-layout__resources {
+    padding: 3rem 0;
+    border-top: 1px solid var(--surface-border);
+  }
+
+  .page-layout--with-resources .page-layout__content {
+    padding-bottom: 1rem;
+  }
+
+  /* ============================================================================
+   * Support CTA Section
+   * ============================================================================ */
+
+  .page-layout__support {
+    padding: 3rem 0 4rem;
+  }
+
+  /* ============================================================================
+   * Layout-Specific Adjustments
+   * ============================================================================ */
+
+  /* Single layout - add more breathing room */
+  .page-layout--single .page-layout__content {
+    padding-top: 2rem;
+  }
+
+  /* Centered layout - compact spacing for simple pages */
+  .page-layout--centered .page-layout__content {
+    padding-top: 1rem;
+  }
+
+  /* Sidebar layouts - ensure proper alignment with hero */
+  .page-layout--sidebar-right .page-layout__content,
+  .page-layout--sidebar-left .page-layout__content {
+    padding-top: 1rem;
+  }
+
+  /* ============================================================================
+   * Responsive Adjustments
+   * ============================================================================ */
+
+  @media (max-width: 1023.98px) {
+    /* Stack sidebars above content on tablet */
+    .page-layout__sidebar {
+      order: -1;
+      margin-bottom: 1rem;
+    }
+
+    .page-layout__sidebar-sticky {
+      position: static;
+      max-height: none;
+      overflow: visible;
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    .page-layout__content {
+      padding: 1.5rem 0;
+    }
+
+    .page-layout__resources,
+    .page-layout__support {
+      padding: 2rem 0;
+    }
+
+    .page-layout__toc {
+      padding: 1rem 0;
+    }
+  }
+</style>

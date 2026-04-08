@@ -1,0 +1,340 @@
+---
+/**
+ * ContentSidebar.astro
+ *
+ * Standardized sidebar component for various sidebar types:
+ * - 'toc': Table of contents with active section highlighting
+ * - 'quick-links': Quick navigation links
+ * - 'progress': Reading progress indicator
+ * - 'page-nav': Previous/next page navigation
+ *
+ * @example
+ * <ContentSidebar
+ *   type="toc"
+ *   items={[
+ *     {label: "Introduction", href: "#intro", active: true},
+ *     {label: "Getting Started", href: "#start"},
+ *   ]}
+ * />
+ */
+
+// ============================================================================
+// Type Definitions
+// ============================================================================
+
+export interface SidebarItem {
+  /** Display label for the item */
+  label: string;
+  /** URL or anchor href */
+  href: string;
+  /** Whether this item is currently active */
+  active?: boolean;
+  /** Optional icon name (Bootstrap icon without 'bi-' prefix) */
+  icon?: string;
+  /** Optional nested children */
+  children?: SidebarItem[];
+}
+
+export interface Props {
+  /** Type of sidebar to render */
+  type?: 'toc' | 'quick-links';
+  /** Navigation items */
+  items: SidebarItem[];
+  /** Whether sidebar should be sticky */
+  sticky?: boolean;
+  /** Optional title for the sidebar */
+  title?: string;
+  /** Optional additional CSS classes */
+  class?: string;
+}
+
+// ============================================================================
+// Props with Defaults
+// ============================================================================
+
+const {
+  type = 'quick-links',
+  items,
+  sticky = true,
+  title,
+  class: className = '',
+} = Astro.props;
+
+const base = import.meta.env.BASE_URL;
+
+// Type-specific default titles
+const defaultTitles = {
+  toc: 'On this page',
+  'quick-links': 'Quick Links',
+};
+
+const sidebarTitle = title || defaultTitles[type];
+---
+
+<aside
+  class:list={[
+    'content-sidebar',
+    `content-sidebar--${type}`,
+    { 'content-sidebar--sticky': sticky },
+    className,
+  ]}
+  role="complementary"
+  aria-label={sidebarTitle}
+>
+  <div class="content-sidebar__shell shell shell--compact">
+    {/* Header */}
+    <div class="content-sidebar__header">
+      <h2 class="content-sidebar__title">{sidebarTitle}</h2>
+    </div>
+
+    {/* Navigation Items */}
+    <nav class="content-sidebar__nav" aria-label={sidebarTitle}>
+      <ul class="content-sidebar__list" role="list">
+        {items.map((item) => (
+          <li class="content-sidebar__item">
+            <a
+              href={item.href}
+              class:list={[
+                'content-sidebar__link',
+                { 'content-sidebar__link--active': item.active },
+              ]}
+              aria-current={item.active ? 'location' : undefined}
+            >
+              {item.icon && (
+                <svg class="bi content-sidebar__icon" width="16" height="16" aria-hidden="true">
+                  <use href={`${base}static/bootstrap-icons.svg#${item.icon}`}></use>
+                </svg>
+              )}
+              <span class="content-sidebar__label">{item.label}</span>
+            </a>
+
+            {/* Nested children for TOC type */}
+            {type === 'toc' && item.children && item.children.length > 0 && (
+              <ul class="content-sidebar__sublist" role="list">
+                {item.children.map((child) => (
+                  <li class="content-sidebar__subitem">
+                    <a
+                      href={child.href}
+                      class:list={[
+                        'content-sidebar__sublink',
+                        { 'content-sidebar__sublink--active': child.active },
+                      ]}
+                      aria-current={child.active ? 'location' : undefined}
+                    >
+                      {child.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    {/* Footer slot for custom content */}
+    <div class="content-sidebar__footer">
+      <slot />
+    </div>
+  </div>
+</aside>
+
+<style>
+  /* ============================================================================
+   * Content Sidebar - Base Styles
+   * ============================================================================ */
+
+  .content-sidebar {
+    width: 100%;
+  }
+
+  .content-sidebar--sticky {
+    position: sticky;
+    top: calc(var(--nav-height) + 2rem);
+  }
+
+  /* ============================================================================
+   * Shell Container
+   * ============================================================================ */
+
+  .content-sidebar__shell {
+    padding: var(--spacing-5);
+  }
+
+  @media (max-width: 767.98px) {
+    .content-sidebar__shell {
+      padding: var(--spacing-4);
+    }
+  }
+
+  /* ============================================================================
+   * Header
+   * ============================================================================ */
+
+  .content-sidebar__header {
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--surface-border);
+  }
+
+  .content-sidebar__title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--color-heading);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* ============================================================================
+   * Navigation List
+   * ============================================================================ */
+
+  .content-sidebar__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .content-sidebar__item {
+    margin: 0;
+  }
+
+  /* ============================================================================
+   * Navigation Links
+   * ============================================================================ */
+
+  .content-sidebar__link {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-lg);
+    color: var(--color-body);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    transition: all 0.2s ease;
+    line-height: 1.4;
+  }
+
+  .content-sidebar__link:hover {
+    background: rgba(20, 87, 255, 0.06);
+    color: var(--color-primary);
+  }
+
+  .content-sidebar__link--active {
+    background: rgba(20, 87, 255, 0.1);
+    color: var(--color-primary);
+    font-weight: 600;
+  }
+
+  .content-sidebar__link--active:hover {
+    background: rgba(20, 87, 255, 0.14);
+  }
+
+  /* Icon in link */
+  .content-sidebar__icon {
+    flex-shrink: 0;
+    color: var(--color-muted);
+    transition: color 0.2s ease;
+  }
+
+  .content-sidebar__link:hover .content-sidebar__icon,
+  .content-sidebar__link--active .content-sidebar__icon {
+    color: var(--color-primary);
+  }
+
+  /* ============================================================================
+   * Sub-list (for TOC nesting)
+   * ============================================================================ */
+
+  .content-sidebar__sublist {
+    margin: 0.25rem 0 0.25rem 1.5rem;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    border-left: 1px solid var(--surface-border);
+  }
+
+  .content-sidebar__sublink {
+    display: block;
+    padding: 0.375rem 0.75rem;
+    color: var(--color-muted);
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+    line-height: 1.4;
+  }
+
+  .content-sidebar__sublink:hover {
+    color: var(--color-primary);
+  }
+
+  .content-sidebar__sublink--active {
+    color: var(--color-primary);
+    font-weight: 500;
+  }
+
+  /* ============================================================================
+   * Type-Specific Styles
+   * ============================================================================ */
+
+  /* TOC type - more compact */
+  .content-sidebar--toc .content-sidebar__link {
+    font-size: 0.875rem;
+    padding: 0.375rem 0.625rem;
+  }
+
+  /* Quick-links type - with icons */
+  .content-sidebar--quick-links .content-sidebar__link {
+    padding: 0.625rem 0.875rem;
+  }
+
+  /* ============================================================================
+   * Footer Slot
+   * ============================================================================ */
+
+  .content-sidebar__footer {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--surface-border);
+  }
+
+  .content-sidebar__footer:empty {
+    display: none;
+  }
+
+  /* ============================================================================
+   * Responsive Adjustments
+   * ============================================================================ */
+
+  @media (max-width: 1023.98px) {
+    .content-sidebar--sticky {
+      position: static;
+    }
+
+    .content-sidebar__shell {
+      border-radius: var(--radius-xl);
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    .content-sidebar__title {
+      font-size: 0.8125rem;
+    }
+
+    .content-sidebar__link {
+      font-size: 0.875rem;
+      padding: 0.5rem 0.625rem;
+    }
+
+    .content-sidebar__page-link {
+      padding: 0.75rem;
+    }
+  }
+</style>

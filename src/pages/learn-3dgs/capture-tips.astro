@@ -1,0 +1,719 @@
+---
+/**
+ * learn-3dgs/capture-tips.astro
+ *
+ * Capture Tips for 3D Gaussian Splatting - Moved from /tutorials/capture-tips.astro
+ * Standardized version using PageLayout, PageHero, ContentSidebar, SupportCTA, RelatedResources
+ */
+
+import Layout from "@/layouts/Layout.astro";
+import PageLayout from "@/components/layouts/PageLayout.astro";
+import PageHero from "@/components/layouts/PageHero.astro";
+import ContentSidebar from "@/components/layouts/ContentSidebar.astro";
+import SupportCTA from "@/components/layouts/SupportCTA.astro";
+import RelatedResources from "@/components/layouts/RelatedResources.astro";
+import { GITHUB_REPO_URL, DISCORD_URL, GITHUB_SPONSORS_URL, PAYPAL_URL, GAUSSIAN_SPLATKING_APP_STORE_URL } from "@/constants/project";
+import gaussianSplatKingLogo from "@/assets/gaussian-splatking-logo.jpg";
+
+const base = import.meta.env.BASE_URL;
+
+// SEO metadata
+const seoTitle = "Capture Tips for 3D Gaussian Splatting | LichtFeld Studio";
+const seoDescription = "Basic photography guidelines for 3D Gaussian Splatting capture. Learn about overlap, image count, and camera options.";
+
+// Related resources
+const relatedResources = [
+  { title: "Getting Started", description: "Complete beginner's guide to LichtFeld Studio", href: `${base}learn-lfs/getting-started/`, icon: "rocket" },
+  { title: "What is 3DGS?", description: "Learn the fundamentals of Gaussian Splatting", href: `${base}what-is-gaussian-splatting/`, icon: "question-circle" },
+  { title: "Troubleshooting", description: "Solutions to common issues", href: `${base}learn-lfs/troubleshooting/`, icon: "wrench" },
+  { title: "FAQ", description: "Common questions answered", href: `${base}learn-lfs/faq/`, icon: "chat-dots" },
+];
+
+// Sidebar items
+const sidebarItems = [
+  { label: "Guidelines", href: "#basic-guidelines", icon: "camera" },
+  { label: "Camera Options", href: "#camera-options", icon: "device-camera" },
+  { label: "iPhone Capture", href: "#iphone-capture", icon: "phone" },
+  { label: "Reconstruction", href: "#reconstruction", icon: "arrow-repeat" },
+];
+
+// Support options
+const supportOptions = [
+  { label: "GitHub Sponsors", href: GITHUB_SPONSORS_URL, icon: "github", variant: "primary" as const },
+  { label: "PayPal", href: PAYPAL_URL, icon: "paypal", variant: "outline" as const },
+];
+
+// Capture recommendation data
+const captureRecommendation = {
+  eyebrow: "Optional capture tip",
+  title: "Capturing on iPhone?",
+  description: "Gaussian SplatKing is a straightforward upstream option for field capture before your downstream reconstruction workflow. It focuses on 4K footage, can record LiDAR depth on supported devices, and exports the media plus sensor data needed for 3D scene reconstruction.",
+  note: "It is not required for LichtFeld Studio, but it is an easy recommendation when you want a lightweight mobile capture front end.",
+  highlights: ["iPhone only", "4K capture", "LiDAR-ready"],
+  href: GAUSSIAN_SPLATKING_APP_STORE_URL,
+  label: "View on the App Store",
+};
+---
+
+<Layout title={seoTitle} description={seoDescription} ogType="article">
+  <PageHero
+    variant="guide"
+    title="Capture Tips for 3D Gaussian Splatting"
+    subtitle="Basic guidelines for capturing photos that work well with 3D Gaussian Splatting reconstruction."
+    breadcrumb={[
+      { label: "Home", href: base },
+      { label: "Learn 3DGS", href: `${base}learn-3dgs/` },
+      { label: "Capture Tips" },
+    ]}
+    meta={[
+      { icon: "clock", label: "5 min read" },
+      { icon: "calendar", label: "Updated March 2025" },
+    ]}
+  />
+
+  <PageLayout layout="sidebar-right" hasRelatedResources={true} hasSupportCta={true}>
+    <main slot="main">
+      {/* External Resources */}
+      <section class="guide-section">
+        <h2 class="guide-section__title">Detailed Capture Guidelines</h2>
+        
+        <p class="guide-section__lead">
+          For comprehensive capture instructions, including coverage patterns, camera settings, and best practices:
+        </p>
+
+        <div class="guide-cta-box">
+          <a href="https://developer.playcanvas.com/user-manual/gaussian-splatting/creating/taking-photos/" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-lg">
+            <i class="bi bi-box-arrow-up-right"></i>
+            View Complete Capture Guide on PlayCanvas
+          </a>
+        </div>
+      </section>
+
+      {/* Basic Guidelines */}
+      <section id="basic-guidelines" class="guide-section">
+        <h2 class="guide-section__title">Basic Guidelines</h2>
+
+        <div class="guide-tips-grid">
+          <div class="guide-tip-card">
+            <span class="guide-tip-card__number">1</span>
+            <p class="guide-tip-card__text"><strong>Scene Overlap:</strong> Maintain 60-80% overlap between consecutive shots for proper feature matching.</p>
+          </div>
+          <div class="guide-tip-card">
+            <span class="guide-tip-card__number">2</span>
+            <p class="guide-tip-card__text"><strong>Image Count:</strong> Use 100-200 images for single objects, 200+ for larger scenes. More images improve accuracy but increase processing time.</p>
+          </div>
+          <div class="guide-tip-card">
+            <span class="guide-tip-card__number">3</span>
+            <p class="guide-tip-card__text"><strong>Lighting:</strong> Use soft, diffused, even lighting. Avoid harsh shadows, specular highlights, and changing light conditions.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Camera Options */}
+      <section id="camera-options" class="guide-section">
+        <h2 class="guide-section__title">Camera Options</h2>
+
+        <div class="guide-innovation">
+          <h3>Smartphone</h3>
+          <p><strong>Best for:</strong> Quick captures, small objects, learning</p>
+          <ul class="guide-list">
+            <li><strong>Pros:</strong> Convenient, Always available, Good for beginners</li>
+            <li><strong>Cons:</strong> Limited manual control, Smaller sensor, Wide-angle distortion</li>
+          </ul>
+        </div>
+
+        <div class="guide-innovation">
+          <h3>DSLR/Mirrorless</h3>
+          <p><strong>Best for:</strong> Professional work, large scenes, challenging lighting</p>
+          <ul class="guide-list">
+            <li><strong>Pros:</strong> Full manual control, Large sensor, Interchangeable lenses</li>
+            <li><strong>Cons:</strong> Bulky, Expensive, Steeper learning curve</li>
+          </ul>
+        </div>
+
+        <div class="guide-innovation">
+          <h3>360 Camera</h3>
+          <p><strong>Best for:</strong> Complex interiors, outdoor scenes, time-sensitive captures</p>
+          <ul class="guide-list">
+            <li><strong>Pros:</strong> Captures entire scene at once, No missed angles, Fast capture</li>
+            <li><strong>Cons:</strong> Requires special processing, Lower resolution per angle, Longer workflow</li>
+          </ul>
+          <div class="guide-info-box guide-info-box--warning">
+            <div class="guide-info-box__icon" aria-hidden="true">
+              <i class="bi bi-exclamation-triangle"></i>
+            </div>
+            <div class="guide-info-box__content">
+              <strong>Note:</strong> 360 workflows take longer due to special processing requirements
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* iPhone Capture - Gaussian SplatKing */}
+      <section id="iphone-capture" class="guide-section">
+        <h2 class="guide-section__title">iPhone Capture</h2>
+
+        <aside class="story-capture-tip" aria-labelledby="capture-tip-heading">
+          <div class="story-capture-tip__copy">
+            <div class="story-capture-tip__header">
+              <img
+                src={gaussianSplatKingLogo.src}
+                alt="Gaussian SplatKing app icon"
+                class="story-capture-tip__logo"
+                width="56"
+                height="56"
+                loading="lazy"
+                decoding="async"
+              />
+              <div class="story-capture-tip__heading">
+                <p class="story-capture-tip__eyebrow">{captureRecommendation.eyebrow}</p>
+                <h3 id="capture-tip-heading" class="story-capture-tip__title">{captureRecommendation.title}</h3>
+              </div>
+            </div>
+            <p class="story-capture-tip__body">{captureRecommendation.description}</p>
+            <p class="story-capture-tip__note">{captureRecommendation.note}</p>
+          </div>
+
+          <div class="story-capture-tip__footer">
+            <div class="story-capture-tip__facts" aria-label="Capture recommendation highlights">
+              {captureRecommendation.highlights.map((item) => <span class="story-capture-tip__fact">{item}</span>)}
+            </div>
+            <a
+              class="section-link story-capture-tip__link"
+              href={captureRecommendation.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="View Gaussian SplatKing on the App Store"
+            >
+              {captureRecommendation.label}
+            </a>
+          </div>
+        </aside>
+      </section>
+
+      {/* Reconstruction */}
+      <section id="reconstruction" class="guide-section">
+        <h2 class="guide-section__title">After Capture: Reconstruction</h2>
+        
+        <p class="guide-section__lead">
+          After capturing images, you must run them through reconstruction software to generate camera positions and a point cloud before importing into LichtFeld Studio.
+        </p>
+
+        <div class="guide-steps">
+          <div class="guide-step">
+            <span class="guide-step__number">1</span>
+            <div class="guide-step__content">
+              <h4>RealityScan</h4>
+              <p>A platform that processes your data and allows for scene reconstruction.</p>
+              <ul>
+                <li>Available for iOS and Android</li>
+                <li>Cloud-based processing</li>
+                <li>Exports to COLMAP format</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="guide-step">
+            <span class="guide-step__number">2</span>
+            <div class="guide-step__content">
+              <h4>COLMAP</h4>
+              <p>Free, open-source photogrammetry software. Industry standard for 3DGS.</p>
+              <ul>
+                <li>Free and open source</li>
+                <li>Local processing</li>
+                <li>Full control over parameters</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="guide-warning-box">
+          <div class="guide-warning-box__icon" aria-hidden="true">
+            <i class="bi bi-exclamation-triangle"></i>
+          </div>
+          <div class="guide-warning-box__content">
+            <strong>Required Step</strong>
+            <p>
+              Raw images cannot be imported directly. Process through 
+              <a href="https://www.unrealengine.com/realityscan" target="_blank" rel="noopener noreferrer">RealityScan</a>
+              or <a href="https://colmap.github.io/" target="_blank" rel="noopener noreferrer">COLMAP</a> first.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <aside slot="sidebar">
+      <ContentSidebar
+        type="quick-links"
+        title="On this page"
+        items={sidebarItems}
+      />
+    </aside>
+
+    <div slot="resources">
+      <RelatedResources
+        title="Continue Learning"
+        subtitle="Explore more resources"
+        resources={relatedResources}
+        columns={2}
+      />
+    </div>
+
+    <div slot="support">
+      <SupportCTA
+        variant="boxed"
+        title="Support the Project"
+        description="Your support helps us build better tools for the Gaussian Splatting community."
+        actions={supportOptions}
+        discordUrl={DISCORD_URL}
+      />
+    </div>
+  </PageLayout>
+</Layout>
+
+<style>
+  .guide-section {
+    margin-bottom: 3rem;
+  }
+
+  .guide-section__title {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    line-height: 1.2;
+    margin: 0 0 1.5rem;
+    color: var(--color-heading);
+  }
+
+  .guide-section__lead {
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: var(--color-body);
+    margin: 0 0 1.5rem;
+  }
+
+  .guide-cta-box {
+    padding: 2rem;
+    background: linear-gradient(135deg, rgba(20, 87, 255, 0.1), rgba(201, 114, 52, 0.05));
+    border: 1px solid rgba(20, 87, 255, 0.2);
+    border-radius: 1.25rem;
+    margin: 2rem 0;
+    text-align: center;
+  }
+
+  .guide-tips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-tip-card {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+  }
+
+  .guide-tip-card__number {
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-primary);
+    color: white;
+    font-weight: 700;
+    font-size: 0.875rem;
+    border-radius: 50%;
+  }
+
+  .guide-tip-card__text {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+
+  .guide-innovation {
+    padding: 1.5rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-innovation h3 {
+    margin: 0 0 0.75rem;
+    font-size: 1.125rem;
+  }
+
+  .guide-innovation--featured {
+    background:
+      radial-gradient(circle at top left, rgba(20, 87, 255, 0.08), transparent 34%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.76));
+    border-color: rgba(20, 87, 255, 0.12);
+  }
+
+  .splatking-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .splatking-logo {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.5rem;
+    object-fit: cover;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .splatking-tagline {
+    margin: 0;
+    color: var(--color-muted);
+    font-size: 0.9rem;
+  }
+
+  .splatking-highlights {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1rem 0;
+  }
+
+  .splatking-highlight {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 999px;
+    background: rgba(20, 87, 255, 0.08);
+    border: 1px solid rgba(20, 87, 255, 0.12);
+    color: var(--color-primary);
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .splatking-highlight i {
+    font-size: 0.9rem;
+  }
+
+  .splatking-note {
+    margin: 1rem 0;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 0.75rem;
+    border-left: 3px solid var(--color-primary);
+    font-size: 0.95rem;
+    color: var(--color-body);
+  }
+
+  .splatking-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .guide-innovation p {
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
+  }
+
+  .guide-list {
+    margin: 0 0 1rem;
+    padding-left: 1.5rem;
+    font-size: 1rem;
+    line-height: 1.8;
+  }
+
+  .guide-list li {
+    margin-bottom: 0.5rem;
+  }
+
+  .guide-info-box {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, rgba(20, 87, 255, 0.08), rgba(20, 87, 255, 0.02));
+    border: 1px solid rgba(20, 87, 255, 0.15);
+    border-radius: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-info-box--warning {
+    background: linear-gradient(135deg, rgba(201, 114, 52, 0.08), rgba(201, 114, 52, 0.02));
+    border-color: rgba(201, 114, 52, 0.15);
+  }
+
+  .guide-info-box__icon {
+    flex-shrink: 0;
+    color: var(--color-primary);
+  }
+
+  .guide-info-box--warning .guide-info-box__icon {
+    color: #c97234;
+  }
+
+  .guide-info-box__content {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--color-body);
+  }
+
+  .guide-warning-box {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(239, 68, 68, 0.02));
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-warning-box__icon {
+    flex-shrink: 0;
+    color: #ef4444;
+  }
+
+  .guide-warning-box__content {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--color-body);
+  }
+
+  .guide-warning-box a {
+    color: var(--color-primary-link);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .guide-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-step {
+    display: flex;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+  }
+
+  .guide-step__number {
+    flex-shrink: 0;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-primary);
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+    border-radius: 50%;
+  }
+
+  .guide-step__content {
+    flex: 1;
+  }
+
+  .guide-step__content h4 {
+    margin: 0 0 0.5rem;
+    font-size: 1.125rem;
+  }
+
+  .guide-step__content p {
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
+  }
+
+  .guide-step__content ul {
+    margin: 0;
+    padding-left: 1.25rem;
+  }
+
+  .guide-step__content li {
+    margin-bottom: 0.25rem;
+    font-size: 0.9375rem;
+  }
+
+  @media (max-width: 767.98px) {
+    .guide-tips-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .guide-step {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .guide-cta-box {
+      padding: 1.5rem;
+    }
+  }
+
+  /* ===========================
+   * Capture Tip (Gaussian SplatKing)
+   * =========================== */
+
+  .story-capture-tip {
+    margin-top: 1.5rem;
+    padding: 1.5rem;
+    border-radius: 1.25rem;
+    background:
+      radial-gradient(circle at top left, rgba(20, 87, 255, 0.08), transparent 34%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.58));
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0 14px 28px rgba(15, 23, 42, 0.04);
+  }
+
+  .story-capture-tip__copy {
+    display: grid;
+    gap: 0.85rem;
+  }
+
+  .story-capture-tip__header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .story-capture-tip__logo {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 0.75rem;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .story-capture-tip__heading {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .story-capture-tip__eyebrow {
+    color: var(--color-primary);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin: 0;
+  }
+
+  .story-capture-tip__title {
+    margin: 0;
+    color: var(--color-heading);
+    font-size: 1.25rem;
+    line-height: 1.3;
+  }
+
+  .story-capture-tip__body {
+    margin: 0;
+    color: var(--color-body);
+    line-height: 1.65;
+    font-size: 1rem;
+  }
+
+  .story-capture-tip__note {
+    margin: 0;
+    color: var(--color-muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .story-capture-tip__footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgba(15, 23, 42, 0.08);
+  }
+
+  .story-capture-tip__facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .story-capture-tip__fact {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 0.65rem;
+    border-radius: 999px;
+    background: rgba(20, 87, 255, 0.08);
+    border: 1px solid rgba(20, 87, 255, 0.12);
+    color: var(--color-primary);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  .story-capture-tip__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    border-radius: 0.75rem;
+    background: var(--color-primary);
+    color: white;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition:
+      transform 0.18s ease,
+      box-shadow 0.18s ease,
+      background-color 0.18s ease;
+  }
+
+  .story-capture-tip__link:hover {
+    transform: translateY(-2px);
+    background: var(--color-primary-dark, #1147d1);
+    box-shadow: 0 8px 16px rgba(20, 87, 255, 0.25);
+    color: white;
+  }
+
+  @media (max-width: 767.98px) {
+    .story-capture-tip {
+      padding: 1.25rem;
+      border-radius: 1rem;
+    }
+
+    .story-capture-tip__header {
+      gap: 0.75rem;
+    }
+
+    .story-capture-tip__logo {
+      width: 3rem;
+      height: 3rem;
+      border-radius: 0.6rem;
+    }
+
+    .story-capture-tip__title {
+      font-size: 1.1rem;
+    }
+
+    .story-capture-tip__footer {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .story-capture-tip__link {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>

@@ -1,0 +1,479 @@
+---
+/**
+ * RelatedResources.astro
+ *
+ * Standardized related resources section for the bottom of pages.
+ * Displays a grid of resource cards with icons, titles, descriptions,
+ * and links to related content.
+ *
+ * @example
+ * <RelatedResources
+ *   title="Continue Your Journey"
+ *   subtitle="Explore more resources"
+ *   resources={[
+ *     {title: "Getting Started", description: "...", href: "/getting-started/", icon: "book"},
+ *   ]}
+ * />
+ */
+
+// ============================================================================
+// Type Definitions
+// ============================================================================
+
+export interface Resource {
+  /** Resource title */
+  title: string;
+  /** Brief description */
+  description: string;
+  /** Link URL */
+  href: string;
+  /** Bootstrap icon name (without 'bi-' prefix) */
+  icon: string;
+  /** Whether link is external */
+  external?: boolean;
+}
+
+export interface Props {
+  /** Section title */
+  title?: string;
+  /** Optional subtitle */
+  subtitle?: string;
+  /** Array of resource items */
+  resources: Resource[];
+  /** Layout variant */
+  variant?: 'grid' | 'list' | 'compact';
+  /** Maximum number of columns in grid */
+  columns?: 2 | 3 | 4;
+  /** Optional additional CSS classes */
+  class?: string;
+}
+
+// ============================================================================
+// Props with Defaults
+// ============================================================================
+
+const {
+  title = 'Related Resources',
+  subtitle,
+  resources,
+  variant = 'grid',
+  columns = 2,
+  class: className = '',
+} = Astro.props;
+
+const base = import.meta.env.BASE_URL;
+---
+
+<section
+  class:list={[
+    'related-resources',
+    `related-resources--${variant}`,
+    `related-resources--cols-${columns}`,
+    className,
+  ]}
+  aria-labelledby="resources-heading"
+>
+  <div class="related-resources__shell shell shell--spacious">
+    {/* Header */}
+    <div class="related-resources__header">
+      <h2 id="resources-heading" class="related-resources__title">{title}</h2>
+      {subtitle && (
+        <p class="related-resources__subtitle">{subtitle}</p>
+      )}
+    </div>
+
+    {/* Resources Grid/List */}
+    <div class="related-resources__content">
+      {variant === 'list' ? (
+        /* List Layout */
+        <ul class="related-resources__list" role="list">
+          {resources.map((resource) => (
+            <li class="related-resources__list-item">
+              <a
+                href={resource.href}
+                class="related-resources__list-link"
+                target={resource.external ? '_blank' : undefined}
+                rel={resource.external ? 'noopener noreferrer' : undefined}
+              >
+                <span class="related-resources__list-icon">
+                  <svg class="bi" width="20" height="20" aria-hidden="true">
+                    <use href={`${base}static/bootstrap-icons.svg#${resource.icon}`}></use>
+                  </svg>
+                </span>
+                <span class="related-resources__list-content">
+                  <span class="related-resources__list-title">
+                    {resource.title}
+                    {resource.external && (
+                      <svg class="bi related-resources__external" width="14" height="14" aria-hidden="true">
+                        <use href={`${base}static/bootstrap-icons.svg#box-arrow-up-right`}></use>
+                      </svg>
+                    )}
+                  </span>
+                  <span class="related-resources__list-desc">{resource.description}</span>
+                </span>
+                <svg class="bi related-resources__arrow" width="20" height="20" aria-hidden="true">
+                  <use href={`${base}static/bootstrap-icons.svg#${resource.external ? 'box-arrow-up-right' : 'arrow-right'}`}></use>
+                </svg>
+              </a>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        /* Grid or Compact Layout */
+        <div class="related-resources__grid">
+          {resources.map((resource) => (
+            <a
+              href={resource.href}
+              class:list={[
+                'related-resources__card',
+                { 'related-resources__card--compact': variant === 'compact' },
+              ]}
+              target={resource.external ? '_blank' : undefined}
+              rel={resource.external ? 'noopener noreferrer' : undefined}
+            >
+              <div class="related-resources__icon">
+                <svg class="bi" width="24" height="24" aria-hidden="true">
+                  <use href={`${base}static/bootstrap-icons.svg#${resource.icon}`}></use>
+                </svg>
+              </div>
+              <div class="related-resources__card-content">
+                <h3 class="related-resources__card-title">
+                  {resource.title}
+                  {resource.external && (
+                    <svg class="bi related-resources__external" width="14" height="14" aria-hidden="true">
+                      <use href={`${base}static/bootstrap-icons.svg#box-arrow-up-right`}></use>
+                    </svg>
+                  )}
+                </h3>
+                <p class="related-resources__card-desc">{resource.description}</p>
+              </div>
+              <svg class="bi related-resources__arrow" width="20" height="20" aria-hidden="true">
+                <use href={`${base}static/bootstrap-icons.svg#${resource.external ? 'box-arrow-up-right' : 'arrow-right'}`}></use>
+              </svg>
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+
+    {/* Footer slot for custom content */}
+    <div class="related-resources__footer">
+      <slot />
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ============================================================================
+   * Related Resources - Base Styles
+   * ============================================================================ */
+
+  .related-resources {
+    width: 100%;
+  }
+
+  /* ============================================================================
+   * Shell Container
+   * ============================================================================ */
+
+  .related-resources__shell {
+    padding: var(--spacing-8);
+  }
+
+  @media (max-width: 767.98px) {
+    .related-resources__shell {
+      padding: var(--spacing-5);
+    }
+  }
+
+  /* ============================================================================
+   * Header
+   * ============================================================================ */
+
+  .related-resources__header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .related-resources__title {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+    color: var(--color-heading);
+  }
+
+  .related-resources__subtitle {
+    font-size: 1.0625rem;
+    color: var(--color-body);
+    margin: 0;
+  }
+
+  /* ============================================================================
+   * Grid Layout
+   * ============================================================================ */
+
+  .related-resources__grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 640px) {
+    .related-resources--cols-2 .related-resources__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 768px) {
+    .related-resources--cols-3 .related-resources__grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .related-resources--cols-4 .related-resources__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .related-resources--cols-4 .related-resources__grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  /* ============================================================================
+   * Resource Card
+   * ============================================================================ */
+
+  .related-resources__card {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid var(--surface-border);
+    border-radius: var(--radius-xl);
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .related-resources__card:hover {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(20, 87, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: var(--card-shadow-hover);
+  }
+
+  /* Compact variant */
+  .related-resources__card--compact {
+    padding: 0.875rem 1rem;
+    border-radius: var(--radius-lg);
+  }
+
+  .related-resources__card--compact .related-resources__icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .related-resources__card--compact .related-resources__card-title {
+    font-size: 1rem;
+  }
+
+  .related-resources__card--compact .related-resources__card-desc {
+    font-size: 0.8125rem;
+    -webkit-line-clamp: 2;
+  }
+
+  /* ============================================================================
+   * Card Elements
+   * ============================================================================ */
+
+  .related-resources__icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(20, 87, 255, 0.1);
+    border-radius: var(--radius-lg);
+    color: var(--color-primary);
+  }
+
+  .related-resources__card:hover .related-resources__icon {
+    background: rgba(20, 87, 255, 0.15);
+  }
+
+  .related-resources__card-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .related-resources__card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0 0 0.375rem;
+    color: var(--color-heading);
+  }
+
+  .related-resources__card-desc {
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    color: var(--color-body);
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .related-resources__arrow {
+    flex-shrink: 0;
+    color: var(--color-muted);
+    transition: all 0.2s ease;
+    margin-top: 0.25rem;
+  }
+
+  .related-resources__card:hover .related-resources__arrow {
+    color: var(--color-primary);
+    transform: translateX(2px);
+  }
+
+  .related-resources__external {
+    flex-shrink: 0;
+    color: var(--color-muted);
+  }
+
+  /* ============================================================================
+   * List Layout
+   * ============================================================================ */
+
+  .related-resources__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .related-resources__list-item {
+    margin: 0;
+  }
+
+  .related-resources__list-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid var(--surface-border);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .related-resources__list-link:hover {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(20, 87, 255, 0.3);
+    transform: translateX(4px);
+  }
+
+  .related-resources__list-icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(20, 87, 255, 0.1);
+    border-radius: var(--radius-md);
+    color: var(--color-primary);
+  }
+
+  .related-resources__list-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .related-resources__list-title {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-heading);
+    margin-bottom: 0.25rem;
+  }
+
+  .related-resources__list-desc {
+    font-size: 0.875rem;
+    color: var(--color-body);
+    line-height: 1.4;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ============================================================================
+   * Footer
+   * ============================================================================ */
+
+  .related-resources__footer {
+    margin-top: 1.5rem;
+    text-align: center;
+  }
+
+  .related-resources__footer:empty {
+    display: none;
+  }
+
+  /* ============================================================================
+   * Responsive Adjustments
+   * ============================================================================ */
+
+  @media (max-width: 767.98px) {
+    .related-resources__grid {
+      grid-template-columns: 1fr !important;
+    }
+
+    .related-resources__card {
+      padding: 1rem;
+    }
+
+    .related-resources__icon {
+      width: 40px;
+      height: 40px;
+    }
+
+    .related-resources__card-title {
+      font-size: 1rem;
+    }
+
+    .related-resources__card-desc {
+      font-size: 0.875rem;
+      -webkit-line-clamp: 2;
+    }
+
+    .related-resources__list-link {
+      padding: 0.875rem 1rem;
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .related-resources__header {
+      margin-bottom: 1.5rem;
+    }
+
+    .related-resources__title {
+      font-size: 1.375rem;
+    }
+
+    .related-resources__subtitle {
+      font-size: 0.9375rem;
+    }
+  }
+</style>

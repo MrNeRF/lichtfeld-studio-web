@@ -1,0 +1,930 @@
+---
+/**
+ * 3dgut.astro
+ *
+ * Comprehensive glossary page targeting:
+ * - "what is 3dgut"
+ * - "3d gaussian unscented transform"
+ * - "3dgut gaussian splatting"
+ *
+ * Features:
+ * - Schema.org TechArticle structured data
+ * - Comparison tables (3DGUT vs 3DGS)
+ * - CLI parameters reference
+ * - Internal linking to related features
+ */
+
+import Layout from "@/layouts/Layout.astro";
+import PageLayout from "@/components/layouts/PageLayout.astro";
+import PageHero from "@/components/layouts/PageHero.astro";
+import ContentSidebar from "@/components/layouts/ContentSidebar.astro";
+import SupportCTA from "@/components/layouts/SupportCTA.astro";
+import RelatedResources from "@/components/layouts/RelatedResources.astro";
+import { SITE } from "@/config/site.config";
+import {
+  GITHUB_REPO_URL,
+  GITHUB_WIKI_URL,
+  GITHUB_RELEASES_URL,
+  DISCORD_URL,
+  PAYPAL_URL,
+  DONORBOX_URL,
+  GITHUB_SPONSORS_URL,
+} from "@/constants/project";
+
+const base = import.meta.env.BASE_URL;
+
+// SEO metadata
+const seoTitle = "What is 3DGUT? 3D Gaussian Unscented Transform Explained 2025";
+const seoDescription = "Learn what 3DGUT (3D Gaussian Unscented Transform) is, how it extends 3D Gaussian Splatting to support distorted cameras and secondary rays. Based on NVIDIA/CVPR 2025 research.";
+
+// Article metadata for Schema.org
+const articlePublishedDate = new Date("2025-03-29");
+const articleModifiedDate = new Date("2025-03-29");
+
+// FAQ data
+const faqs = [
+  {
+    question: "What is 3DGUT in simple terms?",
+    answer: "3DGUT (3D Gaussian Unscented Transform) is an extension of 3D Gaussian Splatting that uses the Unscented Transform to accurately render scenes captured with distorted cameras like fisheye lenses. It replaces the standard EWA (Elliptical Weighted Average) projection with sigma point sampling for better accuracy."
+  },
+  {
+    question: "How is 3DGUT different from standard 3DGS?",
+    answer: "Standard 3DGS uses EWA (Elliptical Weighted Average) projection which assumes pinhole cameras and requires Jacobian calculations. 3DGUT uses the Unscented Transform with 7 sigma points, supports any camera model including fisheye and distorted lenses, and eliminates the need for Jacobian calculations."
+  },
+  {
+    question: "What hardware do I need for 3DGUT?",
+    answer: "3DGUT requires an NVIDIA GPU with CUDA support. The training is 2-4× faster than 3DGRT (ray tracing), and rendering achieves 250-1000+ FPS depending on scene complexity and GPU."
+  },
+  {
+    question: "When should I use 3DGUT over standard 3DGS?",
+    answer: "Use 3DGUT when working with fisheye cameras, rolling shutter footage, robotics applications requiring accurate distortion handling, or when you need hybrid rendering combining Gaussian Splatting with ray tracing for effects like reflections."
+  },
+  {
+    question: "Can I mix 3DGUT and standard 3DGS?",
+    answer: "No—if you train with GUT enabled, you must also render with GUT. Training with GUT and rendering without it (or vice versa) will cause visualization issues. The model expects the same projection method during both training and inference."
+  }
+];
+
+// Related resources
+const relatedResources = [
+  {
+    title: "What is Gaussian Splatting?",
+    description: "Complete beginner's guide to 3D Gaussian Splatting technology.",
+    href: `${base}what-is-gaussian-splatting/`,
+    icon: "lightbulb"
+  },
+  {
+    title: "Getting Started Guide",
+    description: "Step-by-step tutorial to create your first Gaussian Splat with LichtFeld Studio.",
+    href: `${base}learn-lfs/getting-started/`,
+    icon: "book"
+  },
+  {
+    title: "COLMAP Glossary",
+    description: "Learn about COLMAP and camera calibration for 3D reconstruction.",
+    href: `${base}glossary/colmap/`,
+    icon: "camera"
+  },
+  {
+    title: "Interactive Showcase",
+    description: "Explore photorealistic Gaussian Splatting scenes directly in your browser.",
+    href: `${base}showcase/`,
+    icon: "eye"
+  }
+];
+
+// Sidebar items
+const sidebarItems = [
+  { label: "GitHub Repository", href: GITHUB_REPO_URL, icon: "github" },
+  { label: "Documentation", href: GITHUB_WIKI_URL, icon: "book" },
+  { label: "Community Discord", href: DISCORD_URL, icon: "discord" },
+  { label: "Interactive Showcase", href: `${base}showcase/`, icon: "eye" },
+];
+
+// Support options
+const supportOptions = [
+  { label: "GitHub Sponsors", href: GITHUB_SPONSORS_URL, icon: "github", variant: "primary" as const },
+  { label: "PayPal", href: PAYPAL_URL, icon: "paypal", variant: "outline" as const },
+  { label: "DonorBox", href: DONORBOX_URL, icon: "gift", variant: "outline" as const },
+];
+
+// Build Schema.org TechArticle structured data
+const techArticleSchema = {
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": seoTitle,
+  "description": seoDescription,
+  "image": new URL(`${base}static/social-card.png`, Astro.site).toString(),
+  "author": {
+    "@type": "Organization",
+    "name": SITE.name,
+    "url": SITE.url
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": SITE.name,
+    "logo": {
+      "@type": "ImageObject",
+      "url": new URL(`${base}static/favicon.svg`, Astro.site).toString()
+    }
+  },
+  "datePublished": articlePublishedDate.toISOString(),
+  "dateModified": articleModifiedDate.toISOString(),
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": new URL(Astro.url.pathname, Astro.site).toString()
+  },
+  "about": {
+    "@type": "Thing",
+    "name": "3D Gaussian Unscented Transform",
+    "alternateName": "3DGUT"
+  },
+  "proficiencyLevel": "Intermediate",
+  "dependencies": "LichtFeld Studio, NVIDIA GPU"
+};
+
+// Build FAQ Schema
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": faqs.map(faq => ({
+    "@type": "Question",
+    "name": faq.question,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": faq.answer
+    }
+  }))
+};
+---
+
+<Layout 
+  title={seoTitle} 
+  description={seoDescription}
+  ogType="article"
+>
+  <!-- Schema.org Structured Data -->
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(techArticleSchema)} />
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(faqSchema)} />
+
+  <PageHero
+    variant="guide"
+    title="What is 3DGUT?"
+    subtitle="3DGUT (3D Gaussian Unscented Transform) extends 3D Gaussian Splatting to support distorted cameras and secondary rays using the Unscented Transform. Developed by NVIDIA Research and presented at CVPR 2025."
+    breadcrumb={[
+      { label: "Home", href: base },
+      { label: "Glossary", href: `${base}glossary/` },
+      { label: "3DGUT" },
+    ]}
+    meta={[
+      { icon: "clock", label: "8 min read" },
+      { icon: "calendar", label: "Updated March 2025" },
+    ]}
+  />
+
+  <PageLayout layout="sidebar-right" hasRelatedResources={true} hasSupportCta={true}>
+    <main slot="main">
+      <!-- Section 1: What is 3DGUT? -->
+      <section id="what-is" class="guide-section">
+        <h2 class="guide-section__title">What is 3DGUT?</h2>
+        
+        <p class="guide-section__lead">
+          <strong>3DGUT (3D Gaussian Unscented Transform)</strong> is a rendering technique that extends 
+          3D Gaussian Splatting to handle distorted camera models and secondary rays. Introduced at CVPR 2025 
+          by Wu et al. from NVIDIA, it replaces the traditional EWA (Elliptical Weighted Average) projection 
+          with the Unscented Transform for more accurate rendering.
+        </p>
+
+        <h3>The Core Concept</h3>
+        <p>
+          Standard 3D Gaussian Splatting assumes a pinhole camera model and uses EWA projection, which requires 
+          computing Jacobian matrices for each Gaussian projection. This approach works well for standard lenses 
+          but struggles with:
+        </p>
+        <ul class="guide-list">
+          <li><strong>Fisheye lenses:</strong> Extreme distortion that breaks the pinhole assumption</li>
+          <li><strong>Rolling shutter:</strong> Time-varying distortion during capture</li>
+          <li><strong>Secondary rays:</strong> Reflections, refractions, and indirect lighting</li>
+          <li><strong>Complex camera models:</strong> Non-pinhole optics used in robotics and VR</li>
+        </ul>
+        <p>
+          3DGUT solves these limitations by using the <strong>Unscented Transform</strong>—a mathematical 
+          technique that approximates how 3D Gaussians project through arbitrary camera models without 
+          requiring Jacobian calculations.
+        </p>
+
+        <div class="guide-info-box">
+          <div class="guide-info-box__icon" aria-hidden="true">
+            <svg class="bi" width="24" height="24">
+              <use href={`${base}static/bootstrap-icons.svg#lightbulb`}></use>
+            </svg>
+          </div>
+          <div class="guide-info-box__content">
+            <strong>Key Innovation:</strong> 3DGUT enables accurate Gaussian Splatting with any camera 
+            distortion model while maintaining real-time performance—something that was previously only 
+            possible with slower ray tracing approaches like 3DGRT.
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2: How It Differs from 3DGS -->
+      <section id="how-it-differs" class="guide-section">
+        <h2 class="guide-section__title">How It Differs from 3DGS</h2>
+        
+        <p class="guide-section__lead">
+          3DGUT makes fundamental changes to how Gaussians are projected and evaluated, enabling capabilities 
+          that standard 3DGS cannot achieve.
+        </p>
+
+        <h3>Comparison: 3DGUT vs Standard 3DGS</h3>
+        <div class="guide-comparison">
+          <div class="guide-comparison__table-wrapper">
+            <table class="guide-comparison__table">
+              <thead>
+                <tr>
+                  <th>Feature</th>
+                  <th class="guide-comparison__highlight">3DGUT</th>
+                  <th>Standard 3DGS</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Projection Method</strong></td>
+                  <td class="guide-comparison__highlight">Unscented Transform (7 sigma points)</td>
+                  <td>EWA (Elliptical Weighted Average)</td>
+                </tr>
+                <tr>
+                  <td><strong>Camera Support</strong></td>
+                  <td class="guide-comparison__highlight">Any camera model (fisheye, FTheta, etc.)</td>
+                  <td>Pinhole only</td>
+                </tr>
+                <tr>
+                  <td><strong>Jacobian Required</strong></td>
+                  <td class="guide-comparison__highlight">No</td>
+                  <td>Yes</td>
+                </tr>
+                <tr>
+                  <td><strong>Rolling Shutter</strong></td>
+                  <td class="guide-comparison__highlight">Native support</td>
+                  <td>Not supported</td>
+                </tr>
+                <tr>
+                  <td><strong>Secondary Rays</strong></td>
+                  <td class="guide-comparison__highlight">Supported (reflections, refractions)</td>
+                  <td>Not supported</td>
+                </tr>
+                <tr>
+                  <td><strong>3D Evaluation</strong></td>
+                  <td class="guide-comparison__highlight">Along entire ray</td>
+                  <td>On image plane only</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <h3>Why EWA Falls Short</h3>
+        <p>
+          EWA projection assumes a linear projection that can be approximated with Jacobian matrices. 
+          For distorted cameras, this linear approximation breaks down, leading to:
+        </p>
+        <ul class="guide-list">
+          <li>Geometric inaccuracies at image edges</li>
+          <li>Artifacts with fisheye and wide-angle lenses</li>
+          <li>Inability to model complex lens distortions</li>
+          <li>Limited support for non-pinhole camera models</li>
+        </ul>
+        <p>
+          3DGUT eliminates these issues by sampling the projection directly using sigma points, 
+          bypassing the need for linear approximations entirely.
+        </p>
+      </section>
+
+      <!-- Section 3: How It Works -->
+      <section id="how-it-works" class="guide-section">
+        <h2 class="guide-section__title">How It Works</h2>
+        
+        <p class="guide-section__lead">
+          3DGUT replaces the EWA projection pipeline with Unscented Transform sampling, enabling 
+          accurate rendering through arbitrary camera models.
+        </p>
+
+        <h3>The Unscented Transform</h3>
+        <p>
+          The Unscented Transform is a mathematical technique from estimation theory that approximates 
+          how a probability distribution transforms through a nonlinear function. In 3DGUT:
+        </p>
+        
+        <div class="guide-innovation">
+          <h4>1. Sigma Point Selection</h4>
+          <p>
+            3DGUT uses <strong>7 sigma points</strong> strategically chosen to represent the 3D Gaussian's 
+            distribution. These points capture the mean and covariance of the Gaussian in 3D space.
+          </p>
+        </div>
+
+        <div class="guide-innovation">
+          <h4>2. Nonlinear Projection</h4>
+          <p>
+            Each of the 7 sigma points is projected through the camera's distortion model. Unlike EWA, 
+            which requires Jacobian approximations, this direct sampling works with <strong>any projection 
+            function</strong>—including fisheye, FTheta, and custom distortion models.
+          </p>
+        </div>
+
+        <div class="guide-innovation">
+          <h4>3. 3D Evaluation Along Rays</h4>
+          <p>
+            Instead of evaluating Gaussians only on the 2D image plane, 3DGUT evaluates them 
+            <strong>along the entire ray</strong> in 3D space. This enables:
+          </p>
+          <ul class="guide-list">
+            <li>Accurate depth handling for distorted projections</li>
+            <li>Support for secondary rays (reflections, refractions)</li>
+            <li>Better integration with ray tracing pipelines</li>
+          </ul>
+        </div>
+
+        <div class="guide-innovation">
+          <h4>4. Distribution Reconstruction</h4>
+          <p>
+            The projected sigma points are used to reconstruct the 2D Gaussian approximation. 
+            This reconstructed Gaussian is then blended with others using standard alpha compositing.
+          </p>
+        </div>
+
+        <h3>No Jacobian Required</h3>
+        <p>
+          A key advantage of 3DGUT is that it <strong>eliminates the need for Jacobian matrix calculations</strong>. 
+          The Jacobian of the projection function can be complex or even undefined for some camera models 
+          (like fisheye lenses with extreme distortion). By using sigma point sampling, 3DGUT bypasses 
+          this limitation entirely.
+        </p>
+      </section>
+
+      <!-- Section 4: Key Benefits -->
+      <section id="benefits" class="guide-section">
+        <h2 class="guide-section__title">Key Benefits</h2>
+        
+        <p class="guide-section__lead">
+          3DGUT unlocks new capabilities for Gaussian Splatting workflows, particularly in specialized 
+          applications requiring accurate distortion handling.
+        </p>
+
+        <h3>1. Accurate Distortion Handling</h3>
+        <p>
+          3DGUT natively supports any camera distortion model without approximations:
+        </p>
+        <ul class="guide-list">
+          <li><strong>Fisheye lenses:</strong> Full support for equidistant, equisolid, and stereographic projections</li>
+          <li><strong>FTheta models:</strong> Common in VR/AR headsets and robotics cameras</li>
+          <li><strong>Polynomial distortion:</strong> Brown-Conrady and other radial distortion models</li>
+          <li><strong>Custom models:</strong> Any projection function that can be evaluated point-wise</li>
+        </ul>
+
+        <h3>2. Rolling Shutter Support</h3>
+        <p>
+          Rolling shutter cameras capture each row of pixels at a slightly different time, causing 
+          distortion when the camera moves. 3DGUT can model this time-varying distortion, enabling 
+          accurate reconstruction from:
+        </p>
+        <ul class="guide-list">
+          <li>CMOS sensor cameras with rolling shutter</li>
+          <li>Fast-moving capture scenarios</li>
+          <li>Handheld and drone footage</li>
+        </ul>
+
+        <h3>3. Hybrid Rendering with Ray Tracing</h3>
+        <p>
+          Because 3DGUT evaluates Gaussians along rays in 3D space, it can be integrated with ray 
+          tracing pipelines for:
+        </p>
+        <ul class="guide-list">
+          <li><strong>Reflections:</strong> Accurate mirror and glossy reflections</li>
+          <li><strong>Refractions:</strong> Light passing through transparent materials</li>
+          <li><strong>Global illumination:</strong> Indirect lighting effects</li>
+          <li><strong>Shadows:</strong> Ray-traced shadows from Gaussian primitives</li>
+        </ul>
+
+        <div class="guide-warning-box">
+          <div class="guide-warning-box__icon" aria-hidden="true">
+            <svg class="bi" width="24" height="24">
+              <use href={`${base}static/bootstrap-icons.svg#exclamation-triangle`}></use>
+            </svg>
+          </div>
+          <div class="guide-warning-box__content">
+            <strong>Performance Cost:</strong> 3DGUT has a slight performance cost in both rendering 
+            and training compared to standard 3DGS due to the additional sigma point sampling. 
+            However, it remains significantly faster than full ray tracing approaches like 3DGRT.
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: When to Use It -->
+      <section id="when-to-use" class="guide-section">
+        <h2 class="guide-section__title">When to Use 3DGUT</h2>
+        
+        <p class="guide-section__lead">
+          3DGUT is ideal for specific use cases where standard 3DGS limitations become blockers.
+        </p>
+
+        <h3>Robotics Applications</h3>
+        <p>
+          Robotics platforms often use specialized cameras with significant distortion:
+        </p>
+        <ul class="guide-list">
+          <li>Wide-angle cameras for navigation and obstacle detection</li>
+          <li>Fisheye lenses for 360° situational awareness</li>
+          <li>Custom calibration models for multi-camera rigs</li>
+        </ul>
+
+        <h3>Fisheye and Wide-Angle Cameras</h3>
+        <p>
+          Consumer and professional cameras with extreme field-of-view:
+        </p>
+        <ul class="guide-list">
+          <li>Action cameras (GoPro, DJI Osmo)</li>
+          <li>360° cameras (Insta360, Ricoh Theta)</li>
+          <li>VR/AR headset cameras</li>
+          <li>Automotive surround-view systems</li>
+        </ul>
+
+        <h3>Rolling Shutter Scenarios</h3>
+        <p>
+          When working with CMOS sensors exhibiting rolling shutter artifacts:
+        </p>
+        <ul class="guide-list">
+          <li>Fast camera motion during capture</li>
+          <li>Handheld video sequences</li>
+          <li>Drone and aerial photography</li>
+        </ul>
+
+        <h3>Hybrid Rendering Needs</h3>
+        <p>
+          Applications requiring both Gaussian Splatting and ray tracing effects:
+        </p>
+        <ul class="guide-list">
+          <li>Architectural visualization with reflections</li>
+          <li>Product rendering with transparent materials</li>
+          <li>VFX requiring accurate lighting</li>
+        </ul>
+      </section>
+
+      <!-- Section 6: FAQ -->
+      <section id="faq" class="guide-section">
+        <h2 class="guide-section__title">Frequently Asked Questions</h2>
+        
+        <div class="guide-faq">
+          {faqs.map((faq, index) => (
+            <details class="guide-faq__item" open={index === 0}>
+              <summary class="guide-faq__question">
+                {faq.question}
+                <svg class="guide-faq__icon" width="20" height="20" aria-hidden="true">
+                  <use href={`${base}static/bootstrap-icons.svg#chevron-down`}></use>
+                </svg>
+              </summary>
+              <div class="guide-faq__answer">
+                <p>{faq.answer}</p>
+              </div>
+            </details>
+          ))}
+        </div>
+      </section>
+
+      <!-- Section 7: Citation -->
+      <section id="citation" class="guide-section">
+        <h2 class="guide-section__title">Citation</h2>
+        
+        <p class="guide-section__lead">
+          If you use 3DGUT in your research, please cite the original paper:
+        </p>
+
+        <div class="guide-code-block">
+          <pre><code>@article&#123;wu20253dgut,
+    title=&#123;3DGUT: Enabling Distorted Cameras and Secondary Rays in Gaussian Splatting&#125;,
+    author=&#123;Wu, Qi and Martinez Esturo, Janick and Mirzaei, Ashkan and Moenne-Loccoz, Nicolas and Gojcic, Zan&#125;,
+    journal=&#123;CVPR&#125;,
+    year=&#123;2025&#125;
+&#125;</code></pre>
+        </div>
+
+        <h3>Related Resources</h3>
+        <ul class="guide-list">
+          <li>
+            <a href="https://research.nvidia.com/labs/toronto-ai/3dgut/" target="_blank" rel="noopener noreferrer" class="guide-link">
+              NVIDIA 3DGUT Research Page
+            </a> — Official project page with paper and supplementary materials
+          </li>
+          <li>
+            <a href="https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/" target="_blank" rel="noopener noreferrer" class="guide-link">
+              Original 3D Gaussian Splatting Paper (SIGGRAPH 2023)
+            </a> — Kerbl et al., INRIA & Max Planck Institute
+          </li>
+          <li>
+            <a href={GITHUB_REPO_URL} target="_blank" rel="noopener noreferrer" class="guide-link">
+              LichtFeld Studio GitHub Repository
+            </a> — Open-source implementation
+          </li>
+          <li>
+            <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer" class="guide-link">
+              Community Discord
+            </a> — Get help and share your work
+          </li>
+        </ul>
+      </section>
+    </main>
+
+    <aside slot="sidebar">
+      <ContentSidebar
+        type="quick-links"
+        title="Quick Links"
+        items={sidebarItems}
+      />
+    </aside>
+
+    <div slot="resources">
+      <RelatedResources
+        title="Related Resources"
+        subtitle="Continue your Gaussian Splatting journey"
+        resources={relatedResources}
+        columns={2}
+      />
+    </div>
+
+    <div slot="support">
+      <SupportCTA
+        variant="boxed"
+        title="Support the Project"
+        description="LichtFeld Studio is free and open-source. Your support helps us build better tools for the Gaussian Splatting community."
+        actions={supportOptions}
+        discordUrl={DISCORD_URL}
+      />
+    </div>
+  </PageLayout>
+
+  <!-- Toast notification -->
+  <div class="guide-toast" id="share-toast" aria-live="polite" aria-hidden="true">
+    <svg class="bi" width="20" height="20" aria-hidden="true">
+      <use href={`${base}static/bootstrap-icons.svg#check-circle`}></use>
+    </svg>
+    Link copied to clipboard!
+  </div>
+</Layout>
+
+<script>
+  // Share button functionality
+  document.addEventListener('DOMContentLoaded', () => {
+    const shareBtn = document.getElementById('share-page-btn');
+    const toast = document.getElementById('share-toast');
+
+    if (shareBtn && toast) {
+      shareBtn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(window.location.href);
+          
+          // Show toast
+          toast.classList.add('is-visible');
+          toast.setAttribute('aria-hidden', 'false');
+          
+          // Hide after 3 seconds
+          setTimeout(() => {
+            toast.classList.remove('is-visible');
+            toast.setAttribute('aria-hidden', 'true');
+          }, 3000);
+        } catch (err) {
+          console.error('Failed to copy:', err);
+        }
+      });
+    }
+  });
+</script>
+
+<style>
+  /* ============================================================================
+   * Guide Sections
+   * ============================================================================ */
+
+  .guide-section {
+    margin-bottom: 4rem;
+  }
+
+  .guide-section__title {
+    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    line-height: 1.2;
+    margin: 0 0 1.5rem;
+    color: var(--color-heading);
+    scroll-margin-top: calc(var(--nav-height) + 2rem);
+  }
+
+  .guide-section__lead {
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: var(--color-body);
+    margin: 0 0 1.5rem;
+  }
+
+  .guide-section h3 {
+    font-size: 1.375rem;
+    line-height: 1.3;
+    margin: 2rem 0 1rem;
+    color: var(--color-heading);
+    scroll-margin-top: calc(var(--nav-height) + 2rem);
+  }
+
+  .guide-section h4 {
+    font-size: 1.125rem;
+    line-height: 1.4;
+    margin: 1.5rem 0 0.75rem;
+    color: var(--color-heading);
+  }
+
+  .guide-section p {
+    font-size: 1.0625rem;
+    line-height: 1.8;
+    color: var(--color-body);
+    margin: 0 0 1.25rem;
+  }
+
+  .guide-section ul,
+  .guide-section ol {
+    font-size: 1.0625rem;
+    line-height: 1.8;
+    color: var(--color-body);
+    margin: 0 0 1.5rem;
+    padding-left: 1.5rem;
+  }
+
+  .guide-section li {
+    margin-bottom: 0.5rem;
+  }
+
+  .guide-link {
+    color: var(--color-primary-link);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+  }
+
+  .guide-link:hover {
+    color: var(--color-primary-link-hover);
+    text-decoration: underline;
+  }
+
+  /* ============================================================================
+   * Info Box
+   * ============================================================================ */
+
+  .guide-info-box {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, rgba(20, 87, 255, 0.08), rgba(20, 87, 255, 0.02));
+    border: 1px solid rgba(20, 87, 255, 0.15);
+    border-radius: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-info-box__icon {
+    flex-shrink: 0;
+    color: var(--color-primary);
+  }
+
+  .guide-info-box__content {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--color-body);
+  }
+
+  /* ============================================================================
+   * Warning Box
+   * ============================================================================ */
+
+  .guide-warning-box {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, rgba(201, 114, 52, 0.08), rgba(201, 114, 52, 0.02));
+    border: 1px solid rgba(201, 114, 52, 0.15);
+    border-radius: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-warning-box__icon {
+    flex-shrink: 0;
+    color: #c97234;
+  }
+
+  .guide-warning-box__content {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--color-body);
+  }
+
+  /* ============================================================================
+   * Innovations
+   * ============================================================================ */
+
+  .guide-innovation {
+    padding: 1.5rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-innovation h4 {
+    margin: 0 0 0.75rem;
+    font-size: 1.125rem;
+  }
+
+  .guide-innovation p {
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
+  }
+
+  .guide-innovation p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* ============================================================================
+   * Comparison Table
+   * ============================================================================ */
+
+  .guide-comparison {
+    margin: 2rem 0;
+  }
+
+  .guide-comparison__table-wrapper {
+    overflow-x: auto;
+    border-radius: 1rem;
+    border: 1px solid var(--surface-border);
+  }
+
+  .guide-comparison__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9375rem;
+    background: var(--surface-bg);
+  }
+
+  .guide-comparison__table th,
+  .guide-comparison__table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--surface-border);
+  }
+
+  .guide-comparison__table th {
+    font-weight: 600;
+    color: var(--color-heading);
+    background: rgba(15, 23, 42, 0.03);
+  }
+
+  .guide-comparison__table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .guide-comparison__highlight {
+    background: rgba(20, 87, 255, 0.06);
+    font-weight: 500;
+  }
+
+  @media (max-width: 767px) {
+    .guide-comparison__table {
+      font-size: 0.875rem;
+    }
+    
+    .guide-comparison__table th,
+    .guide-comparison__table td {
+      padding: 0.75rem 0.5rem;
+    }
+  }
+
+  /* ============================================================================
+   * Code Block
+   * ============================================================================ */
+
+  .guide-code-block {
+    margin: 1rem 0;
+    border-radius: 1rem;
+    background: #1a1a2e;
+    overflow: hidden;
+  }
+
+  .guide-code-block pre {
+    margin: 0;
+    padding: 1.25rem;
+    overflow-x: auto;
+  }
+
+  .guide-code-block code {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #e4e4e7;
+    background: transparent;
+  }
+
+  /* ============================================================================
+   * FAQ
+   * ============================================================================ */
+
+  .guide-faq {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .guide-faq__item {
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 1rem;
+    overflow: hidden;
+  }
+
+  .guide-faq__question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.25rem;
+    font-weight: 600;
+    color: var(--color-heading);
+    cursor: pointer;
+    list-style: none;
+    transition: background 0.2s ease;
+  }
+
+  .guide-faq__question:hover {
+    background: rgba(15, 23, 42, 0.02);
+  }
+
+  .guide-faq__question::-webkit-details-marker {
+    display: none;
+  }
+
+  .guide-faq__icon {
+    flex-shrink: 0;
+    color: var(--color-muted);
+    transition: transform 0.2s ease;
+  }
+
+  .guide-faq__item[open] .guide-faq__icon {
+    transform: rotate(180deg);
+  }
+
+  .guide-faq__answer {
+    padding: 0 1.25rem 1.25rem;
+  }
+
+  .guide-faq__answer p {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  /* ============================================================================
+   * Toast
+   * ============================================================================ */
+
+  .guide-toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(1rem);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: var(--color-heading);
+    color: white;
+    font-weight: 500;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+  }
+
+  .guide-toast.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ============================================================================
+   * Responsive Adjustments
+   * ============================================================================ */
+
+  @media (max-width: 767px) {
+    .guide-section {
+      margin-bottom: 3rem;
+    }
+
+    .guide-innovation {
+      padding: 1rem;
+    }
+  }
+</style>

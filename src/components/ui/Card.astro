@@ -1,0 +1,94 @@
+---
+interface Props {
+  variant?: 'default' | 'spacious' | 'compact' | 'hero' | 'surface';
+  hover?: boolean;
+  class?: string;
+}
+
+const { 
+  variant = 'default', 
+  hover = true,
+  class: className = ''
+} = Astro.props;
+---
+
+<div class:list={['ui-card', `ui-card--${variant}`, { 'ui-card--hover': hover }, className]}>
+  <slot />
+</div>
+
+<style>
+  .ui-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--shell-radius);
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    box-shadow: var(--surface-shadow);
+    backdrop-filter: blur(16px);
+    isolation: isolate;
+  }
+  
+  /* Top gradient accent line */
+  .ui-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0));
+    pointer-events: none;
+  }
+  
+  /* Size variants */
+  .ui-card--default {
+    padding: var(--shell-padding);
+  }
+  
+  .ui-card--spacious {
+    padding: var(--shell-padding-spacious);
+  }
+  
+  .ui-card--compact {
+    padding: var(--shell-padding-compact);
+  }
+  
+  .ui-card--hero {
+    padding: var(--shell-padding-spacious);
+    background: var(--surface-bg);
+  }
+  
+  .ui-card--surface {
+    padding: var(--shell-padding);
+    background: var(--surface-bg);
+  }
+  
+  /* Hover effect */
+  .ui-card--hover {
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  }
+  
+  .ui-card--hover:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--card-shadow-hover);
+  }
+  
+  /* Mobile responsive */
+  @media (max-width: 767.98px) {
+    .ui-card {
+      border-radius: var(--shell-radius-mobile);
+    }
+    
+    .ui-card--default,
+    .ui-card--surface {
+      padding: var(--container-padding-x-mobile);
+    }
+    
+    .ui-card--spacious,
+    .ui-card--hero {
+      padding: var(--container-padding-x);
+    }
+    
+    .ui-card--compact {
+      padding: calc(var(--container-padding-x-mobile) * 0.75);
+    }
+  }
+</style>

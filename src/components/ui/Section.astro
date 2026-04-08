@@ -1,0 +1,87 @@
+---
+import Kicker from "./Kicker.astro";
+
+interface Props {
+  id?: string;
+  title?: string;
+  kicker?: string;
+  class?: string;
+  containerClass?: string;
+}
+
+const { 
+  id,
+  title,
+  kicker,
+  class: className = '',
+  containerClass = ''
+} = Astro.props;
+
+const base = import.meta.env.BASE_URL;
+---
+
+<section 
+  id={id} 
+  class:list={['page-section', 'hash-section', className]}
+  aria-labelledby={title ? `${id}-heading` : undefined}
+>
+  <div class:list={['container', 'content-frame', 'px-4', 'px-md-6', 'py-16', containerClass]}>
+    {(kicker || title) && (
+      <div class="section-header">
+        {kicker && <Kicker>{kicker}</Kicker>}
+        {title && (
+          <div class="section-heading">
+            <h2 id={`${id}-heading`} class="section-title">{title}</h2>
+            {id && (
+              <a class="section-anchor" href={`#${id}`} aria-label={`Link to ${title} section`}>
+                <svg class="bi" width="1em" height="1em" aria-hidden="true">
+                  <use href={`${base}static/bootstrap-icons.svg#link-45deg`}></use>
+                </svg>
+              </a>
+            )}
+          </div>
+        )}
+      </div>
+    )}
+    <slot />
+  </div>
+</section>
+
+<style>
+  .page-section {
+    /* Section wrapper - no additional styles needed */
+  }
+  
+  .section-header {
+    margin-bottom: 2rem;
+  }
+  
+  .section-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .section-title {
+    margin: 0;
+    color: var(--color-heading);
+    font-size: clamp(1.9rem, 3vw, 2.7rem);
+    line-height: 1.02;
+  }
+  
+  .section-anchor {
+    display: inline-flex;
+    color: var(--color-muted);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+  
+  .section-heading:hover .section-anchor,
+  .section-anchor:focus {
+    opacity: 1;
+  }
+  
+  .section-anchor:hover {
+    color: var(--color-primary);
+  }
+</style>

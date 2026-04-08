@@ -14,13 +14,7 @@
  * - https://ogp.me/
  */
 
-import {
-  REPO_OWNER,
-  TWITTER_HANDLE,
-  GITHUB_PROFILE_URL,
-  GITHUB_REPO_URL,
-  DISCORD_URL,
-} from "@/constants/project";
+import { REPO_OWNER, TWITTER_HANDLE, GITHUB_PROFILE_URL, GITHUB_REPO_URL, DISCORD_URL } from "@/constants/project";
 
 // ============================================================================
 // Site Identity
@@ -128,12 +122,15 @@ export const SOFTWARE_APP = {
   /** Feature list for rich snippets (matches homepage features) */
   featureList: [
     "Python plugin system for panels, tools, overlays, and workflow extensions",
+    "MCP integration for AI automation and external tool control",
     "MCP integration for controllable editor, camera, render, and sequencer workflows",
     "High-performance C++23 and CUDA core for 3D Gaussian Splatting",
     "Full editing suite with brush, lasso, polygon, masking, and alignment tools",
     "Desktop workflow that runs locally on your GPU",
     "Save and resume training sessions",
     "Interactive desktop viewer and rendering modes",
+    "Comprehensive documentation and tutorials",
+    "Comparison with Postshot, Brush, and other alternatives",
     "GPL-3.0 open source license",
   ],
 
@@ -197,6 +194,17 @@ export const NAVIGATION = {
   "/plugins/": "Plugins",
   "/contribute/": "Contribute",
   "/bounty/": "Bounties",
+  "/what-is-gaussian-splatting/": "What is Gaussian Splatting",
+  "/learn-lfs/getting-started/": "Getting Started",
+  "/learn-lfs/faq/": "FAQ",
+  "/learn-3dgs/capture-tips/": "Capture Tips",
+  "/glossary/colmap/": "COLMAP Guide",
+  "/glossary/3dgut/": "3DGUT Guide",
+  "/learn-lfs/troubleshooting/": "Troubleshooting",
+  "/features/mcp-automation/": "MCP Automation",
+  "/vs/postshot/": "vs Postshot",
+  "/vs/brush/": "vs Brush",
+  "/alternatives/": "Alternatives",
 } as const;
 
 // ============================================================================

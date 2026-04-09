@@ -239,6 +239,9 @@ export interface SeoProps {
   /** Custom social sharing image (absolute or relative URL) */
   image?: string;
 
+  /** Custom social sharing image alt text */
+  imageAlt?: string;
+
   /** Canonical URL override */
   canonicalURL?: URL;
 

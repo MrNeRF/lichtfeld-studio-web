@@ -34,9 +34,11 @@ import {
   CRYPTO_WALLET_BITCOIN,
   REPO_OWNER,
   REPO_NAME,
+  VOLINGA_URL,
 } from "@/constants/project";
 
 const base = import.meta.env.BASE_URL;
+const volingaLogo = `${base}static/volinga-logo.png`;
 const featuredPlugins = await getFeaturedPlugins(3);
 const latestRelease = await getLatestRelease();
 const stableWindowsVersion = latestRelease?.tagName ?? "v0.5.1";
@@ -130,9 +132,11 @@ const pluginHighlights = ["Registry installs", "Version-aware compatibility", "P
 // SEO metadata for the homepage
 const seoTitle = SITE.name;
 const seoDescription = SITE.description;
+const seoImage = `${base}static/social-homepage.png`;
+const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
 ---
 
-<Layout title={seoTitle} description={seoDescription}>
+<Layout title={seoTitle} description={seoDescription} image={seoImage} imageAlt={seoImageAlt}>
   <!-- Big Splat Header (Hero) -->
   <header class="hero">
     <div class="hero__splat">
@@ -520,6 +524,18 @@ const seoDescription = SITE.description;
             <p class="sponsor-tier-card__desc">
               Major annual support for sustained product, tooling, and platform work.
             </p>
+            <div class="sponsor-tier-card__members">
+              <p class="sponsor-tier-card__members-label">Current sponsor</p>
+              <a
+                href={VOLINGA_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="sponsor-tier-card__member sponsor-tier-card__member--logo"
+                aria-label="Visit Volinga website"
+              >
+                <img src={volingaLogo} alt="Volinga" class="sponsor-tier-card__member-logo" />
+              </a>
+            </div>
           </article>
 
           <article class="sponsor-tier-card sponsor-tier-card--silver">
@@ -2780,6 +2796,27 @@ const seoDescription = SITE.description;
     border-color: var(--color-primary-link);
     background: rgba(255, 255, 255, 0.96);
     box-shadow: var(--focus-shadow);
+  }
+
+  .sponsor-tier-card__member--logo {
+    padding: 0;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .sponsor-tier-card__member-logo {
+    display: block;
+    width: min(100%, 75px);
+    height: auto;
+  }
+
+  .sponsor-tier-card__member--logo:hover,
+  .sponsor-tier-card__member--logo:focus-visible {
+    border: 0;
+    background: transparent;
+    box-shadow: none;
   }
 
   .sponsor-tier-card--platinum {

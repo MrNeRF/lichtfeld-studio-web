@@ -152,6 +152,10 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
           <span class="splat-loading__percent">0%</span>
         </div>
       </div>
+
+      <div class="splat-loading__error" hidden>
+        <span class="splat-loading__error-badge">3D preview unavailable</span>
+      </div>
     </div>
   </astro-splat>
 )}
@@ -159,7 +163,12 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
 <script>
   import { SuperSplatViewer } from "../script/splat/SuperSplatViewer";
   import { MIN_VIEWPORT_VISIBILITY_FOR_RENDER } from "@/constants/splat-viewer";
-  import { SPLAT_EVT_LOADING_PROGRESS, SPLAT_EVT_LOADED, SPLAT_EVT_FIRST_FRAME } from "@/constants/splat-events";
+  import {
+    SPLAT_EVT_LOADING_PROGRESS,
+    SPLAT_EVT_LOADED,
+    SPLAT_EVT_FIRST_FRAME,
+    SPLAT_EVT_ERROR,
+  } from "@/constants/splat-events";
 
   class AstroSplat extends HTMLElement {
     /** Reference to the viewer instance for cleanup. */
@@ -192,6 +201,9 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
     /** Idle animation type. */
     private _idleAnimation?: "none" | "drift-pause" | "auto-rotate";
 
+    /** Fallback timer in case the viewer never reaches first frame. */
+    private _firstFrameTimeoutId?: number;
+
     connectedCallback() {
       // ======================
       // Element lookups
@@ -216,6 +228,39 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
       const fill = this.querySelector(".splat-loading__fill") as HTMLElement | null;
       const percentEl = this.querySelector(".splat-loading__percent") as HTMLElement | null;
       const previewImg = this.querySelector(".splat-loading__preview") as HTMLImageElement | null;
+      const errorEl = this.querySelector(".splat-loading__error") as HTMLElement | null;
+
+      const showPreviewFallback = (message?: string) => {
+        if (this._firstFrameTimeoutId) {
+          window.clearTimeout(this._firstFrameTimeoutId);
+          this._firstFrameTimeoutId = undefined;
+        }
+
+        canvas.style.opacity = "0";
+
+        if (overlay) {
+          overlay.style.display = "block";
+          overlay.setAttribute("aria-busy", "false");
+          overlay.classList.remove("is-loaded", "is-finished");
+          overlay.classList.add("is-error");
+        }
+
+        if (panel) {
+          panel.hidden = true;
+        }
+
+        if (errorEl) {
+          errorEl.hidden = false;
+
+          if (message) {
+            errorEl.setAttribute("aria-label", message);
+          }
+        }
+
+        if (previewImg) {
+          previewImg.classList.add("is-ready");
+        }
+      };
 
       // ======================
       // Viewer init (using new modular implementation)
@@ -290,6 +335,12 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
 
         // Fade out after first frame to avoid popping.
         this.addEventListener(SPLAT_EVT_FIRST_FRAME, () => {
+          if (this._firstFrameTimeoutId) {
+            window.clearTimeout(this._firstFrameTimeoutId);
+            this._firstFrameTimeoutId = undefined;
+          }
+
+          canvas.style.opacity = "1";
           overlay.classList.add("is-finished");
           // Remove from hit-testing after transition ends.
           overlay.addEventListener(
@@ -301,6 +352,16 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
             { once: true },
           );
         });
+
+        this.addEventListener(SPLAT_EVT_ERROR, (e) => {
+          const { message } = (e as CustomEvent).detail || {};
+
+          showPreviewFallback(message);
+        });
+
+        this._firstFrameTimeoutId = window.setTimeout(() => {
+          showPreviewFallback("Viewer timed out before first frame");
+        }, 10000);
       }
 
       // Preview Image
@@ -399,6 +460,7 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
       // Get DOM elements
       const canvas = this.querySelector("canvas") as HTMLCanvasElement;
       const overlay = this.querySelector(".splat-loading") as HTMLElement | null;
+      const panel = this.querySelector(".splat-loading__panel") as HTMLElement | null;
       const fill = this.querySelector(".splat-loading__fill") as HTMLElement | null;
       const percentEl = this.querySelector(".splat-loading__percent") as HTMLElement | null;
       const bar = this.querySelector(".splat-loading__bar") as HTMLElement | null;
@@ -410,11 +472,30 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
         this._viewer = undefined;
       }
 
+      if (this._firstFrameTimeoutId) {
+        window.clearTimeout(this._firstFrameTimeoutId);
+        this._firstFrameTimeoutId = undefined;
+      }
+
       // Reset the loading overlay for the new scene
       if (overlay) {
         overlay.classList.remove("is-loaded", "is-finished");
+        overlay.classList.remove("is-error");
         overlay.style.display = "block";
         overlay.setAttribute("aria-busy", "true");
+      }
+
+      canvas.style.opacity = "1";
+
+      if (panel) {
+        panel.hidden = false;
+      }
+
+      const errorEl = this.querySelector(".splat-loading__error") as HTMLElement | null;
+
+      if (errorEl) {
+        errorEl.hidden = true;
+        errorEl.removeAttribute("aria-label");
       }
 
       if (fill) {
@@ -466,6 +547,15 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
         controlScheme: effectiveControlScheme,
         idleAnimation: this._idleAnimation,
       });
+
+      this._firstFrameTimeoutId = window.setTimeout(() => {
+        overlay?.setAttribute("aria-busy", "false");
+        overlay?.classList.add("is-error");
+        panel && (panel.hidden = true);
+        errorEl && (errorEl.hidden = false);
+        previewImg?.classList.add("is-ready");
+        canvas.style.opacity = "0";
+      }, 10000);
     }
 
     disconnectedCallback() {
@@ -501,6 +591,11 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
         this._viewer.dispose();
         this._viewer = undefined;
       }
+
+      if (this._firstFrameTimeoutId) {
+        window.clearTimeout(this._firstFrameTimeoutId);
+        this._firstFrameTimeoutId = undefined;
+      }
     }
   }
 
@@ -513,6 +608,12 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
     width: 100%;
     height: 100%;
     position: relative; /* contain overlay and panel */
+  }
+
+  astro-splat canvas {
+    width: 100%;
+    height: 100%;
+    transition: opacity 180ms ease;
   }
 
   /* =========================
@@ -544,6 +645,11 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
     pointer-events: none;
   }
 
+  .splat-loading.is-error {
+    background: linear-gradient(180deg, rgba(8, 10, 14, 0.22), rgba(8, 10, 14, 0.18));
+    backdrop-filter: blur(1px) saturate(110%);
+  }
+
   /* Preview image sits under the progress panel */
   .splat-loading__preview {
     position: absolute;
@@ -571,6 +677,29 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
 
   .splat-loading__preview.is-hidden {
     display: none;
+  }
+
+  .splat-loading__error {
+    position: absolute;
+    inset: auto 1rem 1rem 1rem;
+    display: flex;
+    justify-content: center;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .splat-loading__error-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.55rem 0.8rem;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.78);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
   }
 
   /* =========================

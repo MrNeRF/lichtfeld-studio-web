@@ -46,6 +46,7 @@ import {
   SPLAT_EVT_LOADING_PROGRESS,
   SPLAT_EVT_LOADED,
   SPLAT_EVT_FIRST_FRAME,
+  SPLAT_EVT_ERROR,
 } from '@/constants/splat-events';
 
 // ============================================================================
@@ -114,6 +115,14 @@ interface SuperSplatViewerEvents {
    * Emitted when first frame renders.
    */
   'firstFrame': void;
+
+  /**
+   * Emitted when initialization fails.
+   */
+  'error': {
+    message: string;
+    error: Error;
+  };
 
   /**
    * Emitted when entering active mode (user interaction).
@@ -318,7 +327,24 @@ export class SuperSplatViewer implements IDisposable {
     this._init();
 
     // Load assets asynchronously
-    void this._asyncInit();
+    void this._asyncInit().catch((err: unknown) => {
+      const error = err instanceof Error ? err : new Error(String(err));
+
+      console.warn('[SuperSplatViewer] Initialization failed:', error);
+      this.events.emit('error', {
+        message: error.message,
+        error,
+      });
+      this._canvas.dispatchEvent(
+        new CustomEvent(SPLAT_EVT_ERROR, {
+          bubbles: true,
+          detail: {
+            message: error.message,
+            error,
+          },
+        })
+      );
+    });
   }
 
   // ============================================================================

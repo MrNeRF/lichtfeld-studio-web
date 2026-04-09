@@ -59,6 +59,9 @@ export const DISCORD_URL = "https://discord.gg/NqwTqVYVmj";
 /** Optional iPhone capture app recommendation */
 export const GAUSSIAN_SPLATKING_APP_STORE_URL = "https://apps.apple.com/de/app/gaussian-splatking/id6759175085";
 
+/** Gold sponsor website */
+export const VOLINGA_URL = "https://web.volinga.ai/";
+
 // =============================================================================
 // Donations
 // =============================================================================

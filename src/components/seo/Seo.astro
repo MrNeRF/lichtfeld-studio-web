@@ -61,6 +61,7 @@ const {
   title,
   description,
   image,
+  imageAlt,
   canonicalURL = new URL(Astro.url.pathname, Astro.site),
   ogType = "website",
   publishedDate,
@@ -83,8 +84,9 @@ const fullTitle = title === SITE.name ? title : `${title} | ${SITE.name}`;
  * Falls back to the default social card if no image is provided.
  * Uses the base path to ensure correct URLs in fork deployments.
  */
-const imagePath = image ?? `${base}static/social-card.png`;
+const imagePath = image ?? `${base}${SOCIAL_IMAGE.path.replace(/^\//, "")}`;
 const socialImageURL = new URL(imagePath, Astro.site).toString();
+const socialImageAlt = imageAlt ?? SOCIAL_IMAGE.alt;
 
 /**
  * Build the robots meta content based on noindex/nofollow flags.
@@ -233,7 +235,7 @@ const webPageSchema = {
 <meta property="og:image" content={socialImageURL} />
 <meta property="og:image:width" content={String(SOCIAL_IMAGE.width)} />
 <meta property="og:image:height" content={String(SOCIAL_IMAGE.height)} />
-<meta property="og:image:alt" content={SOCIAL_IMAGE.alt} />
+<meta property="og:image:alt" content={socialImageAlt} />
 <meta property="og:site_name" content={SITE.name} />
 <meta property="og:locale" content={SITE.locale} />
 
@@ -247,7 +249,7 @@ const webPageSchema = {
 <meta name="twitter:title" content={fullTitle} />
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={socialImageURL} />
-<meta name="twitter:image:alt" content={SOCIAL_IMAGE.alt} />
+<meta name="twitter:image:alt" content={socialImageAlt} />
 
 <!-- ========================================================================
      JSON-LD Structured Data

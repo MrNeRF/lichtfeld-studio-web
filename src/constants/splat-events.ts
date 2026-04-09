@@ -9,3 +9,5 @@ export const SPLAT_EVT_LOADING_PROGRESS = "splat:loading-progress";
 export const SPLAT_EVT_LOADED = "splat:loaded";
 // detail: {}
 export const SPLAT_EVT_FIRST_FRAME = "splat:first-frame";
+// detail: { message: string, error?: unknown }
+export const SPLAT_EVT_ERROR = "splat:error";

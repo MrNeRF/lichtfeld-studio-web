@@ -1,0 +1,26 @@
+{
+  "id": "community:gauspla-blender-sync",
+  "namespace": "community",
+  "name": "gauspla-blender-sync",
+  "displayName": "GauSpla Blender Sync",
+  "summary": "One-click linked PLY sync from LichtFeld Studio to a Blender-oriented workflow.",
+  "description": "Adds a one-click sync button for overwriting linked .ply files directly from LichtFeld Studio. Designed for workflows where GauSpla in Blender auto-reloads the same linked files for near real-time iteration.",
+  "author": "OlstFlow & Codex Bro",
+  "latestVersion": "0.1.0",
+  "lichtfeldVersion": ">=0.5.0",
+  "pluginApi": ">=1,<2",
+  "requiredFeatures": [],
+  "downloads": 0,
+  "keywords": ["blender", "sync", "ply", "gaussian-splat", "workflow"],
+  "repository": "https://github.com/OlstFlow/GauSpla",
+  "versions": [
+    {
+      "version": "0.1.0",
+      "pluginApi": ">=1,<2",
+      "lichtfeldVersion": ">=0.5.0",
+      "requiredFeatures": [],
+      "dependencies": [],
+      "gitRef": "main"
+    }
+  ]
+}

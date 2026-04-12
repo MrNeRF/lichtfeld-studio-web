@@ -1,0 +1,29 @@
+{
+  "id": "community:viewport-export",
+  "namespace": "community",
+  "name": "viewport-export",
+  "displayName": "Viewport Export",
+  "summary": "Export the current viewport as a JPG image at 1080p, 4K, or 8K resolution.",
+  "description": "Capture exactly what the viewer shows and save it as a high-quality JPG. Supports 1080p, 4K, and 8K output heights with automatic aspect-ratio preservation and adjustable JPG quality.",
+  "author": "Jacob van Beets",
+  "latestVersion": "1.0.0",
+  "lichtfeldVersion": ">=0.5.1",
+  "pluginApi": ">=1,<2",
+  "requiredFeatures": [],
+  "downloads": 0,
+  "keywords": ["export", "screenshot", "viewport", "jpg", "image"],
+  "repository": "https://github.com/jacobvanbeets/viewport-export-lichtfeld",
+  "versions": [
+    {
+      "version": "1.0.0",
+      "pluginApi": ">=1,<2",
+      "lichtfeldVersion": ">=0.5.1",
+      "requiredFeatures": [],
+      "dependencies": [
+        "Pillow",
+        "numpy"
+      ],
+      "gitRef": "main"
+    }
+  ]
+}

@@ -72,10 +72,10 @@ export const SITE = {
  */
 export const SOCIAL_IMAGE = {
   /** Relative path from site root */
-  path: "/static/social-card.png",
+  path: "/static/social-preview.png",
 
   /** Image alt text for accessibility */
-  alt: "LichtFeld Studio - 3D Gaussian Splatting Engine",
+  alt: "LichtFeld Studio supported by CORE11 and Volinga",
 
   /** Image dimensions (recommended: 1200x630 for OG, 1200x600 for Twitter) */
   width: 1280,

@@ -19,32 +19,24 @@ import Splat from "@/components/Splat.astro";
 import ContributorsWall from "@/components/contribute/ContributorsWall.astro";
 import PluginCard from "@/components/plugins/PluginCard.astro";
 import { getFeaturedPlugins } from "@/services/plugin-registry";
-import { getLatestRelease } from "@/services/github";
 
 // Centralized external links (avoid magic strings):
 import {
   GAUSSIAN_SPLATKING_APP_STORE_URL,
   GITHUB_REPO_URL,
   GITHUB_RELEASES_URL,
-  GITHUB_NIGHTLY_RELEASE_URL,
-  GITHUB_WIKI_URL,
   GITHUB_SPONSORS_URL,
+  LICHTFELD_PORTAL_URL,
   PAYPAL_URL,
   DONORBOX_URL,
   CRYPTO_WALLET_BITCOIN,
-  REPO_OWNER,
-  REPO_NAME,
   VOLINGA_URL,
 } from "@/constants/project";
 
 const base = import.meta.env.BASE_URL;
 const volingaLogo = `${base}static/volinga-logo.png`;
 const featuredPlugins = await getFeaturedPlugins(3);
-const latestRelease = await getLatestRelease();
-const stableWindowsVersion = latestRelease?.tagName ?? "v0.5.1";
-const nightlyWindowsUrl = GITHUB_NIGHTLY_RELEASE_URL;
-const nightlyWindowsMeta = "Latest dev snapshot";
-const nightlyReleaseApiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases/tags/nightly`;
+const stableWindowsVersion = "v.5.x";
 const heroProofItems = ["Native training", "Scene editing", "Python + MCP", "Windows & Linux", "GPLv3"];
 const workflowSteps = [
   {
@@ -168,17 +160,17 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
               <div class="hero__release-actions">
                 <a
                   class="btn btn-lg hero__release-card hero__release-card--stable"
-                  href={GITHUB_RELEASES_URL}
+                  href={LICHTFELD_PORTAL_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="Download the latest LichtFeld Studio release for Windows"
+                  aria-label="Open the LichtFeld Studio download portal for Windows binaries"
                 >
                   <span class="hero__release-card-main">
                     <span class="hero__release-icon" aria-hidden="true">
                       <i class="bi bi-windows"></i>
                     </span>
                     <span class="hero__release-copy">
-                      <span class="hero__release-kicker">Stable Release</span>
+                      <span class="hero__release-kicker">Windows Binary</span>
                       <span class="hero__release-title">Windows Build</span>
                       <span class="hero__release-meta">{stableWindowsVersion}</span>
                     </span>
@@ -186,47 +178,20 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
                   <span class="hero__release-pill hero__release-pill--new">New</span>
                 </a>
                 <a
-                  class="btn btn-lg hero__release-card hero__release-card--nightly"
-                  href={nightlyWindowsUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Download the latest nightly Windows build for LichtFeld Studio"
-                  data-nightly-download
-                >
-                  <span class="hero__release-card-main">
-                    <span class="hero__release-icon hero__release-icon--nightly" aria-hidden="true">
-                      <i class="bi bi-lightning-charge-fill"></i>
-                    </span>
-                    <span class="hero__release-copy">
-                      <span class="hero__release-kicker">Rolling Preview</span>
-                      <span class="hero__release-title">Nightly Build</span>
-                      <span class="hero__release-meta" data-nightly-download-meta>{nightlyWindowsMeta}</span>
-                    </span>
-                  </span>
-                  <span class="hero__release-pill hero__release-pill--nightly">Preview</span>
-                </a>
-              </div>
-
-              <div class="hero__utility-actions">
-                <!-- Secondary CTA: Get Started (build instructions on wiki) -->
-                <a
-                  class="btn btn-outline-light btn-lg hero__get-started-link"
-                  href={GITHUB_WIKI_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Build instructions for LichtFeld Studio"
-                >
-                  <i class="bi bi-tools mr-2" aria-hidden="true"></i>
-                  Build from Source
-                </a>
-                <!-- Tertiary CTA: Donate -->
-                <a
-                  class="btn btn-outline-light btn-lg hero__donate-link"
+                  class="btn btn-lg hero__release-card hero__release-card--donate"
                   href="#support-the-project"
                   aria-label="Support the project with a donation"
                 >
-                  <i class="bi bi-heart mr-2" aria-hidden="true"></i>
-                  Donate
+                  <span class="hero__release-card-main">
+                    <span class="hero__release-icon hero__release-icon--donate" aria-hidden="true">
+                      <i class="bi bi-heart"></i>
+                    </span>
+                    <span class="hero__release-copy">
+                      <span class="hero__release-kicker">Support The Project</span>
+                      <span class="hero__release-title">Donate</span>
+                      <span class="hero__release-meta">Help fund development</span>
+                    </span>
+                  </span>
                 </a>
               </div>
             </div>
@@ -760,69 +725,6 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
   </section>
 </Layout>
 
-<script define:vars={{ nightlyReleaseUrl: GITHUB_NIGHTLY_RELEASE_URL, nightlyReleaseApiUrl }}>
-  document.addEventListener("DOMContentLoaded", () => {
-    const nightlyLink = document.querySelector("[data-nightly-download]");
-    const nightlyMeta = document.querySelector("[data-nightly-download-meta]");
-
-    function selectLatestNightlyWindowsAsset(assets) {
-      return (
-        [...assets]
-          .filter((asset) => {
-            const fileName = asset.name?.toLowerCase() ?? "";
-
-            return (
-              (asset.state === undefined || asset.state === "uploaded") &&
-              Boolean(asset.browser_download_url) &&
-              fileName.includes("windows") &&
-              fileName.endsWith(".zip")
-            );
-          })
-          .sort((a, b) => {
-            const timeA = new Date(a.updated_at ?? a.created_at ?? 0).getTime();
-            const timeB = new Date(b.updated_at ?? b.created_at ?? 0).getTime();
-
-            return timeB - timeA;
-          })[0] ?? null
-      );
-    }
-
-    async function refreshNightlyDownloadLink() {
-      if (!(nightlyLink instanceof HTMLAnchorElement)) return;
-
-      nightlyLink.href = nightlyReleaseUrl;
-
-      try {
-        const response = await fetch(nightlyReleaseApiUrl, {
-          headers: {
-            Accept: "application/vnd.github+json",
-          },
-          cache: "no-store",
-        });
-
-        if (!response.ok) {
-          throw new Error(`GitHub API returned ${response.status}`);
-        }
-
-        const release = await response.json();
-        const latestAsset = selectLatestNightlyWindowsAsset(Array.isArray(release?.assets) ? release.assets : []);
-
-        if (latestAsset?.browser_download_url) {
-          nightlyLink.href = latestAsset.browser_download_url;
-          if (nightlyMeta) nightlyMeta.textContent = "Latest dev snapshot";
-          return;
-        }
-      } catch (error) {
-        console.warn("Failed to resolve latest nightly Windows asset in the browser:", error);
-      }
-
-      if (nightlyMeta) nightlyMeta.textContent = "Open nightly channel";
-    }
-
-    void refreshNightlyDownloadLink();
-  });
-</script>
-
 <script>
   /**
    * Manages the visibility of the hero content based on the Splat viewer's state.
@@ -1307,13 +1209,6 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
     max-width: 38rem;
   }
 
-  .hero__utility-actions {
-    display: flex;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-
   .hero__actions .btn {
     display: inline-flex;
     align-items: center;
@@ -1374,22 +1269,22 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
       radial-gradient(circle at top left, rgba(59, 130, 246, 0.24), transparent 58%);
   }
 
-  .hero__release-card--nightly {
+  .hero__release-card--donate {
     color: rgba(255, 255, 255, 0.96);
     background:
-      linear-gradient(180deg, rgba(11, 18, 32, 0.78), rgba(11, 18, 32, 0.56)),
-      radial-gradient(circle at top left, rgba(245, 158, 11, 0.18), transparent 48%);
+      linear-gradient(180deg, rgba(34, 22, 20, 0.72), rgba(20, 15, 20, 0.52)),
+      radial-gradient(circle at top left, rgba(236, 72, 153, 0.16), transparent 48%);
     border-color: rgba(255, 255, 255, 0.18);
     box-shadow:
       0 18px 36px rgba(0, 0, 0, 0.22),
       inset 0 1px 0 rgba(255, 255, 255, 0.06);
   }
 
-  .hero__release-card--nightly:hover {
+  .hero__release-card--donate:hover {
     color: #ffffff;
     background:
-      linear-gradient(180deg, rgba(11, 18, 32, 0.88), rgba(11, 18, 32, 0.68)),
-      radial-gradient(circle at top left, rgba(245, 158, 11, 0.22), transparent 52%);
+      linear-gradient(180deg, rgba(46, 24, 24, 0.84), rgba(28, 17, 22, 0.66)),
+      radial-gradient(circle at top left, rgba(244, 114, 182, 0.22), transparent 52%);
     border-color: rgba(255, 255, 255, 0.3);
   }
 
@@ -1416,10 +1311,10 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
     flex: 0 0 auto;
   }
 
-  .hero__release-icon--nightly {
+  .hero__release-icon--donate {
     background: rgba(255, 255, 255, 0.08);
-    color: #f59e0b;
-    box-shadow: inset 0 0 0 1px rgba(245, 158, 11, 0.22);
+    color: #fda4af;
+    box-shadow: inset 0 0 0 1px rgba(251, 113, 133, 0.24);
   }
 
   .hero__release-copy {
@@ -1470,11 +1365,6 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
   .hero__release-pill--new {
     background: rgba(37, 99, 235, 0.12);
     color: #1d4ed8;
-  }
-
-  .hero__release-pill--nightly {
-    background: rgba(245, 158, 11, 0.14);
-    color: rgba(255, 244, 214, 0.96);
   }
 
   .hero__scene-cue {
@@ -1654,34 +1544,6 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
       opacity: 1 !important;
       will-change: auto !important;
     }
-  }
-
-  .hero__get-started-link {
-    border-color: rgba(255, 255, 255, 0.18);
-    color: #fff;
-    background: rgba(255, 255, 255, 0.08);
-  }
-
-  .hero__get-started-link:hover {
-    border-color: rgba(255, 255, 255, 0.32);
-    color: #fff;
-    background: rgba(255, 255, 255, 0.14);
-  }
-
-  .hero__donate-link {
-    border-color: rgba(255, 255, 255, 0.18);
-    color: #fff;
-    background: rgba(255, 255, 255, 0.08);
-  }
-
-  .hero__donate-link:hover {
-    border-color: rgba(239, 68, 68, 0.5);
-    color: #fff;
-    background: rgba(239, 68, 68, 0.15);
-  }
-
-  .hero__donate-link:hover .bi-heart {
-    color: #ef4444;
   }
 
   .hash-section {
@@ -1921,11 +1783,6 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
     .hero__release-actions {
       grid-template-columns: 1fr;
       max-width: none;
-    }
-
-    .hero__utility-actions {
-      flex-direction: column;
-      align-items: stretch;
     }
 
     .hero__actions .btn {

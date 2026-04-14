@@ -40,6 +40,9 @@ export const CONTRIBUTION_PROJECT_VIEW_URL = `https://github.com/users/${REPO_OW
 /** Direct download URL for the current stable Windows build */
 export const GITHUB_RELEASES_URL = `${GITHUB_REPO_URL}/releases/download/v0.5.1/LichtFeld-Studio-windows-v0.5.1.zip`;
 
+/** Evergreen download portal for LichtFeld Studio binaries */
+export const LICHTFELD_PORTAL_URL = "https://portal.lichtfeld.io";
+
 /** Nightly release page for the rolling development build */
 export const GITHUB_NIGHTLY_RELEASE_URL = `${GITHUB_REPO_URL}/releases/tag/nightly`;
 

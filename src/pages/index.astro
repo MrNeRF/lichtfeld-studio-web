@@ -528,16 +528,30 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
               Supportive sponsorship for companies backing the project and community.
             </p>
             <div class="sponsor-tier-card__members">
-              <p class="sponsor-tier-card__members-label">Current sponsor</p>
-              <a
-                href="https://vincentwoo.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="sponsor-tier-card__member"
-                aria-label="Visit Vincent Woo website"
-              >
-                Vincent Woo
-              </a>
+              <p class="sponsor-tier-card__members-label">Current sponsors</p>
+              <div class="sponsor-tier-card__member-stack">
+                <a
+                  href="https://vincentwoo.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="sponsor-tier-card__member"
+                  aria-label="Visit Vincent Woo website"
+                >
+                  Vincent Woo
+                </a>
+              </div>
+              <div class="sponsor-tier-card__member-stack">
+                <a
+                  href="https://yuma.jp/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="sponsor-tier-card__member"
+                  lang="ja"
+                  aria-label="YUMA株式会社のWebサイトを開く"
+                >
+                  YUMA株式会社
+                </a>
+              </div>
             </div>
           </article>
         </div>
@@ -2637,6 +2651,12 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
       border-color 0.18s ease,
       box-shadow 0.18s ease,
       transform 0.18s ease;
+  }
+
+  .sponsor-tier-card__member-stack {
+    display: grid;
+    gap: 0.45rem;
+    justify-items: start;
   }
 
   .sponsor-tier-card__member:hover {

@@ -529,7 +529,7 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
             </p>
             <div class="sponsor-tier-card__members">
               <p class="sponsor-tier-card__members-label">Current sponsors</p>
-              <div class="sponsor-tier-card__member-stack">
+              <div class="sponsor-tier-card__member-list">
                 <a
                   href="https://vincentwoo.com/"
                   target="_blank"
@@ -539,8 +539,6 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
                 >
                   Vincent Woo
                 </a>
-              </div>
-              <div class="sponsor-tier-card__member-stack">
                 <a
                   href="https://yuma.jp/"
                   target="_blank"
@@ -2653,10 +2651,10 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
       transform 0.18s ease;
   }
 
-  .sponsor-tier-card__member-stack {
-    display: grid;
-    gap: 0.45rem;
-    justify-items: start;
+  .sponsor-tier-card__member-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
   }
 
   .sponsor-tier-card__member:hover {

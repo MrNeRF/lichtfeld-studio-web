@@ -1,4 +1,6 @@
 ---
+import { MIN_VIEWPORT_VISIBILITY_FOR_RENDER } from "@/constants/splat-viewer";
+
 /**
  * Camera control scheme type.
  * - 'none': No user controls (pose cycling only)
@@ -73,6 +75,22 @@ interface SplatProps {
    * Default: 'drift-pause'
    */
   idleAnimation?: IdleAnimationType;
+
+  /**
+   * Minimum visible fraction required to keep rendering active.
+   *
+   * When the element drops below this threshold, the viewer stops rendering
+   * and leaves the last rendered frame on screen.
+   */
+  minViewportVisibilityForRender?: number;
+
+  /**
+   * Disable the drift animation on mobile/touch-first viewports.
+   *
+   * This is intended for the homepage hero, where low-end mobile devices
+   * struggle with constant idle motion.
+   */
+  disableDriftOnMobile?: boolean;
 }
 
 const {
@@ -85,6 +103,8 @@ const {
   controlScheme = "both",
   enablePoseCycling = true,
   idleAnimation = "drift-pause",
+  minViewportVisibilityForRender = MIN_VIEWPORT_VISIBILITY_FOR_RENDER,
+  disableDriftOnMobile = false,
 } = Astro.props as SplatProps;
 
 /**
@@ -121,6 +141,8 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
     data-control-scheme={controlScheme}
     data-enable-pose-cycling={enablePoseCycling.toString()}
     data-idle-animation={idleAnimation}
+    data-min-viewport-visibility={minViewportVisibilityForRender.toString()}
+    data-disable-drift-on-mobile={disableDriftOnMobile.toString()}
     style={`${userStyle}${userStyle ? ";" : ""} --progress-offset-x:${progressOffsetX}px; --progress-offset-y:${progressOffsetY}px;`}
   >
     <canvas></canvas>
@@ -162,13 +184,18 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
 
 <script>
   import { SuperSplatViewer } from "../script/splat/SuperSplatViewer";
-  import { MIN_VIEWPORT_VISIBILITY_FOR_RENDER } from "@/constants/splat-viewer";
+  import {
+    clampViewportVisibilityThreshold,
+    MIN_VIEWPORT_VISIBILITY_FOR_RENDER,
+    MOBILE_SPLAT_MEDIA_QUERY,
+  } from "@/constants/splat-viewer";
   import {
     SPLAT_EVT_LOADING_PROGRESS,
     SPLAT_EVT_LOADED,
     SPLAT_EVT_FIRST_FRAME,
     SPLAT_EVT_ERROR,
   } from "@/constants/splat-events";
+  import { resolveSplatIdleAnimation } from "@/script/splat/runtime/resolveSplatIdleAnimation";
 
   class AstroSplat extends HTMLElement {
     /** Reference to the viewer instance for cleanup. */
@@ -201,6 +228,12 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
     /** Idle animation type. */
     private _idleAnimation?: "none" | "drift-pause" | "auto-rotate";
 
+    /** Effective visibility threshold used for suspension. */
+    private _minViewportVisibilityForRender = MIN_VIEWPORT_VISIBILITY_FOR_RENDER;
+
+    /** Whether drift should be disabled on mobile. */
+    private _disableDriftOnMobile = false;
+
     /** Fallback timer in case the viewer never reaches first frame. */
     private _firstFrameTimeoutId?: number;
 
@@ -215,11 +248,22 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
         | "none"
         | "drift-pause"
         | "auto-rotate";
+      const minViewportVisibilityForRender = clampViewportVisibilityThreshold(
+        Number(this.getAttribute("data-min-viewport-visibility")),
+      );
+      const disableDriftOnMobile = this.getAttribute("data-disable-drift-on-mobile") === "true";
+      const effectiveIdleAnimation = resolveSplatIdleAnimation({
+        idleAnimation,
+        disableDriftOnMobile,
+        isMobileViewport: this._isMobileViewport(),
+      });
 
       this._base = base;
       this._currentScene = this.getAttribute("scene") as string;
       this._controlScheme = controlScheme;
       this._idleAnimation = idleAnimation;
+      this._minViewportVisibilityForRender = minViewportVisibilityForRender;
+      this._disableDriftOnMobile = disableDriftOnMobile;
 
       // Loader DOM hooks
       const overlay = this.querySelector(".splat-loading") as HTMLElement | null;
@@ -271,7 +315,8 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
         sizeElement: this.parentElement as HTMLElement,
         base,
         controlScheme,
-        idleAnimation,
+        idleAnimation: effectiveIdleAnimation,
+        minViewportVisibilityForRender,
       });
 
       // Click-to-advance (optional).
@@ -399,7 +444,7 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
 
       this.addEventListener("splatviewer:load-scene", this._sceneLoadHandler);
 
-      // ===== Viewport visibility: pause when < 60% visible =====
+      // ===== Viewport visibility: pause when below the configured threshold =====
       // Use a low-overhead IntersectionObserver to compute intersection ratio.
       // Threshold array includes the exact cutoff, so we get callbacks when crossing it.
       this._intersectionObserver = new IntersectionObserver(
@@ -409,7 +454,7 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
           // entry.intersectionRatio ∈ [0,1]; pass to viewer to decide suspend/resume.
           this._viewer?.setViewportVisibility(entry.intersectionRatio);
         },
-        { root: null, threshold: [0, MIN_VIEWPORT_VISIBILITY_FOR_RENDER] },
+        { root: null, threshold: [0, this._minViewportVisibilityForRender] },
       );
 
       this._intersectionObserver.observe(this);
@@ -429,7 +474,7 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
       // Only set up these handlers if idle animation is enabled. When set to
       // 'none' (e.g., on the Showcase page), we don't want page activity to
       // constantly restart the idle animation and fight with user camera controls.
-      if (idleAnimation !== "none") {
+      if (effectiveIdleAnimation !== "none") {
         this._pageActivityHandler = () => this._viewer?.notifyPageActivity();
         const activityEvents: (keyof WindowEventMap)[] = [
           "pointerdown",
@@ -537,15 +582,22 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
       this.setAttribute("data-control-scheme", effectiveControlScheme);
 
       // Create a new viewer with the new scene.
-      // Use the stored _idleAnimation value from the initial config.
-      // This ensures scene switches maintain the same idle animation behavior.
+      // Re-resolve idle animation on each scene switch so mobile viewport changes
+      // still disable drift motion for the homepage path.
+      const effectiveIdleAnimation = resolveSplatIdleAnimation({
+        idleAnimation: this._idleAnimation ?? "drift-pause",
+        disableDriftOnMobile: this._disableDriftOnMobile,
+        isMobileViewport: this._isMobileViewport(),
+      });
+
       this._viewer = new SuperSplatViewer({
         canvas,
         scene,
         sizeElement: this.parentElement as HTMLElement,
         base: this._base!,
         controlScheme: effectiveControlScheme,
-        idleAnimation: this._idleAnimation,
+        idleAnimation: effectiveIdleAnimation,
+        minViewportVisibilityForRender: this._minViewportVisibilityForRender,
       });
 
       this._firstFrameTimeoutId = window.setTimeout(() => {
@@ -596,6 +648,20 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
         window.clearTimeout(this._firstFrameTimeoutId);
         this._firstFrameTimeoutId = undefined;
       }
+    }
+
+    /**
+     * Whether the current viewport should use the mobile runtime path.
+     *
+     * Matches the site's mobile breakpoint and requires a coarse pointer so
+     * narrow desktop windows keep the desktop idle behavior.
+     */
+    private _isMobileViewport(): boolean {
+      if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+        return false;
+      }
+
+      return window.matchMedia(MOBILE_SPLAT_MEDIA_QUERY).matches;
     }
   }
 

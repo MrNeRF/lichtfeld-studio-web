@@ -32,6 +32,7 @@ test-results/
 
 .claude/
 CLAUDE.md
+AGENTS.md
 nul
 cloudflare.png
 stats.png

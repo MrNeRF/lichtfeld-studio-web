@@ -19,6 +19,7 @@ import Splat from "@/components/Splat.astro";
 import ContributorsWall from "@/components/contribute/ContributorsWall.astro";
 import PluginCard from "@/components/plugins/PluginCard.astro";
 import { getFeaturedPlugins } from "@/services/plugin-registry";
+import { HOMEPAGE_MIN_VIEWPORT_VISIBILITY_FOR_RENDER } from "@/constants/splat-viewer";
 
 // Centralized external links (avoid magic strings):
 import {
@@ -140,6 +141,8 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
           progressPosition="bottom-center"
           progressOffsetY={50}
           controlScheme="none"
+          minViewportVisibilityForRender={HOMEPAGE_MIN_VIEWPORT_VISIBILITY_FOR_RENDER}
+          disableDriftOnMobile={true}
         />
       </div>
     </div>
@@ -148,6 +151,29 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
     <div class="hero__content">
       <!-- Backdrop panel -->
       <div class="container content-frame px-4">
+        <div
+          class="hero__scene-cue"
+          role="note"
+          aria-label="Interactive scene. Click to switch to the next camera angle."
+        >
+          <span class="hero__scene-cue-label">
+            <span class="hero__scene-cue-icon" aria-hidden="true">
+              <svg class="bi" width="0.95em" height="0.95em">
+                <use href={`${base}static/bootstrap-icons.svg#hand-index-thumb`}></use>
+              </svg>
+            </span>
+            <span class="hero__scene-cue-copy">
+              <span class="hero__scene-cue-title">Click scene</span>
+              <span class="hero__scene-cue-subtitle">Jump to the next camera angle</span>
+            </span>
+          </span>
+          <span class="hero__scene-cue-steps" aria-hidden="true">
+            <span class="hero__scene-cue-step"></span>
+            <span class="hero__scene-cue-step"></span>
+            <span class="hero__scene-cue-step"></span>
+          </span>
+        </div>
+
         <div class="hero__stack">
           <!-- inner animated wrapper to avoid multiplying parent/child opacities -->
           <div class="hero__stack-content">
@@ -196,29 +222,6 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
               </div>
             </div>
           </div>
-        </div>
-
-        <div
-          class="hero__scene-cue"
-          role="note"
-          aria-label="Interactive scene. Click to switch to the next camera angle."
-        >
-          <span class="hero__scene-cue-label">
-            <span class="hero__scene-cue-icon" aria-hidden="true">
-              <svg class="bi" width="0.95em" height="0.95em">
-                <use href={`${base}static/bootstrap-icons.svg#hand-index-thumb`}></use>
-              </svg>
-            </span>
-            <span class="hero__scene-cue-copy">
-              <span class="hero__scene-cue-title">Click scene</span>
-              <span class="hero__scene-cue-subtitle">Jump to the next camera angle</span>
-            </span>
-          </span>
-          <span class="hero__scene-cue-steps" aria-hidden="true">
-            <span class="hero__scene-cue-step"></span>
-            <span class="hero__scene-cue-step"></span>
-            <span class="hero__scene-cue-step"></span>
-          </span>
         </div>
       </div>
     </div>
@@ -3589,26 +3592,47 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
       padding-inline: 1rem !important;
     }
 
+    .hero__content .container {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-end;
+      gap: 0;
+      padding-bottom: 1rem;
+    }
+
     .hero__stack {
-      width: 100%;
-      max-width: none;
-      gap: 0.5rem;
-      padding-block: 1rem 1.2rem;
+      width: min(100%, 20.75rem);
+      max-width: min(100%, 20.75rem);
+      gap: 0.4rem;
+      padding-block: 0.78rem 0.55rem;
       padding-inline: 0.55rem;
     }
 
     .hero__stack::before {
-      inset: -0.9rem -0.1rem;
-      border-radius: 0;
+      inset: 0;
+      border-radius: 1.35rem;
       background:
-        linear-gradient(180deg, rgba(9, 16, 28, 0.74), rgba(9, 16, 28, 0.48)),
-        radial-gradient(circle at top left, rgba(255, 255, 255, 0.16), transparent 42%);
-      box-shadow: 0 24px 40px rgba(0, 0, 0, 0.18);
+        linear-gradient(180deg, rgba(9, 16, 28, 0.76), rgba(9, 16, 28, 0.54)),
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.15), transparent 46%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow:
+        0 20px 40px rgba(0, 0, 0, 0.22),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(16px) saturate(132%);
+    }
+
+    .hero__stack-content {
+      display: grid;
+      gap: 0;
+      width: 100%;
     }
 
     .hero__eyebrow {
+      margin: 0.12rem 0 0.62rem;
+      display: inline-flex;
       gap: 0.5rem;
-      font-size: 0.72rem;
+      font-size: 0.68rem;
       letter-spacing: 0.14em;
     }
 
@@ -3617,6 +3641,7 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
     }
 
     .hero__proof {
+      display: none;
       gap: 0.4rem;
       margin-top: 0.75rem;
     }
@@ -3628,8 +3653,12 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
     }
 
     .hero__actions {
-      margin-top: 0.85rem;
-      gap: 0.55rem;
+      margin-top: 0.35rem;
+      gap: 0.48rem;
+    }
+
+    .hero__release-actions {
+      width: 100%;
     }
 
     .hero__actions .btn {
@@ -3668,10 +3697,12 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
 
     .hero__scene-cue {
       position: static;
-      width: min(100%, 15rem);
-      margin-top: 0.9rem;
+      width: 100%;
+      max-width: 100%;
+      margin: 0 0 0.52rem;
       margin-left: 0;
       animation: none;
+      transform-origin: center top;
     }
 
     :global(html.has-home-shell-reveal) .hash-section .shell,
@@ -3693,20 +3724,58 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
     }
 
     .hero__scene-cue-label {
-      gap: 0.65rem;
-      padding: 0.52rem 0.7rem;
+      gap: 0.68rem;
+      padding: 0.62rem 0.76rem;
+      border-radius: 0.95rem;
+      background:
+        linear-gradient(180deg, rgba(13, 23, 40, 0.54), rgba(10, 18, 32, 0.36)),
+        radial-gradient(circle at top left, rgba(96, 165, 250, 0.18), transparent 48%);
+      border-color: rgba(191, 219, 254, 0.18);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
     }
 
     .hero__scene-cue-title {
-      font-size: 0.66rem;
+      font-size: 0.64rem;
+      letter-spacing: 0.16em;
     }
 
     .hero__scene-cue-subtitle {
-      font-size: 0.7rem;
+      font-size: 0.72rem;
+      color: rgba(255, 255, 255, 0.76);
+    }
+
+    .hero__scene-cue-icon {
+      width: 2rem;
+      height: 2rem;
+      background: rgba(96, 165, 250, 0.12);
+      border-color: rgba(191, 219, 254, 0.16);
+      box-shadow:
+        0 0 0 0.3rem rgba(59, 130, 246, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .hero__scene-cue-copy {
+      gap: 0.18rem;
+    }
+
+    .hero__scene-cue-steps {
+      gap: 0.42rem;
+      padding-left: 0.2rem;
+    }
+
+    .hero__scene-cue-step {
+      width: 0.42rem;
+      height: 0.42rem;
+      background: rgba(191, 219, 254, 0.36);
     }
 
     .story-header-grid {
+      grid-template-columns: 1fr;
       gap: 1.2rem;
+    }
+
+    .story-media-panel {
+      order: -1;
     }
 
     .story-title,
@@ -3965,8 +4034,19 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
       padding-inline: 0.8rem !important;
     }
 
+    .hero__content .container {
+      padding-bottom: 0.8rem;
+    }
+
+    .hero__stack {
+      width: 100%;
+      max-width: 100%;
+      padding-block: 0.72rem 0.5rem;
+      padding-inline: 0.48rem;
+    }
+
     .hero__stack::before {
-      inset: -0.75rem 0;
+      inset: 0;
       border-radius: 1.2rem;
     }
 
@@ -3983,15 +4063,21 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
     }
 
     .hero__scene-cue-label {
-      padding: 0.48rem 0.64rem;
+      gap: 0.62rem;
+      padding: 0.56rem 0.68rem;
     }
 
     .hero__scene-cue-title {
-      font-size: 0.64rem;
+      font-size: 0.6rem;
     }
 
     .hero__scene-cue-subtitle {
-      font-size: 0.67rem;
+      font-size: 0.68rem;
+    }
+
+    .hero__scene-cue-icon {
+      width: 1.9rem;
+      height: 1.9rem;
     }
 
     .story-media,

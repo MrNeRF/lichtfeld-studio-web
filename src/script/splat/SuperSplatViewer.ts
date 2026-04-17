@@ -38,7 +38,7 @@ import { ProgressAggregator } from '@/services/progressAggregator';
 import { profileDevice, applyPlayCanvasTuning } from '@/services/deviceProfiler';
 
 import {
-  MIN_VIEWPORT_VISIBILITY_FOR_RENDER,
+  clampViewportVisibilityThreshold,
   IDLE_AUTO_STOP_MS,
 } from '@/constants/splat-viewer';
 
@@ -204,6 +204,14 @@ export interface SuperSplatViewerConfig {
    * Enable debug logging.
    */
   debug?: boolean;
+
+  /**
+   * Minimum visible fraction required to keep rendering active.
+   *
+   * When the viewer drops below this threshold, rendering is suspended and
+   * the last rendered frame remains on screen.
+   */
+  minViewportVisibilityForRender?: number;
 }
 
 // ============================================================================
@@ -256,6 +264,8 @@ export class SuperSplatViewer implements IDisposable {
   private _base: string;
 
   private _debug: boolean;
+
+  private _minViewportVisibilityForRender: number;
 
   // ============================================================================
   // Private fields - PlayCanvas
@@ -322,6 +332,9 @@ export class SuperSplatViewer implements IDisposable {
     this._debug = config.debug ?? false;
     this._controlScheme = config.controlScheme ?? 'both';
     this._idleAnimation = config.idleAnimation ?? 'drift-pause';
+    this._minViewportVisibilityForRender = clampViewportVisibilityThreshold(
+      config.minViewportVisibilityForRender
+    );
 
     // Initialize synchronously
     this._init();
@@ -513,7 +526,7 @@ export class SuperSplatViewer implements IDisposable {
   setViewportVisibility(ratio: number): void {
     // The suspension manager handles this internally via IntersectionObserver,
     // but we can also manually trigger if needed
-    if (ratio < MIN_VIEWPORT_VISIBILITY_FOR_RENDER) {
+    if (ratio < this._minViewportVisibilityForRender) {
       this._suspensionManager?.suspend();
     } else {
       this._suspensionManager?.resume();
@@ -940,7 +953,7 @@ export class SuperSplatViewer implements IDisposable {
     this._suspensionManager = new SuspensionManager({
       element: this._canvas,
       config: {
-        minVisibility: MIN_VIEWPORT_VISIBILITY_FOR_RENDER,
+        minVisibility: this._minViewportVisibilityForRender,
         pauseOnHidden: true,
         idleAutoStopMs: IDLE_AUTO_STOP_MS,
         resumeOnPageActivity: true,

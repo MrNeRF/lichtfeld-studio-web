@@ -22,9 +22,6 @@ const ROUTES = {
   plugins: withBase(base, "/plugins"),
   docs: withBase(base, "/docs"),
   showcase: withBase(base, "/showcase"),
-
-  statistics: withBase(base, "/statistics"),
-
   contribute: withBase(base, "/contribute"),
 } as const;
 
@@ -35,7 +32,6 @@ const normalize = (p: string) => (p.endsWith("/") ? p.slice(0, -1) : p);
 const isHomeActive = normalize(currentPath) === normalize(base);
 const isBountiesActive = currentPath.startsWith(`${normalize(base)}/bounty/`);
 const isShowcaseActive = normalize(currentPath) === normalize(ROUTES.showcase);
-const isStatisticsActive = normalize(currentPath) === normalize(ROUTES.statistics);
 const isPluginsActive = currentPath.startsWith(ROUTES.plugins);
 const isDocsActive = currentPath.startsWith(ROUTES.docs);
 
@@ -48,24 +44,14 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
   <li class="nav-menu__item">
     <a href={base} class:list={["nav-menu__link", { "is-active": isHomeActive }]}>Home</a>
   </li>
-<!--- TODO: Uncomment this when ready -->
-{false &&
-  <!-- Showcase -->
+
+  <!-- Gallery -->
   <li class="nav-menu__item">
     <a href={ROUTES.showcase} class:list={["nav-menu__link", { "is-active": isShowcaseActive }]}>
-      <i class="bi bi-play-circle me-2" aria-hidden="true"></i>
-      Showcase
+      Gallery
     </a>
   </li>
 
-  <!-- Statistics -->
-  <li class="nav-menu__item">
-    <a href={ROUTES.statistics} class:list={["nav-menu__link", { "is-active": isStatisticsActive }]}>
-      <i class="bi bi-graph-up me-2" aria-hidden="true"></i>
-      Statistics
-    </a>
-  </li>
-}
   <!-- Contribute -->
   <li class="nav-menu__item">
     <a

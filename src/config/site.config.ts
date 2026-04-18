@@ -194,6 +194,7 @@ export const EXTERNAL_ORIGINS = {
  */
 export const NAVIGATION = {
   "/": "Home",
+  "/showcase/": "Gallery",
   "/plugins/": "Plugins",
   "/contribute/": "Contribute",
   "/bounty/": "Bounties",

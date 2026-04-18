@@ -5,7 +5,7 @@
  * Homepage for LichtFeld Studio website.
  * Features:
  * - Interactive 3D Gaussian Splatting demo in the hero section
- * - Feature overview grid
+ * - Workflow overview section
  * - Support/donation section
  * - Contributors wall
  */
@@ -17,8 +17,6 @@ import gaussianSplatKingLogo from "@/assets/gaussian-splatking-logo.jpg";
 import { SmartVideo } from "@alos-no/astro-media";
 import Splat from "@/components/Splat.astro";
 import ContributorsWall from "@/components/contribute/ContributorsWall.astro";
-import PluginCard from "@/components/plugins/PluginCard.astro";
-import { getFeaturedPlugins } from "@/services/plugin-registry";
 import { HOMEPAGE_MIN_VIEWPORT_VISIBILITY_FOR_RENDER } from "@/constants/splat-viewer";
 
 // Centralized external links (avoid magic strings):
@@ -36,7 +34,6 @@ import {
 
 const base = import.meta.env.BASE_URL;
 const volingaLogo = `${base}static/volinga-logo.png`;
-const featuredPlugins = await getFeaturedPlugins(3);
 const stableWindowsVersion = "v.5.x";
 const heroProofItems = ["Native training", "Scene editing", "Python + MCP", "Windows & Linux", "GPLv3"];
 const workflowSteps = [
@@ -65,63 +62,6 @@ const captureRecommendation = {
   href: GAUSSIAN_SPLATKING_APP_STORE_URL,
   label: "View on the App Store",
 };
-const platformPillars = [
-  {
-    tone: "core",
-    icon: "cpu-fill",
-    eyebrow: "Core runtime",
-    title: "Native performance on the same runtime the team uses",
-    description:
-      "Training, viewing, and editing share one runtime, so the desktop tool benefits directly from core performance work.",
-    bullets: [
-      "Modern C++23 and CUDA foundation",
-      "Save and resume long-running training",
-      "Interactive viewer tied to live scene data",
-    ],
-    href: GITHUB_RELEASES_URL,
-    label: "See current releases",
-    external: true,
-  },
-  {
-    tone: "workspace",
-    icon: "vector-pen",
-    eyebrow: "Editing workspace",
-    title: "Editing happens where the scene already lives",
-    description:
-      "Artists and researchers can manipulate, inspect, and clean up splats in the same desktop workspace with live scene context.",
-    bullets: [
-      "Brush, lasso, polygon, masking, and composition",
-      "Alignment, crop, transform, and scene cleanup",
-      "Real-time inspection with multiple render modes",
-    ],
-    href: `${base}showcase/`,
-    label: "Explore the showcase",
-    external: false,
-  },
-  {
-    tone: "automation",
-    icon: "command",
-    eyebrow: "Extensibility",
-    title: "Plugins and MCP make the app a real tool surface",
-    description: "Extend the studio in Python and expose camera, render, editor, and scene workflows over MCP.",
-    bullets: [
-      "Panels, operators, tools, overlays, and hooks",
-      "Compatibility-aware plugin registry",
-      "External control for camera, render, and editor workflows",
-    ],
-    href: `${base}docs/`,
-    label: "Read the extension docs",
-    external: false,
-  },
-];
-const platformProof = [
-  { value: "2.4x faster", label: "training speedup merged from bounty 001" },
-  { value: "Mask + crop", label: "cleanup tools built into the scene editor" },
-  { value: "Save / resume", label: "long-running jobs survive interruptions" },
-  { value: "Registry installs", label: "plugins can target compatible host versions" },
-];
-const pluginHighlights = ["Registry installs", "Version-aware compatibility", "Plugin-local Python dependencies"];
-
 // SEO metadata for the homepage
 const seoTitle = SITE.name;
 const seoDescription = SITE.description;
@@ -319,113 +259,6 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
             </a>
           </div>
         </aside>
-      </div>
-    </div>
-  </section>
-
-  <section id="features" class="platform-section hash-section">
-    <div class="container content-frame px-6 pt-8 pb-10">
-      <div class="shell shell--spacious platform-shell">
-        <div class="platform-header">
-          <p class="kicker mb-3">Platform features</p>
-          <div class="section-heading">
-            <h2 id="features-heading" class="platform-title">Three pillars that keep the workflow in one studio</h2>
-            <a class="section-anchor" href="#features" aria-label="Link to platform features section">
-              <svg class="bi" width="1em" height="1em" aria-hidden="true">
-                <use href={`${base}static/bootstrap-icons.svg#link-45deg`}></use>
-              </svg>
-            </a>
-          </div>
-          <p class="platform-copy">
-            Compute, editing, and automation all live in the same environment, with shared runtime, shared scene state,
-            and shared extension points.
-          </p>
-        </div>
-
-        <div class="pillar-grid">
-          {
-            platformPillars.map((pillar) => (
-              <article class:list={["pillar-card", `pillar-card--${pillar.tone}`]}>
-                <div class="pillar-card__header">
-                  <div class="pillar-card__icon" aria-hidden="true">
-                    <svg class="bi" width="1.4em" height="1.4em">
-                      <use href={`${base}static/bootstrap-icons.svg#${pillar.icon}`} />
-                    </svg>
-                  </div>
-                  <p class="pillar-card__eyebrow">{pillar.eyebrow}</p>
-                </div>
-                <h3 class="pillar-card__title">{pillar.title}</h3>
-                <p class="pillar-card__desc">{pillar.description}</p>
-                <ul class="pillar-card__list">
-                  {pillar.bullets.map((bullet) => (
-                    <li>{bullet}</li>
-                  ))}
-                </ul>
-                <a
-                  class="platform-card__link"
-                  href={pillar.href}
-                  target={pillar.external ? "_blank" : undefined}
-                  rel={pillar.external ? "noopener noreferrer" : undefined}
-                >
-                  {pillar.label}
-                </a>
-              </article>
-            ))
-          }
-        </div>
-
-        <div class="platform-proof-grid">
-          {
-            platformProof.map((item) => (
-              <div class="platform-proof-item">
-                <strong>{item.value}</strong>
-                <span>{item.label}</span>
-              </div>
-            ))
-          }
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="plugins" class="plugins-preview-section hash-section" aria-labelledby="plugins-preview-heading">
-    <div class="container content-frame px-6 pt-6 pb-6">
-      <div class="shell shell--spacious plugins-shell">
-        <div class="plugins-preview-header">
-          <div>
-            <p class="kicker mb-3">Plugin ecosystem</p>
-            <div class="section-heading">
-              <h2 id="plugins-preview-heading" class="plugins-preview-title">
-                An extension system teams can use today
-              </h2>
-              <a class="section-anchor" href="#plugins" aria-label="Link to plugin ecosystem section">
-                <svg class="bi" width="1em" height="1em" aria-hidden="true">
-                  <use href={`${base}static/bootstrap-icons.svg#link-45deg`}></use>
-                </svg>
-              </a>
-            </div>
-            <p class="plugins-preview-copy">
-              The registry, compatibility model, and plugin-local dependencies already support custom panels, tools,
-              overlays, and workflow logic without forking the core app.
-            </p>
-          </div>
-
-          <div class="plugins-highlight-list" aria-label="Plugin platform highlights">
-            {pluginHighlights.map((item) => <span class="plugins-highlight-pill">{item}</span>)}
-          </div>
-        </div>
-
-        <div class="plugins-preview-grid">
-          {featuredPlugins.map((plugin) => <PluginCard plugin={plugin} />)}
-        </div>
-
-        <div class="plugins-preview-footer">
-          <p class="plugins-preview-note mb-0">
-            Registry installs can target compatible plugin versions instead of random GitHub clones or ad-hoc setup
-            docs.
-          </p>
-          <a class="section-link" href={`${base}plugins/`}>Browse all plugins</a>
-        </div>
       </div>
     </div>
   </section>

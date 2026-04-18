@@ -9,7 +9,7 @@
  *  - Highlights active items with a custom 'is-active' class.
  */
 import { withBase } from "@/utils/navigation";
-import { GITHUB_REPO_URL, DISCORD_URL } from "@/constants/project";
+import { GITHUB_REPO_URL, DISCORD_URL, LICHTFELD_PORTAL_URL } from "@/constants/project";
 
 const { bountiesHref } = Astro.props as { bountiesHref: string };
 
@@ -50,6 +50,11 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
     <a href={ROUTES.showcase} class:list={["nav-menu__link", { "is-active": isShowcaseActive }]}>
       Gallery
     </a>
+  </li>
+
+  <!-- Portal -->
+  <li class="nav-menu__item">
+    <a href={LICHTFELD_PORTAL_URL} target="_blank" rel="noopener noreferrer" class="nav-menu__link">Portal</a>
   </li>
 
   <!-- Contribute -->

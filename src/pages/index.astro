@@ -6,8 +6,6 @@
  * Features:
  * - Interactive 3D Gaussian Splatting demo in the hero section
  * - Workflow overview section
- * - Support/donation section
- * - Contributors wall
  */
 import Layout from "@/layouts/Layout.astro";
 import { SITE } from "@/config/site.config";
@@ -16,25 +14,66 @@ import gaussianSplatKingLogo from "@/assets/gaussian-splatking-logo.jpg";
 
 import { SmartVideo } from "@alos-no/astro-media";
 import Splat from "@/components/Splat.astro";
-import ContributorsWall from "@/components/contribute/ContributorsWall.astro";
 import { HOMEPAGE_MIN_VIEWPORT_VISIBILITY_FOR_RENDER } from "@/constants/splat-viewer";
 
 // Centralized external links (avoid magic strings):
 import {
   GAUSSIAN_SPLATKING_APP_STORE_URL,
-  GITHUB_REPO_URL,
   GITHUB_RELEASES_URL,
-  GITHUB_SPONSORS_URL,
   LICHTFELD_PORTAL_URL,
-  PAYPAL_URL,
-  DONORBOX_URL,
-  CRYPTO_WALLET_BITCOIN,
   VOLINGA_URL,
 } from "@/constants/project";
 
 const base = import.meta.env.BASE_URL;
 const volingaLogo = `${base}static/volinga-logo.png`;
 const stableWindowsVersion = "v.5.x";
+type SponsorWallEntry = {
+  name: string;
+  href: string;
+  ariaLabel: string;
+  logo?: string;
+  logoClass?: string;
+  lang?: string;
+};
+
+const sponsorWallGroups: Array<{ label: string; sponsors: SponsorWallEntry[] }> = [
+  {
+    label: "Foundational Sponsor",
+    sponsors: [
+      {
+        name: "Core11",
+        href: "https://www.core11.eu/",
+        logo: core11Logo.src,
+        ariaLabel: "Visit Core11 website",
+      },
+    ],
+  },
+  {
+    label: "Gold",
+    sponsors: [
+      {
+        name: "Volinga",
+        href: VOLINGA_URL,
+        logo: volingaLogo,
+        logoClass: "portal-sponsors__logo--volinga",
+        ariaLabel: "Visit Volinga website",
+      },
+    ],
+  },
+  {
+    label: "Bronze",
+    sponsors: [
+      { name: "Opsiclear", href: "https://www.opsiclear.com/", ariaLabel: "Visit Opsiclear website" },
+      { name: "Arcana Mfg.Co.,Ltd", href: "https://arcana-mfg.com/", ariaLabel: "Visit Arcana Mfg.Co.,Ltd website" },
+      { name: "CGSLAB LLC.", href: "https://site.cgslab.info/", ariaLabel: "Visit CGSLAB LLC. website" },
+      { name: "Alos Engineering", href: "https://alos.app/", ariaLabel: "Visit Alos Engineering website" },
+      { name: "Yewth", href: "https://www.yewthstudios.com/", ariaLabel: "Visit Yewth website" },
+      { name: "Vincent Woo", href: "https://vincentwoo.com/", ariaLabel: "Visit Vincent Woo website" },
+      { name: "YUMA株式会社", href: "https://yuma.jp/", lang: "ja", ariaLabel: "YUMA株式会社のWebサイトを開く" },
+      { name: "Arcturus Industries", href: "https://arcturus.industries/", ariaLabel: "Visit Arcturus Industries website" },
+    ],
+  },
+];
 const heroProofItems = ["Native training", "Scene editing", "Python + MCP", "Windows & Linux", "GPLv3"];
 const workflowSteps = [
   {
@@ -56,8 +95,8 @@ const captureRecommendation = {
   eyebrow: "Optional capture tip",
   title: "Capturing on iPhone?",
   description:
-    "Gaussian SplatKing is a straightforward upstream option for field capture before your downstream reconstruction workflow. It focuses on 4K footage, can record LiDAR depth on supported devices, and exports the media plus sensor data needed for 3D scene reconstruction.",
-  note: "It is not required for LichtFeld Studio, but it is an easy recommendation when you want a lightweight mobile capture front end.",
+    "Gaussian SplatKing captures 4K footage, optional LiDAR depth, and the media plus sensor data needed for reconstruction.",
+  note: "Optional, lightweight iPhone capture front end before LichtFeld Studio.",
   highlights: ["iPhone only", "4K capture", "LiDAR-ready"],
   href: GAUSSIAN_SPLATKING_APP_STORE_URL,
   label: "View on the App Store",
@@ -66,7 +105,7 @@ const captureRecommendation = {
 const seoTitle = SITE.name;
 const seoDescription = SITE.description;
 const seoImage = `${base}static/social-preview.png`;
-const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
+const seoImageAlt = "LichtFeld Studio project preview";
 ---
 
 <Layout title={seoTitle} description={seoDescription} image={seoImage} imageAlt={seoImageAlt}>
@@ -145,7 +184,7 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
                 </a>
                 <a
                   class="btn btn-lg hero__release-card hero__release-card--donate"
-                  href="#support-the-project"
+                  href={`${base}contribute/#support-the-project`}
                   aria-label="Support the project with a donation"
                 >
                   <span class="hero__release-card-main">
@@ -263,181 +302,6 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
     </div>
   </section>
 
-  <section id="sponsors" class="sponsors-section hash-section" aria-labelledby="sponsors-heading">
-    <div class="container content-frame px-6 pt-6 pb-6">
-      <div class="shell shell--spacious sponsors-shell">
-        <div class="sponsors-intro">
-          <p class="kicker mb-3">Sponsors</p>
-          <div class="section-heading">
-            <h2 id="sponsors-heading" class="sponsors-title">Backed by sponsors accelerating LichtFeld Studio</h2>
-            <a class="section-anchor" href="#sponsors" aria-label="Link to sponsors section">
-              <svg class="bi" width="1em" height="1em" aria-hidden="true">
-                <use href={`${base}static/bootstrap-icons.svg#link-45deg`}></use>
-              </svg>
-            </a>
-          </div>
-          <p class="sponsors-copy">
-            Sponsor tiers reflect the current annual support program behind long-term platform work.
-          </p>
-        </div>
-
-        <article class="foundational-sponsor-card">
-          <div class="foundational-sponsor-card__meta">
-            <p class="foundational-sponsor-card__label">Foundational Sponsor</p>
-            <h3 class="foundational-sponsor-card__title">Recognized for helping kickstart the platform</h3>
-            <p class="foundational-sponsor-card__desc">
-              Core11 backed LichtFeld Studio early and is recognized here as a Foundational Sponsor.
-            </p>
-          </div>
-          <a
-            href="https://www.core11.eu/"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="foundational-sponsor-card__brand"
-            aria-label="Visit Core11 website"
-          >
-            <img src={core11Logo.src} alt="Core11" class="foundational-sponsor-card__logo" />
-          </a>
-        </article>
-
-        <div class="sponsor-tier-grid">
-          <article class="sponsor-tier-card sponsor-tier-card--platinum">
-            <div class="sponsor-tier-card__header">
-              <p class="sponsor-tier-card__name">Platinum</p>
-            </div>
-            <p class="sponsor-tier-card__amount">
-              $50,000+
-              <span class="sponsor-tier-card__amount-note">per year</span>
-            </p>
-            <p class="sponsor-tier-card__desc">
-              Top-tier annual sponsorship for organizations funding core development.
-            </p>
-          </article>
-
-          <article class="sponsor-tier-card sponsor-tier-card--gold">
-            <div class="sponsor-tier-card__header">
-              <p class="sponsor-tier-card__name">Gold</p>
-            </div>
-            <p class="sponsor-tier-card__amount">
-              $15,000 - $49,999
-              <span class="sponsor-tier-card__amount-note">per year</span>
-            </p>
-            <p class="sponsor-tier-card__desc">
-              Major annual support for sustained product, tooling, and platform work.
-            </p>
-            <div class="sponsor-tier-card__members">
-              <p class="sponsor-tier-card__members-label">Current sponsor</p>
-              <a
-                href={VOLINGA_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="sponsor-tier-card__member sponsor-tier-card__member--logo"
-                aria-label="Visit Volinga website"
-              >
-                <img src={volingaLogo} alt="Volinga" class="sponsor-tier-card__member-logo" />
-              </a>
-            </div>
-          </article>
-
-          <article class="sponsor-tier-card sponsor-tier-card--silver">
-            <div class="sponsor-tier-card__header">
-              <p class="sponsor-tier-card__name">Silver</p>
-            </div>
-            <p class="sponsor-tier-card__amount">
-              $5,000 - $14,999
-              <span class="sponsor-tier-card__amount-note">per year</span>
-            </p>
-            <p class="sponsor-tier-card__desc">
-              Meaningful sponsorship that helps accelerate engineering and research.
-            </p>
-          </article>
-
-          <article class="sponsor-tier-card sponsor-tier-card--bronze">
-            <div class="sponsor-tier-card__header">
-              <p class="sponsor-tier-card__name">Bronze</p>
-            </div>
-            <p class="sponsor-tier-card__amount">
-              $500 - $4,999
-              <span class="sponsor-tier-card__amount-note">per year</span>
-            </p>
-            <p class="sponsor-tier-card__desc">
-              Supportive sponsorship for companies backing the project and community.
-            </p>
-            <div class="sponsor-tier-card__members">
-              <p class="sponsor-tier-card__members-label">Current sponsors</p>
-              <div class="sponsor-tier-card__member-list">
-                <a
-                  href="https://www.opsiclear.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="sponsor-tier-card__member"
-                  aria-label="Visit Opsiclear website"
-                >
-                  Opsiclear
-                </a>
-                <a
-                  href="https://arcana-mfg.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="sponsor-tier-card__member"
-                  aria-label="Visit Arcana Mfg.Co.,Ltd website"
-                >
-                  Arcana Mfg.Co.,Ltd
-                </a>
-                <a
-                  href="https://alos.app/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="sponsor-tier-card__member"
-                  aria-label="Visit Alos Engineering website"
-                >
-                  Alos Engineering
-                </a>
-                <a
-                  href="https://www.yewthstudios.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="sponsor-tier-card__member"
-                  aria-label="Visit Yewth website"
-                >
-                  Yewth
-                </a>
-                <a
-                  href="https://vincentwoo.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="sponsor-tier-card__member"
-                  aria-label="Visit Vincent Woo website"
-                >
-                  Vincent Woo
-                </a>
-                <a
-                  href="https://yuma.jp/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="sponsor-tier-card__member"
-                  lang="ja"
-                  aria-label="YUMA株式会社のWebサイトを開く"
-                >
-                  YUMA株式会社
-                </a>
-                <a
-                  href="https://arcturus.industries/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="sponsor-tier-card__member"
-                  aria-label="Visit Arcturus Industries website"
-                >
-                  Arcturus Industries
-                </a>
-              </div>
-            </div>
-          </article>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- What's New Section (commented out)
   <section id="whats-new" class="whats-new-section">
     <div class="container px-6 pt-22 pb-12">
@@ -481,140 +345,44 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
   </section>
   -->
 
-  <!-- Support / Donations (deeplink target) -->
-  <section id="support-the-project" class="hash-section" aria-labelledby="support-the-project-heading">
-    <div class="container content-frame px-6 pt-12 pb-12">
-      <div class="shell shell--spacious support-box">
-        <div class="support-box__layout">
-          <div class="support-box__intro">
-            <div class="support-box__header">
-              <div class="support-box__icon" aria-hidden="true">
-                <svg class="bi" width="1.5em" height="1.5em">
-                  <use href={`${base}static/bootstrap-icons.svg#heart-fill`}></use>
-                </svg>
-              </div>
-              <div class="section-heading section-heading--support">
-                <h2 id="support-the-project-heading" class="support-box__title">Support the Project</h2>
-                <a class="section-anchor" href="#support-the-project" aria-label="Link to support section">
-                  <svg class="bi" width="1em" height="1em" aria-hidden="true">
-                    <use href={`${base}static/bootstrap-icons.svg#link-45deg`}></use>
-                  </svg>
-                </a>
-              </div>
-            </div>
-            <p class="support-box__desc">
-              Support ongoing LichtFeld Studio development through the platform you prefer.
-            </p>
-          </div>
+  <section class="sponsor-wall-section" aria-labelledby="portal-sponsors-heading">
+    <div class="portal-sponsors container content-frame" id="portal-sponsors">
+      <h2 id="portal-sponsors-heading" class="portal-sponsors__title">Sponsors</h2>
 
-          <div class="support-box__panel">
-            <p class="support-box__label">Choose an amount and funding path</p>
-
-            <!-- Amount Selection -->
-            <div class="donate-amounts" role="radiogroup" aria-label="Select donation amount">
-              <button type="button" class="donate-amount" data-amount="5" aria-pressed="false">$5</button>
-              <button type="button" class="donate-amount" data-amount="10" aria-pressed="true">$10</button>
-              <button type="button" class="donate-amount" data-amount="25" aria-pressed="false">$25</button>
-              <button type="button" class="donate-amount" data-amount="100" aria-pressed="false">$100</button>
-              <div class="donate-amount-custom">
-                <span class="donate-amount-custom__prefix">$</span>
-                <input
-                  type="number"
-                  class="donate-amount-custom__input"
-                  id="custom-amount"
-                  placeholder="Other"
-                  min="1"
-                  aria-label="Enter custom donation amount"
-                />
-              </div>
-            </div>
-
-            <!-- Provider Buttons -->
-            <div class="donate-providers">
-              <a
-                class="donate-provider donate-provider--paypal"
-                href={PAYPAL_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                data-provider="paypal"
-                data-base-url={PAYPAL_URL}
-                aria-label="Donate via PayPal"
-              >
-                <svg class="bi" width="1.25em" height="1.25em" aria-hidden="true">
-                  <use href={`${base}static/bootstrap-icons.svg#paypal`}></use>
-                </svg>
-                PayPal
-              </a>
-              <a
-                class="donate-provider donate-provider--donorbox"
-                href={DONORBOX_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                data-provider="donorbox"
-                data-base-url={DONORBOX_URL}
-                aria-label="Donate via DonorBox"
-              >
-                <svg class="bi" width="1.25em" height="1.25em" aria-hidden="true">
-                  <use href={`${base}static/bootstrap-icons.svg#gift-fill`}></use>
-                </svg>
-                DonorBox
-              </a>
-              <a
-                class="donate-provider donate-provider--github"
-                href={GITHUB_SPONSORS_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                data-provider="github"
-                aria-label="Sponsor on GitHub"
-              >
-                <svg class="bi" width="1.25em" height="1.25em" aria-hidden="true">
-                  <use href={`${base}static/bootstrap-icons.svg#github`}></use>
-                </svg>
-                GitHub Sponsors
-              </a>
-              <button
-                type="button"
-                class="donate-provider donate-provider--bitcoin"
-                data-provider="bitcoin"
-                data-wallet={CRYPTO_WALLET_BITCOIN}
-                aria-label="Copy Bitcoin wallet address"
-              >
-                <svg class="bi" width="1.25em" height="1.25em" aria-hidden="true">
-                  <use href={`${base}static/bootstrap-icons.svg#currency-bitcoin`}></use>
-                </svg>
-                Bitcoin
-              </button>
+      {
+        sponsorWallGroups.map((group) => (
+          <div class="portal-sponsors__tier">
+            <p class="portal-sponsors__label">{group.label}</p>
+            <div class="portal-sponsors__row">
+              {group.sponsors.map((sponsor) => (
+                sponsor.logo ? (
+                  <a
+                    href={sponsor.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class={`portal-sponsors__logo ${sponsor.logoClass ?? ""}`.trim()}
+                    aria-label={sponsor.ariaLabel}
+                  >
+                    <img src={sponsor.logo} alt={sponsor.name} />
+                  </a>
+                ) : (
+                  <a
+                    href={sponsor.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="portal-sponsors__name"
+                    lang={sponsor.lang}
+                    aria-label={sponsor.ariaLabel}
+                  >
+                    {sponsor.name}
+                  </a>
+                )
+              ))}
             </div>
           </div>
-        </div>
-
-        <!-- Bitcoin wallet popup (hidden by default) -->
-        <div class="donate-bitcoin-popup" id="bitcoin-popup" aria-hidden="true">
-          <div class="donate-bitcoin-popup__content">
-            <p class="donate-bitcoin-popup__label">Bitcoin Wallet Address</p>
-            <div class="donate-bitcoin-popup__address">
-              <code id="btc-wallet-display">{CRYPTO_WALLET_BITCOIN}</code>
-              <button
-                type="button"
-                class="donate-bitcoin-popup__copy"
-                id="copy-btc-btn"
-                aria-label="Copy wallet address"
-              >
-                <svg class="bi" width="1em" height="1em" aria-hidden="true">
-                  <use href={`${base}static/bootstrap-icons.svg#clipboard`}></use>
-                </svg>
-              </button>
-            </div>
-            <p class="donate-bitcoin-popup__hint" id="btc-copy-status">Click to copy</p>
-          </div>
-        </div>
-      </div>
+        ))
+      }
     </div>
-  </section>
-
-  <!-- Contributors (reusable component, fetched at build time) -->
-  <section class="contributors-section">
-    <ContributorsWall />
   </section>
 </Layout>
 
@@ -716,34 +484,6 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
     });
 
     /**
-     * Adds copy-to-clipboard functionality for the Bitcoin wallet address.
-     */
-    const copyBtn = document.getElementById("copy-btc-address-btn");
-    const btcAddressInput = document.getElementById("btc-wallet-address");
-
-    if (copyBtn && btcAddressInput instanceof HTMLInputElement) {
-      copyBtn.addEventListener("click", () => {
-        navigator.clipboard
-          .writeText(btcAddressInput.value)
-          .then(() => {
-            // Provide visual feedback on successful copy
-            const originalIcon = copyBtn.innerHTML;
-            copyBtn.innerHTML = '<i class="bi bi-check-lg"></i>';
-            copyBtn.disabled = true;
-
-            setTimeout(() => {
-              copyBtn.innerHTML = originalIcon;
-              copyBtn.disabled = false;
-            }, 2000);
-          })
-          .catch((err) => {
-            console.error("Failed to copy Bitcoin address: ", err);
-            // Optionally, provide an error message to the user here.
-          });
-      });
-    }
-
-    /**
      * Robustly handles scrolling to a URL fragment/hash on page load.
      * This ensures that anchor links work reliably even if default browser
      * behavior is interrupted by other scripts or slow-loading resources.
@@ -791,124 +531,6 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
     }
   });
 
-  /**
-   * Donation Box Interactivity
-   * - Handles amount selection (preset buttons and custom input)
-   * - Updates provider URLs with selected amount
-   * - Manages Bitcoin wallet popup and copy functionality
-   */
-  (function setupDonationBox() {
-    // Amount selection elements
-    const amountButtons = document.querySelectorAll<HTMLButtonElement>(".donate-amount");
-    const customInput = document.getElementById("custom-amount") as HTMLInputElement | null;
-
-    // Provider elements
-    const paypalLink = document.querySelector<HTMLAnchorElement>('[data-provider="paypal"]');
-    const donorboxLink = document.querySelector<HTMLAnchorElement>('[data-provider="donorbox"]');
-    const bitcoinBtn = document.querySelector<HTMLButtonElement>('[data-provider="bitcoin"]');
-
-    // Bitcoin popup elements
-    const bitcoinPopup = document.getElementById("bitcoin-popup");
-    const copyBtcBtn = document.getElementById("copy-btc-btn");
-    const btcCopyStatus = document.getElementById("btc-copy-status");
-    const btcWalletDisplay = document.getElementById("btc-wallet-display");
-
-    // Track the currently selected amount (default: $10)
-    let selectedAmount = 10;
-
-    /**
-     * Updates the visual state of amount buttons.
-     */
-    function updateAmountSelection(activeButton: HTMLButtonElement | null) {
-      amountButtons.forEach((btn) => {
-        btn.setAttribute("aria-pressed", "false");
-      });
-
-      if (activeButton) {
-        activeButton.setAttribute("aria-pressed", "true");
-      }
-
-      // Clear custom input if a preset is selected
-      if (activeButton && customInput) {
-        customInput.value = "";
-      }
-    }
-
-    /**
-     * Updates the provider URLs with the current amount.
-     */
-    function updateProviderUrls() {
-      // PayPal: append amount to URL (PayPal.me supports /amount format)
-      if (paypalLink) {
-        const baseUrl = paypalLink.dataset.baseUrl || "";
-        paypalLink.href = `${baseUrl}/${selectedAmount}`;
-      }
-
-      // DonorBox: use query parameter for amount
-      if (donorboxLink) {
-        const baseUrl = donorboxLink.dataset.baseUrl || "";
-        donorboxLink.href = `${baseUrl}?amount=${selectedAmount}`;
-      }
-    }
-
-    // Set up preset amount button clicks
-    amountButtons.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const amount = parseInt(btn.dataset.amount || "10", 10);
-        selectedAmount = amount;
-        updateAmountSelection(btn);
-        updateProviderUrls();
-      });
-    });
-
-    // Set up custom amount input
-    if (customInput) {
-      customInput.addEventListener("input", () => {
-        const value = parseInt(customInput.value, 10);
-        if (value > 0) {
-          selectedAmount = value;
-          updateAmountSelection(null); // Deselect all preset buttons
-          updateProviderUrls();
-        }
-      });
-
-      customInput.addEventListener("focus", () => {
-        updateAmountSelection(null); // Deselect presets when focusing custom input
-      });
-    }
-
-    // Bitcoin button: toggle popup
-    if (bitcoinBtn && bitcoinPopup) {
-      bitcoinBtn.addEventListener("click", () => {
-        const isHidden = bitcoinPopup.getAttribute("aria-hidden") === "true";
-        bitcoinPopup.setAttribute("aria-hidden", isHidden ? "false" : "true");
-      });
-    }
-
-    // Copy Bitcoin address
-    if (copyBtcBtn && btcWalletDisplay && btcCopyStatus) {
-      copyBtcBtn.addEventListener("click", async () => {
-        const address = btcWalletDisplay.textContent || "";
-        try {
-          await navigator.clipboard.writeText(address);
-          btcCopyStatus.textContent = "Copied!";
-          btcCopyStatus.classList.add("copied");
-
-          // Reset after 2 seconds
-          setTimeout(() => {
-            btcCopyStatus.textContent = "Click to copy";
-            btcCopyStatus.classList.remove("copied");
-          }, 2000);
-        } catch (err) {
-          console.error("Failed to copy:", err);
-          btcCopyStatus.textContent = "Failed to copy";
-        }
-      });
-    }
-
-    // Initialize with default amount
-    updateProviderUrls();
-  })();
 </script>
 
 <style>
@@ -1658,12 +1280,6 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
     .plugins-highlight-list {
       justify-items: start;
     }
-    .foundational-sponsor-card {
-      grid-template-columns: 1fr;
-    }
-    .sponsor-tier-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
     /* The .hero__stack panel scales with content; no fixed viewport panel needed anymore. */
   }
 
@@ -1716,22 +1332,9 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
 
     .story-media,
     .platform-shell,
-    .plugins-shell,
-    .sponsors-shell {
+    .plugins-shell {
       border-radius: 1.25rem;
       padding: 1.1rem;
-    }
-
-    .foundational-sponsor-card {
-      padding: 1.1rem;
-    }
-
-    .foundational-sponsor-card__brand {
-      min-height: 140px;
-    }
-
-    .sponsor-tier-grid {
-      grid-template-columns: 1fr;
     }
   }
 
@@ -1838,11 +1441,11 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
   .story-capture-tip {
     display: grid;
     grid-template-columns: minmax(0, 1.8fr) auto;
-    gap: 1rem 1.25rem;
+    gap: 0.8rem 1rem;
     align-items: end;
-    margin-top: 1rem;
-    padding: 1.15rem 1.2rem;
-    border-radius: 1.25rem;
+    margin-top: 0.8rem;
+    padding: 0.85rem 1rem;
+    border-radius: 1rem;
     background:
       linear-gradient(135deg, rgba(255, 255, 255, 0.82), rgba(247, 249, 255, 0.72)),
       radial-gradient(circle at top right, rgba(20, 87, 255, 0.08), transparent 42%);
@@ -1857,14 +1460,14 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
   .story-capture-tip__header {
     display: flex;
     align-items: center;
-    gap: 0.9rem;
+    gap: 0.75rem;
   }
 
   .story-capture-tip__logo {
-    width: 3.5rem;
-    height: 3.5rem;
+    width: 2.75rem;
+    height: 2.75rem;
     flex: 0 0 auto;
-    border-radius: 1rem;
+    border-radius: 0.8rem;
     box-shadow:
       0 12px 22px rgba(15, 23, 42, 0.16),
       inset 0 0 0 1px rgba(255, 255, 255, 0.18);
@@ -1877,24 +1480,25 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
   .story-capture-tip__eyebrow {
     margin: 0;
     color: rgba(20, 87, 255, 0.78);
-    font-size: 0.78rem;
+    font-size: 0.72rem;
     font-weight: 800;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
   }
 
   .story-capture-tip__title {
-    margin: 0.4rem 0 0;
+    margin: 0.28rem 0 0;
     color: var(--color-heading);
-    font-size: 1.08rem;
-    line-height: 1.35;
+    font-size: 0.98rem;
+    line-height: 1.3;
   }
 
   .story-capture-tip__body,
   .story-capture-tip__note {
-    margin: 0.4rem 0 0;
+    margin: 0.32rem 0 0;
     color: var(--color-body);
-    line-height: 1.65;
+    font-size: 0.92rem;
+    line-height: 1.55;
   }
 
   .story-capture-tip__note {
@@ -1903,7 +1507,7 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
 
   .story-capture-tip__footer {
     display: grid;
-    gap: 0.8rem;
+    gap: 0.6rem;
     justify-items: end;
   }
 
@@ -1911,24 +1515,26 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-end;
-    gap: 0.55rem;
+    gap: 0.45rem;
   }
 
   .story-capture-tip__fact {
     display: inline-flex;
     align-items: center;
-    padding: 0.42rem 0.75rem;
+    padding: 0.34rem 0.65rem;
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.72);
     border: 1px solid rgba(20, 87, 255, 0.1);
     color: rgba(20, 87, 255, 0.86);
-    font-size: 0.82rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.01em;
   }
 
   .story-capture-tip__link {
     justify-self: end;
+    padding: 0.65rem 1rem;
+    font-size: 0.9rem;
   }
 
   .story-media-panel {
@@ -2174,9 +1780,7 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
     position: relative;
   }
 
-  .plugins-shell,
-  .sponsors-shell,
-  .support-box {
+  .plugins-shell {
     background:
       radial-gradient(circle at top left, rgba(20, 87, 255, 0.08), transparent 30%),
       linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.72));
@@ -2279,332 +1883,131 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
     }
   }
 
-  .sponsors-section {
-    position: relative;
+  .sponsor-wall-section {
+    padding-block: 0 3rem;
   }
 
-  .sponsors-intro {
-    max-width: 56rem;
-    margin-bottom: 1.75rem;
-  }
-
-  .sponsors-title {
-    margin: 0;
-    color: var(--color-heading);
-    font-size: clamp(2rem, 4vw, 2.9rem);
-    line-height: 0.98;
-    letter-spacing: -0.03em;
-  }
-
-  .sponsors-copy {
-    margin: 1rem 0 0;
-    color: var(--color-body);
-    font-size: 1.04rem;
-    line-height: 1.72;
-    max-width: 44rem;
-  }
-
-  .foundational-sponsor-card {
+  .portal-sponsors {
     display: grid;
-    grid-template-columns: minmax(0, 1.2fr) minmax(240px, 0.8fr);
-    gap: 1rem;
-    align-items: center;
-    padding: 1.45rem;
-    border-radius: 1.35rem;
-    background:
-      radial-gradient(circle at top right, rgba(201, 114, 52, 0.12), transparent 30%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 251, 245, 0.92));
-    border: 1px solid rgba(194, 89, 37, 0.12);
-    box-shadow: 0 18px 30px rgba(15, 23, 42, 0.05);
+    gap: 2.25rem;
+    max-width: 960px;
+    padding-block: 3rem 3.5rem;
+    text-align: center;
   }
 
-  .foundational-sponsor-card__label {
-    margin: 0 0 0.5rem;
-    color: #b45309;
-    font-size: 0.82rem;
-    font-weight: 800;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
-  .foundational-sponsor-card__title {
-    margin: 0 0 0.65rem;
-    color: var(--color-heading);
-    font-size: clamp(1.35rem, 2.2vw, 1.75rem);
-    line-height: 1.12;
-  }
-
-  .foundational-sponsor-card__desc {
+  .portal-sponsors__title {
     margin: 0;
-    color: var(--color-body);
-    line-height: 1.65;
+    color: var(--color-heading);
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
   }
 
-  .foundational-sponsor-card__brand {
+  .portal-sponsors__tier {
+    display: grid;
+    gap: 1.4rem;
+  }
+
+  .portal-sponsors__label {
+    margin: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 150px;
-    padding: 1.25rem;
-    border-radius: 1.25rem;
-    background: rgba(255, 255, 255, 0.8);
-    border: 1px solid rgba(15, 23, 42, 0.08);
-    text-decoration: none;
-    transition:
-      border-color 0.18s ease,
-      box-shadow 0.18s ease,
-      transform 0.18s ease;
-  }
-
-  .foundational-sponsor-card__brand:hover {
-    transform: translateY(-2px);
-    border-color: var(--color-border-hover);
-    box-shadow: var(--card-shadow-hover);
-  }
-
-  .foundational-sponsor-card__brand:focus-visible {
-    outline: none;
-    transform: translateY(-2px);
-    border-color: var(--color-primary-link);
-    box-shadow: var(--focus-shadow), var(--card-shadow-hover);
-  }
-
-  .foundational-sponsor-card__logo {
-    width: min(100%, 220px);
-    height: auto;
-    display: block;
-  }
-
-  .sponsor-tier-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1rem;
-    margin-top: 1rem;
+    color: var(--color-primary);
+    font-size: 0.92rem;
+    font-weight: 500;
   }
 
-  @media (max-width: 991.98px) {
-    .foundational-sponsor-card {
-      grid-template-columns: 1fr;
-      align-items: start;
-    }
-  }
-
-  @media (max-width: 767.98px) {
-    .sponsor-tier-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  .sponsor-tier-card {
-    --tier-rgb: 148, 163, 184;
-    --tier-chip-bg: rgba(var(--tier-rgb), 0.1);
-    --tier-chip-color: rgb(var(--tier-rgb));
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 0.85rem;
-    min-height: 100%;
-    padding: 1.45rem;
-    border-radius: 1.35rem;
-    background:
-      radial-gradient(circle at top right, rgba(var(--tier-rgb), 0.14), transparent 40%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(252, 252, 253, 0.88));
-    border: 1px solid rgba(var(--tier-rgb), 0.2);
-    box-shadow: 0 16px 28px rgba(15, 23, 42, 0.05);
-    overflow: hidden;
-    transition:
-      transform 0.18s ease,
-      border-color 0.18s ease,
-      box-shadow 0.18s ease;
-  }
-
-  .sponsor-tier-card::before {
+  .portal-sponsors__label::before,
+  .portal-sponsors__label::after {
     content: "";
-    position: absolute;
-    inset: 1px;
-    border-radius: calc(1.35rem - 1px);
-    border: 1px solid rgba(255, 255, 255, 0.52);
-    pointer-events: none;
+    flex: 1;
+    max-width: 14rem;
+    height: 1px;
+    background: rgba(15, 23, 42, 0.16);
   }
 
-  .sponsor-tier-card::after {
-    content: "";
-    position: absolute;
-    top: -3.5rem;
-    right: -2.5rem;
-    width: 10rem;
-    height: 10rem;
-    border-radius: 999px;
-    background: radial-gradient(circle, rgba(var(--tier-rgb), 0.22), transparent 72%);
-    filter: blur(12px);
-    pointer-events: none;
-    opacity: 0.9;
-  }
-
-  .sponsor-tier-card:hover {
-    transform: translateY(-2px);
-    border-color: rgba(var(--tier-rgb), 0.28);
-    box-shadow: 0 20px 34px rgba(15, 23, 42, 0.07);
-  }
-
-  .sponsor-tier-card__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
-  }
-
-  .sponsor-tier-card__name {
-    display: inline-flex;
-    align-items: center;
-    width: fit-content;
-    margin: 0;
-    padding: 0.42rem 0.78rem;
-    border-radius: 999px;
-    background: var(--tier-chip-bg);
-    color: var(--tier-chip-color);
-    font-size: 0.78rem;
-    font-weight: 800;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-
-  .sponsor-tier-card__amount {
-    margin: 0;
-    color: var(--color-heading);
-    font-size: clamp(1.45rem, 2.2vw, 1.8rem);
-    font-weight: 800;
-    line-height: 1.06;
-    letter-spacing: -0.03em;
-    text-wrap: balance;
-  }
-
-  .sponsor-tier-card__amount-note {
-    display: block;
-    margin-top: 0.28rem;
-    color: rgba(71, 85, 105, 0.82);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
-  .sponsor-tier-card__desc {
-    margin: 0;
-    color: #526073;
-    line-height: 1.7;
-  }
-
-  .sponsor-tier-card__members {
-    display: grid;
-    gap: 0.55rem;
-    margin-top: auto;
-    padding-top: 1rem;
-    border-top: 1px solid rgba(var(--tier-rgb), 0.12);
-  }
-
-  .sponsor-tier-card__members-label {
-    margin: 0;
-    color: rgba(71, 85, 105, 0.76);
-    font-size: 0.72rem;
-    font-weight: 800;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
-  .sponsor-tier-card__member {
-    display: inline-flex;
-    align-items: center;
-    width: fit-content;
-    padding: 0.5rem 0.8rem;
-    border-radius: 999px;
-    background: rgba(var(--tier-rgb), 0.08);
-    border: 1px solid rgba(var(--tier-rgb), 0.18);
-    color: #0f172a;
-    font-size: 0.9rem;
-    font-weight: 700;
-    text-decoration: none;
-    transition:
-      color 0.18s ease,
-      background-color 0.18s ease,
-      border-color 0.18s ease,
-      box-shadow 0.18s ease,
-      transform 0.18s ease;
-  }
-
-  .sponsor-tier-card__member-list {
+  .portal-sponsors__row {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.55rem;
+    justify-content: center;
+    align-items: center;
+    gap: 1.75rem 3rem;
   }
 
-  .sponsor-tier-card__member:hover {
+  .portal-sponsors__logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem 0.4rem;
+    border-radius: 6px;
+    opacity: 0.92;
+    transition:
+      opacity 0.18s ease,
+      transform 0.18s ease;
+  }
+
+  .portal-sponsors__logo:hover {
+    opacity: 1;
     transform: translateY(-1px);
-    color: var(--color-primary-link);
-    border-color: rgba(var(--tier-rgb), 0.3);
-    background: rgba(255, 255, 255, 0.94);
   }
 
-  .sponsor-tier-card__member:focus-visible {
+  .portal-sponsors__logo:focus-visible {
     outline: none;
-    transform: translateY(-1px);
-    color: var(--color-primary-link);
-    border-color: var(--color-primary-link);
-    background: rgba(255, 255, 255, 0.96);
     box-shadow: var(--focus-shadow);
   }
 
-  .sponsor-tier-card__member--logo {
-    padding: 0;
-    background: transparent;
-    border: 0;
-    border-radius: 0;
-    box-shadow: none;
+  .portal-sponsors__logo img {
+    display: block;
+    height: 2.5rem;
+    max-width: 12rem;
+    width: auto;
+    object-fit: contain;
   }
 
-  .sponsor-tier-card__member-logo {
-    display: block;
+  .portal-sponsors__logo--volinga img {
     width: min(100%, 75px);
     height: auto;
+    max-width: none;
   }
 
-  .sponsor-tier-card__member--logo:hover,
-  .sponsor-tier-card__member--logo:focus-visible {
-    border: 0;
-    background: transparent;
-    box-shadow: none;
+  .portal-sponsors__name {
+    font-size: 0.98rem;
+    font-weight: 600;
+    color: var(--color-heading);
+    text-decoration: none;
+    transition: color 0.18s ease;
   }
 
-  .sponsor-tier-card--platinum {
-    --tier-rgb: 71, 85, 105;
-    --tier-chip-bg: linear-gradient(180deg, rgba(71, 85, 105, 0.12), rgba(226, 232, 240, 0.55));
-    --tier-chip-color: #475569;
-    background:
-      radial-gradient(circle at top right, rgba(203, 213, 225, 0.7), transparent 42%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(241, 245, 249, 0.92));
+  .portal-sponsors__name:hover {
+    color: var(--color-primary);
   }
 
-  .sponsor-tier-card--gold {
-    --tier-rgb: 245, 158, 11;
-    background:
-      radial-gradient(circle at top right, rgba(253, 230, 138, 0.42), transparent 38%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(255, 251, 235, 0.92));
+  .portal-sponsors__name:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-shadow);
+    border-radius: 4px;
   }
 
-  .sponsor-tier-card--silver {
-    --tier-rgb: 148, 163, 184;
-    --tier-chip-bg: linear-gradient(180deg, rgba(226, 232, 240, 0.72), rgba(248, 250, 252, 0.96));
-    --tier-chip-color: #64748b;
-    background:
-      radial-gradient(circle at top right, rgba(226, 232, 240, 0.44), transparent 40%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.95));
-  }
+  @media (max-width: 560px) {
+    .portal-sponsors {
+      gap: 1.75rem;
+      padding-block: 2rem 2.5rem;
+    }
 
-  .sponsor-tier-card--bronze {
-    --tier-rgb: 192, 132, 87;
-    background:
-      radial-gradient(circle at top right, rgba(234, 211, 194, 0.4), transparent 38%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(252, 246, 241, 0.92));
+    .portal-sponsors__row {
+      gap: 1.25rem 1.75rem;
+    }
+
+    .portal-sponsors__logo img {
+      height: 2rem;
+    }
+
+    .portal-sponsors__label::before,
+    .portal-sponsors__label::after {
+      max-width: 5rem;
+    }
   }
 
   /* ===========================
@@ -2970,396 +2373,6 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
   }
 
   /* ===========================
-   * Support the Project Box
-   * =========================== */
-
-  .support-box {
-    margin-inline: 0;
-  }
-
-  .support-box__layout {
-    display: grid;
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-    gap: 1.75rem;
-    align-items: start;
-  }
-
-  .support-box__intro {
-    max-width: 32rem;
-  }
-
-  .support-box__header {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 0.75rem;
-    margin-bottom: 0.85rem;
-  }
-
-  .support-box__icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 0.9rem;
-    background: linear-gradient(135deg, #1457ff, #1d4ed8);
-    color: white;
-    box-shadow: 0 14px 28px rgba(20, 87, 255, 0.18);
-  }
-
-  .support-box__icon svg {
-    fill: currentColor;
-  }
-
-  .support-box__title {
-    font-size: clamp(1.9rem, 3.2vw, 2.5rem);
-    color: #101828;
-    margin: 0;
-  }
-
-  .support-box__desc {
-    color: #475569;
-    font-size: 1rem;
-    margin: 0;
-    max-width: 34rem;
-    text-align: left;
-    line-height: 1.72;
-  }
-
-  .support-box__panel {
-    padding: 1.35rem;
-    border-radius: 1.5rem;
-    background: rgba(255, 255, 255, 0.68);
-    border: 1px solid rgba(15, 23, 42, 0.08);
-    box-shadow: 0 18px 28px rgba(15, 23, 42, 0.04);
-    backdrop-filter: blur(12px);
-  }
-
-  .support-box__label {
-    margin: 0 0 1rem;
-    color: #344054;
-    font-size: 0.82rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  /* Override card styles inside support box */
-  .support-box .card {
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(100, 116, 139, 0.1);
-  }
-
-  .support-box .btn-primary {
-    background: linear-gradient(135deg, #4f46e5, #6366f1);
-    border: none;
-  }
-
-  .support-box .btn-primary:hover {
-    background: linear-gradient(135deg, #4338ca, #4f46e5);
-  }
-
-  @media (max-width: 767.98px) {
-    .support-box {
-      padding: 1.5rem;
-      border-radius: 1.25rem;
-    }
-
-    .support-box__layout {
-      grid-template-columns: 1fr;
-      gap: 1.25rem;
-    }
-
-    .support-box__title {
-      font-size: 1.25rem;
-    }
-  }
-
-  /* ===========================
-   * Donation Amount Selector
-   * =========================== */
-
-  .donate-amounts {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .donate-amount {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 4.5rem;
-    padding: 0.75rem 1.25rem;
-    font-size: 1rem;
-    font-weight: 700;
-    color: #344054;
-    background: rgba(255, 255, 255, 0.8);
-    border: 1px solid rgba(15, 23, 42, 0.08);
-    border-radius: 999px;
-    cursor: pointer;
-    transition:
-      transform 0.15s ease,
-      border-color 0.15s ease,
-      box-shadow 0.15s ease,
-      background-color 0.15s ease;
-  }
-
-  .donate-amount:hover {
-    transform: translateY(-1px);
-    border-color: rgba(20, 87, 255, 0.18);
-    background: rgba(255, 255, 255, 0.95);
-  }
-
-  .donate-amount[aria-pressed="true"] {
-    background: linear-gradient(135deg, #1457ff, #1d4ed8);
-    border-color: rgba(20, 87, 255, 0.2);
-    color: white;
-    box-shadow: 0 14px 24px rgba(20, 87, 255, 0.2);
-  }
-
-  .donate-amount-custom {
-    display: flex;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.8);
-    border: 1px solid rgba(15, 23, 42, 0.08);
-    border-radius: 999px;
-    padding-left: 0.75rem;
-    transition:
-      border-color 0.15s ease,
-      box-shadow 0.15s ease;
-  }
-
-  .donate-amount-custom:focus-within {
-    border-color: #1457ff;
-    box-shadow: var(--focus-shadow);
-  }
-
-  .donate-amount-custom__prefix {
-    font-weight: 600;
-    color: #64748b;
-  }
-
-  .donate-amount-custom__input {
-    width: 5rem;
-    padding: 0.75rem 0.5rem;
-    font-size: 1rem;
-    font-weight: 600;
-    color: #1e293b;
-    background: transparent;
-    border: none;
-    outline: none;
-  }
-
-  .donate-amount-custom__input::placeholder {
-    color: #94a3b8;
-    font-weight: 500;
-  }
-
-  /* Hide number input spinners */
-  .donate-amount-custom__input::-webkit-outer-spin-button,
-  .donate-amount-custom__input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-  .donate-amount-custom__input[type="number"] {
-    -moz-appearance: textfield;
-  }
-
-  /* ===========================
-   * Donation Provider Buttons
-   * =========================== */
-
-  .donate-providers {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    gap: 0.75rem;
-  }
-
-  .donate-provider {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.875rem 1.5rem;
-    font-size: 0.9375rem;
-    font-weight: 700;
-    text-decoration: none;
-    border-radius: 999px;
-    border: none;
-    cursor: pointer;
-    transition:
-      transform 0.15s ease,
-      box-shadow 0.15s ease,
-      filter 0.15s ease;
-  }
-
-  .donate-provider svg {
-    flex-shrink: 0;
-    fill: currentColor;
-  }
-
-  /* PayPal - Blue */
-  .donate-provider--paypal {
-    background: #0070ba;
-    color: white;
-  }
-  .donate-provider--paypal:hover {
-    background: #005ea6;
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 14px 24px rgba(0, 112, 186, 0.22);
-  }
-
-  /* DonorBox - Teal/Green */
-  .donate-provider--donorbox {
-    background: #28a745;
-    color: white;
-  }
-  .donate-provider--donorbox:hover {
-    background: #218838;
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 14px 24px rgba(40, 167, 69, 0.22);
-  }
-
-  /* GitHub - Dark */
-  .donate-provider--github {
-    background: #24292f;
-    color: white;
-  }
-  .donate-provider--github:hover {
-    background: #1b1f23;
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 14px 24px rgba(36, 41, 47, 0.22);
-  }
-
-  /* Bitcoin - Orange */
-  .donate-provider--bitcoin {
-    background: #f7931a;
-    color: white;
-  }
-  .donate-provider--bitcoin:hover {
-    background: #e8850f;
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 14px 24px rgba(247, 147, 26, 0.22);
-  }
-
-  /* ===========================
-   * Bitcoin Popup
-   * =========================== */
-
-  .donate-bitcoin-popup {
-    display: none;
-    margin-top: 1rem;
-    margin-inline: auto;
-    padding: 1rem;
-    background: rgba(255, 255, 255, 0.82);
-    border-radius: 1rem;
-    border: 1px solid rgba(15, 23, 42, 0.08);
-    max-width: 400px;
-  }
-
-  .donate-bitcoin-popup[aria-hidden="false"] {
-    display: block;
-    animation: fadeIn 0.2s ease;
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(-8px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .donate-bitcoin-popup__label {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #64748b;
-    margin-bottom: 0.5rem;
-  }
-
-  .donate-bitcoin-popup__address {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 0.5rem;
-    padding: 0.75rem;
-  }
-
-  .donate-bitcoin-popup__address code {
-    flex: 1;
-    font-size: 0.8125rem;
-    color: #1e293b;
-    word-break: break-all;
-    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-  }
-
-  .donate-bitcoin-popup__copy {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.5rem;
-    background: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 0.375rem;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    color: #64748b;
-  }
-
-  .donate-bitcoin-popup__copy:hover {
-    background: #f1f5f9;
-    border-color: #cbd5e1;
-    color: #475569;
-  }
-
-  .donate-bitcoin-popup__hint {
-    font-size: 0.75rem;
-    color: #94a3b8;
-    margin-top: 0.5rem;
-    text-align: center;
-  }
-
-  .donate-bitcoin-popup__hint.copied {
-    color: #059669;
-    font-weight: 500;
-  }
-
-  /* Responsive adjustments */
-  @media (max-width: 575.98px) {
-    .donate-amounts {
-      gap: 0.5rem;
-    }
-
-    .donate-amount {
-      min-width: 3.5rem;
-      padding: 0.625rem 1rem;
-      font-size: 0.9375rem;
-    }
-
-    .donate-providers {
-      flex-direction: column;
-    }
-
-    .donate-provider {
-      width: 100%;
-    }
-  }
-
-  /* ===========================
    * Mobile Section Spacing
    * =========================== */
 
@@ -3378,15 +2391,6 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
       padding-top: 2rem;
       padding-bottom: 2rem;
     }
-
-    #support-the-project .container {
-      padding-top: 2rem;
-      padding-bottom: 2rem;
-    }
-
-    .support-box {
-      margin-inline: 1rem;
-    }
   }
 
   @media (max-width: 575.98px) {
@@ -3404,16 +2408,6 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
       padding-top: 1.5rem;
       padding-bottom: 1.5rem;
     }
-
-    #support-the-project .container {
-      padding-top: 1.5rem;
-      padding-bottom: 1.5rem;
-    }
-
-    /* Smaller margin on phones */
-    .support-box {
-      margin-inline: 0.5rem;
-    }
   }
 
   /* ===========================
@@ -3429,8 +2423,7 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
     .story-section .container,
     #features .container,
     #plugins .container,
-    #sponsors .container,
-    #support-the-project .container {
+    #sponsors .container {
       padding-inline: 1rem !important;
     }
 
@@ -3622,8 +2615,7 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
 
     .story-title,
     .platform-title,
-    .plugins-preview-title,
-    .sponsors-title {
+    .plugins-preview-title {
       font-size: clamp(1.8rem, 8.8vw, 2.45rem);
       line-height: 1.02;
       text-wrap: balance;
@@ -3632,9 +2624,7 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
     .story-lead,
     .story-body,
     .platform-copy,
-    .plugins-preview-copy,
-    .sponsors-copy,
-    .support-box__desc {
+    .plugins-preview-copy {
       font-size: 0.98rem;
       line-height: 1.64;
     }
@@ -3675,29 +2665,29 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
 
     .story-capture-tip {
       grid-template-columns: 1fr;
-      padding: 1rem;
-      gap: 0.9rem;
+      padding: 0.9rem;
+      gap: 0.75rem;
     }
 
     .story-capture-tip__header {
       align-items: flex-start;
-      gap: 0.75rem;
+      gap: 0.65rem;
     }
 
     .story-capture-tip__logo {
-      width: 3rem;
-      height: 3rem;
-      border-radius: 0.9rem;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 0.75rem;
     }
 
     .story-capture-tip__title {
-      font-size: 1rem;
+      font-size: 0.95rem;
     }
 
     .story-capture-tip__body,
     .story-capture-tip__note {
-      font-size: 0.93rem;
-      line-height: 1.58;
+      font-size: 0.9rem;
+      line-height: 1.52;
     }
 
     .story-capture-tip__footer {
@@ -3714,9 +2704,7 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
 
     .story-media,
     .platform-shell,
-    .plugins-shell,
-    .sponsors-shell,
-    .support-box {
+    .plugins-shell {
       padding: 1.15rem;
       border-radius: 1.35rem;
     }
@@ -3731,8 +2719,7 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
       line-height: 1.55;
     }
 
-    .pillar-card,
-    .sponsor-tier-card {
+    .pillar-card {
       padding: 1.2rem;
       border-radius: 1.1rem;
     }
@@ -3754,9 +2741,7 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
 
     .pillar-card__desc,
     .pillar-card__list li,
-    .plugins-preview-note,
-    .foundational-sponsor-card__desc,
-    .sponsor-tier-card__desc {
+    .plugins-preview-note {
       font-size: 0.94rem;
       line-height: 1.56;
     }
@@ -3790,78 +2775,6 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
       justify-content: center;
     }
 
-    .foundational-sponsor-card {
-      padding: 1.1rem;
-      border-radius: 1.15rem;
-    }
-
-    .foundational-sponsor-card__brand {
-      min-height: 120px;
-      border-radius: 1rem;
-    }
-
-    .support-box__layout {
-      gap: 1rem;
-    }
-
-    .support-box__header {
-      gap: 0.6rem;
-      margin-bottom: 0.75rem;
-    }
-
-    .support-box__icon {
-      width: 2.2rem;
-      height: 2.2rem;
-      border-radius: 0.8rem;
-    }
-
-    .support-box__title {
-      font-size: clamp(1.5rem, 7vw, 2rem);
-      line-height: 1.04;
-      text-wrap: balance;
-    }
-
-    .support-box__panel {
-      padding: 1rem;
-      border-radius: 1.1rem;
-    }
-
-    .support-box__label {
-      margin-bottom: 0.85rem;
-      font-size: 0.76rem;
-      letter-spacing: 0.07em;
-    }
-
-    .donate-amounts {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 0.6rem;
-    }
-
-    .donate-amount {
-      width: 100%;
-      min-width: 0;
-      padding: 0.72rem 0.85rem;
-      font-size: 0.94rem;
-    }
-
-    .donate-amount-custom {
-      grid-column: 1 / -1;
-      width: 100%;
-    }
-
-    .donate-amount-custom__input {
-      width: 100%;
-      min-width: 0;
-    }
-
-    .donate-provider {
-      width: 100%;
-      padding: 0.8rem 1rem;
-      justify-content: center;
-    }
-  }
-
   @media (max-width: 575.98px) {
     .hero {
       min-height: min(560px, calc(100svh - var(--nav-height) + 0.5rem));
@@ -3871,8 +2784,7 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
     .story-section .container,
     #features .container,
     #plugins .container,
-    #sponsors .container,
-    #support-the-project .container {
+    #sponsors .container {
       padding-inline: 0.8rem !important;
     }
 
@@ -3924,15 +2836,9 @@ const seoImageAlt = "LichtFeld Studio supported by CORE11 and Volinga";
 
     .story-media,
     .platform-shell,
-    .plugins-shell,
-    .sponsors-shell,
-    .support-box {
+    .plugins-shell {
       padding: 1rem;
       border-radius: 1.2rem;
-    }
-
-    .support-box {
-      margin-inline: 0;
     }
   }
 </style>

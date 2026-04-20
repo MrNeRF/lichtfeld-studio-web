@@ -75,7 +75,7 @@ export const SOCIAL_IMAGE = {
   path: "/static/social-preview.png",
 
   /** Image alt text for accessibility */
-  alt: "LichtFeld Studio supported by CORE11 and Volinga",
+  alt: "LichtFeld Studio project preview",
 
   /** Image dimensions (recommended: 1200x630 for OG, 1200x600 for Twitter) */
   width: 1280,

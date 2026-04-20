@@ -6,7 +6,6 @@
  * Features:
  * - Interactive 3D Gaussian Splatting demo in the hero section
  * - Workflow overview section
- * - Contributors wall
  */
 import Layout from "@/layouts/Layout.astro";
 import { SITE } from "@/config/site.config";
@@ -15,7 +14,6 @@ import gaussianSplatKingLogo from "@/assets/gaussian-splatking-logo.jpg";
 
 import { SmartVideo } from "@alos-no/astro-media";
 import Splat from "@/components/Splat.astro";
-import ContributorsWall from "@/components/contribute/ContributorsWall.astro";
 import { HOMEPAGE_MIN_VIEWPORT_VISIBILITY_FOR_RENDER } from "@/constants/splat-viewer";
 
 // Centralized external links (avoid magic strings):
@@ -346,11 +344,6 @@ const seoImageAlt = "LichtFeld Studio project preview";
     </div>
   </section>
   -->
-
-  <!-- Contributors (reusable component, fetched at build time) -->
-  <section class="contributors-section">
-    <ContributorsWall />
-  </section>
 
   <section class="sponsor-wall-section" aria-labelledby="portal-sponsors-heading">
     <div class="portal-sponsors container content-frame" id="portal-sponsors">

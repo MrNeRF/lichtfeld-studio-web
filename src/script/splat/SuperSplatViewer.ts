@@ -1,8 +1,10 @@
 /**
- * SuperSplat document format viewer.
+ * SuperSplat scene format viewer.
  *
  * A bridge that adapts the modular SplatViewer architecture to work
- * with SuperSplat's project format (meta.json + document.json).
+ * with SuperSplat scene exports in either:
+ * - legacy `meta.json` + `document.json` format
+ * - bundled `.sog` + `settings.json` format
  *
  * This provides backwards compatibility with the existing Splat.astro
  * component while leveraging the new modular camera and animation systems.
@@ -19,6 +21,7 @@ import {
   FILLMODE_NONE,
   Pose,
   RESOLUTION_AUTO,
+  ShaderChunks,
   Vec3,
   Quat,
 } from 'playcanvas';
@@ -48,45 +51,28 @@ import {
   SPLAT_EVT_FIRST_FRAME,
   SPLAT_EVT_ERROR,
 } from '@/constants/splat-events';
+import {
+  normalizeSuperSplatScene,
+  type NormalizedSuperSplatScene,
+} from './runtime/normalizeSuperSplatScene';
+import { resolveSuperSplatSceneFiles } from './runtime/resolveSuperSplatSceneFiles';
+import { sampleSuperSplatCameraAnimation } from './runtime/sampleSuperSplatCameraAnimation';
 
 // ============================================================================
-// SuperSplat Document Format Types
+// SuperSplat Scene Format Types
 // ============================================================================
 
 /**
- * SuperSplat project document structure.
- */
-interface SuperSplatDocument {
-  camera: {
-    fov: number;
-  };
-  view: {
-    bgColor: [number, number, number, number];
-  };
-  poseSets: [
-    {
-      poses: Array<{
-        frame: number;
-        position: [number, number, number];
-        target: [number, number, number];
-      }>;
-    },
-  ];
-  splats: [
-    {
-      position: [number, number, number];
-      rotation: [number, number, number, number];
-      scale: [number, number, number];
-    },
-  ];
-}
-
-/**
- * Parsed pose from SuperSplat document.
+ * Parsed pose from SuperSplat scene metadata.
  */
 interface ParsedPose {
   position: Vec3;
   target: Vec3;
+}
+
+interface SceneBounds {
+  center: Vec3;
+  radius: number;
 }
 
 // ============================================================================
@@ -183,6 +169,25 @@ export interface SuperSplatViewerConfig {
   base: string;
 
   /**
+   * Gaussian splat asset file name.
+   *
+   * Default: `meta.json`
+   */
+  assetFile?: string;
+
+  /**
+   * Scene metadata file name.
+   *
+   * Default: `document.json`
+   */
+  documentFile?: string;
+
+  /**
+   * Optional skybox / environment atlas image file name.
+   */
+  skyboxImage?: string;
+
+  /**
    * Camera control scheme.
    *
    * - 'orbit': Orbit only (left-click drag, wheel zoom)
@@ -219,7 +224,7 @@ export interface SuperSplatViewerConfig {
 // ============================================================================
 
 /**
- * SuperSplat document format viewer.
+ * SuperSplat scene format viewer.
  *
  * Loads and displays a SuperSplat project with the new modular
  * camera and animation systems.
@@ -263,6 +268,12 @@ export class SuperSplatViewer implements IDisposable {
 
   private _base: string;
 
+  private _assetFile: string;
+
+  private _documentFile: string;
+
+  private _skyboxImage?: string;
+
   private _debug: boolean;
 
   private _minViewportVisibilityForRender: number;
@@ -278,14 +289,22 @@ export class SuperSplatViewer implements IDisposable {
   private _splatEntity?: Entity;
 
   // ============================================================================
-  // Private fields - Document data
+  // Private fields - Scene data
   // ============================================================================
 
-  private _document?: SuperSplatDocument;
+  private _document?: NormalizedSuperSplatScene;
 
   private _poses: ParsedPose[] = [];
 
   private _poseIdx = 0;
+
+  private _sceneAnimation?: NonNullable<NormalizedSuperSplatScene['animation']>;
+
+  private _sceneAnimationTime = 0;
+
+  private _sceneAnimationTarget?: Vec3;
+
+  private _sceneBounds?: SceneBounds;
 
   // ============================================================================
   // Private fields - Subsystems
@@ -315,6 +334,13 @@ export class SuperSplatViewer implements IDisposable {
 
   private _idleAnimation: IdleAnimationType = 'drift-pause';
 
+  private _originalSkyboxShader?: {
+    glsl: string;
+    wgsl: string;
+  };
+
+  private _isSceneAnimationPlaying = false;
+
   // ============================================================================
   // Constructor
   // ============================================================================
@@ -325,10 +351,19 @@ export class SuperSplatViewer implements IDisposable {
    * @param config Configuration options
    */
   constructor(config: SuperSplatViewerConfig) {
+    const sceneFiles = resolveSuperSplatSceneFiles({
+      assetFile: config.assetFile,
+      documentFile: config.documentFile,
+      skyboxImage: config.skyboxImage,
+    });
+
     this._canvas = config.canvas;
     this._scene = config.scene;
     this._sizeElement = config.sizeElement;
     this._base = config.base.endsWith('/') ? config.base : config.base + '/';
+    this._assetFile = sceneFiles.assetFile;
+    this._documentFile = sceneFiles.documentFile;
+    this._skyboxImage = sceneFiles.skyboxImage;
     this._debug = config.debug ?? false;
     this._controlScheme = config.controlScheme ?? 'both';
     this._idleAnimation = config.idleAnimation ?? 'drift-pause';
@@ -421,7 +456,9 @@ export class SuperSplatViewer implements IDisposable {
     }
 
     const shouldContinuouslyRender =
-      !this._shouldUseRenderOnDemand() || (this._cameraController?.isTransitioning ?? false);
+      !this._shouldUseRenderOnDemand() ||
+      (this._cameraController?.isTransitioning ?? false) ||
+      this._isSceneAnimationPlaying;
 
     if (shouldContinuouslyRender) {
       this._app.autoRender = true;
@@ -436,6 +473,60 @@ export class SuperSplatViewer implements IDisposable {
     if (options?.requestFrame) {
       (this._app as typeof this._app & { renderNextFrame?: boolean }).renderNextFrame = true;
     }
+  }
+
+  /**
+   * Start exported scene camera playback if the scene requests it.
+   */
+  private _startSceneAnimation(): void {
+    if (!this._sceneAnimation?.autoplay) {
+      return;
+    }
+
+    this._sceneAnimationTime = 0;
+    this._isSceneAnimationPlaying = true;
+    this._syncRenderLoopState({ requestFrame: true });
+  }
+
+  /**
+   * Stop exported scene camera playback and hand control back to the user.
+   */
+  private _stopSceneAnimation(): void {
+    if (!this._isSceneAnimationPlaying) {
+      return;
+    }
+
+    this._isSceneAnimationPlaying = false;
+
+    if (this._cameraControls?.cameraControls && this._sceneAnimationTarget) {
+      this._cameraControls.cameraControls.focusPoint = new Vec3(
+        this._sceneAnimationTarget.x,
+        this._sceneAnimationTarget.y,
+        this._sceneAnimationTarget.z
+      );
+    }
+
+    if (this._cameraController && this._controlScheme === 'fly' && this._cameraController.mode !== 'fly') {
+      this._cameraController.setMode('fly', 'user');
+    }
+
+    this._syncRenderLoopState({ requestFrame: true });
+  }
+
+  /**
+   * Forward user input activity to the camera and suspension systems.
+   *
+   * Exported autoplay camera tracks stop on the first user interaction.
+   *
+   * @param type Input source type
+   */
+  private _handleInputActivity(type: 'mouse' | 'touch' | 'keyboard' | 'gamepad'): void {
+    if (this._isSceneAnimationPlaying) {
+      this._stopSceneAnimation();
+    }
+
+    this._cameraController?.notifyInputActivity(type);
+    this._suspensionManager?.notifyInputActivity();
   }
 
   // ============================================================================
@@ -645,6 +736,7 @@ export class SuperSplatViewer implements IDisposable {
     this._suspensionManager?.dispose();
 
     // Destroy PlayCanvas app
+    this._restoreSkyboxShader();
     this._app?.destroy();
 
     // Dispose events
@@ -689,6 +781,11 @@ export class SuperSplatViewer implements IDisposable {
 
     // Profile device and apply tuning
     void this._profileDevice();
+
+    if (this._skyboxImage) {
+      this._configureSkyboxLoader();
+      this._patchSkyboxShader();
+    }
   }
 
   /**
@@ -704,9 +801,9 @@ export class SuperSplatViewer implements IDisposable {
     const location = this._base + 'static/' + this._scene;
 
     // Load assets
-    const [splatAsset, docAsset] = await this._loadAssets(location);
+    const { splatAsset, documentAsset, skyboxAsset } = await this._loadAssets(location);
 
-    this._document = docAsset.resource as SuperSplatDocument;
+    this._document = normalizeSuperSplatScene(documentAsset.resource);
 
     // Parse poses
     this._parsePoses();
@@ -720,10 +817,16 @@ export class SuperSplatViewer implements IDisposable {
     // Initialize splat
     this._initSplat(splatAsset);
 
+    if (skyboxAsset?.resource) {
+      this._app.scene.envAtlas = skyboxAsset.resource;
+    }
+
+    this._startSceneAnimation();
+
     // Start in idle mode unless reduced motion or idle animation is 'none'.
     // When _idleAnimation is 'none' (e.g., Showcase page), we start in
     // orbit/fly mode instead to give users full camera control immediately.
-    if (!this._reduceMotion && this._idleAnimation !== 'none' && this._cameraController) {
+    if (!this._isSceneAnimationPlaying && !this._reduceMotion && this._idleAnimation !== 'none' && this._cameraController) {
       this._cameraController.setMode('idle', 'auto');
     }
 
@@ -758,21 +861,102 @@ export class SuperSplatViewer implements IDisposable {
   }
 
   /**
+   * Configure the texture loader for skybox image loading.
+   */
+  private _configureSkyboxLoader(): void {
+    const textureHandler = this._app.loader.getHandler('texture') as
+      | {
+          imgParser?: {
+            crossOrigin?: string;
+          };
+        }
+      | undefined;
+
+    if (textureHandler?.imgParser) {
+      textureHandler.imgParser.crossOrigin = 'anonymous';
+    }
+  }
+
+  /**
+   * Patch the PlayCanvas skybox shader to sample the environment atlas as plain equirect data.
+   */
+  private _patchSkyboxShader(): void {
+    if (this._originalSkyboxShader) {
+      return;
+    }
+
+    const glsl = ShaderChunks.get(this._app.graphicsDevice, 'glsl');
+    const wgsl = ShaderChunks.get(this._app.graphicsDevice, 'wgsl');
+    const originalGlsl = glsl.get('skyboxPS');
+    const originalWgsl = wgsl.get('skyboxPS');
+
+    this._originalSkyboxShader = {
+      glsl: originalGlsl,
+      wgsl: originalWgsl,
+    };
+
+    glsl.set('skyboxPS', originalGlsl.replace('mapRoughnessUv(uv, mipLevel)', 'uv'));
+    wgsl.set('skyboxPS', originalWgsl.replace('mapRoughnessUv(uv, uniform.mipLevel)', 'uv'));
+  }
+
+  /**
+   * Restore any skybox shader patch applied for exported scene skyboxes.
+   */
+  private _restoreSkyboxShader(): void {
+    if (!this._originalSkyboxShader || !this._app) {
+      return;
+    }
+
+    const glsl = ShaderChunks.get(this._app.graphicsDevice, 'glsl');
+    const wgsl = ShaderChunks.get(this._app.graphicsDevice, 'wgsl');
+
+    glsl.set('skyboxPS', this._originalSkyboxShader.glsl);
+    wgsl.set('skyboxPS', this._originalSkyboxShader.wgsl);
+    this._originalSkyboxShader = undefined;
+  }
+
+  /**
    * Load assets.
    */
-  private async _loadAssets(location: string): Promise<[Asset, Asset]> {
-    const assetList: [Asset, Asset] = [
-      new Asset('SOGS Asset', 'gsplat', { url: location + '/meta.json' }),
-      new Asset('Doc Asset', 'json', { url: location + '/document.json' }),
-    ];
+  private async _loadAssets(location: string): Promise<{
+    splatAsset: Asset;
+    documentAsset: Asset;
+    skyboxAsset?: Asset;
+  }> {
+    const splatAsset = new Asset('GSplat Asset', 'gsplat', {
+      url: `${location}/${this._assetFile}`,
+    });
+    const documentAsset = new Asset('Scene Asset', 'json', {
+      url: `${location}/${this._documentFile}`,
+    });
+    const skyboxAsset = this._skyboxImage
+      ? new Asset(
+          'Skybox Asset',
+          'texture',
+          { url: `${location}/${this._skyboxImage}` },
+          {
+            type: 'rgbp',
+            mipmaps: false,
+            addressu: 'repeat',
+            addressv: 'clamp',
+          }
+        )
+      : undefined;
+    const assetList = skyboxAsset
+      ? [splatAsset, documentAsset, skyboxAsset]
+      : [splatAsset, documentAsset];
 
     const loader = new AssetListLoader(assetList, this._app.assets);
 
     // Set up progress tracking
     const progress = new ProgressAggregator();
 
-    progress.register(assetList[0], 9); // GSplat (heavy)
-    progress.register(assetList[1], 1); // JSON (light)
+    progress.register(splatAsset, 9); // GSplat (heavy)
+    progress.register(documentAsset, 1); // JSON (light)
+
+    if (skyboxAsset) {
+      progress.register(skyboxAsset, 1); // Skybox atlas (light)
+    }
 
     progress.onProgress = ({ percent, receivedBytes, totalBytes }) => {
       // Emit on our event emitter
@@ -803,7 +987,11 @@ export class SuperSplatViewer implements IDisposable {
 
     progress.dispose();
 
-    return assetList;
+    return {
+      splatAsset,
+      documentAsset,
+      skyboxAsset,
+    };
   }
 
   /**
@@ -816,6 +1004,31 @@ export class SuperSplatViewer implements IDisposable {
       position: new Vec3(...p.position),
       target: new Vec3(...p.target),
     }));
+
+    this._sceneAnimation = this._document.animation;
+  }
+
+  /**
+   * Advance exported camera animation playback.
+   *
+   * @param dt Delta time in seconds
+   */
+  private _updateSceneAnimation(dt: number): void {
+    if (!this._isSceneAnimationPlaying || !this._sceneAnimation || !this._cameraController || !this._cameraEntity?.camera) {
+      return;
+    }
+
+    this._sceneAnimationTime += dt;
+
+    const sample = sampleSuperSplatCameraAnimation(this._sceneAnimation, this._sceneAnimationTime);
+    const position = new Vec3(...sample.position);
+    const target = new Vec3(...sample.target);
+    const pose = this._createPoseFromPositionTarget(position, target);
+
+    this._sceneAnimationTarget = target;
+    this._cameraController.cameraState.setPose(pose);
+    this._cameraEntity.camera.fov = sample.fov;
+    this._applyCameraProjectionSettings(position, target);
   }
 
   /**
@@ -831,7 +1044,7 @@ export class SuperSplatViewer implements IDisposable {
     const camera = this._cameraEntity.camera!;
 
     camera.clearColor = new Color(...this._document.view.bgColor);
-    camera.fov = this._document.camera.fov / 2;
+    camera.fov = this._document.camera.fov;
 
     this._app.root.addChild(this._cameraEntity);
 
@@ -842,8 +1055,10 @@ export class SuperSplatViewer implements IDisposable {
       firstPose.target
     );
 
+    this._sceneAnimationTarget = firstPose.target.clone();
     this._cameraEntity.setPosition(initialPose.position);
     this._cameraEntity.setEulerAngles(initialPose.angles);
+    this._applyCameraProjectionSettings(firstPose.position, firstPose.target);
 
     if (this._debug) {
       console.debug('[SuperSplatViewer] Initial pose:', initialPose);
@@ -921,6 +1136,19 @@ export class SuperSplatViewer implements IDisposable {
       },
     });
 
+    switch (this._controlScheme) {
+      case 'fly':
+        this._cameraController.enableFlyMode(false);
+        break;
+      case 'orbit':
+        this._cameraController.enableOrbitMode(false);
+        break;
+      case 'both':
+      default:
+        this._cameraController.enableOrbitFlyMode('orbit', false);
+        break;
+    }
+
     // Use the camera controller's internal CameraState for consistency.
     // This ensures the idle animation's pose updates are reflected in the adapter.
     this._cameraState = this._cameraController.cameraState;
@@ -947,8 +1175,7 @@ export class SuperSplatViewer implements IDisposable {
       cameraEntity: this._cameraEntity,
       cameraState: this._cameraState,
       onInputActivity: (type) => {
-        this._cameraController?.notifyInputActivity(type);
-        this._suspensionManager?.notifyInputActivity();
+        this._handleInputActivity(type);
       },
     });
 
@@ -974,8 +1201,7 @@ export class SuperSplatViewer implements IDisposable {
           focusTarget: [firstPose.target.x, firstPose.target.y, firstPose.target.z],
           sceneSize: firstPose.position.distance(firstPose.target),
           onInputActivity: (type) => {
-            this._cameraController?.notifyInputActivity(type);
-            this._suspensionManager?.notifyInputActivity();
+            this._handleInputActivity(type);
           },
         });
 
@@ -1017,7 +1243,9 @@ export class SuperSplatViewer implements IDisposable {
       if (this._suspensionManager?.isSuspended) return;
 
       this._cameraController?.update(dt);
+      this._updateSceneAnimation(dt);
       this._cameraAdapter?.update(dt);
+      this._applyCameraProjectionSettings();
     });
   }
 
@@ -1028,10 +1256,11 @@ export class SuperSplatViewer implements IDisposable {
     const attrs = this._document.splats[0];
     this._splatEntity = new Entity('Scene');
     this._splatEntity.addComponent('gsplat', { asset: splatAsset });
-    this._splatEntity.setLocalPosition(new Vec3(attrs.position));
-    this._splatEntity.setLocalRotation(new Quat(attrs.rotation));
-    this._splatEntity.setLocalScale(new Vec3(attrs.scale));
+    this._splatEntity.setLocalPosition(new Vec3(...attrs.position));
+    this._splatEntity.setLocalRotation(new Quat(...attrs.rotation));
+    this._splatEntity.setLocalScale(new Vec3(...attrs.scale));
     this._app.root.addChild(this._splatEntity);
+    this._sceneBounds = this._resolveSceneBounds(attrs);
   }
 
   // ============================================================================
@@ -1042,10 +1271,7 @@ export class SuperSplatViewer implements IDisposable {
    * Attach interaction handlers.
    */
   private _attachInteractionHandlers(): void {
-    const mark = () => {
-      this._cameraController?.notifyInputActivity('mouse');
-      this._suspensionManager?.notifyInputActivity();
-    };
+    const mark = () => this._handleInputActivity('mouse');
 
     const passiveOpts: AddEventListenerOptions = { passive: true };
 
@@ -1159,6 +1385,96 @@ export class SuperSplatViewer implements IDisposable {
     const distance = pose.position.distance(pose.target);
 
     return Math.max(0.01, Math.min(0.04, distance * 0.05));
+  }
+
+  /**
+   * Resolve the exported gsplat scene bounds into a simple world-space sphere.
+   *
+   * SuperSplat uses the scene bounding box to fit near/far clip planes every frame.
+   * We only need the center and radius to reproduce that behavior closely.
+   *
+   * @param attrs Splat transform attributes from scene metadata
+   * @returns World-space scene bounds when available
+   */
+  private _resolveSceneBounds(attrs: NormalizedSuperSplatScene['splats'][0]): SceneBounds | undefined {
+    if (!this._splatEntity) {
+      return undefined;
+    }
+
+    const gsplatEntity = this._splatEntity as Entity & {
+      gsplat?: {
+        customAabb?: {
+          center: Vec3;
+          halfExtents: Vec3;
+        };
+        resource?: {
+          aabb?: {
+            center: Vec3;
+            halfExtents: Vec3;
+          };
+        };
+      };
+    };
+    const localBounds = gsplatEntity.gsplat?.customAabb ?? gsplatEntity.gsplat?.resource?.aabb;
+
+    if (!localBounds) {
+      return undefined;
+    }
+
+    const localCenter = new Vec3(
+      localBounds.center.x * attrs.scale[0],
+      localBounds.center.y * attrs.scale[1],
+      localBounds.center.z * attrs.scale[2]
+    );
+    const rotation = new Quat(...attrs.rotation) as Quat & {
+      transformVector?: (vector: Vec3, result?: Vec3) => Vec3;
+    };
+    const rotatedCenter =
+      typeof rotation.transformVector === 'function'
+        ? rotation.transformVector(localCenter, new Vec3())
+        : localCenter;
+    const radiusScale = Math.max(Math.abs(attrs.scale[0]), Math.abs(attrs.scale[1]), Math.abs(attrs.scale[2]));
+
+    return {
+      center: rotatedCenter.add(new Vec3(...attrs.position)),
+      radius: localBounds.halfExtents.length() * radiusScale,
+    };
+  }
+
+  /**
+   * Apply SuperSplat-style camera projection settings.
+   *
+   * Matches the export viewer behavior by updating horizontal FOV and fitting
+   * near/far clip planes against the loaded scene bounds.
+   *
+   * @param position Optional camera position override
+   * @param target Optional camera target override
+   */
+  private _applyCameraProjectionSettings(position?: Vec3, target?: Vec3): void {
+    if (!this._cameraEntity?.camera || !this._app) {
+      return;
+    }
+
+    const camera = this._cameraEntity.camera;
+
+    camera.horizontalFov = this._app.graphicsDevice.width > this._app.graphicsDevice.height;
+
+    if (!this._sceneBounds) {
+      return;
+    }
+
+    const cameraPosition = position ?? this._cameraEntity.getPosition();
+    const lookDirection = target
+      ? target.clone().sub(cameraPosition).normalize()
+      : ((this._cameraEntity as Entity & { forward?: Vec3 }).forward?.clone() ??
+        this._sceneBounds.center.clone().sub(cameraPosition).normalize());
+    const toBoundsCenter = this._sceneBounds.center.clone().sub(cameraPosition);
+    const distanceToBounds = toBoundsCenter.dot(lookDirection);
+    const farClip = Math.max(distanceToBounds + this._sceneBounds.radius, 1e-2);
+    const nearClip = Math.max(distanceToBounds - this._sceneBounds.radius, farClip / (1024 * 16));
+
+    camera.farClip = farClip;
+    camera.nearClip = nearClip;
   }
 }
 

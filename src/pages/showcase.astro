@@ -15,6 +15,8 @@ import Splat from "@/components/Splat.astro";
 import SceneCard from "@/components/showcase/SceneCard.astro";
 import { SHOWCASE_SCENES, DEFAULT_SCENE_ID } from "@/constants/scenes";
 import type { ControlScheme, IdleAnimationType } from "@/constants/scenes";
+import { renderSceneAttributionHtml } from "@/script/showcase/runtime/renderSceneAttributionHtml";
+import { renderSceneDescriptionHtml } from "@/script/showcase/runtime/renderSceneDescriptionHtml";
 
 // Base path for asset URLs
 const base = import.meta.env.BASE_URL;
@@ -28,6 +30,9 @@ const seoDescription =
 const defaultScene = SHOWCASE_SCENES.find((s) => s.id === DEFAULT_SCENE_ID) ?? SHOWCASE_SCENES[0];
 const defaultControlScheme = defaultScene?.controlScheme ?? "both";
 const defaultIdleAnimation = defaultScene?.idleAnimation ?? "none";
+const defaultPreviewSrc = defaultScene?.previewImage
+  ? `${base}static/${defaultScene.folderName}/${defaultScene.previewImage}`
+  : `${base}static/${defaultScene.folderName}/preview.webp`;
 
 // Build a JSON map of scene data for client-side use
 const sceneDataMap = Object.fromEntries(
@@ -38,8 +43,14 @@ const sceneDataMap = Object.fromEntries(
       controlScheme: s.controlScheme ?? "both",
       idleAnimation: s.idleAnimation ?? "none",
       name: s.name,
-      description: s.description,
-      attribution: s.attribution,
+      descriptionHtml: renderSceneDescriptionHtml(s.description),
+      attributionHtml: renderSceneAttributionHtml(s.credits),
+      assetFile: s.assetFile,
+      documentFile: s.documentFile,
+      skyboxImage: s.skyboxImage,
+      previewSrc: s.previewImage
+        ? `${base}static/${s.folderName}/${s.previewImage}`
+        : `${base}static/${s.folderName}/preview.webp`,
     },
   ]),
 );
@@ -62,188 +73,205 @@ function getControlHints(scheme: ControlScheme): string {
 const defaultControlHints = getControlHints(defaultControlScheme);
 ---
 
-<Layout title={seoTitle} description={seoDescription}>
+<Layout title={seoTitle} description={seoDescription} hideFooter={true}>
   <div class="showcase-page">
-    <!-- ====================================================================
-         Viewer Section with Control Bar Overlay
-         ==================================================================== -->
-    <section class="showcase-player">
-      <div class="showcase-player__container" id="player-container">
-        <!-- The Splat viewer component -->
-        <Splat
-          scene={defaultScene.folderName}
-          controlScheme={defaultControlScheme}
-          progressPosition="center"
-          enablePoseCycling={false}
-          idleAnimation={defaultIdleAnimation}
-        />
-
-        <!-- Control bar overlay (bottom of viewer) -->
-        <div class="showcase-player__bar">
-          <!-- Inline hints - tablet/desktop only -->
-          <div class="showcase-player__hints" id="control-hints">
-            {defaultControlHints}
+    <div class="showcase-layout">
+      <!-- ====================================================================
+           Viewer Section with Control Bar Overlay
+           ==================================================================== -->
+      <section class="showcase-player">
+        <div class="showcase-player__container" id="player-container">
+          <div class="showcase-player__native-viewer" id="native-viewer">
+            <Splat
+              scene={defaultScene.folderName}
+              previewSrc={defaultPreviewSrc}
+              assetFile={defaultScene.assetFile}
+              documentFile={defaultScene.documentFile}
+              skyboxImage={defaultScene.skyboxImage}
+              controlScheme={defaultControlScheme}
+              progressPosition="center"
+              enablePoseCycling={false}
+              idleAnimation={defaultIdleAnimation}
+            />
           </div>
 
-          <!-- Buttons - right side -->
-          <div class="showcase-player__buttons">
-            <!-- Help button - mobile only -->
-            <button
-              type="button"
-              class="showcase-player__btn showcase-player__btn--help"
-              id="help-toggle"
-              aria-label="Show camera controls"
-              aria-expanded="false"
-              aria-controls="help-panel"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-                <line x1="12" y1="17" x2="12.01" y2="17"></line>
-              </svg>
-            </button>
+          <!-- Control bar overlay (bottom of viewer) -->
+          <div class="showcase-player__bar">
+            <!-- Inline hints - tablet/desktop only -->
+            <div class="showcase-player__hints" id="control-hints">
+              {defaultControlHints}
+            </div>
 
-            <!-- Fullscreen button - always visible -->
-            <button type="button" class="showcase-player__btn" id="fullscreen-toggle" aria-label="Toggle fullscreen">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                id="fullscreen-icon"
+            <!-- Buttons - right side -->
+            <div class="showcase-player__buttons">
+              <!-- Help button - mobile only -->
+              <button
+                type="button"
+                class="showcase-player__btn showcase-player__btn--help"
+                id="help-toggle"
+                aria-label="Show camera controls"
+                aria-expanded="false"
+                aria-controls="help-panel"
               >
-                <polyline points="15 3 21 3 21 9"></polyline>
-                <polyline points="9 21 3 21 3 15"></polyline>
-                <line x1="21" y1="3" x2="14" y2="10"></line>
-                <line x1="3" y1="21" x2="10" y2="14"></line>
-              </svg>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                id="exit-fullscreen-icon"
-                style="display: none;"
-              >
-                <polyline points="4 14 10 14 10 20"></polyline>
-                <polyline points="20 10 14 10 14 4"></polyline>
-                <line x1="14" y1="10" x2="21" y2="3"></line>
-                <line x1="3" y1="21" x2="10" y2="14"></line>
-              </svg>
-            </button>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+              </button>
+
+              <!-- Fullscreen button - always visible -->
+              <button type="button" class="showcase-player__btn" id="fullscreen-toggle" aria-label="Toggle fullscreen">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  id="fullscreen-icon"
+                >
+                  <polyline points="15 3 21 3 21 9"></polyline>
+                  <polyline points="9 21 3 21 3 15"></polyline>
+                  <line x1="21" y1="3" x2="14" y2="10"></line>
+                  <line x1="3" y1="21" x2="10" y2="14"></line>
+                </svg>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  id="exit-fullscreen-icon"
+                  style="display: none;"
+                >
+                  <polyline points="4 14 10 14 10 20"></polyline>
+                  <polyline points="20 10 14 10 14 4"></polyline>
+                  <line x1="14" y1="10" x2="21" y2="3"></line>
+                  <line x1="3" y1="21" x2="10" y2="14"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Help overlay - mobile only (shown when help button clicked) -->
+          <div class="showcase-player__help" id="help-panel" aria-hidden="true">
+            <div class="showcase-player__help-content">
+              <h3 class="showcase-player__help-title">Camera Controls</h3>
+              <div class="showcase-player__help-grid" id="help-grid">
+                <div class="showcase-player__help-item">
+                  <span class="showcase-player__help-key">Left Click + Drag</span>
+                  <span class="showcase-player__help-desc">Orbit around scene</span>
+                </div>
+                <div class="showcase-player__help-item">
+                  <span class="showcase-player__help-key">Right Click + Drag</span>
+                  <span class="showcase-player__help-desc">Look around</span>
+                </div>
+                <div class="showcase-player__help-item">
+                  <span class="showcase-player__help-key">Scroll Wheel</span>
+                  <span class="showcase-player__help-desc">Zoom in/out</span>
+                </div>
+                <div class="showcase-player__help-item">
+                  <span class="showcase-player__help-key">WASD / Arrows</span>
+                  <span class="showcase-player__help-desc">Move camera</span>
+                </div>
+              </div>
+              <button type="button" class="showcase-player__help-close" id="help-close">Got it</button>
+            </div>
           </div>
         </div>
+      </section>
 
-        <!-- Help overlay - mobile only (shown when help button clicked) -->
-        <div class="showcase-player__help" id="help-panel" aria-hidden="true">
-          <div class="showcase-player__help-content">
-            <h3 class="showcase-player__help-title">Camera Controls</h3>
-            <div class="showcase-player__help-grid" id="help-grid">
-              <div class="showcase-player__help-item">
-                <span class="showcase-player__help-key">Left Click + Drag</span>
-                <span class="showcase-player__help-desc">Orbit around scene</span>
-              </div>
-              <div class="showcase-player__help-item">
-                <span class="showcase-player__help-key">Right Click + Drag</span>
-                <span class="showcase-player__help-desc">Look around</span>
-              </div>
-              <div class="showcase-player__help-item">
-                <span class="showcase-player__help-key">Scroll Wheel</span>
-                <span class="showcase-player__help-desc">Zoom in/out</span>
-              </div>
-              <div class="showcase-player__help-item">
-                <span class="showcase-player__help-key">WASD / Arrows</span>
-                <span class="showcase-player__help-desc">Move camera</span>
+      <div class="showcase-content">
+        <!-- ====================================================================
+           Title Section
+           ==================================================================== -->
+        <section class="showcase-title">
+          <span class="showcase-title__eyebrow">Interactive Scene</span>
+          <h1 id="scene-title">{defaultScene.name}</h1>
+        </section>
+
+        <!-- ====================================================================
+           Description Box with Share Button
+           ==================================================================== -->
+        <section class="showcase-description">
+          <div class="showcase-description__header">
+            <div class="showcase-description__intro">
+              <div class="showcase-description__meta" id="scene-meta">
+                {
+                  renderSceneAttributionHtml(defaultScene.credits) && (
+                    <span
+                      class="showcase-description__attribution"
+                      set:html={`Source: ${renderSceneAttributionHtml(defaultScene.credits)}`}
+                    />
+                  )
+                }
               </div>
             </div>
-            <button type="button" class="showcase-player__help-close" id="help-close">Got it</button>
+            <button type="button" class="showcase-description__share" id="share-btn" aria-label="Share scene">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="18" cy="5" r="3"></circle>
+                <circle cx="6" cy="12" r="3"></circle>
+                <circle cx="18" cy="19" r="3"></circle>
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+              </svg>
+              <span>Share</span>
+            </button>
           </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ====================================================================
-         Title Section
-         ==================================================================== -->
-    <section class="showcase-title">
-      <h1 id="scene-title">{defaultScene.name}</h1>
-    </section>
-
-    <!-- ====================================================================
-         Description Box with Share Button
-         ==================================================================== -->
-    <section class="showcase-description">
-      <div class="showcase-description__header">
-        <div class="showcase-description__meta" id="scene-meta">
-          {
-            defaultScene.attribution && (
-              <span class="showcase-description__attribution">Source: {defaultScene.attribution}</span>
-            )
-          }
-        </div>
-        <button type="button" class="showcase-description__share" id="share-btn" aria-label="Share scene">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <circle cx="18" cy="5" r="3"></circle>
-            <circle cx="6" cy="12" r="3"></circle>
-            <circle cx="18" cy="19" r="3"></circle>
-            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
-            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
-          </svg>
-          <span>Share</span>
-        </button>
-      </div>
-      <p class="showcase-description__text" id="scene-description">
-        {defaultScene.description}
-      </p>
-    </section>
-
-    <!-- ====================================================================
-         Scene Gallery
-         ==================================================================== -->
-    {
-      SHOWCASE_SCENES.length > 1 && (
-        <section class="showcase-gallery">
-          <h2 class="showcase-gallery__title">More Scenes</h2>
-          <div class="showcase-gallery__grid" role="list" aria-label="Available scenes">
-            {SHOWCASE_SCENES.map((scene) => (
-              <div class="showcase-gallery__item" role="listitem" data-scene-wrapper={scene.id}>
-                <SceneCard scene={scene} isSelected={scene.id === DEFAULT_SCENE_ID} basePath={base} />
-              </div>
-            ))}
-          </div>
+          <div
+            class="showcase-description__text"
+            id="scene-description"
+            set:html={renderSceneDescriptionHtml(defaultScene.description)}
+          />
         </section>
-      )
-    }
+
+        <!-- ====================================================================
+           Scene Gallery
+           ==================================================================== -->
+        {
+          SHOWCASE_SCENES.length > 1 && (
+            <section class="showcase-gallery">
+              <h2 class="showcase-gallery__title">More Scenes</h2>
+              <div class="showcase-gallery__grid" role="list" aria-label="Available scenes">
+                {SHOWCASE_SCENES.map((scene) => (
+                  <div class="showcase-gallery__item" role="listitem" data-scene-wrapper={scene.id}>
+                    <SceneCard scene={scene} isSelected={scene.id === DEFAULT_SCENE_ID} basePath={base} />
+                  </div>
+                ))}
+              </div>
+            </section>
+          )
+        }
+      </div>
+    </div>
 
     <!-- Toast notification for share -->
     <div class="showcase-toast" id="share-toast" aria-live="polite" aria-hidden="true">Link copied to clipboard!</div>
@@ -256,7 +284,7 @@ const defaultControlHints = getControlHints(defaultControlScheme);
    *
    * Manages fullscreen, help panel, share, and scene switching.
    */
-  document.addEventListener("DOMContentLoaded", () => {
+  (() => {
     // =========================================================================
     // Element references
     // =========================================================================
@@ -364,6 +392,17 @@ const defaultControlHints = getControlHints(defaultControlScheme);
       }
     }
 
+    function resolveSceneIdFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      const sceneId = params.get("scene");
+
+      if (sceneId && sceneDataMap[sceneId]) {
+        return sceneId;
+      }
+
+      return defaultSceneId;
+    }
+
     function updateSelection(newSelectedId) {
       sceneCards.forEach((card) => {
         const sceneId = card.dataset.sceneId;
@@ -374,17 +413,15 @@ const defaultControlHints = getControlHints(defaultControlScheme);
       });
     }
 
-    function loadScene(sceneId) {
+    function loadScene(sceneId, options = { updateHistory: true }) {
       const splatViewer = document.querySelector("astro-splat");
-
-      if (!splatViewer) return;
 
       // Get scene data
       const sceneData = sceneDataMap[sceneId];
 
       if (!sceneData) return;
 
-      const { folder, controlScheme, name, description, attribution } = sceneData;
+      const { folder, controlScheme, name, descriptionHtml, attributionHtml } = sceneData;
 
       // Update the UI
       if (sceneTitle) {
@@ -392,12 +429,12 @@ const defaultControlHints = getControlHints(defaultControlScheme);
       }
 
       if (sceneDescription) {
-        sceneDescription.textContent = description;
+        sceneDescription.innerHTML = descriptionHtml;
       }
 
       if (sceneMeta) {
-        sceneMeta.innerHTML = attribution
-          ? `<span class="showcase-description__attribution">Source: ${attribution}</span>`
+        sceneMeta.innerHTML = attributionHtml
+          ? `<span class="showcase-description__attribution">Source: ${attributionHtml}</span>`
           : "";
       }
 
@@ -405,36 +442,28 @@ const defaultControlHints = getControlHints(defaultControlScheme);
         controlHints.textContent = getControlHints(controlScheme);
       }
 
-      // Dispatch scene change event
-      const event = new CustomEvent("splatviewer:load-scene", {
-        detail: {
-          scene: folder,
-          controlScheme: controlScheme,
-        },
-        bubbles: true,
-      });
+      if (splatViewer) {
+        const event = new CustomEvent("splatviewer:load-scene", {
+          detail: {
+            scene: folder,
+            controlScheme: controlScheme,
+            assetFile: sceneData.assetFile,
+            documentFile: sceneData.documentFile,
+            skyboxImage: sceneData.skyboxImage,
+            previewSrc: sceneData.previewSrc,
+          },
+          bubbles: true,
+        });
 
-      splatViewer.dispatchEvent(event);
+        splatViewer.dispatchEvent(event);
+      }
 
       // Update browser URL without reload
-      const url = new URL(window.location.href);
+      if (options.updateHistory) {
+        const url = new URL(window.location.href);
 
-      url.searchParams.set("scene", sceneId);
-      window.history.replaceState({}, "", url.toString());
-    }
-
-    // =========================================================================
-    // URL parameter handling
-    // =========================================================================
-
-    function loadSceneFromUrl() {
-      const params = new URLSearchParams(window.location.search);
-      const sceneId = params.get("scene");
-
-      if (sceneId && sceneDataMap[sceneId] && sceneId !== selectedSceneId) {
-        selectedSceneId = sceneId;
-        updateSelection(sceneId);
-        loadScene(sceneId);
+        url.searchParams.set("scene", sceneId);
+        window.history.replaceState({}, "", url.toString());
       }
     }
 
@@ -487,22 +516,162 @@ const defaultControlHints = getControlHints(defaultControlScheme);
       }
     });
 
-    // Load scene from URL on page load
-    loadSceneFromUrl();
-  });
+    function loadInitialViewerScene() {
+      if (selectedSceneId !== defaultSceneId) {
+        loadScene(selectedSceneId, { updateHistory: false });
+      }
+    }
+
+    // Resolve the requested scene immediately so the default scene copy does not flash.
+    selectedSceneId = resolveSceneIdFromUrl();
+    updateSelection(selectedSceneId);
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", loadInitialViewerScene, { once: true });
+    } else {
+      loadInitialViewerScene();
+    }
+  })();
 </script>
 
 <style>
   .showcase-page {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 1rem;
+    width: 100%;
     background: var(--page-bg);
   }
 
+  .showcase-layout {
+    width: 100%;
+  }
+
+  .showcase-content {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 1rem;
+  }
+
   @media (min-width: 768px) {
+    .showcase-content {
+      padding: 1.5rem 2rem 2rem;
+    }
+  }
+
+  @media (min-width: 1200px) {
     .showcase-page {
-      padding: 1.5rem 2rem;
+      height: calc(100dvh - var(--nav-height));
+      overflow: hidden;
+    }
+
+    .showcase-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) clamp(21rem, 26vw, 28rem);
+      height: 100%;
+      gap: 1.5rem;
+      align-items: stretch;
+    }
+
+    .showcase-player {
+      height: 100%;
+    }
+
+    .showcase-content {
+      max-width: none;
+      margin: 0;
+      height: 100%;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-gutter: stable;
+      padding: 1rem 1rem 1.25rem 0;
+    }
+
+    .showcase-title {
+      margin-bottom: 0.5rem;
+      padding-bottom: 0.55rem;
+    }
+
+    .showcase-title h1 {
+      font-size: 1.2rem;
+      line-height: 1.2;
+    }
+
+    .showcase-description {
+      margin-bottom: 0.85rem;
+      padding: 0;
+    }
+
+    .showcase-description__header {
+      gap: 0.75rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .showcase-description__share {
+      gap: 0.3rem;
+      padding: 0.4rem 0.65rem;
+      border-radius: 0.75rem;
+      font-size: 0.75rem;
+    }
+
+    .showcase-description__text {
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+
+    .showcase-gallery {
+      margin-bottom: 0;
+      padding: 0;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    .showcase-gallery__title {
+      margin-bottom: 0.75rem;
+      font-size: 0.95rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .showcase-gallery__grid {
+      gap: 0.85rem;
+    }
+
+    .showcase-gallery__item :global(.scene-card) {
+      border-radius: 1rem;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+    }
+
+    .showcase-gallery__item :global(.scene-card__image-container) {
+      aspect-ratio: 2 / 1;
+    }
+
+    .showcase-gallery__item :global(.scene-card__selected-indicator) {
+      top: 0.4rem;
+      right: 0.4rem;
+      width: 1.65rem;
+      height: 1.65rem;
+    }
+
+    .showcase-gallery__item :global(.scene-card__body) {
+      padding: 0.8rem 0.85rem 0.9rem;
+    }
+
+    .showcase-gallery__item :global(.scene-card__title) {
+      margin-bottom: 0.35rem;
+      font-size: 0.95rem;
+      line-height: 1.25;
+    }
+
+    .showcase-gallery__item :global(.scene-card__description) {
+      display: -webkit-box;
+      overflow: hidden;
+      font-size: 0.8rem;
+      line-height: 1.4;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+    }
+
+    .showcase-gallery__item :global(.scene-card__attribution) {
+      margin-top: 0.5rem;
+      font-size: 0.7rem;
     }
   }
 
@@ -511,23 +680,35 @@ const defaultControlHints = getControlHints(defaultControlScheme);
    * ============================================================================ */
 
   .showcase-player {
-    margin-bottom: 1rem;
+    width: 100%;
+    min-width: 0;
   }
 
   .showcase-player__container {
     position: relative;
     width: 100%;
-    aspect-ratio: 16 / 9;
+    height: 80vh; /* clamp(18rem, min(70vw), 52rem);*/
     background: #0a0a0f;
-    border-radius: 1.25rem;
+    border-radius: 0;
     overflow: hidden;
-    border: 1px solid rgba(15, 23, 42, 0.08);
-    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.16);
+  }
+
+  .showcase-player__native-viewer {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
   }
 
   .showcase-player__container :global(astro-splat) {
     width: 100%;
     height: 100%;
+  }
+
+  @media (min-width: 1200px) {
+    .showcase-player__container {
+      height: 100%;
+    }
   }
 
   /* Fullscreen styles */
@@ -711,26 +892,32 @@ const defaultControlHints = getControlHints(defaultControlScheme);
    * ============================================================================ */
 
   .showcase-title {
-    margin-bottom: 0.75rem;
-    padding: 1.5rem 1.5rem 1rem;
-    border-radius: 2rem 2rem 1.25rem 1.25rem;
-    background: var(--surface-bg);
-    border: 1px solid var(--surface-border);
-    border-bottom: 0;
-    box-shadow: var(--surface-shadow);
+    margin-bottom: 0.7rem;
+    padding: 0 0 0.65rem;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  }
+
+  .showcase-title__eyebrow {
+    display: inline-flex;
+    margin-bottom: 0.45rem;
+    color: #9a6700;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
   }
 
   .showcase-title h1 {
     margin: 0;
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--color-text, #1f2937);
-    line-height: 1.3;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--color-heading, #111827);
+    line-height: 1.15;
   }
 
   @media (min-width: 768px) {
     .showcase-title h1 {
-      font-size: 1.5rem;
+      font-size: 1.45rem;
     }
   }
 
@@ -739,44 +926,66 @@ const defaultControlHints = getControlHints(defaultControlScheme);
    * ============================================================================ */
 
   .showcase-description {
-    padding: 1.25rem 1.5rem 1.5rem;
-    background: var(--surface-bg);
-    border: 1px solid var(--surface-border);
-    border-top: 0;
-    border-radius: 0 0 2rem 2rem;
-    margin-bottom: 1.5rem;
-    box-shadow: var(--surface-shadow);
+    padding: 0;
+    margin-bottom: 1rem;
   }
 
   .showcase-description__header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    gap: 1rem;
-    margin-bottom: 0.5rem;
+    gap: 0.8rem;
+    margin-bottom: 0.55rem;
   }
 
-  .showcase-description__meta {
+  .showcase-description__intro {
     flex: 1;
     min-width: 0;
   }
 
-  .showcase-description__attribution {
-    font-size: 0.8125rem;
-    color: #64748b;
+  .showcase-description__meta {
+    min-width: 0;
+  }
+
+  :global(.showcase-description__attribution) {
+    font-size: 0.8rem;
+    line-height: 1.35;
+    letter-spacing: 0.02em;
+    color: rgba(100, 116, 139, 0.8);
+  }
+
+  @media (min-width: 1200px) {
+    :global(.showcase-description__attribution) {
+      font-size: 0.78rem;
+    }
+  }
+
+  :global(.showcase-description__attribution a) {
+    color: inherit;
+    text-decoration-thickness: 0.04em;
+    text-decoration-color: rgba(100, 116, 139, 0.22);
+    text-underline-offset: 0.1em;
+    transition:
+      color 0.15s ease,
+      text-decoration-color 0.15s ease;
+  }
+
+  :global(.showcase-description__attribution a:hover) {
+    color: rgba(71, 85, 105, 0.88);
+    text-decoration-color: rgba(71, 85, 105, 0.35);
   }
 
   .showcase-description__share {
     display: flex;
     align-items: center;
     gap: 0.375rem;
-    padding: 0.5rem 0.875rem;
-    background: transparent;
-    border: 1px solid rgba(148, 163, 184, 0.18);
-    border-radius: 2rem;
+    padding: 0.45rem 0.65rem;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 0.75rem;
     color: var(--color-text, #1f2937);
-    font-size: 0.8125rem;
-    font-weight: 500;
+    font-size: 0.75rem;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.15s ease;
     flex-shrink: 0;
@@ -794,9 +1003,9 @@ const defaultControlHints = getControlHints(defaultControlScheme);
 
   .showcase-description__text {
     margin: 0;
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
     color: var(--color-text, #1f2937);
-    line-height: 1.6;
+    line-height: 1.55;
   }
 
   /* ============================================================================
@@ -804,12 +1013,11 @@ const defaultControlHints = getControlHints(defaultControlScheme);
    * ============================================================================ */
 
   .showcase-gallery {
-    margin-bottom: 2rem;
-    padding: 2rem;
-    border-radius: 2rem;
-    background: var(--surface-bg);
-    border: 1px solid var(--surface-border);
-    box-shadow: var(--surface-shadow);
+    margin-bottom: 1.5rem;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
   }
 
   .showcase-gallery__title {
@@ -839,12 +1047,28 @@ const defaultControlHints = getControlHints(defaultControlScheme);
 
   @media (min-width: 1024px) {
     .showcase-gallery__grid {
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (min-width: 1200px) {
+    .showcase-gallery__grid {
+      grid-template-columns: 1fr;
     }
   }
 
   .showcase-gallery__item {
     display: flex;
+  }
+
+  @media (max-width: 1199.98px) {
+    .showcase-gallery__item :global(.scene-card__description) {
+      display: -webkit-box;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+    }
   }
 
   /* ============================================================================
@@ -880,14 +1104,8 @@ const defaultControlHints = getControlHints(defaultControlScheme);
    * ============================================================================ */
 
   @media (max-width: 575.98px) {
-    .showcase-page {
+    .showcase-content {
       padding: 0.5rem;
-    }
-
-    .showcase-player__container {
-      border-radius: 0;
-      margin: -0.5rem -0.5rem 0.5rem;
-      width: calc(100% + 1rem);
     }
 
     .showcase-title,

@@ -3,7 +3,7 @@
  *
  * Defines available 3D Gaussian Splat scenes that can be displayed
  * in the Splat viewer. Each scene corresponds to a folder in
- * `/public/static/{folderName}/` containing SuperSplat document files.
+ * `/public/static/{folderName}/` containing viewer-native scene files.
  *
  * @module constants/scenes
  */
@@ -15,7 +15,7 @@
  * - 'fly': Free-flight with WASD/arrows (right-click look)
  * - 'both': Both orbit and fly modes available (default)
  */
-export type ControlScheme = 'orbit' | 'fly' | 'both';
+export type ControlScheme = "orbit" | "fly" | "both";
 
 /**
  * Idle animation type for a scene.
@@ -24,7 +24,32 @@ export type ControlScheme = 'orbit' | 'fly' | 'both';
  * - 'drift-pause': Gentle hovering/drifting effect with pauses
  * - 'auto-rotate': Continuous rotation around the focus point
  */
-export type IdleAnimationType = 'none' | 'drift-pause' | 'auto-rotate';
+export type IdleAnimationType = "none" | "drift-pause" | "auto-rotate";
+
+/**
+ * Linked credit entry for showcase scenes.
+ */
+export interface SceneCredit {
+  /**
+   * Credit name shown before the linked site label.
+   */
+  name: string;
+
+  /**
+   * Short site label shown as the clickable text.
+   */
+  siteLabel?: string;
+
+  /**
+   * External site URL for the credit.
+   */
+  siteUrl?: string;
+
+  /**
+   * Optional trailing details such as a license.
+   */
+  details?: string;
+}
 
 /**
  * Configuration for a showcase scene.
@@ -50,7 +75,7 @@ export interface SceneConfig {
 
   /**
    * Folder name in `/public/static/`.
-   * Must contain document.json, meta.json, and texture files.
+   * Must contain the files required by the configured scene format.
    */
   folderName: string;
 
@@ -61,9 +86,9 @@ export interface SceneConfig {
   previewImage?: string;
 
   /**
-   * Optional attribution or source credit.
+   * Optional linked scene credits.
    */
-  attribution?: string;
+  credits?: SceneCredit[];
 
   /**
    * Camera control scheme.
@@ -84,50 +109,106 @@ export interface SceneConfig {
    * Default: 'none' for showcase scenes
    */
   idleAnimation?: IdleAnimationType;
+
+  /**
+   * Optional custom gsplat asset file name.
+   *
+   * Default: `meta.json`
+   */
+  assetFile?: string;
+
+  /**
+   * Optional custom scene metadata file name.
+   *
+   * Default: `document.json`
+   */
+  documentFile?: string;
+
+  /**
+   * Optional skybox / environment atlas image file name.
+   */
+  skyboxImage?: string;
 }
 
 /**
  * Registry of available showcase scenes.
  *
  * To add a new scene:
- * 1. Export the scene from SuperSplat in document format
+ * 1. Export the scene from SuperSplat in a format the native viewer supports
  * 2. Place the files in `/public/static/{folderName}/`
  * 3. Add an entry to this array
  *
  * Required files in each scene folder:
- * - document.json - SuperSplat document with camera poses
- * - meta.json - GSplat metadata
- * - preview.webp - Loading/preview image (recommended)
- * - Texture files (means_l.webp, means_u.webp, quats.webp, scales.webp, sh0.webp)
+ * - legacy scenes: document.json, meta.json, preview.webp, and texture atlases
+ * - bundled scenes: index.sog, settings.json, and an optional skybox image
  */
 export const SHOWCASE_SCENES: SceneConfig[] = [
   {
-    id: 'artist-studio',
+    id: "artist-studio",
     name: "Artist's Studio - Florent Maussion",
-    description: 'Gaussian splat capture of the artist studio of Florent Maussion.',
-    folderName: 'artist-studio',
-    previewImage: 'preview.webp',
-    attribution: 'Jerome Boccon-Gibod (360images.fr, CC BY-NC-SA 4.0)',
-    controlScheme: 'both',
-    idleAnimation: 'none',
+    description: "Gaussian splat capture of the artist studio of Florent Maussion.",
+    folderName: "artist-studio",
+    previewImage: "preview.webp",
+    credits: [
+      {
+        name: "Jerome Boccon-Gibod",
+        siteLabel: "360images.fr",
+        siteUrl: "https://360images.fr",
+        details: "CC BY-NC-SA 4.0",
+      },
+    ],
+    controlScheme: "both",
+    idleAnimation: "none",
   },
   {
-    id: 'botanics',
-    name: 'Botanical Garden - America',
+    id: "nessundet-bru",
+    name: "Nessundet Bridge, Norway",
     description:
-      'Photogrammetry capture of the America House at the Botanical Garden in Kiel, Germany. Shot with Sony A7R2 and Zeiss Batis 18mm lens.',
-    folderName: 'botanics',
-    previewImage: 'preview.webp',
-    attribution: 'Simon Bethke (Kaggle, CC BY-SA 4.0)',
-    controlScheme: 'both',
-    idleAnimation: 'none',
+      "Nessundet Bridge in Ringsaker, in the former Hedmark county of Norway, captured in winter during renovation work with a DJI Matrice 4 Enterprise.\n\nThis steel truss bridge links Helgøya in Mjøsa to the mainland and opened on 23 November 1957 after construction began in 1952.",
+    folderName: "nessundet-bru",
+    previewImage: "preview.webp",
+    credits: [
+      {
+        name: "Alos Engineering",
+        siteLabel: "alos.no",
+        siteUrl: "https://alos.no",
+      },
+      {
+        name: "Stéphane Agullo",
+        siteLabel: "sa3d.fr",
+        siteUrl: "https://sa3d.fr",
+      },
+    ],
+    controlScheme: "both",
+    idleAnimation: "none",
+    assetFile: "meta.json",
+    documentFile: "settings.json",
+    skyboxImage: "skybox.webp",
+  },
+  {
+    id: "botanics",
+    name: "Botanical Garden - America",
+    description:
+      "Photogrammetry capture of the America House at the Botanical Garden in Kiel, Germany. Shot with Sony A7R2 and Zeiss Batis 18mm lens.",
+    folderName: "botanics",
+    previewImage: "preview.webp",
+    credits: [
+      {
+        name: "Simon Bethke",
+        siteLabel: "Kaggle",
+        siteUrl: "https://www.kaggle.com",
+        details: "CC BY-SA 4.0",
+      },
+    ],
+    controlScheme: "both",
+    idleAnimation: "none",
   },
 ];
 
 /**
  * Default scene to display when no scene is selected.
  */
-export const DEFAULT_SCENE_ID = 'artist-studio';
+export const DEFAULT_SCENE_ID = "artist-studio";
 
 /**
  * Get a scene configuration by ID.

@@ -10,6 +10,7 @@
  * @module components/showcase/SceneCard
  */
 import type { SceneConfig } from "@/constants/scenes";
+import { renderSceneAttributionHtml } from "@/script/showcase/runtime/renderSceneAttributionHtml";
 
 interface Props {
   /**
@@ -37,6 +38,7 @@ const { scene, isSelected = false, basePath = "" } = Astro.props;
 const previewImagePath = scene.previewImage
   ? `${basePath}static/${scene.folderName}/${scene.previewImage}`
   : `${basePath}static/${scene.folderName}/preview.webp`;
+const attributionHtml = renderSceneAttributionHtml(scene.credits);
 ---
 
 <button
@@ -75,7 +77,7 @@ const previewImagePath = scene.previewImage
     <h3 class="scene-card__title">{scene.name}</h3>
     <p class="scene-card__description">{scene.description}</p>
 
-    {scene.attribution && <span class="scene-card__attribution">Source: {scene.attribution}</span>}
+    {attributionHtml && <span class="scene-card__attribution" set:html={`Source: ${attributionHtml}`} />}
   </div>
 </button>
 
@@ -200,7 +202,24 @@ const previewImagePath = scene.previewImage
   .scene-card__attribution {
     display: block;
     margin-top: 0.75rem;
-    font-size: 0.75rem;
-    color: #9ca3af;
+    font-size: 0.9rem;
+    line-height: 1.35;
+    letter-spacing: 0.02em;
+    color: rgba(156, 163, 175, 0.82);
+  }
+
+  .scene-card__attribution :global(a) {
+    color: inherit;
+    text-decoration-thickness: 0.04em;
+    text-decoration-color: rgba(156, 163, 175, 0.22);
+    text-underline-offset: 0.1em;
+    transition:
+      color 0.15s ease,
+      text-decoration-color 0.15s ease;
+  }
+
+  .scene-card__attribution :global(a:hover) {
+    color: rgba(107, 114, 128, 0.88);
+    text-decoration-color: rgba(107, 114, 128, 0.35);
   }
 </style>

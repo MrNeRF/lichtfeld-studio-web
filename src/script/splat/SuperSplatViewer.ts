@@ -399,6 +399,45 @@ export class SuperSplatViewer implements IDisposable {
     return this._suspensionManager?.isSuspended ?? false;
   }
 
+  /**
+   * Whether this viewer should use render-on-demand instead of continuous rendering.
+   */
+  private _shouldUseRenderOnDemand(): boolean {
+    return this._controlScheme === 'none' && this._idleAnimation === 'none';
+  }
+
+  /**
+   * Sync PlayCanvas render-loop state with the current viewer mode.
+   *
+   * In render-on-demand mode, continuous rendering is only needed while a pose
+   * transition is active. Otherwise we freeze the last frame and only request
+   * a redraw when something actually changed.
+   *
+   * @param options Optional redraw request for static states
+   */
+  private _syncRenderLoopState(options?: { requestFrame?: boolean }): void {
+    if (!this._app || this.isSuspended) {
+      return;
+    }
+
+    const shouldContinuouslyRender =
+      !this._shouldUseRenderOnDemand() || (this._cameraController?.isTransitioning ?? false);
+
+    if (shouldContinuouslyRender) {
+      this._app.autoRender = true;
+      this._app.timeScale = 1;
+
+      return;
+    }
+
+    this._app.autoRender = false;
+    this._app.timeScale = 0;
+
+    if (options?.requestFrame) {
+      (this._app as typeof this._app & { renderNextFrame?: boolean }).renderNextFrame = true;
+    }
+  }
+
   // ============================================================================
   // Public methods - Pose control
   // ============================================================================
@@ -458,6 +497,7 @@ export class SuperSplatViewer implements IDisposable {
 
       // Update idle animation's look target immediately for instant transitions
       this._cameraController.idleAnimation?.setLookTarget?.(newLookTarget);
+      this._syncRenderLoopState({ requestFrame: true });
     }
   }
 
@@ -509,6 +549,7 @@ export class SuperSplatViewer implements IDisposable {
 
       // Update idle animation's look target immediately for instant transitions
       this._cameraController.idleAnimation?.setLookTarget?.(newLookTarget);
+      this._syncRenderLoopState({ requestFrame: true });
     }
   }
 
@@ -757,6 +798,7 @@ export class SuperSplatViewer implements IDisposable {
     this._app.once('postrender', () => {
       this.events.emit('firstFrame', undefined);
       this._canvas.dispatchEvent(new CustomEvent(SPLAT_EVT_FIRST_FRAME, { bubbles: true }));
+      this._syncRenderLoopState();
     });
 
     progress.dispose();
@@ -895,6 +937,7 @@ export class SuperSplatViewer implements IDisposable {
         this._canvas.dispatchEvent(new CustomEvent('splat:active', { bubbles: true }));
       }
       // 'transitioning' state doesn't emit active/idle - it's a temporary state
+      this._syncRenderLoopState({ requestFrame: to !== 'transitioning' });
     });
 
     // Create camera adapter connected to the controller's camera state.
@@ -963,9 +1006,7 @@ export class SuperSplatViewer implements IDisposable {
         this._app.timeScale = 0;
       },
       onResume: () => {
-        this._app.autoRender = true;
-        this._app.timeScale = 1;
-        (this._app as any).renderNextFrame = true;
+        this._syncRenderLoopState({ requestFrame: true });
       },
     });
 

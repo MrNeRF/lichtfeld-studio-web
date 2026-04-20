@@ -20,6 +20,7 @@ import { HOMEPAGE_MIN_VIEWPORT_VISIBILITY_FOR_RENDER } from "@/constants/splat-v
 import {
   GAUSSIAN_SPLATKING_APP_STORE_URL,
   GITHUB_RELEASES_URL,
+  GITHUB_REPO_URL,
   LICHTFELD_PORTAL_URL,
   VOLINGA_URL,
 } from "@/constants/project";
@@ -196,6 +197,27 @@ const seoImageAlt = "LichtFeld Studio project preview";
                       <span class="hero__release-title">Donate</span>
                       <span class="hero__release-meta">Help fund development</span>
                     </span>
+                  </span>
+                </a>
+                <a
+                  class="btn btn-lg hero__release-card hero__release-card--source"
+                  href={GITHUB_REPO_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="View LichtFeld Studio source code on GitHub"
+                >
+                  <span class="hero__release-card-main">
+                    <span class="hero__release-icon hero__release-icon--source" aria-hidden="true">
+                      <i class="bi bi-github"></i>
+                    </span>
+                    <span class="hero__release-copy">
+                      <span class="hero__release-kicker">Open Source</span>
+                      <span class="hero__release-title">Source Code</span>
+                      <span class="hero__release-meta">View on GitHub</span>
+                    </span>
+                  </span>
+                  <span class="hero__release-pill hero__release-pill--license" title="GNU General Public License v3.0">
+                    GPLv3
                   </span>
                 </a>
               </div>
@@ -719,17 +741,17 @@ const seoImageAlt = "LichtFeld Studio project preview";
 
   .hero__release-actions {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.9rem;
-    max-width: 38rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.7rem;
+    max-width: 46rem;
   }
 
   .hero__actions .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 3.1rem;
-    padding: 0.74rem 1.18rem;
+    min-height: 2.6rem;
+    padding: 0.6rem 0.95rem;
     border-width: 1px;
     border-radius: 999px;
     font-weight: 700;
@@ -746,13 +768,13 @@ const seoImageAlt = "LichtFeld Studio project preview";
 
   .hero__release-card {
     width: 100%;
-    min-height: 5.35rem;
-    padding: 0.95rem 1rem;
-    border-radius: 1.45rem;
+    min-height: 4.35rem;
+    padding: 0.7rem 0.8rem;
+    border-radius: 1.1rem;
     white-space: normal;
     text-align: left;
     justify-content: space-between;
-    gap: 0.85rem;
+    gap: 0.65rem;
     border: 1px solid rgba(255, 255, 255, 0.14);
     backdrop-filter: blur(16px) saturate(145%);
     transition:
@@ -803,11 +825,30 @@ const seoImageAlt = "LichtFeld Studio project preview";
     border-color: rgba(255, 255, 255, 0.3);
   }
 
+  .hero__release-card--source {
+    color: rgba(255, 255, 255, 0.96);
+    background:
+      linear-gradient(180deg, rgba(22, 28, 40, 0.72), rgba(15, 20, 32, 0.52)),
+      radial-gradient(circle at top left, rgba(148, 163, 184, 0.18), transparent 48%);
+    border-color: rgba(255, 255, 255, 0.18);
+    box-shadow:
+      0 18px 36px rgba(0, 0, 0, 0.22),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+
+  .hero__release-card--source:hover {
+    color: #ffffff;
+    background:
+      linear-gradient(180deg, rgba(30, 38, 54, 0.84), rgba(20, 26, 40, 0.66)),
+      radial-gradient(circle at top left, rgba(203, 213, 225, 0.24), transparent 52%);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
   .hero__release-card-main {
     display: grid;
     grid-template-columns: auto 1fr;
     align-items: center;
-    gap: 0.85rem;
+    gap: 0.65rem;
     min-width: 0;
     flex: 1;
   }
@@ -816,13 +857,13 @@ const seoImageAlt = "LichtFeld Studio project preview";
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 2.65rem;
-    height: 2.65rem;
-    border-radius: 0.95rem;
+    width: 2.15rem;
+    height: 2.15rem;
+    border-radius: 0.8rem;
     background: rgba(15, 23, 42, 0.08);
     color: #1d4ed8;
     box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.16);
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     flex: 0 0 auto;
   }
 
@@ -830,6 +871,12 @@ const seoImageAlt = "LichtFeld Studio project preview";
     background: rgba(255, 255, 255, 0.08);
     color: #fda4af;
     box-shadow: inset 0 0 0 1px rgba(251, 113, 133, 0.24);
+  }
+
+  .hero__release-icon--source {
+    background: rgba(255, 255, 255, 0.08);
+    color: #e2e8f0;
+    box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.28);
   }
 
   .hero__release-copy {
@@ -841,7 +888,7 @@ const seoImageAlt = "LichtFeld Studio project preview";
   }
 
   .hero__release-kicker {
-    font-size: 0.66rem;
+    font-size: 0.58rem;
     font-weight: 800;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -850,7 +897,7 @@ const seoImageAlt = "LichtFeld Studio project preview";
 
   .hero__release-title {
     display: block;
-    font-size: 1.38rem;
+    font-size: 1.08rem;
     font-weight: 750;
     line-height: 1.02;
     letter-spacing: -0.03em;
@@ -858,7 +905,7 @@ const seoImageAlt = "LichtFeld Studio project preview";
 
   .hero__release-meta {
     display: block;
-    font-size: 0.76rem;
+    font-size: 0.66rem;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -869,9 +916,9 @@ const seoImageAlt = "LichtFeld Studio project preview";
     display: inline-flex;
     align-items: center;
     align-self: flex-start;
-    padding: 0.18rem 0.5rem;
+    padding: 0.14rem 0.42rem;
     border-radius: 999px;
-    font-size: 0.68rem;
+    font-size: 0.6rem;
     font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -880,6 +927,12 @@ const seoImageAlt = "LichtFeld Studio project preview";
   .hero__release-pill--new {
     background: rgba(37, 99, 235, 0.12);
     color: #1d4ed8;
+  }
+
+  .hero__release-pill--license {
+    background: rgba(148, 163, 184, 0.16);
+    color: #e2e8f0;
+    box-shadow: inset 0 0 0 1px rgba(226, 232, 240, 0.22);
   }
 
   .hero__scene-cue {
@@ -2505,29 +2558,29 @@ const seoImageAlt = "LichtFeld Studio project preview";
     }
 
     .hero__release-card {
-      min-height: 4.65rem;
-      padding: 0.85rem 0.95rem;
-      border-radius: 1.15rem;
+      min-height: 4rem;
+      padding: 0.7rem 0.85rem;
+      border-radius: 1rem;
     }
 
     .hero__release-card-main {
-      gap: 0.7rem;
+      gap: 0.6rem;
     }
 
     .hero__release-icon {
-      width: 2.3rem;
-      height: 2.3rem;
-      border-radius: 0.85rem;
-      font-size: 1rem;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 0.75rem;
+      font-size: 0.9rem;
     }
 
     .hero__release-title {
-      font-size: 1.06rem;
+      font-size: 0.98rem;
     }
 
     .hero__release-pill {
-      padding: 0.16rem 0.42rem;
-      font-size: 0.62rem;
+      padding: 0.14rem 0.38rem;
+      font-size: 0.58rem;
     }
 
     .hero__scene-cue {

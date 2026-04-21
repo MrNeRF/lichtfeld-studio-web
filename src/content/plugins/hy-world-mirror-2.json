@@ -1,0 +1,38 @@
+{
+  "id": "community:hy-world-mirror-2",
+  "namespace": "community",
+  "name": "hy-world-mirror-2",
+  "displayName": "HY World Mirror 2.0",
+  "summary": "Feed-forward 3D reconstruction from images, video, or COLMAP via Tencent HunyuanWorld-Mirror 2.0.",
+  "description": "Runs Tencent HY-World-Mirror 2.0 on an image folder, video file, or existing COLMAP workspace and pushes Gaussian splats + camera poses + a point cloud straight into the LichtFeld scene — ready to view, train, or export. Supports direct in-memory trainer hand-off (no disk I/O), bf16 inference, calibrated VRAM auto-fit, and an image-subset picker for stride-sampling large frame folders.",
+  "author": "Yehe Liu",
+  "latestVersion": "0.1.0",
+  "lichtfeldVersion": ">=0.5.0",
+  "pluginApi": ">=1,<2",
+  "requiredFeatures": [],
+  "downloads": 0,
+  "keywords": ["hunyuan", "worldmirror", "tencent", "feed-forward", "3d-reconstruction", "gaussian-splatting", "images", "video", "colmap", "bf16"],
+  "repository": "https://github.com/lyehe/Lichtfeld-HYWorld2-Plugin",
+  "versions": [
+    {
+      "version": "0.1.0",
+      "pluginApi": ">=1,<2",
+      "lichtfeldVersion": ">=0.5.0",
+      "requiredFeatures": [],
+      "dependencies": [
+        "gsplat==1.5.3",
+        "huggingface-hub",
+        "torch==2.11.0",
+        "torchvision==0.26.0",
+        "safetensors",
+        "numpy",
+        "einops",
+        "omegaconf",
+        "opencv-python",
+        "pillow",
+        "plyfile"
+      ],
+      "gitRef": "main"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "id": "community:Pointnuker_SOR",
+  "namespace": "community",
+  "name": "Pointnuker_SOR",
+  "displayName": "PointNuker_SOR",
+  "summary": "Separate outliers splats from the denser cloud. Crop & filter COLMAP sparse points in bin/txt",
+  "description": "Statistical Outlier Removal for 3DGS point clouds (ported from PointNuker).",
+  "author": "Brian Davis (bb6)",
+  "latestVersion": "0.1.4",
+  "lichtfeldVersion": ">=0.5.0",
+  "pluginApi": ">=1,<2",
+  "requiredFeatures": [],
+  "downloads": 0,
+  "keywords": ["floaters", "point editing", "COLMAP", "cropping" ],
+  "repository": "https://github.com/bgofish/SOR_Plugin",
+  "versions": [
+    {
+      "version": "0.1.4",
+      "pluginApi": ">=1,<2",
+      "lichtfeldVersion": ">=0.5.0",
+      "requiredFeatures": [],
+      "dependencies": [
+        "open3d",
+        "numpy"
+      ],
+      "gitRef": "main"
+    }
+  ]
+}

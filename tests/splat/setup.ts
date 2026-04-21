@@ -5,11 +5,13 @@
  */
 
 import { vi } from "vitest";
-import { Vec3, Quat, Pose } from "./__mocks__/playcanvas";
+import { Vec3, Quat, Pose, Entity, Color } from "./__mocks__/playcanvas";
 
 // Mock the playcanvas module
 vi.mock("playcanvas", () => ({
   Vec3,
   Quat,
   Pose,
+  Entity,
+  Color,
 }));

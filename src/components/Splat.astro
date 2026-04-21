@@ -44,6 +44,15 @@ interface SplatProps {
   /** Optional absolute/relative URL for the preview image. Defaults to BASE_URL/static/<scene>/preview.webp */
   previewSrc?: string;
 
+  /** Optional custom gsplat asset file name. Defaults to meta.json. */
+  assetFile?: string;
+
+  /** Optional custom scene metadata file name. Defaults to document.json. */
+  documentFile?: string;
+
+  /** Optional custom skybox/environment atlas image file name. */
+  skyboxImage?: string;
+
   /** Optional inline CSS style passed by the caller (e.g., CSS variables). */
   style?: string;
 
@@ -99,6 +108,9 @@ const {
   progressOffsetX = 0,
   progressOffsetY = 0,
   previewSrc = `${import.meta.env.BASE_URL}static/${scene}/preview.webp`,
+  assetFile,
+  documentFile,
+  skyboxImage,
   style: userStyle = "",
   controlScheme = "both",
   enablePoseCycling = true,
@@ -143,6 +155,9 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
     data-idle-animation={idleAnimation}
     data-min-viewport-visibility={minViewportVisibilityForRender.toString()}
     data-disable-drift-on-mobile={disableDriftOnMobile.toString()}
+    data-asset-file={assetFile}
+    data-document-file={documentFile}
+    data-skybox-image={skyboxImage}
     style={`${userStyle}${userStyle ? ";" : ""} --progress-offset-x:${progressOffsetX}px; --progress-offset-y:${progressOffsetY}px;`}
   >
     <canvas></canvas>
@@ -228,6 +243,18 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
     /** Idle animation type. */
     private _idleAnimation?: "none" | "drift-pause" | "auto-rotate";
 
+    /** Current gsplat asset file name. */
+    private _assetFile?: string;
+
+    /** Current scene metadata file name. */
+    private _documentFile?: string;
+
+    /** Current skybox / environment atlas image file name. */
+    private _skyboxImage?: string;
+
+    /** Current preview image URL. */
+    private _previewSrc?: string;
+
     /** Effective visibility threshold used for suspension. */
     private _minViewportVisibilityForRender = MIN_VIEWPORT_VISIBILITY_FOR_RENDER;
 
@@ -252,6 +279,9 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
         Number(this.getAttribute("data-min-viewport-visibility")),
       );
       const disableDriftOnMobile = this.getAttribute("data-disable-drift-on-mobile") === "true";
+      const assetFile = this.getAttribute("data-asset-file") || undefined;
+      const documentFile = this.getAttribute("data-document-file") || undefined;
+      const skyboxImage = this.getAttribute("data-skybox-image") || undefined;
       const effectiveIdleAnimation = resolveSplatIdleAnimation({
         idleAnimation,
         disableDriftOnMobile,
@@ -262,6 +292,9 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
       this._currentScene = this.getAttribute("scene") as string;
       this._controlScheme = controlScheme;
       this._idleAnimation = idleAnimation;
+      this._assetFile = assetFile;
+      this._documentFile = documentFile;
+      this._skyboxImage = skyboxImage;
       this._minViewportVisibilityForRender = minViewportVisibilityForRender;
       this._disableDriftOnMobile = disableDriftOnMobile;
 
@@ -273,6 +306,8 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
       const percentEl = this.querySelector(".splat-loading__percent") as HTMLElement | null;
       const previewImg = this.querySelector(".splat-loading__preview") as HTMLImageElement | null;
       const errorEl = this.querySelector(".splat-loading__error") as HTMLElement | null;
+
+      this._previewSrc = previewImg?.getAttribute("src") || undefined;
 
       const showPreviewFallback = (message?: string) => {
         if (this._firstFrameTimeoutId) {
@@ -314,6 +349,9 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
         scene: this._currentScene,
         sizeElement: this.parentElement as HTMLElement,
         base,
+        assetFile,
+        documentFile,
+        skyboxImage,
         controlScheme,
         idleAnimation: effectiveIdleAnimation,
         minViewportVisibilityForRender,
@@ -431,14 +469,22 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
         const customEvent = event as CustomEvent<{
           scene: string;
           controlScheme?: "none" | "orbit" | "fly" | "both";
+          assetFile?: string;
+          documentFile?: string;
+          skyboxImage?: string;
+          previewSrc?: string;
         }>;
         const newScene = customEvent.detail?.scene;
         const newControlScheme = customEvent.detail?.controlScheme;
+        const newAssetFile = customEvent.detail?.assetFile;
+        const newDocumentFile = customEvent.detail?.documentFile;
+        const newSkyboxImage = customEvent.detail?.skyboxImage;
+        const newPreviewSrc = customEvent.detail?.previewSrc;
 
         if (newScene && newScene !== this._currentScene) {
           // For now, we'll use a simple approach: reload the viewer with the new scene.
           // This involves disposing the current viewer and creating a new one.
-          this._loadScene(newScene, newControlScheme);
+          this._loadScene(newScene, newControlScheme, newAssetFile, newDocumentFile, newSkyboxImage, newPreviewSrc);
         }
       };
 
@@ -501,7 +547,14 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
      * @param scene Scene folder name to load
      * @param controlScheme Optional control scheme override for the new scene
      */
-    private _loadScene(scene: string, controlScheme?: "none" | "orbit" | "fly" | "both"): void {
+    private _loadScene(
+      scene: string,
+      controlScheme?: "none" | "orbit" | "fly" | "both",
+      assetFile?: string,
+      documentFile?: string,
+      skyboxImage?: string,
+      previewSrc?: string,
+    ): void {
       // Get DOM elements
       const canvas = this.querySelector("canvas") as HTMLCanvasElement;
       const overlay = this.querySelector(".splat-loading") as HTMLElement | null;
@@ -558,7 +611,7 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
       // Update preview image for the new scene
       if (previewImg && this._base) {
         previewImg.classList.remove("is-ready", "is-hidden");
-        previewImg.src = `${this._base}static/${scene}/preview.webp`;
+        previewImg.src = previewSrc ?? `${this._base}static/${scene}/preview.webp`;
 
         // Set up load handler for new preview
         const ready = () => previewImg.classList.add("is-ready");
@@ -574,6 +627,28 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
       // Update the scene attribute and control scheme
       this.setAttribute("scene", scene);
       this._currentScene = scene;
+      this._assetFile = assetFile;
+      this._documentFile = documentFile;
+      this._skyboxImage = skyboxImage;
+      this._previewSrc = previewSrc ?? `${this._base}static/${scene}/preview.webp`;
+
+      if (assetFile) {
+        this.setAttribute("data-asset-file", assetFile);
+      } else {
+        this.removeAttribute("data-asset-file");
+      }
+
+      if (documentFile) {
+        this.setAttribute("data-document-file", documentFile);
+      } else {
+        this.removeAttribute("data-document-file");
+      }
+
+      if (skyboxImage) {
+        this.setAttribute("data-skybox-image", skyboxImage);
+      } else {
+        this.removeAttribute("data-skybox-image");
+      }
 
       // Use the new control scheme if provided, otherwise keep the current one
       const effectiveControlScheme = controlScheme ?? this._controlScheme ?? "both";
@@ -595,6 +670,9 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
         scene,
         sizeElement: this.parentElement as HTMLElement,
         base: this._base!,
+        assetFile,
+        documentFile,
+        skyboxImage,
         controlScheme: effectiveControlScheme,
         idleAnimation: effectiveIdleAnimation,
         minViewportVisibilityForRender: this._minViewportVisibilityForRender,

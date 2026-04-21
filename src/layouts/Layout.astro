@@ -43,6 +43,8 @@ interface Props extends Partial<SeoProps> {
   title?: string;
   /** Meta description - defaults to site description */
   description?: string;
+  /** Whether to hide the shared footer for full-height layouts */
+  hideFooter?: boolean;
 }
 
 const {
@@ -53,6 +55,7 @@ const {
   ogType = "website",
   noindex = false,
   nofollow = false,
+  hideFooter = false,
 } = Astro.props;
 ---
 
@@ -157,7 +160,7 @@ const {
       <slot />
 
       <!-- Footer -->
-      <Footer />
+      {!hideFooter && <Footer />}
     </main>
   </body>
 </html>

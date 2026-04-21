@@ -314,3 +314,81 @@ export class Pose {
     return this.rotation.getEulerAngles(eulers);
   }
 }
+
+/**
+ * Mock Color class used by camera setup.
+ */
+export class Color {
+  r: number;
+  g: number;
+  b: number;
+  a: number;
+
+  constructor(r: number = 0, g: number = 0, b: number = 0, a: number = 1) {
+    this.r = r;
+    this.g = g;
+    this.b = b;
+    this.a = a;
+  }
+}
+
+/**
+ * Mock Entity class used by viewer setup.
+ */
+export class Entity {
+  name: string;
+  camera?: {
+    fov: number;
+    clearColor?: Color;
+    horizontalFov?: boolean;
+    nearClip?: number;
+    farClip?: number;
+  };
+  position = new Vec3();
+  angles = new Vec3();
+
+  constructor(name: string = "") {
+    this.name = name;
+  }
+
+  addComponent(type: string): this {
+    if (type === "camera") {
+      this.camera = {
+        fov: 45,
+        horizontalFov: false,
+        nearClip: 0.1,
+        farClip: 1000,
+      };
+    }
+
+    return this;
+  }
+
+  setPosition(position: Vec3): this {
+    this.position = position.clone();
+
+    return this;
+  }
+
+  setEulerAngles(angles: Vec3): this {
+    this.angles = angles.clone();
+
+    return this;
+  }
+
+  getPosition(): Vec3 {
+    return this.position.clone();
+  }
+
+  get forward(): Vec3 {
+    const pitchRad = (this.angles.x * Math.PI) / 180;
+    const yawRad = (this.angles.y * Math.PI) / 180;
+    const cosPitch = Math.cos(pitchRad);
+
+    return new Vec3(
+      -cosPitch * Math.sin(yawRad),
+      Math.sin(pitchRad),
+      -cosPitch * Math.cos(yawRad)
+    ).normalize();
+  }
+}

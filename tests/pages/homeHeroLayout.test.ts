@@ -40,4 +40,18 @@ describe("homepage hero tablet layout", () => {
     expect(homePageSource).toContain(".hero__stack {\n      width: 100%;");
     expect(homePageSource).toContain(".hero__scene-cue {\n      width: 100%;\n      max-width: 100%;");
   });
+
+  it("uses the new Pinnerud Torg timelapse assets in the workflow panel", () => {
+    expect(homePageSource).toContain("src={`${base}videos/pinnerud-torg-homepage`}");
+    expect(homePageSource).toContain("poster={`${base}videos/pinnerud-torg-homepage-poster.jpg`}");
+  });
+
+  it("renders the workflow timelapse without the old framed story-media shell", () => {
+    expect(homePageSource).toContain(
+      ".story-media {\n    padding: 0;\n    border-radius: 0;\n    background: none;\n    border: none;\n    box-shadow: none;",
+    );
+    expect(homePageSource).not.toContain(
+      ".story-media,\n    .platform-shell,\n    .plugins-shell {\n      padding: 1.15rem;\n      border-radius: 1.35rem;",
+    );
+  });
 });

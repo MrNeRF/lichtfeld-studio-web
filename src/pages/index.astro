@@ -256,8 +256,8 @@ const seoImageAlt = "LichtFeld Studio project preview";
             <div class="story-media">
               <div class="story-video-wrapper">
                 <SmartVideo
-                  src={`${base}videos/viewer_demo`}
-                  poster={`${base}videos/viewer_demo_poster.jpg`}
+                  src={`${base}videos/pinnerud-torg-homepage`}
+                  poster={`${base}videos/pinnerud-torg-homepage-poster.jpg`}
                   class="rounded-2xl"
                   sizeStrategy="fill"
                   fit="contain"
@@ -1655,13 +1655,11 @@ const seoImageAlt = "LichtFeld Studio project preview";
   }
 
   .story-media {
-    padding: clamp(1rem, 2vw, 1.35rem);
-    border-radius: 2rem;
-    background:
-      radial-gradient(circle at top left, rgba(20, 87, 255, 0.18), transparent 34%),
-      linear-gradient(180deg, rgba(10, 16, 28, 0.94), rgba(10, 16, 28, 0.82));
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 28px 48px rgba(15, 23, 42, 0.18);
+    padding: 0;
+    border-radius: 0;
+    background: none;
+    border: none;
+    box-shadow: none;
   }
 
   .story-video-wrapper {
@@ -2814,7 +2812,6 @@ const seoImageAlt = "LichtFeld Studio project preview";
       justify-self: start;
     }
 
-    .story-media,
     .platform-shell,
     .plugins-shell {
       padding: 1.15rem;
@@ -2943,7 +2940,6 @@ const seoImageAlt = "LichtFeld Studio project preview";
       height: 1.9rem;
     }
 
-    .story-media,
     .platform-shell,
     .plugins-shell {
       padding: 1rem;

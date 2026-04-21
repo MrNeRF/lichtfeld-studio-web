@@ -41,9 +41,9 @@ describe("homepage hero tablet layout", () => {
     expect(homePageSource).toContain(".hero__scene-cue {\n      width: 100%;\n      max-width: 100%;");
   });
 
-  it("uses the new Pinnerud Torg timelapse assets in the workflow panel", () => {
-    expect(homePageSource).toContain("src={`${base}videos/pinnerud-torg-homepage`}");
-    expect(homePageSource).toContain("poster={`${base}videos/pinnerud-torg-homepage-poster.jpg`}");
+  it("uses the new Meihogen timelapse assets in the workflow panel", () => {
+    expect(homePageSource).toContain("src={`${base}videos/meihogen-homepage`}");
+    expect(homePageSource).toContain("poster={`${base}videos/meihogen-homepage-poster.jpg`}");
   });
 
   it("renders the workflow timelapse without the old framed story-media shell", () => {

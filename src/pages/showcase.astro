@@ -30,9 +30,41 @@ const seoDescription =
 const defaultScene = SHOWCASE_SCENES.find((s) => s.id === DEFAULT_SCENE_ID) ?? SHOWCASE_SCENES[0];
 const defaultControlScheme = defaultScene?.controlScheme ?? "both";
 const defaultIdleAnimation = defaultScene?.idleAnimation ?? "none";
+const moreScenesCount = 2;
 const defaultPreviewSrc = defaultScene?.previewImage
   ? `${base}static/${defaultScene.folderName}/${defaultScene.previewImage}`
   : `${base}static/${defaultScene.folderName}/preview.webp`;
+
+function pickMoreSceneIds(
+  sceneIds: string[],
+  currentSceneId: string,
+  count: number,
+  random: () => number = Math.random,
+): string[] {
+  const remainingSceneIds = sceneIds.filter((sceneId) => sceneId !== currentSceneId);
+  const selectionCount = Math.min(Math.max(count, 0), remainingSceneIds.length);
+  const selectedSceneIds: string[] = [];
+
+  for (let selectionIndex = 0; selectionIndex < selectionCount; selectionIndex += 1) {
+    const randomIndex = Math.floor(random() * remainingSceneIds.length);
+    const [selectedSceneId] = remainingSceneIds.splice(randomIndex, 1);
+
+    if (!selectedSceneId) {
+      break;
+    }
+
+    selectedSceneIds.push(selectedSceneId);
+  }
+
+  return selectedSceneIds;
+}
+
+const defaultMoreSceneIds = pickMoreSceneIds(
+  SHOWCASE_SCENES.map((scene) => scene.id),
+  DEFAULT_SCENE_ID,
+  moreScenesCount,
+  () => 0,
+);
 
 // Build a JSON map of scene data for client-side use
 const sceneDataMap = Object.fromEntries(
@@ -80,7 +112,7 @@ const defaultControlHints = getControlHints(defaultControlScheme);
            Viewer Section with Control Bar Overlay
            ==================================================================== -->
       <section class="showcase-player">
-        <div class="showcase-player__container" id="player-container">
+        <div class="showcase-player__container" id="player-container" data-view="scene">
           <div class="showcase-player__native-viewer" id="native-viewer">
             <Splat
               scene={defaultScene.folderName}
@@ -94,6 +126,42 @@ const defaultControlHints = getControlHints(defaultControlScheme);
               idleAnimation={defaultIdleAnimation}
             />
           </div>
+          <div class="showcase-player__browse" id="browse-scenes-panel" aria-hidden="true">
+            <div class="showcase-player__browse-scroll">
+              <div class="showcase-player__browse-header">
+                <h2 class="showcase-player__browse-title">Browse More Scenes</h2>
+                <button
+                  type="button"
+                  class="showcase-player__btn showcase-player__btn--browse showcase-player__btn--browse-secondary"
+                  id="browse-scenes-back"
+                  aria-label="Back to current scene"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M19 12H5"></path>
+                    <path d="m12 19-7-7 7-7"></path>
+                  </svg>
+                  <span data-browse-label>Back to Current Scene</span>
+                </button>
+              </div>
+              <div class="showcase-player__browse-grid showcase-gallery__grid" role="list" aria-label="Browse all scenes">
+                {SHOWCASE_SCENES.map((scene) => (
+                  <div class="showcase-gallery__item showcase-player__browse-item" role="listitem">
+                    <SceneCard scene={scene} isSelected={scene.id === DEFAULT_SCENE_ID} basePath={base} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
 
           <!-- Control bar overlay (bottom of viewer) -->
           <div class="showcase-player__bar">
@@ -104,6 +172,33 @@ const defaultControlHints = getControlHints(defaultControlScheme);
 
             <!-- Buttons - right side -->
             <div class="showcase-player__buttons">
+              <button
+                type="button"
+                class="showcase-player__btn showcase-player__btn--browse"
+                id="browse-scenes-toggle"
+                aria-label="Browse more scenes"
+                aria-expanded="false"
+                aria-controls="browse-scenes-panel"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <rect x="3" y="4" width="7" height="7" rx="1"></rect>
+                  <rect x="14" y="4" width="7" height="7" rx="1"></rect>
+                  <rect x="14" y="13" width="7" height="7" rx="1"></rect>
+                  <rect x="3" y="13" width="7" height="7" rx="1"></rect>
+                </svg>
+                <span data-browse-label>Browse More Scenes</span>
+              </button>
+
               <!-- Help button - mobile only -->
               <button
                 type="button"
@@ -256,13 +351,47 @@ const defaultControlHints = getControlHints(defaultControlScheme);
         <!-- ====================================================================
            Scene Gallery
            ==================================================================== -->
-        {
-          SHOWCASE_SCENES.length > 1 && (
-            <section class="showcase-gallery">
-              <h2 class="showcase-gallery__title">More Scenes</h2>
+         {
+           SHOWCASE_SCENES.length > 1 && (
+             <section class="showcase-gallery">
+              <div class="showcase-gallery__header">
+                <h2 class="showcase-gallery__title">More Scenes</h2>
+                <button
+                  type="button"
+                  class="showcase-player__btn showcase-player__btn--browse showcase-player__btn--browse-secondary"
+                  id="browse-scenes-sidebar-toggle"
+                  aria-label="Browse more scenes"
+                  aria-expanded="false"
+                  aria-controls="browse-scenes-panel"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect x="3" y="4" width="7" height="7" rx="1"></rect>
+                    <rect x="14" y="4" width="7" height="7" rx="1"></rect>
+                    <rect x="14" y="13" width="7" height="7" rx="1"></rect>
+                    <rect x="3" y="13" width="7" height="7" rx="1"></rect>
+                  </svg>
+                  <span data-browse-label>Browse More Scenes</span>
+                </button>
+              </div>
               <div class="showcase-gallery__grid" role="list" aria-label="Available scenes">
                 {SHOWCASE_SCENES.map((scene) => (
-                  <div class="showcase-gallery__item" role="listitem" data-scene-wrapper={scene.id}>
+                  <div
+                    class="showcase-gallery__item"
+                    role="listitem"
+                    data-more-scene-wrapper={scene.id}
+                    hidden={!defaultMoreSceneIds.includes(scene.id)}
+                    aria-hidden={!defaultMoreSceneIds.includes(scene.id) ? "true" : "false"}
+                  >
                     <SceneCard scene={scene} isSelected={scene.id === DEFAULT_SCENE_ID} basePath={base} />
                   </div>
                 ))}
@@ -278,17 +407,68 @@ const defaultControlHints = getControlHints(defaultControlScheme);
   </div>
 </Layout>
 
-<script is:inline define:vars={{ sceneDataMap, defaultSceneId: DEFAULT_SCENE_ID }}>
+<script type="application/json" id="showcase-scene-data" set:html={JSON.stringify(sceneDataMap)} />
+<script
+  type="application/json"
+  id="showcase-page-data"
+  set:html={JSON.stringify({ defaultSceneId: DEFAULT_SCENE_ID, moreScenesCount })}
+/>
+
+<script>
   /**
    * Showcase page interactivity.
    *
    * Manages fullscreen, help panel, share, and scene switching.
    */
   (() => {
+    interface ClientSceneData {
+      folder: string;
+      controlScheme: "orbit" | "fly" | "both";
+      idleAnimation: "none" | "drift-pause" | "auto-rotate";
+      name: string;
+      descriptionHtml: string;
+      attributionHtml: string;
+      assetFile?: string;
+      documentFile?: string;
+      skyboxImage?: string;
+      previewSrc: string;
+    }
+
+    interface ShowcasePageData {
+      defaultSceneId: string;
+      moreScenesCount: number;
+    }
+
+    function parseJsonScript<T>(elementId: string): T | null {
+      const element = document.getElementById(elementId);
+
+      if (!(element instanceof HTMLScriptElement) || !element.textContent) {
+        return null;
+      }
+
+      return JSON.parse(element.textContent) as T;
+    }
+
+    const sceneDataMap = parseJsonScript<Record<string, ClientSceneData>>("showcase-scene-data");
+    const pageData = parseJsonScript<ShowcasePageData>("showcase-page-data");
+
+    if (!sceneDataMap || !pageData) {
+      return;
+    }
+
+    const defaultSceneId = pageData.defaultSceneId;
+    const moreScenesCount = pageData.moreScenesCount;
+    const allSceneIds = Object.keys(sceneDataMap);
+
     // =========================================================================
     // Element references
     // =========================================================================
     const playerContainer = document.getElementById("player-container");
+    const browseScenesPanel = document.getElementById("browse-scenes-panel");
+    const browseScenesToggle = document.getElementById("browse-scenes-toggle");
+    const browseScenesSidebarToggle = document.getElementById("browse-scenes-sidebar-toggle");
+    const browseScenesBack = document.getElementById("browse-scenes-back");
+    const browseLabels = document.querySelectorAll("[data-browse-label]");
     const helpToggle = document.getElementById("help-toggle");
     const helpClose = document.getElementById("help-close");
     const helpPanel = document.getElementById("help-panel");
@@ -301,11 +481,13 @@ const defaultControlHints = getControlHints(defaultControlScheme);
     const sceneDescription = document.getElementById("scene-description");
     const sceneMeta = document.getElementById("scene-meta");
     const controlHints = document.getElementById("control-hints");
-    const sceneCards = document.querySelectorAll(".scene-card");
+    const moreSceneWrappers = document.querySelectorAll("[data-more-scene-wrapper]");
+    const sceneCards = document.querySelectorAll<HTMLButtonElement>(".scene-card");
 
     // Track state
     let selectedSceneId = defaultSceneId;
     let isHelpOpen = false;
+    let isBrowseMode = false;
 
     // =========================================================================
     // Help panel functions
@@ -376,6 +558,25 @@ const defaultControlHints = getControlHints(defaultControlScheme);
       }, 2000);
     }
 
+    function setBrowseMode(nextBrowseMode) {
+      isBrowseMode = nextBrowseMode;
+
+      const nextView = isBrowseMode ? "browse" : "scene";
+
+      playerContainer?.setAttribute("data-view", nextView);
+      browseScenesPanel?.setAttribute("aria-hidden", String(!isBrowseMode));
+      browseScenesToggle?.setAttribute("aria-expanded", String(isBrowseMode));
+      browseScenesSidebarToggle?.setAttribute("aria-expanded", String(isBrowseMode));
+
+      browseLabels.forEach((browseLabel) => {
+        browseLabel.textContent = isBrowseMode ? "Back to Current Scene" : "Browse More Scenes";
+      });
+    }
+
+    function toggleBrowseMode() {
+      setBrowseMode(!isBrowseMode);
+    }
+
     // =========================================================================
     // Scene switching
     // =========================================================================
@@ -401,6 +602,40 @@ const defaultControlHints = getControlHints(defaultControlScheme);
       }
 
       return defaultSceneId;
+    }
+
+    function pickMoreSceneIds(sceneIds, currentSceneId, count, random = Math.random) {
+      const remainingSceneIds = sceneIds.filter((sceneId) => sceneId !== currentSceneId);
+      const selectionCount = Math.min(Math.max(count, 0), remainingSceneIds.length);
+      const selectedSceneIds = [];
+
+      for (let selectionIndex = 0; selectionIndex < selectionCount; selectionIndex += 1) {
+        const randomIndex = Math.floor(random() * remainingSceneIds.length);
+        const [selectedSceneId] = remainingSceneIds.splice(randomIndex, 1);
+
+        if (!selectedSceneId) {
+          break;
+        }
+
+        selectedSceneIds.push(selectedSceneId);
+      }
+
+      return selectedSceneIds;
+    }
+
+    function updateMoreScenes(currentSceneId) {
+      const nextSceneIds = pickMoreSceneIds(allSceneIds, currentSceneId, moreScenesCount);
+
+      moreSceneWrappers.forEach((wrapper) => {
+        const sceneId = wrapper.getAttribute("data-more-scene-wrapper");
+
+        if (!sceneId) {
+          return;
+        }
+
+        wrapper.hidden = !nextSceneIds.includes(sceneId);
+        wrapper.setAttribute("aria-hidden", String(wrapper.hidden));
+      });
     }
 
     function updateSelection(newSelectedId) {
@@ -441,6 +676,9 @@ const defaultControlHints = getControlHints(defaultControlScheme);
       if (controlHints) {
         controlHints.textContent = getControlHints(controlScheme);
       }
+
+      updateMoreScenes(sceneId);
+      setBrowseMode(false);
 
       if (splatViewer) {
         const event = new CustomEvent("splatviewer:load-scene", {
@@ -495,13 +733,21 @@ const defaultControlHints = getControlHints(defaultControlScheme);
 
     // Share button
     shareBtn?.addEventListener("click", shareScene);
+    browseScenesToggle?.addEventListener("click", toggleBrowseMode);
+    browseScenesSidebarToggle?.addEventListener("click", toggleBrowseMode);
+    browseScenesBack?.addEventListener("click", () => setBrowseMode(false));
 
     // Scene card clicks
     sceneCards.forEach((card) => {
       card.addEventListener("click", () => {
         const sceneId = card.dataset.sceneId;
 
-        if (!sceneId || sceneId === selectedSceneId) return;
+        if (!sceneId) return;
+
+        if (sceneId === selectedSceneId) {
+          setBrowseMode(false);
+          return;
+        }
 
         selectedSceneId = sceneId;
         updateSelection(sceneId);
@@ -513,6 +759,11 @@ const defaultControlHints = getControlHints(defaultControlScheme);
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && isHelpOpen) {
         closeHelp();
+        return;
+      }
+
+      if (e.key === "Escape" && isBrowseMode) {
+        setBrowseMode(false);
       }
     });
 
@@ -525,6 +776,8 @@ const defaultControlHints = getControlHints(defaultControlScheme);
     // Resolve the requested scene immediately so the default scene copy does not flash.
     selectedSceneId = resolveSceneIdFromUrl();
     updateSelection(selectedSceneId);
+    updateMoreScenes(selectedSceneId);
+    setBrowseMode(false);
 
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", loadInitialViewerScene, { once: true });
@@ -700,6 +953,47 @@ const defaultControlHints = getControlHints(defaultControlScheme);
     height: 100%;
   }
 
+  .showcase-player__browse {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(7, 11, 20, 0.94), rgba(7, 11, 20, 0.98)),
+      radial-gradient(circle at top, rgba(20, 87, 255, 0.18), transparent 42%);
+    color: #fff;
+  }
+
+  .showcase-player__browse-scroll {
+    height: 100%;
+    overflow-y: auto;
+    padding: 1.25rem 1.25rem 5.5rem;
+  }
+
+  .showcase-player__browse-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .showcase-player__browse-title {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.96);
+  }
+
+  .showcase-player__browse-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: 1rem;
+    align-content: start;
+  }
+
+  .showcase-player__browse-item :global(.scene-card) {
+    min-height: 100%;
+  }
+
   .showcase-player__container :global(astro-splat) {
     width: 100%;
     height: 100%;
@@ -719,6 +1013,18 @@ const defaultControlHints = getControlHints(defaultControlScheme);
   .showcase-player__container:fullscreen :global(astro-splat) {
     width: 100vw;
     height: 100vh;
+  }
+
+  .showcase-player__browse[aria-hidden="true"] {
+    display: none;
+  }
+
+  .showcase-player__container[data-view="browse"] .showcase-player__native-viewer {
+    display: none;
+  }
+
+  .showcase-player__container[data-view="browse"] .showcase-player__browse {
+    display: block;
   }
 
   /* ============================================================================
@@ -760,6 +1066,7 @@ const defaultControlHints = getControlHints(defaultControlScheme);
   /* Buttons container */
   .showcase-player__buttons {
     display: flex;
+    flex-wrap: wrap;
     gap: 0.5rem;
     margin-left: auto;
   }
@@ -789,6 +1096,22 @@ const defaultControlHints = getControlHints(defaultControlScheme);
   .showcase-player__btn:focus {
     outline: none;
     box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.5);
+  }
+
+  .showcase-player__btn--browse {
+    width: auto;
+    padding: 0 0.85rem;
+    gap: 0.45rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+
+  .showcase-player__btn--browse span {
+    white-space: nowrap;
+  }
+
+  .showcase-player__btn--browse-secondary {
+    flex-shrink: 0;
   }
 
   /* Help button - mobile only */
@@ -1020,8 +1343,16 @@ const defaultControlHints = getControlHints(defaultControlScheme);
     box-shadow: none;
   }
 
+  .showcase-gallery__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
   .showcase-gallery__title {
-    margin: 0 0 1rem;
+    margin: 0;
     font-size: 1.125rem;
     font-weight: 600;
     color: var(--color-text, #1f2937);
@@ -1057,11 +1388,43 @@ const defaultControlHints = getControlHints(defaultControlScheme);
     }
   }
 
+  @media (min-width: 1200px) {
+    .showcase-player__browse-grid {
+      grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    }
+
+    .showcase-player__browse-item :global(.scene-card__image-container) {
+      aspect-ratio: 16 / 9;
+    }
+
+    .showcase-player__browse-item :global(.scene-card__body) {
+      padding: 0.7rem 0.8rem 0.8rem;
+    }
+
+    .showcase-player__browse-item :global(.scene-card__title) {
+      margin-bottom: 0.3rem;
+      font-size: 0.9rem;
+    }
+
+    .showcase-player__browse-item :global(.scene-card__description) {
+      -webkit-line-clamp: 2;
+    }
+
+    .showcase-player__browse-item :global(.scene-card__attribution) {
+      margin-top: 0.45rem;
+      font-size: 0.68rem;
+    }
+  }
+
   .showcase-gallery__item {
     display: flex;
   }
 
   @media (max-width: 1199.98px) {
+    .showcase-gallery {
+      display: none;
+    }
+
     .showcase-gallery__item :global(.scene-card__description) {
       display: -webkit-box;
       overflow: hidden;

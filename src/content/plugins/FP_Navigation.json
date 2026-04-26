@@ -1,0 +1,32 @@
+{
+  "id": "community:FP_Navigation",
+  "namespace": "community",
+  "name": "FP_Navigation",
+  "displayName": "FP_Navigation",
+  "summary": "First-person \u2190 \u2192 arrow key customisable navigation for LFS viewport. Includes 7 saved view slots with read/write of settings.",
+  "description": "View navigation as First-Person with customisable floor (eye wont go below this set level).  Plugin  has eye/target XYZ display & allows 7 customisable view slots for your favoutite view angles: works in both viewer & Training modes. Settings persist on close so can be used in multiple projects.  ",
+  "author": "Brian Davis (bb6)",
+  "latestVersion": "0.1.2",
+  "lichtfeldVersion": ">=0.4.2",
+  "pluginApi": ">=1,<2",
+  "requiredFeatures": [],
+  "downloads": 0,
+  "keywords": [
+    "viewport",
+    "navigation",
+    "saved view",
+    "coordinates",
+    "keyframe recording"
+  ],
+  "repository": "https://github.com/bgofish/LFS_FPNav_Plugin",
+  "versions": [
+    {
+      "version": "0.1.2",
+      "pluginApi": ">=1,<2",
+      "lichtfeldVersion": ">=0.4.2",
+      "requiredFeatures": [],
+      "dependencies": [],
+      "gitRef": "main"
+    }
+  ]
+}

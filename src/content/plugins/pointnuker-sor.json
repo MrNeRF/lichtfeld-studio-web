@@ -15,7 +15,7 @@
   "repository": "https://github.com/bgofish/SOR_Plugin",
   "versions": [
     {
-      "version": "0.1.4",
+      "version": "0.2.0",
       "pluginApi": ">=1,<2",
       "lichtfeldVersion": ">=0.5.0",
       "requiredFeatures": [],

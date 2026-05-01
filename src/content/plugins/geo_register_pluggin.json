@@ -1,0 +1,32 @@
+{
+  "id": "community:geo_register_pluggin",
+  "namespace": "community",
+  "name": "geo_register_pluggin",
+  "displayName": "Geo Registeration",
+  "summary": "Registers a scene to real-world GPS coordinates using EXIF, a similarity transform file, or an image positions CSV.",
+  "description": "Solves a similarity transform (scale \u00b7 R \u00b7 t) that maps scene-space positions to ECEF (Earth-Centered Earth-Fixed / WGS-84) coordinates. Supports three input modes: automatic GPS extraction from image EXIF tags, loading a pre-computed similarity JSON, or loading an image positions CSV. Once registered, clicking any point on the model returns its latitude, longitude, and altitude.\n",
+  "author": "dozeri",
+  "latestVersion": "0.1",
+  "lichtfeldVersion": ">=0.4.2",
+  "pluginApi": ">=1,<2",
+  "requiredFeatures": [],
+  "downloads": 0,
+  "keywords": [
+    "geo",
+    "exif"
+  ],
+  "repository": "https://github.com/dozeri83/geo-register-plugin",
+  "versions": [
+    {
+      "version": "0.1",
+      "pluginApi": ">=1,<2",
+      "lichtfeldVersion": ">=0.4.2",
+      "requiredFeatures": [],
+      "dependencies": [
+        "numpy",
+        "pillow"
+      ],
+      "gitRef": "main"
+    }
+  ]
+}

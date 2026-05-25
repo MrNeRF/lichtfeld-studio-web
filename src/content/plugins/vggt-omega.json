@@ -1,0 +1,37 @@
+{
+  "id": "community:vggt-omega",
+  "namespace": "community",
+  "name": "vggt-omega",
+  "displayName": "VGGT-Omega",
+  "summary": "Feed-forward camera and point-cloud reconstruction from images or video using VGGT-Omega.",
+  "description": "Runs VGGT-Omega on an image folder or video file and pushes predicted camera poses plus a point cloud directly into the LichtFeld scene, with optional COLMAP workspace export and train-from-points initialization. Non-commercial / research use only; requires approved Hugging Face access to facebook/VGGT-Omega and local hf auth login.",
+  "author": "Yehe Liu",
+  "latestVersion": "0.1.0",
+  "lichtfeldVersion": ">=0.5.0",
+  "pluginApi": ">=1,<2",
+  "requiredFeatures": [],
+  "downloads": 0,
+  "keywords": ["vggt", "omega", "feed-forward", "3d-reconstruction", "camera-poses", "point-cloud", "images", "video", "hugging-face", "non-commercial"],
+  "repository": "https://github.com/lyehe/lichtfeld-vggt-omega",
+  "versions": [
+    {
+      "version": "0.1.0",
+      "pluginApi": ">=1,<2",
+      "lichtfeldVersion": ">=0.5.0",
+      "requiredFeatures": [],
+      "dependencies": [
+        "torch==2.11.0",
+        "torchvision==0.26.0",
+        "numpy<2",
+        "pillow",
+        "einops",
+        "safetensors",
+        "imageio-ffmpeg>=0.6.0",
+        "huggingface-hub",
+        "plyfile",
+        "triton-windows>=3.5 ; platform_system == 'Windows'"
+      ],
+      "gitRef": "main"
+    }
+  ]
+}

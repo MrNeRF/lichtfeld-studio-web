@@ -1,0 +1,35 @@
+{
+  "id": "community:triposplat",
+  "namespace": "community",
+  "name": "triposplat",
+  "displayName": "TripoSplat",
+  "summary": "Generate a 3D Gaussian splat from a single image using VAST-AI TripoSplat, inserted directly into the scene.",
+  "description": "Takes a single image, removes the background, and runs VAST-AI TripoSplat (single-image flow-matching) to produce a 3D Gaussian splat that is inserted directly into the LichtFeld scene. Guided three-step workflow (choose image, generate, place) with interactive gizmo placement that follows scene selection, adjustable detail / seed / guidance, and append-to-scene support. Local GPU inference; model weights (~3.8 GB) download on first use from Hugging Face.",
+  "author": "Yehe Liu",
+  "latestVersion": "0.1.0",
+  "lichtfeldVersion": ">=0.5.0",
+  "pluginApi": ">=1,<2",
+  "requiredFeatures": [],
+  "downloads": 0,
+  "keywords": ["triposplat", "image-to-3d", "single-image", "gaussian-splatting", "vast-ai", "hugging-face"],
+  "repository": "https://github.com/lyehe/lichtfeld-triposplat-plugin",
+  "versions": [
+    {
+      "version": "0.1.0",
+      "pluginApi": ">=1,<2",
+      "lichtfeldVersion": ">=0.5.0",
+      "requiredFeatures": [],
+      "dependencies": [
+        "torch==2.11.0",
+        "torchvision==0.26.0",
+        "numpy",
+        "safetensors",
+        "pillow",
+        "tqdm",
+        "huggingface-hub",
+        "triton-windows>=3.5 ; platform_system == 'Windows'"
+      ],
+      "gitRef": "main"
+    }
+  ]
+}

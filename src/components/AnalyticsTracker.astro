@@ -1,0 +1,113 @@
+---
+/**
+ * Global analytics tracker.
+ *
+ * Tracks section visibility, outbound links, and explicit `data-analytics-event`
+ * clicks that are not covered by Rybbit's automatic pageview tracking.
+ */
+---
+
+<script>
+  import { ANALYTICS_EVENTS, getAnalyticsPropertiesFromDataset, trackEvent } from "@/utils/analytics";
+
+  const viewedSections = new Set<string>();
+
+  /**
+   * Tracks each marked page section once per page load.
+   */
+  function initSectionTracking(): void {
+    const sections = Array.from(document.querySelectorAll<HTMLElement>("[data-analytics-section]"));
+
+    if (sections.length === 0 || !("IntersectionObserver" in window)) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) {
+            return;
+          }
+
+          const section = (entry.target as HTMLElement).dataset.analyticsSection;
+
+          if (!section || viewedSections.has(section)) {
+            return;
+          }
+
+          viewedSections.add(section);
+          trackEvent(ANALYTICS_EVENTS.sectionViewed, { section });
+          observer.unobserve(entry.target);
+        });
+      },
+      {
+        rootMargin: "0px 0px -20% 0px",
+        threshold: 0.35,
+      },
+    );
+
+    sections.forEach((section) => observer.observe(section));
+  }
+
+  /**
+   * Tracks external exits with placement and optional extra properties.
+   */
+  function initOutboundLinkTracking(): void {
+    document.addEventListener("click", (event) => {
+      const link = (event.target as Element | null)?.closest<HTMLAnchorElement>("[data-analytics-outbound]");
+
+      if (!link) {
+        return;
+      }
+
+      const destination = link.dataset.analyticsOutbound;
+
+      if (!destination) {
+        return;
+      }
+
+      trackEvent(ANALYTICS_EVENTS.outboundLinkClicked, {
+        ...getAnalyticsPropertiesFromDataset({ ...link.dataset }),
+        destination,
+        placement: link.dataset.analyticsPlacement || "unknown",
+      });
+    });
+  }
+
+  /**
+   * Tracks explicit click events declared in markup with `data-analytics-event`.
+   */
+  function initDeclarativeClickTracking(): void {
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+
+      if (!(target instanceof Element)) {
+        return;
+      }
+
+      const element = target.closest<HTMLElement>("[data-analytics-event]");
+      const eventName = element?.dataset.analyticsEvent;
+
+      if (!eventName) {
+        return;
+      }
+
+      trackEvent(eventName, getAnalyticsPropertiesFromDataset({ ...element.dataset }));
+    });
+  }
+
+  /**
+   * Initializes all global analytics observers and listeners after the DOM exists.
+   */
+  function initAnalyticsTracking(): void {
+    initSectionTracking();
+    initOutboundLinkTracking();
+    initDeclarativeClickTracking();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initAnalyticsTracking, { once: true });
+  } else {
+    initAnalyticsTracking();
+  }
+</script>

@@ -132,12 +132,15 @@ const customAmountId = `${sectionId}-custom-amount`;
 </div>
 
 <script>
+  import { ANALYTICS_EVENTS, trackEvent } from "@/utils/analytics";
+
   document.querySelectorAll<HTMLElement>("[data-support-box]").forEach((box) => {
     const amountButtons = box.querySelectorAll<HTMLButtonElement>(".donate-amount");
     const customInput = box.querySelector<HTMLInputElement>("[data-custom-amount]");
     const paypalLink = box.querySelector<HTMLAnchorElement>('[data-provider="paypal"]');
     const donorboxLink = box.querySelector<HTMLAnchorElement>('[data-provider="donorbox"]');
     const bitcoinBtn = box.querySelector<HTMLButtonElement>('[data-provider="bitcoin"]');
+    const providerButtons = box.querySelectorAll<HTMLElement>("[data-provider]");
     const bitcoinPopup = box.querySelector<HTMLElement>("[data-bitcoin-popup]");
     const copyBtcBtn = box.querySelector<HTMLButtonElement>("[data-copy-btc-btn]");
     const btcCopyStatus = box.querySelector<HTMLElement>("[data-btc-copy-status]");
@@ -176,6 +179,20 @@ const customAmountId = `${sectionId}-custom-amount`;
         selectedAmount = parseInt(btn.dataset.amount || "10", 10);
         updateAmountSelection(btn);
         updateProviderUrls();
+        trackEvent(ANALYTICS_EVENTS.donationAmountSelected, {
+          amount: selectedAmount,
+          placement: "support_box",
+        });
+      });
+    });
+
+    providerButtons.forEach((providerButton) => {
+      providerButton.addEventListener("click", () => {
+        trackEvent(ANALYTICS_EVENTS.donationProviderSelected, {
+          amount: selectedAmount,
+          placement: "support_box",
+          provider: providerButton.dataset.provider || "unknown",
+        });
       });
     });
 

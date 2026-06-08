@@ -7,6 +7,7 @@ import Layout from "@/layouts/Layout.astro";
 import ContributorsWall from "@/components/contribute/ContributorsWall.astro";
 import SupportProjectBox from "@/components/contribute/SupportProjectBox.astro";
 import { GITHUB_REPO_URL } from "@/constants/project";
+import { ANALYTICS_EVENTS } from "@/utils/analytics";
 
 const base = import.meta.env.BASE_URL;
 const contributionLanes = [
@@ -98,7 +99,7 @@ const seoDescription =
 ---
 
 <Layout title={seoTitle} description={seoDescription}>
-  <section class="contribute-page">
+  <section class="contribute-page" data-analytics-section="contribute">
     <div class="container content-frame px-4 py-5">
       <div class="contribute-top-grid">
         <div class="shell contribute-shell--hero">
@@ -120,6 +121,9 @@ const seoDescription =
                     target={lane.external ? "_blank" : undefined}
                     rel={lane.external ? "noopener noreferrer" : undefined}
                     class="contribute-hero__lane"
+                    data-analytics-event={ANALYTICS_EVENTS.contributionPathClicked}
+                    data-analytics-prop-path={lane.title}
+                    data-analytics-prop-external={lane.external ? "true" : "false"}
                   >
                     <strong>{lane.title}</strong>
                     <span>{lane.copy}</span>
@@ -140,11 +144,17 @@ const seoDescription =
         id="support-the-project"
         class="contribute-support-panel mt-4"
         aria-labelledby="support-the-project-heading"
+        data-analytics-section="contribute_support"
       >
         <SupportProjectBox />
       </section>
 
-      <section id="sponsoring" class="shell contribute-sponsoring mt-4" aria-labelledby="sponsoring-heading">
+      <section
+        id="sponsoring"
+        class="shell contribute-sponsoring mt-4"
+        aria-labelledby="sponsoring-heading"
+        data-analytics-section="contribute_sponsoring"
+      >
         <div class="sponsoring-intro">
           <p class="kicker mb-3">Sponsoring</p>
           <div class="section-heading">

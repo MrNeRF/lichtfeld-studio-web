@@ -44,7 +44,17 @@ const { plugin, compact = false } = Astro.props;
 
   <div class="plugin-card__footer">
     <span class="plugin-card__id">{plugin.id}</span>
-    <a href={plugin.repository} target="_blank" rel="noopener noreferrer" class="plugin-card__link">View repo</a>
+    <a
+      href={plugin.repository}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="plugin-card__link"
+      data-analytics-outbound="plugin_repository"
+      data-analytics-placement="plugin_card"
+      data-analytics-prop-plugin-id={plugin.id}
+    >
+      View repo
+    </a>
   </div>
 </article>
 

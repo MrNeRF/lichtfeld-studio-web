@@ -15,6 +15,7 @@ import gaussianSplatKingLogo from "@/assets/gaussian-splatking-logo.jpg";
 import { SmartVideo } from "@alos-no/astro-media";
 import Splat from "@/components/Splat.astro";
 import { HOMEPAGE_MIN_VIEWPORT_VISIBILITY_FOR_RENDER } from "@/constants/splat-viewer";
+import { ANALYTICS_EVENTS } from "@/utils/analytics";
 
 // Centralized external links (avoid magic strings):
 import {
@@ -112,7 +113,7 @@ const seoImageAlt = "LichtFeld Studio project preview";
 
 <Layout title={seoTitle} description={seoDescription} image={seoImage} imageAlt={seoImageAlt}>
   <!-- Big Splat Header (Hero) -->
-  <header class="hero">
+  <header class="hero" data-analytics-section="home_hero">
     <div class="hero__splat">
       <!-- The Splat canvas is the visual anchor in the header -->
       <div class="splat-wrapper">
@@ -171,6 +172,9 @@ const seoImageAlt = "LichtFeld Studio project preview";
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Open the LichtFeld Studio download portal for Windows binaries"
+                  data-analytics-event={ANALYTICS_EVENTS.ctaClicked}
+                  data-analytics-prop-placement="home_hero"
+                  data-analytics-prop-target="lichtfeld_portal"
                 >
                   <span class="hero__release-card-main">
                     <span class="hero__release-icon" aria-hidden="true">
@@ -188,6 +192,9 @@ const seoImageAlt = "LichtFeld Studio project preview";
                   class="btn btn-lg hero__release-card hero__release-card--donate"
                   href={`${base}contribute/#support-the-project`}
                   aria-label="Support the project with a donation"
+                  data-analytics-event={ANALYTICS_EVENTS.ctaClicked}
+                  data-analytics-prop-placement="home_hero"
+                  data-analytics-prop-target="donate"
                 >
                   <span class="hero__release-card-main">
                     <span class="hero__release-icon hero__release-icon--donate" aria-hidden="true">
@@ -206,6 +213,9 @@ const seoImageAlt = "LichtFeld Studio project preview";
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="View LichtFeld Studio source code on GitHub"
+                  data-analytics-event={ANALYTICS_EVENTS.ctaClicked}
+                  data-analytics-prop-placement="home_hero"
+                  data-analytics-prop-target="github_repo"
                 >
                   <span class="hero__release-card-main">
                     <span class="hero__release-icon hero__release-icon--source" aria-hidden="true">
@@ -229,7 +239,7 @@ const seoImageAlt = "LichtFeld Studio project preview";
     </div>
   </header>
 
-  <section id="workflow" class="story-section hash-section">
+  <section id="workflow" class="story-section hash-section" data-analytics-section="home_workflow">
     <div class="container content-frame px-6 pt-14 pb-8">
       <div class="shell shell--spacious story-surface">
         <div class="story-header-grid">
@@ -316,6 +326,9 @@ const seoImageAlt = "LichtFeld Studio project preview";
               target="_blank"
               rel="noopener noreferrer"
               aria-label="View Gaussian SplatKing on the App Store"
+              data-analytics-event={ANALYTICS_EVENTS.ctaClicked}
+              data-analytics-prop-placement="home_capture_tip"
+              data-analytics-prop-target="gaussian_splatking_app_store"
             >
               {captureRecommendation.label}
             </a>
@@ -368,7 +381,7 @@ const seoImageAlt = "LichtFeld Studio project preview";
   </section>
   -->
 
-  <section class="sponsor-wall-section" aria-labelledby="portal-sponsors-heading">
+  <section class="sponsor-wall-section" aria-labelledby="portal-sponsors-heading" data-analytics-section="home_sponsors">
     <div class="portal-sponsors container content-frame" id="portal-sponsors">
       <h2 id="portal-sponsors-heading" class="portal-sponsors__title">Sponsors</h2>
 
@@ -385,6 +398,9 @@ const seoImageAlt = "LichtFeld Studio project preview";
                     rel="noopener noreferrer"
                     class={`portal-sponsors__logo ${sponsor.logoClass ?? ""}`.trim()}
                     aria-label={sponsor.ariaLabel}
+                    data-analytics-outbound="sponsor"
+                    data-analytics-placement="home_sponsors"
+                    data-analytics-prop-sponsor={sponsor.name}
                   >
                     <img src={sponsor.logo} alt={sponsor.name} />
                   </a>
@@ -396,6 +412,9 @@ const seoImageAlt = "LichtFeld Studio project preview";
                     class="portal-sponsors__name"
                     lang={sponsor.lang}
                     aria-label={sponsor.ariaLabel}
+                    data-analytics-outbound="sponsor"
+                    data-analytics-placement="home_sponsors"
+                    data-analytics-prop-sponsor={sponsor.name}
                   >
                     {sponsor.name}
                   </a>

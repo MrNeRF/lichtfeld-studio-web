@@ -54,7 +54,16 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
 
   <!-- Portal -->
   <li class="nav-menu__item">
-    <a href={LICHTFELD_PORTAL_URL} target="_blank" rel="noopener noreferrer" class="nav-menu__link">Portal</a>
+    <a
+      href={LICHTFELD_PORTAL_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="nav-menu__link"
+      data-analytics-outbound="lichtfeld_portal"
+      data-analytics-placement="nav"
+    >
+      Portal
+    </a>
   </li>
 
   <!-- Contribute -->
@@ -91,6 +100,8 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
       rel="noopener noreferrer"
       class="nav-menu__link nav-menu__link--icon-only"
       aria-label="Discord"
+      data-analytics-outbound="discord"
+      data-analytics-placement="nav"
     >
       <i class="bi bi-discord" aria-hidden="true"></i>
       <span class="sr-only">Discord</span>
@@ -103,6 +114,8 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
       rel="noopener noreferrer"
       class="nav-menu__link nav-menu__link--icon-only"
       aria-label="GitHub"
+      data-analytics-outbound="github_repo"
+      data-analytics-placement="nav"
     >
       <i class="bi bi-github" aria-hidden="true"></i>
       <span class="sr-only">GitHub</span>

@@ -168,6 +168,27 @@ export const ORGANIZATION = {
 } as const;
 
 // ============================================================================
+// Analytics
+// ============================================================================
+
+/**
+ * Analytics provider configuration.
+ * Rybbit's tracking script reads the site ID from the script tag in `Layout.astro`.
+ */
+export const ANALYTICS = {
+  rybbit: {
+    /** Rybbit cloud origin used for the script and tracking API. */
+    origin: "https://app.rybbit.io",
+
+    /** Rybbit tracking script URL. */
+    scriptUrl: "https://app.rybbit.io/api/script.js",
+
+    /** Rybbit site ID for lichtfeld.io. */
+    rybbitSiteId: "ad1d3666db14",
+  },
+} as const;
+
+// ============================================================================
 // External Origins (for Preconnect)
 // ============================================================================
 
@@ -182,6 +203,9 @@ export const ORGANIZATION = {
 export const EXTERNAL_ORIGINS = {
   /** GitHub avatars (loaded in browser for contributor images) */
   githubAvatars: "https://avatars.githubusercontent.com",
+
+  /** Rybbit analytics script and event collection endpoint */
+  rybbit: ANALYTICS.rybbit.origin,
 } as const;
 
 // ============================================================================

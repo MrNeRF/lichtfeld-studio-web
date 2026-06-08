@@ -415,6 +415,8 @@ const defaultControlHints = getControlHints(defaultControlScheme);
 />
 
 <script>
+  import { ANALYTICS_EVENTS, trackEvent } from "@/utils/analytics";
+
   /**
    * Showcase page interactivity.
    *
@@ -500,6 +502,7 @@ const defaultControlHints = getControlHints(defaultControlScheme);
       helpPanel.classList.add("is-open");
       helpPanel.setAttribute("aria-hidden", "false");
       helpToggle.setAttribute("aria-expanded", "true");
+      trackEvent(ANALYTICS_EVENTS.showcaseHelpOpened, { scene: selectedSceneId });
     }
 
     function closeHelp() {
@@ -522,6 +525,11 @@ const defaultControlHints = getControlHints(defaultControlScheme);
         fullscreenIcon.style.display = isFullscreen ? "none" : "block";
         exitFullscreenIcon.style.display = isFullscreen ? "block" : "none";
       }
+
+      trackEvent(ANALYTICS_EVENTS.showcaseFullscreenToggled, {
+        scene: selectedSceneId,
+        fullscreen: isFullscreen ? "true" : "false",
+      });
     }
 
     function toggleFullscreen() {
@@ -543,6 +551,7 @@ const defaultControlHints = getControlHints(defaultControlScheme);
 
       url.searchParams.set("scene", selectedSceneId);
       navigator.clipboard.writeText(url.toString()).then(() => {
+        trackEvent(ANALYTICS_EVENTS.showcaseShared, { scene: selectedSceneId });
         showToast();
       });
     }
@@ -559,6 +568,8 @@ const defaultControlHints = getControlHints(defaultControlScheme);
     }
 
     function setBrowseMode(nextBrowseMode) {
+      const previousBrowseMode = isBrowseMode;
+
       isBrowseMode = nextBrowseMode;
 
       const nextView = isBrowseMode ? "browse" : "scene";
@@ -571,6 +582,13 @@ const defaultControlHints = getControlHints(defaultControlScheme);
       browseLabels.forEach((browseLabel) => {
         browseLabel.textContent = isBrowseMode ? "Back to Current Scene" : "Browse More Scenes";
       });
+
+      if (previousBrowseMode !== isBrowseMode) {
+        trackEvent(ANALYTICS_EVENTS.showcaseBrowseToggled, {
+          scene: selectedSceneId,
+          mode: nextView,
+        });
+      }
     }
 
     function toggleBrowseMode() {
@@ -748,6 +766,11 @@ const defaultControlHints = getControlHints(defaultControlScheme);
           setBrowseMode(false);
           return;
         }
+
+        trackEvent(ANALYTICS_EVENTS.showcaseSceneSelected, {
+          scene: sceneId,
+          previousScene: selectedSceneId,
+        });
 
         selectedSceneId = sceneId;
         updateSelection(sceneId);

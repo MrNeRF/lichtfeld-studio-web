@@ -20,6 +20,7 @@
 
 import Footer from "@/components/Footer.astro";
 import Header from "@/components/Header.astro";
+import AnalyticsTracker from "@/components/AnalyticsTracker.astro";
 
 // SEO Components
 import Seo from "@/components/seo/Seo.astro";
@@ -28,6 +29,7 @@ import BreadcrumbSchema from "@/components/seo/BreadcrumbSchema.astro";
 import Preconnect from "@/components/seo/Preconnect.astro";
 
 // Site configuration for defaults
+import { ANALYTICS } from "@/config/site.config";
 import { SITE } from "@/config/site.config";
 import type { SeoProps } from "@/config/site.config";
 
@@ -98,6 +100,14 @@ const {
 
     <!-- Structured Data: Breadcrumb navigation for search results -->
     <BreadcrumbSchema />
+
+    <!-- Rybbit analytics: deferred external script configured from site.config.ts. -->
+    <script
+      is:inline
+      src={ANALYTICS.rybbit.scriptUrl}
+      data-site-id={ANALYTICS.rybbit.rybbitSiteId}
+      defer
+    />
     <style lang="scss" is:global>
       @use "bootstrap/scss/bootstrap" as *
         /*with (
@@ -162,5 +172,7 @@ const {
       <!-- Footer -->
       {!hideFooter && <Footer />}
     </main>
+
+    <AnalyticsTracker />
   </body>
 </html>

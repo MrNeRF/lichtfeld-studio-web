@@ -211,6 +211,7 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
     SPLAT_EVT_ERROR,
   } from "@/constants/splat-events";
   import { resolveSplatIdleAnimation } from "@/script/splat/runtime/resolveSplatIdleAnimation";
+  import { ANALYTICS_EVENTS, trackEvent } from "@/utils/analytics";
 
   class AstroSplat extends HTMLElement {
     /** Reference to the viewer instance for cleanup. */
@@ -434,15 +435,25 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
             },
             { once: true },
           );
+
+          trackEvent(ANALYTICS_EVENTS.viewerFirstFrame, { scene: this._currentScene ?? "unknown" });
         });
 
         this.addEventListener(SPLAT_EVT_ERROR, (e) => {
           const { message } = (e as CustomEvent).detail || {};
 
+          trackEvent(ANALYTICS_EVENTS.viewerError, {
+            scene: this._currentScene ?? "unknown",
+            message: typeof message === "string" ? message.slice(0, 180) : "unknown",
+          });
           showPreviewFallback(message);
         });
 
         this._firstFrameTimeoutId = window.setTimeout(() => {
+          trackEvent(ANALYTICS_EVENTS.viewerError, {
+            scene: this._currentScene ?? "unknown",
+            message: "Viewer timed out before first frame",
+          });
           showPreviewFallback("Viewer timed out before first frame");
         }, 10000);
       }
@@ -679,6 +690,10 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
       });
 
       this._firstFrameTimeoutId = window.setTimeout(() => {
+        trackEvent(ANALYTICS_EVENTS.viewerError, {
+          scene: this._currentScene ?? "unknown",
+          message: "Viewer timed out before first frame",
+        });
         overlay?.setAttribute("aria-busy", "false");
         overlay?.classList.add("is-error");
         panel && (panel.hidden = true);

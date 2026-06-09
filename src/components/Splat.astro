@@ -100,6 +100,14 @@ interface SplatProps {
    * struggle with constant idle motion.
    */
   disableDriftOnMobile?: boolean;
+
+  /**
+   * Send `viewer_first_frame` analytics when this viewer renders.
+   *
+   * The homepage hero disables this because pageviews already tell us that
+   * the decorative botanics viewer was shown.
+   */
+  trackFirstFrameAnalytics?: boolean;
 }
 
 const {
@@ -117,6 +125,7 @@ const {
   idleAnimation = "drift-pause",
   minViewportVisibilityForRender = MIN_VIEWPORT_VISIBILITY_FOR_RENDER,
   disableDriftOnMobile = false,
+  trackFirstFrameAnalytics = true,
 } = Astro.props as SplatProps;
 
 /**
@@ -155,6 +164,7 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
     data-idle-animation={idleAnimation}
     data-min-viewport-visibility={minViewportVisibilityForRender.toString()}
     data-disable-drift-on-mobile={disableDriftOnMobile.toString()}
+    data-track-first-frame-analytics={trackFirstFrameAnalytics.toString()}
     data-asset-file={assetFile}
     data-document-file={documentFile}
     data-skybox-image={skyboxImage}
@@ -262,6 +272,9 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
     /** Whether drift should be disabled on mobile. */
     private _disableDriftOnMobile = false;
 
+    /** Whether this viewer should emit the `viewer_first_frame` custom event. */
+    private _trackFirstFrameAnalytics = true;
+
     /** Fallback timer in case the viewer never reaches first frame. */
     private _firstFrameTimeoutId?: number;
 
@@ -283,6 +296,7 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
       const assetFile = this.getAttribute("data-asset-file") || undefined;
       const documentFile = this.getAttribute("data-document-file") || undefined;
       const skyboxImage = this.getAttribute("data-skybox-image") || undefined;
+      const trackFirstFrameAnalytics = this.getAttribute("data-track-first-frame-analytics") !== "false";
       const effectiveIdleAnimation = resolveSplatIdleAnimation({
         idleAnimation,
         disableDriftOnMobile,
@@ -298,6 +312,7 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
       this._skyboxImage = skyboxImage;
       this._minViewportVisibilityForRender = minViewportVisibilityForRender;
       this._disableDriftOnMobile = disableDriftOnMobile;
+      this._trackFirstFrameAnalytics = trackFirstFrameAnalytics;
 
       // Loader DOM hooks
       const overlay = this.querySelector(".splat-loading") as HTMLElement | null;
@@ -436,7 +451,9 @@ const isSplatDisabled = import.meta.env.DISABLE_SPLAT === "true";
             { once: true },
           );
 
-          trackEvent(ANALYTICS_EVENTS.viewerFirstFrame, { scene: this._currentScene ?? "unknown" });
+          if (this._trackFirstFrameAnalytics) {
+            trackEvent(ANALYTICS_EVENTS.viewerFirstFrame, { scene: this._currentScene ?? "unknown" });
+          }
         });
 
         this.addEventListener(SPLAT_EVT_ERROR, (e) => {

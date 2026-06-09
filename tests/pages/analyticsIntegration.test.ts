@@ -12,6 +12,7 @@ const navMenuSource = readFileSync(resolve(process.cwd(), "src/components/NavMen
 const pluginCardSource = readFileSync(resolve(process.cwd(), "src/components/plugins/PluginCard.astro"), "utf8");
 const analyticsSource = readFileSync(resolve(process.cwd(), "src/utils/analytics.ts"), "utf8");
 const analyticsTrackerSource = readFileSync(resolve(process.cwd(), "src/components/AnalyticsTracker.astro"), "utf8");
+const splatSource = readFileSync(resolve(process.cwd(), "src/components/Splat.astro"), "utf8");
 
 describe("analytics integration", () => {
   it("renders the Rybbit tracking script from central site configuration", () => {
@@ -57,5 +58,14 @@ describe("analytics integration", () => {
     expect(analyticsTrackerSource).not.toContain("[data-analytics-section]");
     expect(homePageSource).not.toContain("data-analytics-section");
     expect(contributePageSource).not.toContain("data-analytics-section");
+  });
+
+  it("does not send first-frame analytics from the homepage viewer", () => {
+    expect(homePageSource).toContain('scene="botanics"');
+    expect(homePageSource).toContain("trackFirstFrameAnalytics={false}");
+    expect(splatSource).toContain('data-track-first-frame-analytics={trackFirstFrameAnalytics.toString()}');
+    expect(splatSource).toContain("this._trackFirstFrameAnalytics");
+    expect(splatSource).toContain("trackEvent(ANALYTICS_EVENTS.viewerFirstFrame");
+    expect(showcasePageSource).not.toContain("trackFirstFrameAnalytics={false}");
   });
 });

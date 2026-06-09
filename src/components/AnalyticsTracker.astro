@@ -2,52 +2,13 @@
 /**
  * Global analytics tracker.
  *
- * Tracks section visibility, outbound links, and explicit `data-analytics-event`
- * clicks that are not covered by Rybbit's automatic pageview tracking.
+ * Tracks outbound links and explicit `data-analytics-event` clicks that are
+ * not covered by Rybbit's automatic pageview tracking.
  */
 ---
 
 <script>
   import { ANALYTICS_EVENTS, getAnalyticsPropertiesFromDataset, trackEvent } from "@/utils/analytics";
-
-  const viewedSections = new Set<string>();
-
-  /**
-   * Tracks each marked page section once per page load.
-   */
-  function initSectionTracking(): void {
-    const sections = Array.from(document.querySelectorAll<HTMLElement>("[data-analytics-section]"));
-
-    if (sections.length === 0 || !("IntersectionObserver" in window)) {
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) {
-            return;
-          }
-
-          const section = (entry.target as HTMLElement).dataset.analyticsSection;
-
-          if (!section || viewedSections.has(section)) {
-            return;
-          }
-
-          viewedSections.add(section);
-          trackEvent(ANALYTICS_EVENTS.sectionViewed, { section });
-          observer.unobserve(entry.target);
-        });
-      },
-      {
-        rootMargin: "0px 0px -20% 0px",
-        threshold: 0.35,
-      },
-    );
-
-    sections.forEach((section) => observer.observe(section));
-  }
 
   /**
    * Tracks external exits with placement and optional extra properties.
@@ -100,7 +61,6 @@
    * Initializes all global analytics observers and listeners after the DOM exists.
    */
   function initAnalyticsTracking(): void {
-    initSectionTracking();
     initOutboundLinkTracking();
     initDeclarativeClickTracking();
   }

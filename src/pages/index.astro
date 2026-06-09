@@ -113,7 +113,7 @@ const seoImageAlt = "LichtFeld Studio project preview";
 
 <Layout title={seoTitle} description={seoDescription} image={seoImage} imageAlt={seoImageAlt}>
   <!-- Big Splat Header (Hero) -->
-  <header class="hero" data-analytics-section="home_hero">
+  <header class="hero">
     <div class="hero__splat">
       <!-- The Splat canvas is the visual anchor in the header -->
       <div class="splat-wrapper">
@@ -125,6 +125,7 @@ const seoImageAlt = "LichtFeld Studio project preview";
           controlScheme="none"
           minViewportVisibilityForRender={HOMEPAGE_MIN_VIEWPORT_VISIBILITY_FOR_RENDER}
           disableDriftOnMobile={true}
+          trackFirstFrameAnalytics={false}
         />
       </div>
     </div>
@@ -239,7 +240,7 @@ const seoImageAlt = "LichtFeld Studio project preview";
     </div>
   </header>
 
-  <section id="workflow" class="story-section hash-section" data-analytics-section="home_workflow">
+  <section id="workflow" class="story-section hash-section">
     <div class="container content-frame px-6 pt-14 pb-8">
       <div class="shell shell--spacious story-surface">
         <div class="story-header-grid">
@@ -381,7 +382,7 @@ const seoImageAlt = "LichtFeld Studio project preview";
   </section>
   -->
 
-  <section class="sponsor-wall-section" aria-labelledby="portal-sponsors-heading" data-analytics-section="home_sponsors">
+  <section class="sponsor-wall-section" aria-labelledby="portal-sponsors-heading">
     <div class="portal-sponsors container content-frame" id="portal-sponsors">
       <h2 id="portal-sponsors-heading" class="portal-sponsors__title">Sponsors</h2>
 

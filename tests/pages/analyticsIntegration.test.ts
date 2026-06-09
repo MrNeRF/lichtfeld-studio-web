@@ -6,9 +6,12 @@ import { describe, expect, it } from "vitest";
 const layoutSource = readFileSync(resolve(process.cwd(), "src/layouts/Layout.astro"), "utf8");
 const siteConfigSource = readFileSync(resolve(process.cwd(), "src/config/site.config.ts"), "utf8");
 const homePageSource = readFileSync(resolve(process.cwd(), "src/pages/index.astro"), "utf8");
+const contributePageSource = readFileSync(resolve(process.cwd(), "src/pages/contribute/index.astro"), "utf8");
 const showcasePageSource = readFileSync(resolve(process.cwd(), "src/pages/showcase.astro"), "utf8");
 const navMenuSource = readFileSync(resolve(process.cwd(), "src/components/NavMenu.astro"), "utf8");
 const pluginCardSource = readFileSync(resolve(process.cwd(), "src/components/plugins/PluginCard.astro"), "utf8");
+const analyticsSource = readFileSync(resolve(process.cwd(), "src/utils/analytics.ts"), "utf8");
+const analyticsTrackerSource = readFileSync(resolve(process.cwd(), "src/components/AnalyticsTracker.astro"), "utf8");
 
 describe("analytics integration", () => {
   it("renders the Rybbit tracking script from central site configuration", () => {
@@ -24,9 +27,6 @@ describe("analytics integration", () => {
   });
 
   it("marks high-value homepage interactions for custom analytics", () => {
-    expect(homePageSource).toContain('data-analytics-section="home_hero"');
-    expect(homePageSource).toContain('data-analytics-section="home_workflow"');
-    expect(homePageSource).toContain('data-analytics-section="home_sponsors"');
     expect(homePageSource).toContain('data-analytics-event={ANALYTICS_EVENTS.ctaClicked}');
     expect(homePageSource).toContain('data-analytics-prop-placement="home_hero"');
     expect(homePageSource).toContain('data-analytics-outbound="sponsor"');
@@ -48,5 +48,14 @@ describe("analytics integration", () => {
     expect(navMenuSource).toContain('data-analytics-outbound="github_repo"');
     expect(pluginCardSource).toContain('data-analytics-outbound="plugin_repository"');
     expect(pluginCardSource).toContain("data-analytics-prop-plugin-id={plugin.id}");
+  });
+
+  it("does not track section-view events", () => {
+    expect(analyticsSource).not.toContain("section_viewed");
+    expect(analyticsSource).not.toContain("sectionViewed");
+    expect(analyticsTrackerSource).not.toContain("IntersectionObserver");
+    expect(analyticsTrackerSource).not.toContain("[data-analytics-section]");
+    expect(homePageSource).not.toContain("data-analytics-section");
+    expect(contributePageSource).not.toContain("data-analytics-section");
   });
 });

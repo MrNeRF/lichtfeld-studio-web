@@ -7,7 +7,6 @@
 
 export const ANALYTICS_EVENTS = {
   ctaClicked: "cta_clicked",
-  sectionViewed: "section_viewed",
   outboundLinkClicked: "outbound_link_clicked",
   contributionPathClicked: "contribution_path_clicked",
   donationAmountSelected: "donation_amount_selected",

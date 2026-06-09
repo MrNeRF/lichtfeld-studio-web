@@ -29,17 +29,17 @@ describe("analytics", () => {
     expect(event).toHaveBeenCalledWith("cta_clicked", { placement: "home_hero", target: "portal" });
   });
 
-  it("queues custom events until Rybbit has loaded", async () => {
+  it("queues custom click events until Rybbit has loaded", async () => {
     vi.useFakeTimers();
     const { ANALYTICS_EVENTS, trackEvent } = await import("@/utils/analytics");
     const event = vi.fn();
 
-    trackEvent(ANALYTICS_EVENTS.sectionViewed, { section: "home_workflow" });
+    trackEvent(ANALYTICS_EVENTS.ctaClicked, { placement: "home_hero", target: "portal" });
     analyticsGlobal().rybbit = { event };
 
     await vi.advanceTimersByTimeAsync(250);
 
-    expect(event).toHaveBeenCalledWith("section_viewed", { section: "home_workflow" });
+    expect(event).toHaveBeenCalledWith("cta_clicked", { placement: "home_hero", target: "portal" });
   });
 
   it("does not let analytics errors block page behavior", async () => {

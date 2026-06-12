@@ -1,0 +1,42 @@
+{
+  "id": "community:unisharp",
+  "namespace": "community",
+  "name": "unisharp",
+  "displayName": "UniSHARP",
+  "summary": "Generate a 3D Gaussian splat from one perspective, panorama, or fisheye image using Insta360 UniSHARP.",
+  "description": "Runs the UniSHARP single-image inference path inside LichtFeld Studio for perspective, panorama, and fisheye inputs, with optional camera calibration, plugin-local checkpoint/source downloads, and direct scene insertion through LFS scene.add_splat when available. Local CUDA inference; the UniSHARP checkpoint, UniK3D, and 3DGEER source dependencies are prepared on first use. Fisheye mode requires building the 3DGEER CUDA rasterizer with a CUDA-compatible compiler toolchain.",
+  "author": "Yehe Liu",
+  "latestVersion": "0.1.0",
+  "lichtfeldVersion": ">=0.5.0",
+  "pluginApi": ">=1,<2",
+  "requiredFeatures": [],
+  "downloads": 0,
+  "keywords": ["unisharp", "image-to-3d", "single-image", "gaussian-splatting", "panorama", "fisheye", "insta360", "hugging-face"],
+  "repository": "https://github.com/lyehe/lichtfeld-unisharp-plugin",
+  "versions": [
+    {
+      "version": "0.1.0",
+      "pluginApi": ">=1,<2",
+      "lichtfeldVersion": ">=0.5.0",
+      "requiredFeatures": [],
+      "dependencies": [
+        "torch==2.8.0",
+        "torchvision==0.23.0",
+        "triton>=3.4.0 ; platform_system != 'Windows'",
+        "triton-windows>=3.4 ; platform_system == 'Windows'",
+        "gsplat==1.5.3",
+        "ninja>=1.11.1",
+        "numpy>=2.0.0",
+        "scipy>=1.11.0",
+        "Pillow>=10.2.0",
+        "plyfile>=1.0.3",
+        "huggingface-hub>=0.22.0",
+        "timm>=1.0.0",
+        "safetensors>=0.4.2",
+        "einops>=0.7.0",
+        "protobuf>=4.25.3"
+      ],
+      "gitRef": "main"
+    }
+  ]
+}

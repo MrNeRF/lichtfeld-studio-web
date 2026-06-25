@@ -2,7 +2,7 @@
   "id": "community:braintrance_share",
   "namespace": "community",
   "name": "braintrance_share",
-  "displayName": "*Braintrance Share",
+  "displayName": "Braintrance Share",
   "summary": "Create a shareable URL of your splat scenes to Braintrance.net.",
   "description": "Export your LichtFeld splat scenes to Braintrance, optionally including your COLMAP camera metadata.",
   "author": "Braintrance",

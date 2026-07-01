@@ -218,6 +218,7 @@ export const EXTERNAL_ORIGINS = {
  */
 export const NAVIGATION = {
   "/": "Home",
+  "/blog/": "Blog",
   "/showcase/": "Gallery",
   "/plugins/": "Plugins",
   "/contribute/": "Contribute",
@@ -267,6 +268,12 @@ export interface SeoProps {
   /** Custom social sharing image alt text */
   imageAlt?: string;
 
+  /** Content keywords for structured data and article tags */
+  keywords?: string[];
+
+  /** Article section/category */
+  section?: string;
+
   /** Canonical URL override */
   canonicalURL?: URL;
 
@@ -275,6 +282,9 @@ export interface SeoProps {
 
   /** Published date for articles */
   publishedDate?: Date;
+
+  /** Modified date for articles */
+  modifiedDate?: Date;
 
   /** Set to true to add noindex directive */
   noindex?: boolean;

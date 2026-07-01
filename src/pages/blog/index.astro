@@ -1,0 +1,320 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "@/layouts/Layout.astro";
+
+const base = import.meta.env.BASE_URL;
+const cleanBase = base.endsWith("/") ? base.slice(0, -1) : base;
+const fallbackImage = `${base}static/social-preview.png`;
+
+function resolvePreviewImage(path?: string): string {
+  if (!path) return fallbackImage;
+  if (/^https?:\/\//i.test(path)) return path;
+  if (path.startsWith(base)) return path;
+
+  return `${base}${path.replace(/^\//, "")}`;
+}
+
+const posts = (await getCollection("blog"))
+  .filter((post) => !post.data.draft)
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+const featuredPost = posts.find((post) => post.data.featured) ?? posts[0];
+const remainingPosts = featuredPost ? posts.filter((post) => post.slug !== featuredPost.slug) : [];
+const hasMorePosts = remainingPosts.length > 0;
+
+const dateFormatter = new Intl.DateTimeFormat("en", {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+});
+
+const seoTitle = "LichtFeld Studio Blog";
+const seoDescription =
+  "Read LichtFeld Studio release notes, project updates, and technical writeups about 3D Gaussian Splatting workflows, plugins, and the application.";
+---
+
+<Layout title={seoTitle} description={seoDescription}>
+  <section class="blog-page">
+    <div class="container content-frame px-4 py-5">
+      <div class="shell blog-hero">
+        <div class="blog-hero__copy">
+          <p class="kicker">LichtFeld Studio</p>
+          <h1 class="blog-hero__title">LichtFeld Studio Blog</h1>
+          <p class="blog-hero__lead">
+            Release notes, project updates, and technical writeups from the LichtFeld Studio project.
+          </p>
+        </div>
+
+        {
+          featuredPost && (
+            <a href={`${cleanBase}/blog/${featuredPost.slug}/`} class="blog-featured">
+              <img
+                src={resolvePreviewImage(featuredPost.data.image)}
+                alt={featuredPost.data.imageAlt ?? `${featuredPost.data.title} preview`}
+                loading="eager"
+              />
+              <div class="blog-featured__body">
+                <span>{featuredPost.data.category}</span>
+                <h2>{featuredPost.data.title}</h2>
+                <p>{featuredPost.data.summary}</p>
+                <time datetime={featuredPost.data.date.toISOString()}>
+                  {dateFormatter.format(featuredPost.data.date)}
+                </time>
+              </div>
+            </a>
+          )
+        }
+      </div>
+
+      {
+        hasMorePosts && (
+          <section class="shell blog-listing mt-4" aria-labelledby="blog-listing-heading">
+            <div class="section-head">
+              <div>
+                <p class="kicker mb-2">Latest</p>
+                <h2 id="blog-listing-heading" class="blog-listing__title">
+                  Latest posts
+                </h2>
+                <p class="section-copy mb-0">Release notes and project updates in one place.</p>
+              </div>
+            </div>
+
+            <div class="blog-grid">
+              {remainingPosts.map((post) => (
+                <a href={`${cleanBase}/blog/${post.slug}/`} class="blog-card">
+                  <img
+                    src={resolvePreviewImage(post.data.image)}
+                    alt={post.data.imageAlt ?? `${post.data.title} preview`}
+                    loading="lazy"
+                  />
+                  <div class="blog-card__body">
+                    <div class="blog-card__meta">
+                      <span>{post.data.category}</span>
+                      <time datetime={post.data.date.toISOString()}>{dateFormatter.format(post.data.date)}</time>
+                    </div>
+                    <h3>{post.data.title}</h3>
+                    <p>{post.data.summary}</p>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </section>
+        )
+      }
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .blog-page {
+    background: var(--page-bg);
+  }
+
+  .blog-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 0.88fr) minmax(320px, 1.12fr);
+    gap: 1.4rem;
+    align-items: stretch;
+  }
+
+  .blog-hero__copy {
+    align-self: center;
+  }
+
+  .blog-hero__title {
+    margin: 0 0 0.9rem;
+    max-width: 11ch;
+    color: var(--color-heading);
+    font-size: 3.9rem;
+    line-height: 0.98;
+    letter-spacing: 0;
+  }
+
+  .blog-hero__lead {
+    margin: 0;
+    max-width: 42rem;
+    color: #344054;
+    font-size: 1.06rem;
+    line-height: 1.76;
+  }
+
+  .blog-featured {
+    display: grid;
+    min-height: 100%;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    background: rgba(255, 255, 255, 0.68);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    color: var(--color-heading);
+    text-decoration: none;
+    box-shadow: 0 14px 24px rgba(15, 23, 42, 0.05);
+    transition:
+      transform 0.16s ease,
+      border-color 0.16s ease,
+      box-shadow 0.16s ease;
+  }
+
+  .blog-featured:hover {
+    transform: translateY(-2px);
+    border-color: rgba(20, 87, 255, 0.2);
+    box-shadow: 0 20px 34px rgba(15, 23, 42, 0.08);
+  }
+
+  .blog-featured img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 2 / 1;
+    object-fit: cover;
+    background: #101828;
+  }
+
+  .blog-featured__body {
+    padding: 1.15rem;
+  }
+
+  .blog-featured__body span,
+  .blog-card__meta {
+    color: var(--color-muted);
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0;
+  }
+
+  .blog-featured__body h2,
+  .blog-card h3,
+  .blog-listing__title {
+    letter-spacing: 0;
+  }
+
+  .blog-featured__body h2 {
+    margin: 0.35rem 0 0.55rem;
+    color: var(--color-heading);
+    font-size: 1.55rem;
+    line-height: 1.12;
+  }
+
+  .blog-featured__body p,
+  .blog-card p {
+    color: var(--color-body);
+    line-height: 1.65;
+  }
+
+  .blog-featured__body p {
+    margin: 0 0 0.8rem;
+  }
+
+  .blog-featured__body time {
+    color: var(--color-muted);
+    font-size: 0.86rem;
+    font-weight: 800;
+  }
+
+  .blog-listing__title {
+    margin: 0 0 0.45rem;
+    color: var(--color-heading);
+    font-size: 2.45rem;
+    line-height: 1.05;
+  }
+
+  .blog-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .blog-card {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    background: rgba(255, 255, 255, 0.62);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    color: var(--color-heading);
+    text-decoration: none;
+    transition:
+      transform 0.16s ease,
+      border-color 0.16s ease,
+      background-color 0.16s ease;
+  }
+
+  .blog-card:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.86);
+    border-color: rgba(20, 87, 255, 0.2);
+  }
+
+  .blog-card img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 2 / 1;
+    object-fit: cover;
+    background: #101828;
+  }
+
+  .blog-card__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 1rem;
+  }
+
+  .blog-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.55rem;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+
+  .blog-card h3 {
+    margin: 0 0 0.55rem;
+    color: var(--color-heading);
+    font-size: 1.18rem;
+    line-height: 1.2;
+  }
+
+  .blog-card p {
+    margin: 0;
+    font-size: 0.92rem;
+  }
+
+  @media (max-width: 991.98px) {
+    .blog-hero {
+      grid-template-columns: 1fr;
+    }
+
+    .blog-hero__title {
+      max-width: 13ch;
+      font-size: 3.05rem;
+    }
+
+    .blog-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .blog-hero__title {
+      max-width: none;
+      font-size: 2.35rem;
+      line-height: 1.05;
+    }
+
+    .blog-hero__lead {
+      font-size: 0.98rem;
+      line-height: 1.68;
+    }
+
+    .blog-featured__body h2,
+    .blog-listing__title {
+      font-size: 1.65rem;
+    }
+
+    .blog-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

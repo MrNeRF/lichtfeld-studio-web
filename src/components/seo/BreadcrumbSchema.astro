@@ -78,15 +78,16 @@ function generateBreadcrumbs(pathname: string): BreadcrumbItem[] {
   let currentPath = "";
 
   for (const segment of segments) {
-    currentPath += `/${segment}/`;
+    currentPath = `${currentPath}/${segment}`.replace(/\/{2,}/g, "/");
+    const breadcrumbPath = `${currentPath}/`;
 
     // Look up the path in NAVIGATION for a human-readable name
-    const navKey = currentPath as keyof typeof NAVIGATION;
+    const navKey = breadcrumbPath as keyof typeof NAVIGATION;
     const name = NAVIGATION[navKey] || formatSegmentName(segment);
 
     breadcrumbs.push({
       name,
-      url: currentPath,
+      url: breadcrumbPath,
     });
   }
 

@@ -31,7 +31,7 @@ import Preconnect from "@/components/seo/Preconnect.astro";
 // Site configuration for defaults
 import { ANALYTICS } from "@/config/site.config";
 import { SITE } from "@/config/site.config";
-import type { SeoProps } from "@/config/site.config";
+import type { BreadcrumbItem, SeoProps } from "@/config/site.config";
 
 // Let Vite/Astro handle asset rebasing (icons' font URLs)
 import "bootstrap-icons/font/bootstrap-icons.css";
@@ -45,6 +45,8 @@ interface Props extends Partial<SeoProps> {
   title?: string;
   /** Meta description - defaults to site description */
   description?: string;
+  /** Optional breadcrumb override from root to current page */
+  breadcrumbs?: BreadcrumbItem[];
   /** Whether to hide the shared footer for full-height layouts */
   hideFooter?: boolean;
 }
@@ -54,9 +56,15 @@ const {
   description = SITE.description,
   image,
   imageAlt,
+  keywords,
+  section,
+  canonicalURL,
   ogType = "website",
+  publishedDate,
+  modifiedDate,
   noindex = false,
   nofollow = false,
+  breadcrumbs,
   hideFooter = false,
 } = Astro.props;
 ---
@@ -90,7 +98,12 @@ const {
       description={description}
       image={image}
       imageAlt={imageAlt}
+      keywords={keywords}
+      section={section}
+      canonicalURL={canonicalURL}
       ogType={ogType}
+      publishedDate={publishedDate}
+      modifiedDate={modifiedDate}
       noindex={noindex}
       nofollow={nofollow}
     />
@@ -99,7 +112,7 @@ const {
     <HeadIcons />
 
     <!-- Structured Data: Breadcrumb navigation for search results -->
-    <BreadcrumbSchema />
+    <BreadcrumbSchema items={breadcrumbs} />
 
     <!-- Rybbit analytics: deferred external script configured from site.config.ts. -->
     <script

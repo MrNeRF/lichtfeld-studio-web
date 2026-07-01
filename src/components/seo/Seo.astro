@@ -62,9 +62,12 @@ const {
   description,
   image,
   imageAlt,
+  keywords = [],
+  section,
   canonicalURL = new URL(Astro.url.pathname, Astro.site),
   ogType = "website",
   publishedDate,
+  modifiedDate,
   noindex = false,
   nofollow = false,
 } = props;
@@ -95,6 +98,11 @@ const robotsContent = [
   noindex ? "noindex" : "index",
   nofollow ? "nofollow" : "follow",
 ].join(", ");
+
+const normalizedKeywords = keywords
+  .map((keyword) => keyword.trim())
+  .filter(Boolean);
+const articleModifiedDate = modifiedDate ?? publishedDate;
 
 // ============================================================================
 // JSON-LD Structured Data
@@ -202,7 +210,11 @@ const webPageSchema = {
   ...(ogType === "article" && publishedDate
     ? {
         datePublished: publishedDate.toISOString(),
-        dateModified: publishedDate.toISOString(),
+        dateModified: articleModifiedDate?.toISOString(),
+        ...(normalizedKeywords.length > 0
+          ? { keywords: normalizedKeywords.join(", ") }
+          : {}),
+        ...(section ? { articleSection: section } : {}),
         author: {
           "@id": `${SITE.url}/#organization`,
         },
@@ -238,6 +250,28 @@ const webPageSchema = {
 <meta property="og:image:alt" content={socialImageAlt} />
 <meta property="og:site_name" content={SITE.name} />
 <meta property="og:locale" content={SITE.locale} />
+{
+  ogType === "article" && publishedDate && (
+    <>
+      <meta
+        property="article:published_time"
+        content={publishedDate.toISOString()}
+      />
+      {
+        articleModifiedDate && (
+          <meta
+            property="article:modified_time"
+            content={articleModifiedDate.toISOString()}
+          />
+        )
+      }
+      {section && <meta property="article:section" content={section} />}
+      {normalizedKeywords.map((keyword) => (
+        <meta property="article:tag" content={keyword} />
+      ))}
+    </>
+  )
+}
 
 <!-- ========================================================================
      Twitter Card Meta Tags

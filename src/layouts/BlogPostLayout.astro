@@ -1,0 +1,369 @@
+---
+import type { CollectionEntry } from "astro:content";
+import Layout from "@/layouts/Layout.astro";
+
+interface Props {
+  post: CollectionEntry<"blog">;
+  posts: CollectionEntry<"blog">[];
+}
+
+const { post, posts } = Astro.props;
+const base = import.meta.env.BASE_URL;
+const cleanBase = base.endsWith("/") ? base.slice(0, -1) : base;
+const fallbackImage = `${base}static/social-preview.png`;
+
+function resolvePreviewImage(path?: string): string {
+  if (!path) return fallbackImage;
+  if (/^https?:\/\//i.test(path)) return path;
+  if (path.startsWith(base)) return path;
+
+  return `${base}${path.replace(/^\//, "")}`;
+}
+
+function formatTag(tag: string): string {
+  const acronymTags: Record<string, string> = {
+    lod: "LOD",
+    rad: "RAD",
+  };
+
+  if (acronymTags[tag]) return acronymTags[tag];
+
+  return tag
+    .split("-")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+const postImage = resolvePreviewImage(post.data.image);
+const imageAlt = post.data.imageAlt ?? `${post.data.title} preview`;
+const description = post.data.description ?? post.data.summary;
+
+const dateFormatter = new Intl.DateTimeFormat("en", {
+  month: "long",
+  day: "numeric",
+  year: "numeric",
+});
+
+const relatedPosts = posts.filter((entry) => entry.slug !== post.slug).slice(0, 4);
+const breadcrumbs = [
+  { name: "Home", url: base },
+  { name: "Blog", url: `${cleanBase}/blog/` },
+  { name: post.data.title, url: `${cleanBase}/blog/${post.slug}/` },
+];
+---
+
+<Layout
+  title={post.data.title}
+  description={description}
+  image={postImage}
+  imageAlt={imageAlt}
+  keywords={post.data.tags}
+  section={post.data.category}
+  ogType="article"
+  publishedDate={post.data.date}
+  modifiedDate={post.data.updatedDate ?? post.data.date}
+  breadcrumbs={breadcrumbs}
+>
+  <section class="blog-post-page">
+    <div class="container content-frame px-4 py-5">
+      <div class="row g-4">
+        <div class="col-12 col-lg-4 order-1 order-lg-2">
+          <aside class="shell shell--compact blog-sidebar">
+            <p class="kicker">LichtFeld Studio</p>
+            <a href={`${cleanBase}/blog/`} class="blog-sidebar__index-link">All posts</a>
+            {
+              relatedPosts.length > 0 && (
+                <nav class="blog-sidebar__nav" aria-label="More blog posts">
+                  {relatedPosts.map((entry) => (
+                    <a href={`${cleanBase}/blog/${entry.slug}/`} class="blog-sidebar__link">
+                      <span>{entry.data.category}</span>
+                      <strong>{entry.data.title}</strong>
+                    </a>
+                  ))}
+                </nav>
+              )
+            }
+          </aside>
+        </div>
+
+        <div class="col-12 col-lg-8 order-2 order-lg-1">
+          <article class="shell blog-post">
+            <p class="kicker">{post.data.category}</p>
+            <h1 class="blog-post__title">{post.data.title}</h1>
+            <p class="blog-post__summary">{post.data.summary}</p>
+
+            <div class="blog-post__meta">
+              <span>{dateFormatter.format(post.data.date)}</span>
+              <span>{post.data.author}</span>
+              {post.data.updatedDate && <span>Updated {dateFormatter.format(post.data.updatedDate)}</span>}
+            </div>
+
+            {
+              post.data.tags.length > 0 && (
+                <ul class="blog-post__tags" aria-label="Post tags">
+                  {post.data.tags.map((tag) => (
+                    <li>{formatTag(tag)}</li>
+                  ))}
+                </ul>
+              )
+            }
+
+            <figure class="blog-post__figure">
+              <img src={postImage} alt={imageAlt} loading="eager" />
+            </figure>
+
+            <div class="blog-post__content">
+              <slot />
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .blog-post-page {
+    background: var(--page-bg);
+  }
+
+  .blog-sidebar {
+    position: sticky;
+    top: calc(var(--nav-height) + 1.25rem);
+  }
+
+  .blog-sidebar__index-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.5rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: 0.5rem;
+    background: rgba(20, 87, 255, 0.08);
+    color: var(--color-primary-link);
+    font-weight: 800;
+    text-decoration: none;
+    box-shadow: inset 0 0 0 1px rgba(20, 87, 255, 0.14);
+  }
+
+  .blog-sidebar__nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    margin-top: 1rem;
+  }
+
+  .blog-sidebar__link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.8rem;
+    border-radius: 0.5rem;
+    color: var(--color-heading);
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.56);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    transition:
+      border-color 0.16s ease,
+      background-color 0.16s ease,
+      transform 0.16s ease;
+  }
+
+  .blog-sidebar__link:hover {
+    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.86);
+    border-color: rgba(20, 87, 255, 0.2);
+  }
+
+  .blog-sidebar__link span {
+    color: var(--color-muted);
+    font-size: 0.76rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0;
+  }
+
+  .blog-sidebar__link strong {
+    color: var(--color-heading);
+    font-size: 0.92rem;
+    line-height: 1.35;
+  }
+
+  .blog-post {
+    padding-bottom: 2.75rem;
+  }
+
+  .blog-post__title {
+    margin: 0 0 0.8rem;
+    max-width: 13ch;
+    color: var(--color-heading);
+    font-size: 3.65rem;
+    line-height: 0.98;
+    letter-spacing: 0;
+  }
+
+  .blog-post__summary {
+    margin: 0;
+    max-width: 42rem;
+    color: #344054;
+    font-size: 1.08rem;
+    line-height: 1.76;
+  }
+
+  .blog-post__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1.15rem;
+  }
+
+  .blog-post__meta span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2rem;
+    padding: 0.4rem 0.7rem;
+    border-radius: 0.5rem;
+    background: rgba(255, 255, 255, 0.68);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    color: var(--color-muted);
+    font-size: 0.82rem;
+    font-weight: 800;
+  }
+
+  .blog-post__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    padding: 0;
+    margin: 0.85rem 0 0;
+    list-style: none;
+  }
+
+  .blog-post__tags li {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.85rem;
+    padding: 0.34rem 0.62rem;
+    border-radius: 0.5rem;
+    background: rgba(20, 87, 255, 0.07);
+    border: 1px solid rgba(20, 87, 255, 0.14);
+    color: var(--color-primary-link);
+    font-size: 0.78rem;
+    font-weight: 800;
+  }
+
+  .blog-post__figure {
+    margin: 1.6rem 0 0;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    background: #101828;
+  }
+
+  .blog-post__figure img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 2 / 1;
+    object-fit: cover;
+  }
+
+  .blog-post__content {
+    margin-top: 2rem;
+  }
+
+  .blog-post__content :global(h2),
+  .blog-post__content :global(h3),
+  .blog-post__content :global(h4) {
+    color: var(--color-heading);
+    font-family: var(--font-display);
+    letter-spacing: 0;
+    scroll-margin-top: calc(var(--nav-height) + 1.5rem);
+  }
+
+  .blog-post__content :global(h2) {
+    margin-top: 2.4rem;
+    margin-bottom: 0.75rem;
+    font-size: 2rem;
+    line-height: 1.08;
+  }
+
+  .blog-post__content :global(h3) {
+    margin-top: 1.8rem;
+    margin-bottom: 0.6rem;
+    font-size: 1.3rem;
+    line-height: 1.2;
+  }
+
+  .blog-post__content :global(p),
+  .blog-post__content :global(li) {
+    max-width: 50rem;
+    color: var(--color-body);
+    font-size: 1rem;
+    line-height: 1.78;
+  }
+
+  .blog-post__content :global(p) {
+    margin: 0 0 1rem;
+  }
+
+  .blog-post__content :global(ul),
+  .blog-post__content :global(ol) {
+    padding-left: 1.25rem;
+    margin: 0 0 1.2rem;
+  }
+
+  .blog-post__content :global(a) {
+    color: var(--color-primary-link);
+    font-weight: 800;
+    text-decoration: none;
+  }
+
+  .blog-post__content :global(a:hover) {
+    color: var(--color-primary-link-hover);
+  }
+
+  .blog-post__content :global(code) {
+    font-family: var(--font-mono);
+  }
+
+  .blog-post__content :global(pre) {
+    overflow-x: auto;
+    padding: 1.1rem;
+    border-radius: 0.5rem;
+    background: #1e293b;
+    color: #f8fafc;
+  }
+
+  @media (max-width: 991.98px) {
+    .blog-sidebar {
+      position: static;
+      top: auto;
+    }
+
+    .blog-post__title {
+      max-width: 15ch;
+      font-size: 3rem;
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .blog-post {
+      padding-bottom: 1.75rem;
+    }
+
+    .blog-post__title {
+      max-width: none;
+      font-size: 2.28rem;
+      line-height: 1.05;
+    }
+
+    .blog-post__summary {
+      font-size: 0.98rem;
+      line-height: 1.68;
+    }
+
+    .blog-post__content :global(h2) {
+      font-size: 1.65rem;
+    }
+  }
+</style>

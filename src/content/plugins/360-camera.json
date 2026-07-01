@@ -4,7 +4,7 @@
     "name": "lichtfeld-360",
     "displayName": "360° Camera Plugin",
     "summary": "Convert equirectangular 360° video into masked COLMAP datasets for 3DGS training.",
-    "description": "Automated pipeline for extracting and masking frames from equirectangular video, reframing them into pinhole perspectives using presets, and importing into Lichtfeld Studio for training.",
+    "description": "Automated pipeline for extracting and masking frames from equirectangular video, reframing them into pinhole perspectives using presets, and importing into LichtFeld Studio for training.",
     "author": "Alex Gee",
     "latestVersion": "0.1.0",
     "lichtfeldVersion": ">=0.5.0",

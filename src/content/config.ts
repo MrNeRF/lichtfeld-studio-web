@@ -55,8 +55,27 @@ const docsCollection = defineCollection({
   }),
 });
 
+const blogCollection = defineCollection({
+  type: "content",
+  schema: z.object({
+    title: z.string(),
+    description: z.string().optional(),
+    summary: z.string(),
+    date: z.date(),
+    updatedDate: z.date().optional(),
+    author: z.string().default("LichtFeld Studio"),
+    category: z.string().default("Updates"),
+    tags: z.array(z.string()).default([]),
+    image: z.string().optional(),
+    imageAlt: z.string().optional(),
+    featured: z.boolean().default(false),
+    draft: z.boolean().default(false),
+  }),
+});
+
 export const collections = {
   bounty: bountyCollection,
   plugins: pluginCollection,
   docs: docsCollection,
+  blog: blogCollection,
 };

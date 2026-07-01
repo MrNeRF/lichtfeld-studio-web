@@ -19,6 +19,7 @@ const currentPath = Astro.url.pathname;
 
 /** Route constants with base-aware URLs. */
 const ROUTES = {
+  blog: withBase(base, "/blog"),
   plugins: withBase(base, "/plugins"),
   docs: withBase(base, "/docs"),
   showcase: withBase(base, "/showcase"),
@@ -30,6 +31,7 @@ const normalize = (p: string) => (p.endsWith("/") ? p.slice(0, -1) : p);
 
 /** Active checks for top-level items. */
 const isHomeActive = normalize(currentPath) === normalize(base);
+const isBlogActive = currentPath.startsWith(ROUTES.blog);
 const isBountiesActive = currentPath.startsWith(`${normalize(base)}/bounty/`);
 const isShowcaseActive = normalize(currentPath) === normalize(ROUTES.showcase);
 const isPluginsActive = currentPath.startsWith(ROUTES.plugins);
@@ -43,6 +45,11 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
   <!-- Home -->
   <li class="nav-menu__item">
     <a href={base} class:list={["nav-menu__link", { "is-active": isHomeActive }]}>Home</a>
+  </li>
+
+  <!-- Blog -->
+  <li class="nav-menu__item">
+    <a href={ROUTES.blog} class:list={["nav-menu__link", { "is-active": isBlogActive }]}>Blog</a>
   </li>
 
   <!-- Gallery -->

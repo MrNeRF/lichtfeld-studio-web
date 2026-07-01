@@ -1,0 +1,33 @@
+{
+  "id": "community:sam-segmentation",
+  "namespace": "community",
+  "name": "sam-segmentation",
+  "displayName": "SAM Segmentation",
+  "summary": "Text-prompted object segmentation for sequential COLMAP datasets, generating per-frame binary masks for mask-aware Gaussian Splatting training.",
+  "description": "Type a text prompt (\"person\", \"red car\", \"action figure\") and the plugin writes one binary mask PNG per frame into your dataset's masks/ folder. LichtFeld picks them up automatically — set Mask Mode to segment and only the prompted object survives training. Uses Grounding DINO (text → bounding box on frame 0) and SAM 2 (box → mask propagated across all frames). Models are cached in GPU memory after first load so repeat runs skip the 15–30s load step.",
+  "author": "iCarlosVega",
+  "latestVersion": "0.1.0",
+  "lichtfeldVersion": ">=0.5.2",
+  "pluginApi": ">=1,<2",
+  "requiredFeatures": [],
+  "downloads": 0,
+  "keywords": ["segmentation", "sam2", "grounding-dino", "masks", "gaussian-splatting", "text-prompt"],
+  "repository": "https://github.com/iCarlosVega/sam-segmentation",
+  "versions": [
+    {
+      "version": "0.1.0",
+      "pluginApi": ">=1,<2",
+      "lichtfeldVersion": ">=0.5.2",
+      "requiredFeatures": [],
+      "dependencies": [
+        "sam2",
+        "transformers>=4.45",
+        "accelerate",
+        "torch>=2.5,<2.8",
+        "Pillow>=10.0",
+        "numpy>=1.24,<2.0"
+      ],
+      "gitRef": "master"
+    }
+  ]
+}

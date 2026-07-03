@@ -83,7 +83,7 @@ const breadcrumbs = [
           <img src={postImage} alt={imageAlt} loading="eager" />
         </figure>
 
-        <div class="blog-post__content">
+        <div class="blog-post__content prose">
           <slot />
         </div>
 
@@ -148,7 +148,7 @@ const breadcrumbs = [
     font-size: 0.88rem;
     font-weight: 700;
     text-decoration: none;
-    transition: color 0.18s ease;
+    transition: color var(--transition-fast);
   }
 
   .blog-post__back:hover {
@@ -165,7 +165,7 @@ const breadcrumbs = [
   .blog-post__summary {
     margin: 0;
     max-width: 42rem;
-    color: #344054;
+    color: var(--color-body-strong);
     font-size: 1.08rem;
     line-height: 1.76;
   }
@@ -205,139 +205,10 @@ const breadcrumbs = [
     margin-top: 2.1rem;
   }
 
-  .blog-post__content :global(h2),
-  .blog-post__content :global(h3),
-  .blog-post__content :global(h4) {
-    scroll-margin-top: calc(var(--nav-height) + 1.5rem);
-  }
-
-  .blog-post__content :global(h2) {
-    margin-top: 2.4rem;
-    margin-bottom: 0.75rem;
-    font-size: 1.85rem;
-    line-height: 1.1;
-  }
-
-  .blog-post__content :global(h3) {
-    margin-top: 1.8rem;
-    margin-bottom: 0.6rem;
-    font-size: 1.3rem;
-    line-height: 1.2;
-  }
-
-  .blog-post__content :global(p),
-  .blog-post__content :global(li) {
-    color: var(--color-body);
-    font-size: 1rem;
-    line-height: 1.78;
-  }
-
-  .blog-post__content :global(p) {
-    margin: 0 0 1rem;
-  }
-
-  .blog-post__content :global(ul),
-  .blog-post__content :global(ol) {
-    padding-left: 1.25rem;
-    margin: 0 0 1.2rem;
-  }
-
-  .blog-post__content :global(a) {
-    color: var(--color-primary-link);
-    font-weight: 700;
-    text-decoration: none;
-  }
-
-  .blog-post__content :global(a:hover) {
-    color: var(--color-primary-link-hover);
-    text-decoration: underline;
-  }
-
-  .blog-post__content :global(strong) {
-    color: var(--color-heading);
-  }
-
-  .blog-post__content :global(code) {
-    font-family: var(--font-mono);
-    font-size: 0.92em;
-  }
-
-  .blog-post__content :global(:not(pre) > code) {
-    padding: 0.14em 0.38em;
-    border-radius: 0.35rem;
-    background: rgba(15, 23, 42, 0.06);
-    color: var(--color-heading);
-  }
-
-  .blog-post__content :global(blockquote) {
-    margin: 1.4rem 0;
-    padding: 0.25rem 0 0.25rem 1.1rem;
-    border-left: 3px solid rgba(20, 87, 255, 0.35);
-    color: var(--color-muted);
-  }
-
-  .blog-post__content :global(blockquote p:last-child) {
-    margin-bottom: 0;
-  }
-
-  .blog-post__content :global(.article-figure) {
-    margin: 1.6rem 0 2rem;
-  }
-
-  .blog-post__content :global(.article-figure img) {
-    display: block;
-    width: 100%;
-    height: auto;
-    border-radius: 0.8rem;
-    border: 1px solid var(--card-border);
-    background: #f8fafc;
-  }
-
-  .blog-post__content :global(.article-figure figcaption) {
-    margin-top: 0.6rem;
-    color: var(--color-muted);
-    font-size: 0.9rem;
-    line-height: 1.6;
-  }
-
-  .blog-post__content :global(table) {
-    display: block;
-    width: 100%;
-    overflow-x: auto;
-    border-collapse: collapse;
-    margin: 1.25rem 0 1.45rem;
-    font-size: 0.92rem;
-    line-height: 1.5;
-  }
-
-  .blog-post__content :global(th),
-  .blog-post__content :global(td) {
-    min-width: 11rem;
-    padding: 0.72rem 0.78rem;
-    border: 1px solid rgba(15, 23, 42, 0.1);
-    color: var(--color-body);
-    vertical-align: top;
-  }
-
-  .blog-post__content :global(th) {
-    background: rgba(20, 87, 255, 0.07);
-    color: var(--color-heading);
-    font-weight: 700;
-  }
-
-  .blog-post__content :global(pre) {
-    overflow-x: auto;
-    margin: 0 0 1.2rem;
-    padding: 1.1rem;
-    border-radius: 0.8rem;
-    background: #1e293b;
-    color: #f8fafc;
-  }
-
   .blog-post__footer {
     margin-top: 2.2rem;
     padding-top: 1.3rem;
-    border-top: 1px solid rgba(15, 23, 42, 0.08);
+    border-top: 1px solid var(--color-border-subtle);
   }
 
   .blog-post__tags {
@@ -353,9 +224,9 @@ const breadcrumbs = [
     display: inline-flex;
     align-items: center;
     padding: 0.3rem 0.68rem;
-    border-radius: 999px;
-    background: rgba(20, 87, 255, 0.07);
-    border: 1px solid rgba(20, 87, 255, 0.14);
+    border-radius: var(--radius-pill);
+    background: rgba(var(--color-primary-rgb), 0.07);
+    border: 1px solid rgba(var(--color-primary-rgb), 0.14);
     color: var(--color-primary-link);
     font-size: 0.78rem;
     font-weight: 700;

@@ -105,8 +105,8 @@ const seoDescription =
         <div class="shell contribute-shell--hero">
           <div class="contribute-hero__copy">
             <p class="kicker">Contribute</p>
-            <h1 class="contribute-title">Build features, fix problems, and support the project</h1>
-            <p class="contribute-lead mb-0">
+            <h1 class="page-hero__title contribute-title">Build features, fix problems, and support the project</h1>
+            <p class="page-hero__lead contribute-lead mb-0">
               Write code, improve docs, report bugs, share training data, submit gallery-ready splats, or fund the
               work.
             </p>
@@ -218,7 +218,7 @@ const seoDescription =
 
   .contribute-shell--hero {
     display: grid;
-    grid-template-columns: minmax(0, 0.95fr) minmax(420px, 1fr);
+    grid-template-columns: minmax(0, 0.95fr) minmax(320px, 1fr);
     gap: clamp(2rem, 5vw, 4.25rem);
     align-items: end;
     min-width: 0;
@@ -233,18 +233,12 @@ const seoDescription =
 
   .contribute-title {
     margin: 0 0 0.9rem;
-    color: var(--color-heading);
-    font-size: clamp(2.7rem, 5vw, 4.2rem);
-    line-height: 0.98;
     max-width: 15ch;
     overflow-wrap: break-word;
     text-wrap: balance;
   }
 
   .contribute-lead {
-    color: #344054;
-    font-size: 1.06rem;
-    line-height: 1.76;
     min-width: 0;
     max-width: 42rem;
     overflow-wrap: break-word;
@@ -263,21 +257,21 @@ const seoDescription =
     padding: 1rem 1.1rem;
     border-radius: 1rem;
     background: rgba(255, 255, 255, 0.62);
-    border: 1px solid rgba(15, 23, 42, 0.08);
+    border: 1px solid var(--color-border-subtle);
     box-shadow: 0 10px 18px rgba(15, 23, 42, 0.03);
     color: inherit;
     text-decoration: none;
     transition:
-      transform 0.18s ease,
-      border-color 0.18s ease,
-      background-color 0.18s ease,
-      box-shadow 0.18s ease;
+      transform var(--transition-fast),
+      border-color var(--transition-fast),
+      background-color var(--transition-fast),
+      box-shadow var(--transition-fast);
   }
 
   a.contribute-hero__lane:hover {
     transform: translateY(-2px);
-    border-color: rgba(20, 87, 255, 0.18);
-    background: rgba(255, 255, 255, 0.92);
+    border-color: rgba(var(--color-primary-rgb), 0.18);
+    background: var(--glass-bg-strong);
     box-shadow: 0 16px 26px rgba(15, 23, 42, 0.06);
   }
 
@@ -329,28 +323,29 @@ const seoDescription =
     align-items: center;
     justify-content: center;
     flex: 0 0 auto;
-    width: 2rem;
-    height: 2rem;
+    width: 2.75rem;
+    height: 2.75rem;
     margin-top: 0.15rem;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     border: 1px solid rgba(148, 163, 184, 0.18);
-    background: rgba(255, 255, 255, 0.72);
-    color: #64748b;
+    background: var(--glass-bg);
+    color: var(--color-muted);
+    font-size: 1.2rem;
     text-decoration: none;
     box-shadow: 0 10px 18px rgba(15, 23, 42, 0.04);
     transition:
-      transform 0.18s ease,
-      color 0.18s ease,
-      background-color 0.18s ease,
-      border-color 0.18s ease,
-      box-shadow 0.18s ease;
+      transform var(--transition-fast),
+      color var(--transition-fast),
+      background-color var(--transition-fast),
+      border-color var(--transition-fast),
+      box-shadow var(--transition-fast);
   }
 
   .section-anchor:hover {
     transform: translateY(-1px);
     color: var(--color-primary-link);
     background: rgba(255, 255, 255, 0.96);
-    border-color: rgba(37, 99, 235, 0.24);
+    border-color: var(--color-border-hover);
     box-shadow: 0 14px 24px rgba(15, 23, 42, 0.07);
   }
 
@@ -392,7 +387,7 @@ const seoDescription =
     display: grid;
     gap: 0.65rem;
     padding: 1.45rem;
-    border-radius: 1.35rem;
+    border-radius: var(--card-radius);
     background:
       radial-gradient(circle at top right, rgba(201, 114, 52, 0.12), transparent 30%),
       linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 251, 245, 0.92));
@@ -402,7 +397,7 @@ const seoDescription =
 
   .foundational-sponsoring-card__label {
     margin: 0;
-    color: #b45309;
+    color: var(--color-accent-warm);
     font-size: 0.82rem;
     font-weight: 800;
     letter-spacing: 0.12em;
@@ -438,7 +433,7 @@ const seoDescription =
     gap: 0.85rem;
     min-height: 100%;
     padding: 1.45rem;
-    border-radius: 1.35rem;
+    border-radius: var(--card-radius);
     background:
       radial-gradient(circle at top right, rgba(var(--tier-rgb), 0.14), transparent 40%),
       linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(252, 252, 253, 0.88));
@@ -446,16 +441,16 @@ const seoDescription =
     box-shadow: 0 16px 28px rgba(15, 23, 42, 0.05);
     overflow: hidden;
     transition:
-      transform 0.18s ease,
-      border-color 0.18s ease,
-      box-shadow 0.18s ease;
+      transform var(--transition-fast),
+      border-color var(--transition-fast),
+      box-shadow var(--transition-fast);
   }
 
   .sponsoring-tier-card::before {
     content: "";
     position: absolute;
     inset: 1px;
-    border-radius: calc(1.35rem - 1px);
+    border-radius: calc(var(--card-radius) - 1px);
     border: 1px solid rgba(255, 255, 255, 0.52);
     pointer-events: none;
   }
@@ -467,7 +462,7 @@ const seoDescription =
     right: -2.5rem;
     width: 10rem;
     height: 10rem;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: radial-gradient(circle, rgba(var(--tier-rgb), 0.22), transparent 72%);
     filter: blur(12px);
     pointer-events: none;
@@ -498,7 +493,7 @@ const seoDescription =
     width: fit-content;
     margin: 0;
     padding: 0.42rem 0.78rem;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: var(--tier-chip-bg);
     color: var(--tier-chip-color);
     font-size: 0.78rem;
@@ -520,7 +515,7 @@ const seoDescription =
   .sponsoring-tier-card__amount-note {
     display: block;
     margin-top: 0.28rem;
-    color: rgba(71, 85, 105, 0.82);
+    color: var(--color-muted);
     font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.12em;
@@ -529,7 +524,7 @@ const seoDescription =
 
   .sponsoring-tier-card__desc {
     margin: 0;
-    color: #526073;
+    color: var(--color-body);
     line-height: 1.7;
   }
 
@@ -540,7 +535,7 @@ const seoDescription =
     padding: 0.95rem 0 0;
     border-top: 1px solid rgba(var(--tier-rgb), 0.14);
     list-style: none;
-    color: #334155;
+    color: var(--color-body-strong);
     font-size: 0.92rem;
     line-height: 1.55;
   }
@@ -557,7 +552,7 @@ const seoDescription =
     width: 0.38rem;
     height: 0.38rem;
     margin-top: 0.56em;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: rgb(var(--tier-rgb));
     box-shadow: 0 0 0 0.18rem rgba(var(--tier-rgb), 0.1);
   }
@@ -620,13 +615,6 @@ const seoDescription =
 
     .contribute-title {
       max-width: 11ch;
-      font-size: clamp(2.35rem, 11vw, 3rem);
-      line-height: 1;
-    }
-
-    .contribute-lead {
-      font-size: 0.98rem;
-      line-height: 1.65;
     }
 
     .contribute-hero__lanes,
@@ -655,14 +643,8 @@ const seoDescription =
   }
 
   @media (max-width: 575.98px) {
-    .contribute-shell--hero {
-      width: min(100%, 21rem);
-      margin-inline: 0 auto;
-    }
-
     .contribute-title {
       max-width: 10.5ch;
-      font-size: clamp(2.1rem, 10.5vw, 2.75rem);
     }
   }
 </style>

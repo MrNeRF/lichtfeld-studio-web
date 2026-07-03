@@ -45,20 +45,20 @@ const dateFormatter = new Intl.DateTimeFormat("en", {
     min-width: 0;
     flex-direction: column;
     overflow: hidden;
-    border-radius: 1.2rem;
+    border-radius: var(--card-radius);
     background: var(--card-bg);
     border: 1px solid var(--card-border);
     box-shadow: var(--card-shadow);
     color: var(--color-heading);
     text-decoration: none;
     transition:
-      transform 0.18s ease,
-      border-color 0.18s ease,
-      box-shadow 0.18s ease;
+      transform var(--transition-fast),
+      border-color var(--transition-fast),
+      box-shadow var(--transition-fast);
   }
 
   .blog-card:hover {
-    transform: translateY(-3px);
+    transform: translateY(var(--card-hover-lift));
     border-color: var(--color-border-hover);
     box-shadow: var(--card-shadow-hover);
   }

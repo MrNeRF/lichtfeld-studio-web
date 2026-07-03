@@ -36,8 +36,8 @@ const seoDescription =
       <div class="shell blog-hero">
         <div class="blog-hero__copy">
           <p class="kicker">LichtFeld Studio</p>
-          <h1 class="blog-hero__title">Blog</h1>
-          <p class="blog-hero__lead">
+          <h1 class="page-hero__title blog-hero__title">Blog</h1>
+          <p class="page-hero__lead blog-hero__lead">
             Release notes, engineering deep dives, and project updates from the LichtFeld Studio project.
           </p>
         </div>
@@ -52,7 +52,7 @@ const seoDescription =
               />
               <div class="blog-featured__body">
                 <p class="blog-featured__meta">
-                  <span class="blog-featured__flag">Latest</span>
+                  <span class="pill pill--primary blog-featured__flag">Latest</span>
                   <span>{latestPost.data.category}</span>
                   <time datetime={latestPost.data.date.toISOString()}>{dateFormatter.format(latestPost.data.date)}</time>
                 </p>
@@ -106,33 +106,26 @@ const seoDescription =
 
   .blog-hero__title {
     margin: 0 0 0.9rem;
-    color: var(--color-heading);
-    font-size: clamp(2.6rem, 5vw, 4.2rem);
-    line-height: 0.96;
   }
 
   .blog-hero__lead {
-    margin: 0;
     max-width: 26rem;
-    color: #344054;
-    font-size: 1.06rem;
-    line-height: 1.76;
   }
 
   .blog-featured {
     display: grid;
     min-height: 100%;
     overflow: hidden;
-    border-radius: 1.2rem;
+    border-radius: var(--card-radius);
     background: var(--card-bg);
     border: 1px solid var(--card-border);
     color: var(--color-heading);
     text-decoration: none;
     box-shadow: var(--card-shadow);
     transition:
-      transform 0.18s ease,
-      border-color 0.18s ease,
-      box-shadow 0.18s ease;
+      transform var(--transition-fast),
+      border-color var(--transition-fast),
+      box-shadow var(--transition-fast);
   }
 
   .blog-featured:hover {
@@ -174,13 +167,7 @@ const seoDescription =
   }
 
   .blog-featured__flag {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.22rem 0.55rem;
-    border-radius: 999px;
-    background: rgba(20, 87, 255, 0.09);
-    color: var(--color-primary-link);
-    box-shadow: inset 0 0 0 1px rgba(20, 87, 255, 0.16);
+    box-shadow: inset 0 0 0 1px rgba(var(--color-primary-rgb), 0.16);
   }
 
   .blog-featured__meta time {
@@ -210,10 +197,6 @@ const seoDescription =
   @media (max-width: 991.98px) {
     .blog-hero {
       grid-template-columns: 1fr;
-    }
-
-    .blog-hero__title {
-      font-size: clamp(2.35rem, 7vw, 3.05rem);
     }
 
     .blog-hero__lead {

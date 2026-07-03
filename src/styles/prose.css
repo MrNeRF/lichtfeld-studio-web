@@ -1,0 +1,264 @@
+/**
+ * Shared article typography (".prose").
+ *
+ * One canonical treatment for rendered Markdown/long-form content, used by
+ * BlogPostLayout, DocsLayout, BountyLayout and MarkdownContentLayout.
+ * Values are driven by the design tokens in theme.css — do not restyle
+ * headings/code/blockquotes/tables per layout; extend this file instead.
+ */
+
+.prose {
+  color: var(--color-body);
+}
+
+/* --- Headings --- */
+.prose h2,
+.prose h3,
+.prose h4 {
+  font-family: var(--font-display);
+  color: var(--color-heading);
+  letter-spacing: -0.04em;
+  scroll-margin-top: calc(var(--nav-height) + 1.5rem);
+}
+
+.prose h2 {
+  font-size: clamp(1.7rem, 2.6vw, 2.1rem);
+  line-height: 1.1;
+  margin-top: 2.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.prose h3 {
+  font-size: 1.3rem;
+  line-height: 1.2;
+  margin-top: 2rem;
+  margin-bottom: 0.6rem;
+}
+
+.prose h4 {
+  font-size: 1.05rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* --- Body copy --- */
+.prose p,
+.prose li {
+  color: var(--color-body);
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.prose p {
+  margin: 0 0 1rem;
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 1.4rem;
+  margin: 0 0 1.1rem;
+}
+
+.prose li {
+  margin-bottom: 0.35rem;
+}
+
+.prose strong {
+  color: var(--color-heading);
+}
+
+.prose a {
+  color: var(--color-primary-link);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.prose a:hover {
+  color: var(--color-primary-link-hover);
+  text-decoration: underline;
+}
+
+/* --- Code --- */
+.prose code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+.prose :not(pre) > code {
+  padding: 0.14em 0.4em;
+  border-radius: var(--rounded-md);
+  background: rgba(var(--ink-rgb), 0.06);
+  color: var(--color-heading);
+}
+
+.prose pre {
+  overflow-x: auto;
+  margin: 0 0 1.2rem;
+  padding: 1.1rem 1.25rem;
+  border-radius: 0.8rem;
+  border: 1px solid var(--border-color-light);
+  background: var(--color-code-bg);
+  color: var(--color-code-fg);
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  line-height: 1.65;
+  box-shadow: 0 12px 24px rgba(var(--ink-rgb), 0.08);
+}
+
+.prose pre code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  font-size: inherit;
+  color: inherit;
+}
+
+/* Optional copy-to-clipboard affordance (used by docs; harmless elsewhere) */
+.prose .code-block {
+  position: relative;
+  margin: 1.25rem 0;
+}
+
+.prose .code-block pre {
+  margin: 0;
+}
+
+.prose .code-copy {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: none;
+  border-radius: var(--rounded-lg);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity var(--transition-fast),
+    background var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.prose .code-block:hover .code-copy,
+.prose .code-copy:focus-visible {
+  opacity: 1;
+}
+
+.prose .code-copy:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.prose .code-copy.is-copied {
+  color: #4ade80;
+  opacity: 1;
+}
+
+/* --- Blockquote --- */
+.prose blockquote {
+  margin: 1.25rem 0;
+  padding: 0.75rem 1.25rem;
+  border-left: 3px solid rgba(var(--color-primary-rgb), 0.35);
+  border-radius: 0 0.75rem 0.75rem 0;
+  background: rgba(255, 255, 255, 0.45);
+  color: var(--color-muted);
+}
+
+.prose blockquote p {
+  color: var(--color-muted);
+  margin: 0 0 0.5rem;
+}
+
+.prose blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+/* --- Tables --- */
+.prose table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  margin: 1.25rem 0 1.45rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.prose .table-wrapper {
+  overflow-x: auto;
+}
+
+.prose .table-wrapper table {
+  display: table;
+  overflow-x: visible;
+}
+
+.prose th,
+.prose td {
+  padding: 0.65rem 0.85rem;
+  border: 1px solid rgba(var(--ink-rgb), 0.1);
+  color: var(--color-body);
+  vertical-align: top;
+}
+
+.prose th {
+  background: rgba(var(--color-primary-rgb), 0.07);
+  color: var(--color-heading);
+  font-weight: 700;
+  text-align: left;
+}
+
+.prose tr:nth-child(even) td {
+  background: rgba(255, 255, 255, 0.45);
+}
+
+/* --- Figures & media --- */
+.prose img {
+  max-width: 100%;
+  height: auto;
+}
+
+.prose .article-figure {
+  margin: 1.6rem 0 2rem;
+}
+
+.prose .article-figure img {
+  display: block;
+  width: 100%;
+  border-radius: 0.8rem;
+  border: 1px solid var(--card-border);
+  background: var(--color-code-fg);
+}
+
+.prose .article-figure figcaption {
+  margin-top: 0.6rem;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+/* --- Misc --- */
+.prose hr {
+  border: none;
+  height: 1px;
+  background: var(--color-border-subtle);
+  margin: 2rem 0;
+}
+
+/* --- Mobile --- */
+@media (max-width: 575.98px) {
+  .prose pre {
+    font-size: 0.82rem;
+    padding: 1rem;
+  }
+
+  .prose th,
+  .prose td {
+    padding: 0.55rem 0.65rem;
+  }
+}

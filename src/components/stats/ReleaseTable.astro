@@ -240,7 +240,7 @@ const { title } = Astro.props;
     text-align: left;
     font-size: 0.75rem;
     font-weight: 600;
-    color: #64748b;
+    color: var(--color-muted);
     text-transform: uppercase;
     letter-spacing: 0.05em;
     background-color: rgba(248, 250, 252, 0.82);
@@ -274,7 +274,7 @@ const { title } = Astro.props;
   }
 
   .release-table :global(tbody tr:hover) {
-    background-color: rgba(37, 99, 235, 0.035);
+    background-color: rgba(var(--color-primary-rgb), 0.035);
   }
 
   /* Version cell */
@@ -291,13 +291,13 @@ const { title } = Astro.props;
 
   .release-table :global(.release-table__name) {
     font-size: 0.8125rem;
-    color: #64748b;
+    color: var(--color-muted);
   }
 
   /* Date cell */
   .release-table :global(.release-table__date) {
     font-size: 0.875rem;
-    color: #64748b;
+    color: var(--color-muted);
     white-space: nowrap;
   }
 
@@ -317,7 +317,7 @@ const { title } = Astro.props;
 
   .release-table :global(.release-table__percentage-bar) {
     height: 0.5rem;
-    background: linear-gradient(90deg, #2563eb, #0ea5e9);
+    background: linear-gradient(90deg, var(--color-primary), #0ea5e9);
     border-radius: 0.25rem;
     min-width: 2px;
     max-width: 100px;
@@ -326,11 +326,11 @@ const { title } = Astro.props;
   /* Monthly change cell */
   .release-table :global(.release-table__monthly) {
     font-weight: 500;
-    color: #64748b;
+    color: var(--color-muted);
   }
 
   .release-table :global(.release-table__monthly--positive) {
-    color: #198754;
+    color: var(--color-success);
   }
 
   /* Loading state */
@@ -344,7 +344,7 @@ const { title } = Astro.props;
     flex-direction: column;
     align-items: center;
     gap: 0.5rem;
-    color: #64748b;
+    color: var(--color-muted);
   }
 
   .release-table__spinner {
@@ -366,11 +366,11 @@ const { title } = Astro.props;
   .release-table :global(.release-table__empty) {
     padding: 2rem 1rem;
     text-align: center;
-    color: #6c757d;
+    color: var(--color-muted);
   }
 
   /* Responsive */
-  @media (max-width: 576px) {
+  @media (max-width: 575.98px) {
     .release-table__th,
     .release-table :global(.release-table__td) {
       padding: 0.625rem 0.75rem;

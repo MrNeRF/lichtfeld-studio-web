@@ -77,7 +77,7 @@ const latestBountyPath = `${base}bounty/`;
     background: rgba(251, 248, 242, 0.72);
     backdrop-filter: blur(16px) saturate(140%);
     z-index: 1000;
-    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+    border-bottom: 1px solid var(--color-border-subtle);
   }
 
   /**
@@ -104,10 +104,14 @@ const latestBountyPath = `${base}bounty/`;
    */
   .site-header__toggle {
     display: none; /* Hidden by default on desktop */
-    background: rgba(255, 255, 255, 0.72);
-    border: 1px solid rgba(15, 23, 42, 0.08);
-    border-radius: 999px;
-    padding: 0.4rem 0.8rem;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    background: var(--glass-bg);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-pill);
+    padding: 0.5rem 0.8rem;
     cursor: pointer;
     box-shadow: 0 10px 18px rgba(15, 23, 42, 0.05);
   }
@@ -144,8 +148,10 @@ const latestBountyPath = `${base}bounty/`;
     }
 
     .site-header__toggle {
-      display: block; /* Show the hamburger on mobile */
-      padding: 0.38rem 0.72rem;
+      /* Show the hamburger on mobile; flex keeps the icon centered within the
+         2.75rem (44px) minimum tap target. */
+      display: inline-flex;
+      padding: 0.4rem 0.72rem;
     }
 
     .site-header__nav-container {
@@ -157,7 +163,7 @@ const latestBountyPath = `${base}bounty/`;
       background: rgba(251, 248, 242, 0.96);
       backdrop-filter: blur(18px);
       width: 100%;
-      border-top: 1px solid rgba(15, 23, 42, 0.08);
+      border-top: 1px solid var(--color-border-subtle);
       box-shadow: 0 20px 36px rgba(15, 23, 42, 0.08);
       border-bottom-left-radius: 1.25rem;
       border-bottom-right-radius: 1.25rem;

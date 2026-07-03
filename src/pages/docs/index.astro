@@ -18,8 +18,8 @@ const seoDescription =
     <div class="container content-frame px-4 py-5">
       <div class="shell docs-hero">
         <p class="kicker">Documentation</p>
-        <h1 class="docs-hero__title">Plugin development docs</h1>
-        <p class="docs-hero__lead">
+        <h1 class="page-hero__title docs-hero__title">Plugin development docs</h1>
+        <p class="page-hero__lead docs-hero__lead">
           Everything you need to extend LichtFeld Studio with Python plugins: panels, operators, tools, signals, and
           full API reference.
         </p>
@@ -46,17 +46,11 @@ const seoDescription =
 
   .docs-hero__title {
     margin: 0 0 0.9rem;
-    color: var(--color-heading);
-    font-size: clamp(2.6rem, 5vw, 4.2rem);
-    line-height: 0.96;
     max-width: 10ch;
   }
 
   .docs-hero__lead {
     margin: 0 0 2rem;
-    color: #344054;
-    font-size: 1.06rem;
-    line-height: 1.76;
     max-width: 42rem;
   }
 
@@ -71,15 +65,15 @@ const seoDescription =
     flex-direction: column;
     gap: 0.35rem;
     padding: 1.2rem 1.35rem;
-    border-radius: 1.15rem;
+    border-radius: var(--card-radius);
     background: rgba(255, 255, 255, 0.62);
-    border: 1px solid rgba(15, 23, 42, 0.08);
+    border: 1px solid var(--color-border-subtle);
     box-shadow: 0 12px 20px rgba(15, 23, 42, 0.03);
     text-decoration: none;
     transition:
-      transform 0.18s ease-in-out,
-      border-color 0.18s ease-in-out,
-      box-shadow 0.18s ease-in-out;
+      transform var(--transition-fast),
+      border-color var(--transition-fast),
+      box-shadow var(--transition-fast);
   }
 
   .docs-card:hover {
@@ -89,11 +83,11 @@ const seoDescription =
   }
 
   .docs-card::after {
-    content: "\2192";
+    content: "→";
     font-size: 1.1rem;
     color: var(--color-primary-link);
     margin-top: 0.35rem;
-    transition: transform 0.18s ease-in-out;
+    transition: transform var(--transition-fast);
   }
 
   .docs-card:hover::after {
@@ -120,12 +114,6 @@ const seoDescription =
   @media (max-width: 575.98px) {
     .docs-hero__title {
       max-width: 12ch;
-      font-size: clamp(2.15rem, 10vw, 3rem);
-    }
-
-    .docs-hero__lead {
-      font-size: 0.98rem;
-      line-height: 1.7;
     }
   }
 </style>

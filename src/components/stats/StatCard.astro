@@ -73,12 +73,14 @@ function formatNumber(num: number): string {
     box-shadow: var(--card-shadow);
     transition:
       box-shadow 0.2s ease-in-out,
-      transform 0.2s ease-in-out;
+      transform 0.2s ease-in-out,
+      border-color 0.2s ease-in-out;
     min-height: 172px;
   }
 
   .stat-card:hover {
     transform: translateY(var(--card-hover-lift));
+    border-color: var(--color-border-hover);
     box-shadow: var(--card-shadow-hover);
   }
 
@@ -89,12 +91,12 @@ function formatNumber(num: number): string {
     justify-content: center;
     width: 3.5rem;
     height: 3.5rem;
-    background: linear-gradient(135deg, #1457ff, #1d4ed8);
+    background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
     border-radius: 1rem;
     color: #fff;
     font-size: 1.5rem;
     margin-bottom: 0.25rem;
-    box-shadow: 0 14px 26px rgba(20, 87, 255, 0.2);
+    box-shadow: 0 14px 26px rgba(var(--color-primary-rgb), 0.2);
   }
 
   /* Value styling - the hero number */
@@ -138,7 +140,7 @@ function formatNumber(num: number): string {
   }
 
   /* Responsive adjustments */
-  @media (max-width: 576px) {
+  @media (max-width: 575.98px) {
     .stat-card {
       padding: 1.35rem 1.1rem;
       min-height: 152px;

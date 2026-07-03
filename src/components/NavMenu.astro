@@ -267,7 +267,7 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
       background-color 0.15s ease-in-out,
       box-shadow 0.15s ease-in-out,
       transform 0.15s ease-in-out;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
   }
 
   .nav-menu__link:hover {
@@ -328,23 +328,23 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
 
   .nav-menu__link.is-active {
     color: var(--color-heading);
-    background: rgba(20, 87, 255, 0.08);
-    box-shadow: inset 0 0 0 1px rgba(20, 87, 255, 0.14);
+    background: rgba(var(--color-primary-rgb), 0.08);
+    box-shadow: inset 0 0 0 1px rgba(var(--color-primary-rgb), 0.14);
   }
 
   /* Container for the split-button dropdown parts */
   .nav-menu__dropdown-container {
     display: flex;
     align-items: center;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     transition:
       background-color 0.15s ease-in-out,
       box-shadow 0.15s ease-in-out;
   }
 
   .nav-menu__dropdown-container:has(.nav-menu__link.is-active) {
-    background: rgba(20, 87, 255, 0.08);
-    box-shadow: inset 0 0 0 1px rgba(20, 87, 255, 0.14);
+    background: rgba(var(--color-primary-rgb), 0.08);
+    box-shadow: inset 0 0 0 1px rgba(var(--color-primary-rgb), 0.14);
   }
 
   /* Adjust padding for the link part of the split button */
@@ -394,7 +394,7 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
     margin: 0;
     padding: 0.55rem;
     min-width: 10rem;
-    border: 1px solid rgba(15, 23, 42, 0.08);
+    border: 1px solid var(--color-border-subtle);
     border-radius: 1rem;
     box-shadow: var(--dropdown-shadow);
     z-index: 1001;
@@ -419,7 +419,7 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
   }
 
   .nav-menu__submenu-link:hover {
-    background-color: rgba(20, 87, 255, 0.06);
+    background-color: rgba(var(--color-primary-rgb), 0.06);
   }
 
   /* Responsive adjustments for mobile view */
@@ -445,8 +445,8 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
     }
 
     .nav-menu__link.is-active {
-      background: rgba(20, 87, 255, 0.08);
-      box-shadow: inset 0 0 0 1px rgba(20, 87, 255, 0.14);
+      background: rgba(var(--color-primary-rgb), 0.08);
+      box-shadow: inset 0 0 0 1px rgba(var(--color-primary-rgb), 0.14);
     }
 
     /* Ensure the split dropdown container takes full width and aligns items correctly */
@@ -466,8 +466,8 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
     }
 
     .nav-menu__dropdown-container:has(.nav-menu__link.is-active) {
-      background: rgba(20, 87, 255, 0.08);
-      box-shadow: inset 0 0 0 1px rgba(20, 87, 255, 0.14);
+      background: rgba(var(--color-primary-rgb), 0.08);
+      box-shadow: inset 0 0 0 1px rgba(var(--color-primary-rgb), 0.14);
     }
 
     .nav-menu__dropdown-container .nav-menu__link.is-active {
@@ -485,7 +485,7 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
     .nav-menu__submenu {
       position: static;
       box-shadow: none;
-      border: 1px solid rgba(15, 23, 42, 0.08);
+      border: 1px solid var(--color-border-subtle);
       margin-top: 0.5rem;
       padding-left: 0.55rem;
       min-width: auto;
@@ -504,9 +504,10 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
       font-size: 0.9rem;
     }
 
+    /* Keep icon-only links at a 2.75rem (44px) minimum tap target */
     .nav-menu__link--icon-only {
-      min-width: 2.35rem;
-      min-height: 2.35rem;
+      min-width: 2.75rem;
+      min-height: 2.75rem;
       padding: 0.35rem;
     }
 

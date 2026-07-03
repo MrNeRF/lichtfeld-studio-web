@@ -299,7 +299,7 @@ const defaultControlHints = getControlHints(defaultControlScheme);
            Title Section
            ==================================================================== -->
         <section class="showcase-title">
-          <span class="showcase-title__eyebrow">Interactive Scene</span>
+          <span class="kicker showcase-title__eyebrow">Interactive Scene</span>
           <h1 id="scene-title">{defaultScene.name}</h1>
         </section>
 
@@ -354,8 +354,8 @@ const defaultControlHints = getControlHints(defaultControlScheme);
          {
            SHOWCASE_SCENES.length > 1 && (
              <section class="showcase-gallery">
-              <div class="showcase-gallery__header">
-                <h2 class="showcase-gallery__title">More Scenes</h2>
+              <div class="section-head showcase-gallery__header">
+                <h2 class="section-title showcase-gallery__title">More Scenes</h2>
                 <button
                   type="button"
                   class="showcase-player__btn showcase-player__btn--browse showcase-player__btn--browse-secondary"
@@ -821,7 +821,7 @@ const defaultControlHints = getControlHints(defaultControlScheme);
   }
 
   .showcase-content {
-    max-width: 1280px;
+    max-width: var(--content-frame-max);
     margin: 0 auto;
     padding: 1rem;
   }
@@ -912,7 +912,7 @@ const defaultControlHints = getControlHints(defaultControlScheme);
 
     .showcase-gallery__item :global(.scene-card) {
       border-radius: 1rem;
-      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+      box-shadow: 0 8px 20px rgba(var(--ink-rgb), 0.08);
     }
 
     .showcase-gallery__item :global(.scene-card__image-container) {
@@ -963,7 +963,7 @@ const defaultControlHints = getControlHints(defaultControlScheme);
   .showcase-player__container {
     position: relative;
     width: 100%;
-    height: 80vh; /* clamp(18rem, min(70vw), 52rem);*/
+    height: 80svh; /* clamp(18rem, min(70vw), 52rem);*/
     background: #0a0a0f;
     border-radius: 0;
     overflow: hidden;
@@ -1099,8 +1099,8 @@ const defaultControlHints = getControlHints(defaultControlScheme);
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 2.75rem;
+    height: 2.75rem;
     padding: 0;
     background: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(8px);
@@ -1118,7 +1118,8 @@ const defaultControlHints = getControlHints(defaultControlScheme);
 
   .showcase-player__btn:focus {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.5);
+    /* Dark viewer chrome: --focus-shadow (0.18 alpha) is invisible here, use a stronger ring. */
+    box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.45);
   }
 
   .showcase-player__btn--browse {
@@ -1217,9 +1218,10 @@ const defaultControlHints = getControlHints(defaultControlScheme);
 
   .showcase-player__help-close {
     width: 100%;
+    min-height: 2.75rem;
     margin-top: 1rem;
     padding: 0.75rem 1rem;
-    background: var(--color-primary, #0d6efd);
+    background: var(--color-primary);
     border: none;
     border-radius: 0.5rem;
     color: #fff;
@@ -1230,7 +1232,7 @@ const defaultControlHints = getControlHints(defaultControlScheme);
   }
 
   .showcase-player__help-close:hover {
-    background: #0b5ed7;
+    background: var(--color-primary-link-hover);
   }
 
   /* ============================================================================
@@ -1240,24 +1242,19 @@ const defaultControlHints = getControlHints(defaultControlScheme);
   .showcase-title {
     margin-bottom: 0.7rem;
     padding: 0 0 0.65rem;
-    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+    border-bottom: 1px solid var(--color-border-subtle);
   }
 
+  /* Shared .kicker owns type/color; this compact sidebar layout only tightens spacing. */
   .showcase-title__eyebrow {
-    display: inline-flex;
     margin-bottom: 0.45rem;
-    color: #9a6700;
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
   }
 
   .showcase-title h1 {
     margin: 0;
     font-size: 1.2rem;
     font-weight: 700;
-    color: var(--color-heading, #111827);
+    color: var(--color-heading);
     line-height: 1.15;
   }
 
@@ -1326,10 +1323,10 @@ const defaultControlHints = getControlHints(defaultControlScheme);
     align-items: center;
     gap: 0.375rem;
     padding: 0.45rem 0.65rem;
-    background: rgba(255, 255, 255, 0.72);
+    background: var(--glass-bg);
     border: 1px solid rgba(148, 163, 184, 0.22);
     border-radius: 0.75rem;
-    color: var(--color-text, #1f2937);
+    color: var(--color-text);
     font-size: 0.75rem;
     font-weight: 600;
     cursor: pointer;
@@ -1344,13 +1341,13 @@ const defaultControlHints = getControlHints(defaultControlScheme);
 
   .showcase-description__share:focus {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.25);
+    box-shadow: var(--focus-shadow);
   }
 
   .showcase-description__text {
     margin: 0;
     font-size: 0.875rem;
-    color: var(--color-text, #1f2937);
+    color: var(--color-text);
     line-height: 1.55;
   }
 
@@ -1366,19 +1363,17 @@ const defaultControlHints = getControlHints(defaultControlScheme);
     box-shadow: none;
   }
 
+  /* Shared .section-head/.section-title own structure/color; the sidebar list
+     header only tweaks alignment, spacing, and its compact type scale. */
   .showcase-gallery__header {
-    display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: 0.75rem;
     margin-bottom: 1rem;
   }
 
   .showcase-gallery__title {
-    margin: 0;
     font-size: 1.125rem;
     font-weight: 600;
-    color: var(--color-text, #1f2937);
   }
 
   .showcase-gallery__grid {
@@ -1394,12 +1389,6 @@ const defaultControlHints = getControlHints(defaultControlScheme);
   }
 
   @media (min-width: 768px) {
-    .showcase-gallery__grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-
-  @media (min-width: 1024px) {
     .showcase-gallery__grid {
       grid-template-columns: repeat(3, 1fr);
     }
@@ -1467,7 +1456,7 @@ const defaultControlHints = getControlHints(defaultControlScheme);
     left: 50%;
     transform: translateX(-50%) translateY(1rem);
     padding: 0.75rem 1.5rem;
-    background: #1f2937;
+    background: var(--color-text);
     color: #fff;
     font-size: 0.875rem;
     font-weight: 500;

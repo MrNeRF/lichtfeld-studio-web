@@ -36,23 +36,7 @@ const { id = "line-chart", height = 300, title } = Astro.props;
      * Client-side chart initialization using ApexCharts.
      */
     import ApexCharts from "apexcharts";
-
-    /**
-     * Color palette for chart series.
-     * Colors are assigned in reverse order so the newest version gets primary blue.
-     */
-    const CHART_COLORS = [
-        "#0dcaf0", // Cyan (oldest version)
-        "#20c997", // Teal
-        "#198754", // Green
-        "#ffc107", // Yellow
-        "#fd7e14", // Orange
-        "#dc3545", // Red
-        "#d63384", // Pink
-        "#6f42c1", // Indigo
-        "#6610f2", // Purple
-        "#0d6efd", // Primary blue (newest version)
-    ];
+    import { CHART_PALETTE, CHART_AXIS_LABEL_COLOR, CHART_GRID_BORDER_COLOR } from "@/constants/chart-theme";
 
     /**
      * Data structure for chart series.
@@ -117,7 +101,7 @@ const { id = "line-chart", height = 300, title } = Astro.props;
                 },
             },
             // Take colors from the end of the palette so newest version gets primary blue
-            colors: CHART_COLORS.slice(-series.length),
+            colors: CHART_PALETTE.slice(-series.length),
             dataLabels: {
                 enabled: false,
             },
@@ -139,7 +123,7 @@ const { id = "line-chart", height = 300, title } = Astro.props;
                         return formatTimestamp(parseInt(value), granularity);
                     },
                     style: {
-                        colors: "#6c757d",
+                        colors: CHART_AXIS_LABEL_COLOR,
                         fontSize: "11px",
                     },
                 },
@@ -156,7 +140,7 @@ const { id = "line-chart", height = 300, title } = Astro.props;
                         return new Intl.NumberFormat().format(Math.round(value));
                     },
                     style: {
-                        colors: "#6c757d",
+                        colors: CHART_AXIS_LABEL_COLOR,
                         fontSize: "11px",
                     },
                 },
@@ -189,7 +173,7 @@ const { id = "line-chart", height = 300, title } = Astro.props;
                 },
             },
             grid: {
-                borderColor: "#e9ecef",
+                borderColor: CHART_GRID_BORDER_COLOR,
                 strokeDashArray: 4,
                 xaxis: {
                     lines: {
@@ -281,7 +265,7 @@ const { id = "line-chart", height = 300, title } = Astro.props;
         justify-content: center;
         height: 100%;
         gap: 1rem;
-        color: #6c757d;
+        color: var(--color-muted);
     }
 
     .line-chart__spinner {

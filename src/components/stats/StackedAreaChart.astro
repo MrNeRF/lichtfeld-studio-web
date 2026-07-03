@@ -37,24 +37,7 @@ const { id = "stacked-area-chart", height = 400, title } = Astro.props;
    * Waits for data to be provided via custom event or global state.
    */
   import ApexCharts from "apexcharts";
-
-  /**
-   * Color palette for chart series.
-   * Professional blues and greens for version differentiation.
-   * Colors are assigned in reverse order so the newest version (top of stack) gets primary blue.
-   */
-  const CHART_COLORS = [
-    "#0dcaf0", // Cyan (oldest version, bottom of stack)
-    "#20c997", // Teal
-    "#198754", // Green
-    "#ffc107", // Yellow
-    "#fd7e14", // Orange
-    "#dc3545", // Red
-    "#d63384", // Pink
-    "#6f42c1", // Indigo
-    "#6610f2", // Purple
-    "#0d6efd", // Primary blue (newest version, top of stack)
-  ];
+  import { CHART_PALETTE, CHART_AXIS_LABEL_COLOR, CHART_GRID_BORDER_COLOR } from "@/constants/chart-theme";
 
   /**
    * Data structure for chart series.
@@ -128,7 +111,7 @@ const { id = "stacked-area-chart", height = 400, title } = Astro.props;
         },
       },
       // Take colors from the end of the palette so newest version (last series) gets primary blue
-      colors: CHART_COLORS.slice(-series.length),
+      colors: CHART_PALETTE.slice(-series.length),
       dataLabels: {
         enabled: false,
       },
@@ -152,7 +135,7 @@ const { id = "stacked-area-chart", height = 400, title } = Astro.props;
             return formatTimestamp(parseInt(value), granularity);
           },
           style: {
-            colors: "#6c757d",
+            colors: CHART_AXIS_LABEL_COLOR,
             fontSize: "11px",
           },
         },
@@ -169,7 +152,7 @@ const { id = "stacked-area-chart", height = 400, title } = Astro.props;
             return new Intl.NumberFormat().format(Math.round(value));
           },
           style: {
-            colors: "#6c757d",
+            colors: CHART_AXIS_LABEL_COLOR,
             fontSize: "11px",
           },
         },
@@ -203,7 +186,7 @@ const { id = "stacked-area-chart", height = 400, title } = Astro.props;
         },
       },
       grid: {
-        borderColor: "#e9ecef",
+        borderColor: CHART_GRID_BORDER_COLOR,
         strokeDashArray: 4,
         padding: {
           left: 16,
@@ -306,14 +289,14 @@ const { id = "stacked-area-chart", height = 400, title } = Astro.props;
     justify-content: center;
     height: 100%;
     gap: 1rem;
-    color: #64748b;
+    color: var(--color-muted);
   }
 
   .stacked-area-chart__spinner {
     width: 2rem;
     height: 2rem;
     border: 3px solid rgba(148, 163, 184, 0.18);
-    border-top-color: #2563eb;
+    border-top-color: var(--color-primary);
     border-radius: 50%;
     animation: spin 1s linear infinite;
   }

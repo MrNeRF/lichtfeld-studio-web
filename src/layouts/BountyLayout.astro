@@ -41,7 +41,9 @@ const seoDescription =
           <article class="shell bounty-detail__article">
             <p class="kicker">Bounty brief</p>
             <h1 class="bounty-detail__title">{data.title}</h1>
-            <slot />
+            <div class="bounty-detail__content prose">
+              <slot />
+            </div>
           </article>
         </div>
       </div>
@@ -70,20 +72,7 @@ const seoDescription =
     max-width: 12ch;
   }
 
-  .bounty-detail__article :global(p),
-  .bounty-detail__article :global(li) {
-    color: var(--color-body);
-    line-height: 1.75;
-  }
-
-  .bounty-detail__article :global(h2),
-  .bounty-detail__article :global(h3) {
-    margin-top: 2rem;
-  }
-
-  .bounty-detail__article :global(code) {
-    font-family: var(--font-mono);
-  }
+  /* Markdown typography comes from the shared .prose class (src/styles/prose.css). */
 
   @media (max-width: 991.98px) {
     .bounty-detail__sidebar {

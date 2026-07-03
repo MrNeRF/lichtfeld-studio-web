@@ -39,23 +39,7 @@ const { id = "pie-chart", height = 350, title, donut = true } = Astro.props;
    * Waits for data to be provided via custom event.
    */
   import ApexCharts from "apexcharts";
-
-  /**
-   * Color palette for chart series.
-   * Matches the stacked area chart colors for consistency.
-   */
-  const CHART_COLORS = [
-    "#0dcaf0", // Cyan
-    "#20c997", // Teal
-    "#198754", // Green
-    "#ffc107", // Yellow
-    "#fd7e14", // Orange
-    "#dc3545", // Red
-    "#d63384", // Pink
-    "#6f42c1", // Indigo
-    "#6610f2", // Purple
-    "#0d6efd", // Primary blue
-  ];
+  import { CHART_PALETTE, CHART_AXIS_LABEL_COLOR } from "@/constants/chart-theme";
 
   /**
    * Data structure for pie chart.
@@ -83,7 +67,7 @@ const { id = "pie-chart", height = 350, title, donut = true } = Astro.props;
       },
       series: data.values,
       labels: data.labels,
-      colors: CHART_COLORS.slice(-data.labels.length),
+      colors: CHART_PALETTE.slice(-data.labels.length),
       dataLabels: {
         enabled: true,
         formatter: (val: number) => {
@@ -123,7 +107,7 @@ const { id = "pie-chart", height = 350, title, donut = true } = Astro.props;
                 label: "Total",
                 fontSize: "14px",
                 fontWeight: 600,
-                color: "#6c757d",
+                color: CHART_AXIS_LABEL_COLOR,
                 formatter: (w) => {
                   const total = w.globals.seriesTotals.reduce((a: number, b: number) => a + b, 0);
 
@@ -250,14 +234,14 @@ const { id = "pie-chart", height = 350, title, donut = true } = Astro.props;
     justify-content: center;
     height: 100%;
     gap: 1rem;
-    color: #64748b;
+    color: var(--color-muted);
   }
 
   .pie-chart__spinner {
     width: 2rem;
     height: 2rem;
     border: 3px solid rgba(148, 163, 184, 0.18);
-    border-top-color: #2563eb;
+    border-top-color: var(--color-primary);
     border-radius: 50%;
     animation: spin 1s linear infinite;
   }

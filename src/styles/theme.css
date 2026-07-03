@@ -55,7 +55,14 @@
    * =========================== */
   /* Colors */
   --color-primary: #1457ff;
+  --color-primary-rgb: 20, 87, 255; /* rgb triplet of --color-primary for rgba() mixes */
+  --ink-rgb: 15, 23, 42; /* rgb triplet of the slate "ink" used for borders/shadows */
   --color-accent: #1d4ed8;
+  --color-accent-warm: #b45309;
+  --color-body-strong: #344054; /* emphasized body copy (hero leads, summaries) */
+  --color-success: #198754;
+  --color-code-bg: #1e293b;
+  --color-code-fg: #f8fafc;
   --color-primary-link: #1457ff;
   --color-primary-link-hover: #0f46d3;
   --color-heading: #101828;
@@ -97,10 +104,19 @@
   --card-padding-compact: 1.55rem;
   --card-gap: 1rem;
 
+  /* Glass surfaces (frosted panels, pills, toggles) */
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-bg-strong: rgba(255, 255, 255, 0.92);
+  --glass-blur: blur(12px);
+
+  /* Motion */
+  --transition-fast: 0.18s ease;
+
   /* Borders */
   --border-radius: 10px;
   --border-color: rgba(15, 23, 42, 0.08);
   --border-color-light: rgba(15, 23, 42, 0.12);
+  --radius-pill: 999px;
 
   /* Layout */
   --nav-height: 60px;
@@ -1105,4 +1121,78 @@ section.py-5 > .container {
   color: var(--color-muted);
   font-size: 0.88rem;
   font-weight: 700;
+}
+
+/* ===========================
+ * Page hero pattern
+ * Standard top-of-page header: .kicker + .page-hero__title + .page-hero__lead
+ * inside a .shell. Pages may override title max-width (ch) per line-break needs.
+ * =========================== */
+
+.page-hero__title {
+  margin: 0;
+  color: var(--color-heading);
+  font-size: clamp(2.6rem, 5vw, 4.2rem);
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+}
+
+.page-hero__lead {
+  margin: 0;
+  color: var(--color-body-strong);
+  font-size: 1.06rem;
+  line-height: 1.76;
+  max-width: 46rem;
+}
+
+/* ===========================
+ * Pill / badge pattern
+ * Base + tone modifiers. Use for type/status/version/tag chips.
+ * =========================== */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 1.85rem;
+  padding: 0.25rem 0.8rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid transparent;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.pill--primary {
+  background: rgba(var(--color-primary-rgb), 0.08);
+  color: var(--color-primary-link);
+}
+
+.pill--neutral {
+  background: rgba(var(--ink-rgb), 0.06);
+  color: var(--color-body);
+}
+
+.pill--warm {
+  background: rgba(201, 114, 52, 0.1);
+  color: var(--color-accent-warm);
+}
+
+.pill--success {
+  background: rgba(25, 135, 84, 0.1);
+  color: var(--color-success);
+}
+
+/* Lowercase glass variant for keyword/tag chips */
+.pill--tag {
+  padding: 0.4rem 0.7rem;
+  background: var(--glass-bg);
+  border-color: var(--color-border-subtle);
+  color: var(--color-body-strong);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
 }

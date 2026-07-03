@@ -13,7 +13,7 @@ tags:
   - tensors
   - zero-copy
   - 3d-gaussian-splatting
-image: /static/blog/lichtfeld-python-dlpack-schema.svg
+image: /static/blog/lichtfeld-python-dlpack-schema.png
 imageAlt: Diagram of LichtFeld Studio's Python boundary, where nanobind moves application objects across it, DLPack shares tensor buffers, and lf.Tensor and PyTorch point at the same CUDA memory
 featured: false
 ---

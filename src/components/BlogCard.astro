@@ -1,0 +1,114 @@
+---
+/**
+ * BlogCard.astro
+ *
+ * Compact blog post card used on the blog index and below individual posts.
+ * Styled with the shared card tokens so it matches the homepage surfaces.
+ */
+import type { CollectionEntry } from "astro:content";
+import { resolveBlogImage } from "@/utils/blog";
+
+interface Props {
+  post: CollectionEntry<"blog">;
+}
+
+const { post } = Astro.props;
+const base = import.meta.env.BASE_URL;
+const cleanBase = base.endsWith("/") ? base.slice(0, -1) : base;
+
+const dateFormatter = new Intl.DateTimeFormat("en", {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+});
+---
+
+<a href={`${cleanBase}/blog/${post.slug}/`} class="blog-card">
+  <img
+    src={resolveBlogImage(base, post.data.image)}
+    alt={post.data.imageAlt ?? `${post.data.title} preview`}
+    loading="lazy"
+  />
+  <div class="blog-card__body">
+    <p class="blog-card__meta">
+      <span>{post.data.category}</span>
+      <time datetime={post.data.date.toISOString()}>{dateFormatter.format(post.data.date)}</time>
+    </p>
+    <h3 class="blog-card__title">{post.data.title}</h3>
+    <p class="blog-card__summary">{post.data.summary}</p>
+  </div>
+</a>
+
+<style>
+  .blog-card {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 1.2rem;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--card-shadow);
+    color: var(--color-heading);
+    text-decoration: none;
+    transition:
+      transform 0.18s ease,
+      border-color 0.18s ease,
+      box-shadow 0.18s ease;
+  }
+
+  .blog-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--color-border-hover);
+    box-shadow: var(--card-shadow-hover);
+  }
+
+  .blog-card:focus-visible {
+    outline: none;
+    border-color: var(--color-primary-link);
+    box-shadow: var(--focus-shadow);
+  }
+
+  .blog-card img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 2 / 1;
+    object-fit: cover;
+    background: #101828;
+  }
+
+  .blog-card__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1.1rem 1.2rem 1.3rem;
+  }
+
+  .blog-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 0.8rem;
+    justify-content: space-between;
+    margin: 0;
+    color: var(--color-muted);
+    font-family: var(--font-display);
+    font-size: 0.73rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+
+  .blog-card__title {
+    margin: 0;
+    font-size: 1.16rem;
+    line-height: 1.22;
+  }
+
+  .blog-card__summary {
+    margin: 0;
+    color: var(--color-body);
+    font-size: 0.93rem;
+    line-height: 1.65;
+  }
+</style>

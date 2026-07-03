@@ -1,6 +1,15 @@
 ---
+/**
+ * BlogPostLayout.astro
+ *
+ * Single-column article layout for blog posts: a centered reading column
+ * inside a shell surface, followed by a "more posts" card row. Reuses the
+ * shared kicker/shell/card design tokens from the rest of the site.
+ */
 import type { CollectionEntry } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
+import BlogCard from "@/components/BlogCard.astro";
+import { formatBlogTag, resolveBlogImage } from "@/utils/blog";
 
 interface Props {
   post: CollectionEntry<"blog">;
@@ -10,43 +19,8 @@ interface Props {
 const { post, posts } = Astro.props;
 const base = import.meta.env.BASE_URL;
 const cleanBase = base.endsWith("/") ? base.slice(0, -1) : base;
-const fallbackImage = `${base}static/social-preview.png`;
 
-function resolvePreviewImage(path?: string): string {
-  if (!path) return fallbackImage;
-  if (/^https?:\/\//i.test(path)) return path;
-  if (path.startsWith(base)) return path;
-
-  return `${base}${path.replace(/^\//, "")}`;
-}
-
-function formatTag(tag: string): string {
-  const acronymTags: Record<string, string> = {
-    "3d-gaussian-splatting": "3D Gaussian Splatting",
-    cpp: "C++",
-    cuda: "CUDA",
-    dlpack: "DLPack",
-    gpu: "GPU",
-    mcp: "MCP",
-    nanobind: "nanobind",
-    lod: "LOD",
-    python: "Python",
-    rad: "RAD",
-    ui: "UI",
-    vulkan: "Vulkan",
-    "zero-copy": "Zero-Copy",
-  };
-
-  if (acronymTags[tag]) return acronymTags[tag];
-
-  return tag
-    .split("-")
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-}
-
-const postImage = resolvePreviewImage(post.data.image);
+const postImage = resolveBlogImage(base, post.data.image);
 const imageAlt = post.data.imageAlt ?? `${post.data.title} preview`;
 const description = post.data.description ?? post.data.summary;
 
@@ -56,7 +30,7 @@ const dateFormatter = new Intl.DateTimeFormat("en", {
   year: "numeric",
 });
 
-const relatedPosts = posts.filter((entry) => entry.slug !== post.slug).slice(0, 4);
+const morePosts = posts.filter((entry) => entry.slug !== post.slug).slice(0, 2);
 const breadcrumbs = [
   { name: "Home", url: base },
   { name: "Blog", url: `${cleanBase}/blog/` },
@@ -77,59 +51,76 @@ const breadcrumbs = [
   breadcrumbs={breadcrumbs}
 >
   <section class="blog-post-page">
-    <div class="container content-frame px-4 py-5">
-      <div class="row g-4">
-        <div class="col-12 col-lg-4 order-1 order-lg-2">
-          <aside class="shell shell--compact blog-sidebar">
-            <p class="kicker">LichtFeld Studio</p>
-            <a href={`${cleanBase}/blog/`} class="blog-sidebar__index-link">All posts</a>
+    <div class="container blog-post-frame px-4 py-5">
+      <article class="shell blog-post">
+        <a href={`${cleanBase}/blog/`} class="blog-post__back">
+          <span aria-hidden="true">←</span>
+          All posts
+        </a>
+
+        <header class="blog-post__header">
+          <p class="kicker">{post.data.category}</p>
+          <h1 class="blog-post__title">{post.data.title}</h1>
+          <p class="blog-post__summary">{post.data.summary}</p>
+          <p class="blog-post__byline">
+            <time datetime={post.data.date.toISOString()}>{dateFormatter.format(post.data.date)}</time>
+            <span class="blog-post__byline-sep" aria-hidden="true">·</span>
+            <span>{post.data.author}</span>
             {
-              relatedPosts.length > 0 && (
-                <nav class="blog-sidebar__nav" aria-label="More blog posts">
-                  {relatedPosts.map((entry) => (
-                    <a href={`${cleanBase}/blog/${entry.slug}/`} class="blog-sidebar__link">
-                      <span>{entry.data.category}</span>
-                      <strong>{entry.data.title}</strong>
-                    </a>
-                  ))}
-                </nav>
+              post.data.updatedDate && (
+                <>
+                  <span class="blog-post__byline-sep" aria-hidden="true">
+                    ·
+                  </span>
+                  <span>Updated {dateFormatter.format(post.data.updatedDate)}</span>
+                </>
               )
             }
+          </p>
+        </header>
+
+        <figure class="blog-post__figure">
+          <img src={postImage} alt={imageAlt} loading="eager" />
+        </figure>
+
+        <div class="blog-post__content">
+          <slot />
+        </div>
+
+        {
+          post.data.tags.length > 0 && (
+            <footer class="blog-post__footer">
+              <ul class="blog-post__tags" aria-label="Post tags">
+                {post.data.tags.map((tag) => (
+                  <li>{formatBlogTag(tag)}</li>
+                ))}
+              </ul>
+            </footer>
+          )
+        }
+      </article>
+
+      {
+        morePosts.length > 0 && (
+          <aside class="shell mt-4" aria-labelledby="more-posts-heading">
+            <div class="section-head">
+              <div>
+                <p class="kicker mb-2">Keep reading</p>
+                <h2 id="more-posts-heading" class="section-title">
+                  More from the blog
+                </h2>
+              </div>
+              <a href={`${cleanBase}/blog/`} class="section-link">All posts</a>
+            </div>
+
+            <div class="blog-post__more-grid mt-4">
+              {morePosts.map((entry) => (
+                <BlogCard post={entry} />
+              ))}
+            </div>
           </aside>
-        </div>
-
-        <div class="col-12 col-lg-8 order-2 order-lg-1">
-          <article class="shell blog-post">
-            <p class="kicker">{post.data.category}</p>
-            <h1 class="blog-post__title">{post.data.title}</h1>
-            <p class="blog-post__summary">{post.data.summary}</p>
-
-            <div class="blog-post__meta">
-              <span>{dateFormatter.format(post.data.date)}</span>
-              <span>{post.data.author}</span>
-              {post.data.updatedDate && <span>Updated {dateFormatter.format(post.data.updatedDate)}</span>}
-            </div>
-
-            {
-              post.data.tags.length > 0 && (
-                <ul class="blog-post__tags" aria-label="Post tags">
-                  {post.data.tags.map((tag) => (
-                    <li>{formatTag(tag)}</li>
-                  ))}
-                </ul>
-              )
-            }
-
-            <figure class="blog-post__figure">
-              <img src={postImage} alt={imageAlt} loading="eager" />
-            </figure>
-
-            <div class="blog-post__content">
-              <slot />
-            </div>
-          </article>
-        </div>
-      </div>
+        )
+      }
     </div>
   </section>
 </Layout>
@@ -139,78 +130,36 @@ const breadcrumbs = [
     background: var(--page-bg);
   }
 
-  .blog-sidebar {
-    position: sticky;
-    top: calc(var(--nav-height) + 1.25rem);
-  }
-
-  .blog-sidebar__index-link {
-    display: inline-flex;
-    align-items: center;
-    min-height: 2.5rem;
-    padding: 0.65rem 0.85rem;
-    border-radius: 0.5rem;
-    background: rgba(20, 87, 255, 0.08);
-    color: var(--color-primary-link);
-    font-weight: 800;
-    text-decoration: none;
-    box-shadow: inset 0 0 0 1px rgba(20, 87, 255, 0.14);
-  }
-
-  .blog-sidebar__nav {
-    display: flex;
-    flex-direction: column;
-    gap: 0.55rem;
-    margin-top: 1rem;
-  }
-
-  .blog-sidebar__link {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    padding: 0.8rem;
-    border-radius: 0.5rem;
-    color: var(--color-heading);
-    text-decoration: none;
-    background: rgba(255, 255, 255, 0.56);
-    border: 1px solid rgba(15, 23, 42, 0.08);
-    transition:
-      border-color 0.16s ease,
-      background-color 0.16s ease,
-      transform 0.16s ease;
-  }
-
-  .blog-sidebar__link:hover {
-    transform: translateY(-1px);
-    background: rgba(255, 255, 255, 0.86);
-    border-color: rgba(20, 87, 255, 0.2);
-  }
-
-  .blog-sidebar__link span {
-    color: var(--color-muted);
-    font-size: 0.76rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0;
-  }
-
-  .blog-sidebar__link strong {
-    color: var(--color-heading);
-    font-size: 0.92rem;
-    line-height: 1.35;
+  .blog-post-frame {
+    max-width: 56rem !important;
   }
 
   .blog-post {
-    padding-bottom: 2.75rem;
+    padding: clamp(1.5rem, 4vw, 2.75rem);
+  }
+
+  .blog-post__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-bottom: 1.6rem;
+    color: var(--color-primary-link);
+    font-family: var(--font-display);
+    font-size: 0.88rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: color 0.18s ease;
+  }
+
+  .blog-post__back:hover {
+    color: var(--color-primary-link-hover);
   }
 
   .blog-post__title {
-    margin: 0 0 0.8rem;
-    max-width: 13ch;
+    margin: 0 0 0.9rem;
     color: var(--color-heading);
-    font-size: 3.65rem;
-    line-height: 0.98;
-    letter-spacing: 0;
+    font-size: clamp(2.1rem, 5vw, 3.3rem);
+    line-height: 1.02;
   }
 
   .blog-post__summary {
@@ -221,54 +170,28 @@ const breadcrumbs = [
     line-height: 1.76;
   }
 
-  .blog-post__meta {
+  .blog-post__byline {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-top: 1.15rem;
-  }
-
-  .blog-post__meta span {
-    display: inline-flex;
-    align-items: center;
-    min-height: 2rem;
-    padding: 0.4rem 0.7rem;
-    border-radius: 0.5rem;
-    background: rgba(255, 255, 255, 0.68);
-    border: 1px solid rgba(15, 23, 42, 0.08);
+    align-items: baseline;
+    gap: 0.55rem;
+    margin: 1.1rem 0 0;
     color: var(--color-muted);
-    font-size: 0.82rem;
-    font-weight: 800;
+    font-size: 0.92rem;
+    font-weight: 600;
   }
 
-  .blog-post__tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.45rem;
-    padding: 0;
-    margin: 0.85rem 0 0;
-    list-style: none;
-  }
-
-  .blog-post__tags li {
-    display: inline-flex;
-    align-items: center;
-    min-height: 1.85rem;
-    padding: 0.34rem 0.62rem;
-    border-radius: 0.5rem;
-    background: rgba(20, 87, 255, 0.07);
-    border: 1px solid rgba(20, 87, 255, 0.14);
-    color: var(--color-primary-link);
-    font-size: 0.78rem;
-    font-weight: 800;
+  .blog-post__byline-sep {
+    color: rgba(102, 112, 133, 0.55);
   }
 
   .blog-post__figure {
-    margin: 1.6rem 0 0;
+    margin: 1.7rem 0 0;
     overflow: hidden;
-    border-radius: 0.5rem;
-    border: 1px solid rgba(15, 23, 42, 0.1);
+    border-radius: 1.2rem;
+    border: 1px solid var(--card-border);
     background: #101828;
+    box-shadow: var(--card-shadow);
   }
 
   .blog-post__figure img {
@@ -279,23 +202,20 @@ const breadcrumbs = [
   }
 
   .blog-post__content {
-    margin-top: 2rem;
+    margin-top: 2.1rem;
   }
 
   .blog-post__content :global(h2),
   .blog-post__content :global(h3),
   .blog-post__content :global(h4) {
-    color: var(--color-heading);
-    font-family: var(--font-display);
-    letter-spacing: 0;
     scroll-margin-top: calc(var(--nav-height) + 1.5rem);
   }
 
   .blog-post__content :global(h2) {
     margin-top: 2.4rem;
     margin-bottom: 0.75rem;
-    font-size: 2rem;
-    line-height: 1.08;
+    font-size: 1.85rem;
+    line-height: 1.1;
   }
 
   .blog-post__content :global(h3) {
@@ -307,7 +227,6 @@ const breadcrumbs = [
 
   .blog-post__content :global(p),
   .blog-post__content :global(li) {
-    max-width: 50rem;
     color: var(--color-body);
     font-size: 1rem;
     line-height: 1.78;
@@ -315,28 +234,6 @@ const breadcrumbs = [
 
   .blog-post__content :global(p) {
     margin: 0 0 1rem;
-  }
-
-  .blog-post__content :global(.article-figure) {
-    max-width: 50rem;
-    margin: 1.6rem 0 2rem;
-  }
-
-  .blog-post__content :global(.article-figure img) {
-    display: block;
-    width: 100%;
-    height: auto;
-    border-radius: 0.5rem;
-    border: 1px solid rgba(15, 23, 42, 0.1);
-    background: #f8fafc;
-  }
-
-  .blog-post__content :global(.article-figure figcaption) {
-    margin-top: 0.6rem;
-    max-width: 46rem;
-    color: var(--color-muted);
-    font-size: 0.9rem;
-    line-height: 1.6;
   }
 
   .blog-post__content :global(ul),
@@ -347,22 +244,65 @@ const breadcrumbs = [
 
   .blog-post__content :global(a) {
     color: var(--color-primary-link);
-    font-weight: 800;
+    font-weight: 700;
     text-decoration: none;
   }
 
   .blog-post__content :global(a:hover) {
     color: var(--color-primary-link-hover);
+    text-decoration: underline;
+  }
+
+  .blog-post__content :global(strong) {
+    color: var(--color-heading);
   }
 
   .blog-post__content :global(code) {
     font-family: var(--font-mono);
+    font-size: 0.92em;
+  }
+
+  .blog-post__content :global(:not(pre) > code) {
+    padding: 0.14em 0.38em;
+    border-radius: 0.35rem;
+    background: rgba(15, 23, 42, 0.06);
+    color: var(--color-heading);
+  }
+
+  .blog-post__content :global(blockquote) {
+    margin: 1.4rem 0;
+    padding: 0.25rem 0 0.25rem 1.1rem;
+    border-left: 3px solid rgba(20, 87, 255, 0.35);
+    color: var(--color-muted);
+  }
+
+  .blog-post__content :global(blockquote p:last-child) {
+    margin-bottom: 0;
+  }
+
+  .blog-post__content :global(.article-figure) {
+    margin: 1.6rem 0 2rem;
+  }
+
+  .blog-post__content :global(.article-figure img) {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 0.8rem;
+    border: 1px solid var(--card-border);
+    background: #f8fafc;
+  }
+
+  .blog-post__content :global(.article-figure figcaption) {
+    margin-top: 0.6rem;
+    color: var(--color-muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
   }
 
   .blog-post__content :global(table) {
     display: block;
     width: 100%;
-    max-width: 50rem;
     overflow-x: auto;
     border-collapse: collapse;
     margin: 1.25rem 0 1.45rem;
@@ -380,49 +320,56 @@ const breadcrumbs = [
   }
 
   .blog-post__content :global(th) {
-    background: rgba(20, 87, 255, 0.08);
+    background: rgba(20, 87, 255, 0.07);
     color: var(--color-heading);
-    font-weight: 800;
+    font-weight: 700;
   }
 
   .blog-post__content :global(pre) {
     overflow-x: auto;
+    margin: 0 0 1.2rem;
     padding: 1.1rem;
-    border-radius: 0.5rem;
+    border-radius: 0.8rem;
     background: #1e293b;
     color: #f8fafc;
   }
 
-  @media (max-width: 991.98px) {
-    .blog-sidebar {
-      position: static;
-      top: auto;
-    }
-
-    .blog-post__title {
-      max-width: 15ch;
-      font-size: 3rem;
-    }
+  .blog-post__footer {
+    margin-top: 2.2rem;
+    padding-top: 1.3rem;
+    border-top: 1px solid rgba(15, 23, 42, 0.08);
   }
 
-  @media (max-width: 575.98px) {
-    .blog-post {
-      padding-bottom: 1.75rem;
-    }
+  .blog-post__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
 
-    .blog-post__title {
-      max-width: none;
-      font-size: 2.28rem;
-      line-height: 1.05;
-    }
+  .blog-post__tags li {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.3rem 0.68rem;
+    border-radius: 999px;
+    background: rgba(20, 87, 255, 0.07);
+    border: 1px solid rgba(20, 87, 255, 0.14);
+    color: var(--color-primary-link);
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
 
-    .blog-post__summary {
-      font-size: 0.98rem;
-      line-height: 1.68;
-    }
+  .blog-post__more-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
 
-    .blog-post__content :global(h2) {
-      font-size: 1.65rem;
+  @media (max-width: 767.98px) {
+    .blog-post__more-grid {
+      grid-template-columns: 1fr;
     }
   }
 </style>

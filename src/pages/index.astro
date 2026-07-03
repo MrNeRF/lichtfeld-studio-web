@@ -629,29 +629,6 @@ const faqSchema = {
       }, 100); // A 100ms delay is usually sufficient.
     }
 
-    const sectionShells = document.querySelectorAll<HTMLElement>(".hash-section .shell");
-
-    if (sectionShells.length > 0) {
-      document.documentElement.classList.add("has-home-shell-reveal");
-
-      const sectionRevealObserver = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              entry.target.classList.add("is-visible");
-            }
-          });
-        },
-        {
-          threshold: 0.18,
-          rootMargin: "0px 0px -10% 0px",
-        },
-      );
-
-      sectionShells.forEach((shell) => {
-        sectionRevealObserver.observe(shell);
-      });
-    }
   });
 
 </script>
@@ -1207,13 +1184,6 @@ const faqSchema = {
     .hero__scene-cue-step {
       animation: none;
     }
-
-    .hash-section .shell,
-    .hash-section .shell > * {
-      transform: none !important;
-      opacity: 1 !important;
-      will-change: auto !important;
-    }
   }
 
   .hash-section {
@@ -1224,47 +1194,6 @@ const faqSchema = {
     transition:
       border-color var(--transition-fast),
       box-shadow var(--transition-fast);
-  }
-
-  :global(html.has-home-shell-reveal) .hash-section .shell {
-    opacity: 0.72;
-    transform: translateY(2.4rem) scale(0.985);
-    box-shadow:
-      0 30px 52px rgba(15, 23, 42, 0.09),
-      0 6px 16px rgba(15, 23, 42, 0.05);
-    will-change: transform, opacity, box-shadow;
-    transition:
-      opacity 720ms ease,
-      transform 860ms cubic-bezier(0.22, 1, 0.36, 1),
-      box-shadow 520ms ease,
-      border-color var(--transition-fast);
-  }
-
-  :global(html.has-home-shell-reveal) .hash-section .shell > * {
-    opacity: 0.78;
-    transform: translateY(1rem);
-    transition:
-      opacity 620ms ease,
-      transform 760ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
-  :global(html.has-home-shell-reveal) .hash-section .shell.is-visible {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    box-shadow: var(--surface-shadow);
-  }
-
-  :global(html.has-home-shell-reveal) .hash-section .shell.is-visible > * {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  :global(html.has-home-shell-reveal) .hash-section .shell > :nth-child(2) {
-    transition-delay: 90ms;
-  }
-
-  :global(html.has-home-shell-reveal) .hash-section .shell > :nth-child(3) {
-    transition-delay: 150ms;
   }
 
   .hash-section:target .shell {
@@ -1492,9 +1421,6 @@ const faqSchema = {
 
   .story-surface {
     position: relative;
-    background:
-      radial-gradient(circle at top left, rgba(var(--color-primary-rgb), 0.1), transparent 34%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.82));
   }
 
   .story-header-grid {
@@ -1532,43 +1458,24 @@ const faqSchema = {
   .story-steps {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.9rem;
-    margin-top: 1.6rem;
-    padding-top: 1.35rem;
-    border-top: 1px solid var(--color-border-subtle);
+    gap: 1.8rem;
+    margin-top: 2.2rem;
   }
 
-  /* Shared card treatment for workflow steps and FAQ entries */
-  .story-step,
-  .faq-item {
-    padding: 1.1rem 1.05rem;
-    border-radius: 1.2rem;
-    background: rgba(255, 255, 255, 0.68);
-    border: 1px solid rgba(15, 23, 42, 0.07);
-    box-shadow: 0 14px 22px rgba(15, 23, 42, 0.04);
-  }
-
+  /* Flat editorial columns: hairline rule + number, no card chrome */
   .story-step {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 0.85rem;
-    align-items: start;
-    min-height: 100%;
+    border-top: 1px solid var(--color-border-subtle);
+    padding-top: 1.1rem;
   }
 
   .story-step__index {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 2.5rem;
-    min-height: 2.5rem;
-    border-radius: var(--radius-pill);
-    background: rgba(var(--color-primary-rgb), 0.08);
-    color: var(--color-primary);
-    font-size: 0.85rem;
-    font-weight: 800;
+    display: block;
+    margin-bottom: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 600;
     letter-spacing: 0.08em;
-    box-shadow: inset 0 0 0 1px rgba(var(--color-primary-rgb), 0.14);
+    color: var(--color-primary);
   }
 
   .story-step__title {
@@ -1579,7 +1486,7 @@ const faqSchema = {
   }
 
   .story-step__desc {
-    margin: 0.35rem 0 0;
+    margin: 0.4rem 0 0;
     color: var(--color-body);
     line-height: 1.65;
   }
@@ -1591,10 +1498,13 @@ const faqSchema = {
   .faq-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.9rem;
-    margin: 1.6rem 0 0;
-    padding-top: 1.35rem;
+    gap: 1.8rem 2.5rem;
+    margin: 2.2rem 0 0;
+  }
+
+  .faq-item {
     border-top: 1px solid var(--color-border-subtle);
+    padding-top: 1.1rem;
   }
 
   .faq-item__question {
@@ -1621,16 +1531,11 @@ const faqSchema = {
   .story-capture-tip {
     display: grid;
     grid-template-columns: minmax(0, 1.8fr) auto;
-    gap: 0.8rem 1rem;
+    gap: 0.8rem 1.5rem;
     align-items: end;
-    margin-top: 0.8rem;
-    padding: 0.85rem 1rem;
-    border-radius: 1rem;
-    background:
-      linear-gradient(135deg, rgba(255, 255, 255, 0.82), rgba(247, 249, 255, 0.72)),
-      radial-gradient(circle at top right, rgba(var(--color-primary-rgb), 0.08), transparent 42%);
-    border: 1px solid rgba(var(--color-primary-rgb), 0.1);
-    box-shadow: 0 16px 28px rgba(15, 23, 42, 0.04);
+    margin-top: 2rem;
+    padding-top: 1.4rem;
+    border-top: 1px solid var(--color-border-subtle);
   }
 
   .story-capture-tip__copy {
@@ -1699,16 +1604,16 @@ const faqSchema = {
   }
 
   .story-capture-tip__fact {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.34rem 0.65rem;
-    border-radius: var(--radius-pill);
-    background: var(--glass-bg);
-    border: 1px solid rgba(var(--color-primary-rgb), 0.1);
-    color: rgba(var(--color-primary-rgb), 0.86);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.01em;
+    color: var(--color-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .story-capture-tip__fact:not(:first-child)::before {
+    content: "·";
+    margin-right: 0.45rem;
+    opacity: 0.7;
   }
 
   .story-capture-tip__link {
@@ -1760,13 +1665,6 @@ const faqSchema = {
 
     .story-section .container {
       padding-top: 0.9rem;
-    }
-  }
-
-  @media (min-width: 576px) and (max-width: 767.98px) {
-    .story-step {
-      grid-template-columns: 1fr;
-      gap: 0.85rem;
     }
   }
 
@@ -2039,13 +1937,6 @@ const faqSchema = {
       transform-origin: center top;
     }
 
-    :global(html.has-home-shell-reveal) .hash-section .shell,
-    :global(html.has-home-shell-reveal) .hash-section .shell > * {
-      transform: none;
-      opacity: 1;
-      will-change: auto;
-    }
-
     .section-heading {
       width: 100%;
       max-width: 100%;
@@ -2120,26 +2011,17 @@ const faqSchema = {
 
     .story-steps {
       grid-template-columns: 1fr;
-      margin-top: 1.25rem;
-      gap: 0.75rem;
-      padding-top: 1rem;
+      margin-top: 1.5rem;
+      gap: 1.2rem;
     }
 
     .story-step {
-      grid-template-columns: auto 1fr;
-      gap: 0.8rem;
-      padding: 0.95rem;
-      border-left: none;
-      border-radius: 1rem;
-      background: rgba(255, 255, 255, 0.58);
-      border: 1px solid rgba(15, 23, 42, 0.07);
-      box-shadow: 0 12px 20px rgba(15, 23, 42, 0.03);
+      padding-top: 0.9rem;
     }
 
     .story-step__index {
-      min-width: 2.1rem;
-      min-height: 2.1rem;
-      font-size: 0.76rem;
+      margin-bottom: 0.4rem;
+      font-size: 0.74rem;
     }
 
     .story-step__title {
@@ -2154,7 +2036,8 @@ const faqSchema = {
 
     .story-capture-tip {
       grid-template-columns: 1fr;
-      padding: 0.9rem;
+      margin-top: 1.5rem;
+      padding-top: 1.1rem;
       gap: 0.75rem;
     }
 

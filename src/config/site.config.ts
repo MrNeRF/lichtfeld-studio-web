@@ -14,13 +14,7 @@
  * - https://ogp.me/
  */
 
-import {
-  REPO_OWNER,
-  TWITTER_HANDLE,
-  GITHUB_PROFILE_URL,
-  GITHUB_REPO_URL,
-  DISCORD_URL,
-} from "@/constants/project";
+import { REPO_OWNER, TWITTER_HANDLE, GITHUB_PROFILE_URL, GITHUB_REPO_URL, DISCORD_URL } from "@/constants/project";
 
 // ============================================================================
 // Site Identity
@@ -115,9 +109,13 @@ export const SOFTWARE_APP = {
    */
   softwareVersion: "1.0.0",
 
-  /** Pricing - free and open source */
+  /**
+   * Pricing. Source is free under GPLv3; the prebuilt Windows binary is sold
+   * through the LichtFeld portal to fund development, with a $30 minimum
+   * contribution. `price` reflects that entry price for rich results.
+   */
   offers: {
-    price: "0",
+    price: "30",
     priceCurrency: "USD",
   },
 

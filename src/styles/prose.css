@@ -102,7 +102,6 @@
   font-family: var(--font-mono);
   font-size: 0.88rem;
   line-height: 1.65;
-  box-shadow: 0 12px 24px rgba(var(--ink-rgb), 0.08);
 }
 
 .prose pre code {
@@ -164,8 +163,6 @@
   margin: 1.25rem 0;
   padding: 0.75rem 1.25rem;
   border-left: 3px solid rgba(var(--color-primary-rgb), 0.35);
-  border-radius: 0 0.75rem 0.75rem 0;
-  background: rgba(255, 255, 255, 0.45);
   color: var(--color-muted);
 }
 
@@ -214,7 +211,7 @@
 }
 
 .prose tr:nth-child(even) td {
-  background: rgba(255, 255, 255, 0.45);
+  background: rgba(var(--ink-rgb), 0.02);
 }
 
 /* --- Figures & media --- */

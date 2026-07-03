@@ -70,18 +70,12 @@ function formatNumber(num: number): string {
     background: var(--card-bg);
     border: 1px solid var(--card-border);
     border-radius: var(--card-radius);
-    box-shadow: var(--card-shadow);
-    transition:
-      box-shadow 0.2s ease-in-out,
-      transform 0.2s ease-in-out,
-      border-color 0.2s ease-in-out;
+    transition: border-color 0.2s ease-in-out;
     min-height: 172px;
   }
 
   .stat-card:hover {
-    transform: translateY(var(--card-hover-lift));
     border-color: var(--color-border-hover);
-    box-shadow: var(--card-shadow-hover);
   }
 
   /* Icon styling */
@@ -96,7 +90,6 @@ function formatNumber(num: number): string {
     color: #fff;
     font-size: 1.5rem;
     margin-bottom: 0.25rem;
-    box-shadow: 0 14px 26px rgba(var(--color-primary-rgb), 0.2);
   }
 
   /* Value styling - the hero number */

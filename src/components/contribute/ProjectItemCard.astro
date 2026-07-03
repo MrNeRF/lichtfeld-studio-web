@@ -48,11 +48,7 @@ const updatedLabel = item.updatedAt
     border-radius: var(--card-radius);
     background: var(--card-bg);
     border: 1px solid var(--card-border);
-    box-shadow: var(--card-shadow);
-    transition:
-      transform var(--transition-fast),
-      box-shadow var(--transition-fast),
-      border-color var(--transition-fast);
+    transition: border-color var(--transition-fast);
   }
 
   .project-item-card::before {
@@ -65,15 +61,12 @@ const updatedLabel = item.updatedAt
   }
 
   .project-item-card:hover {
-    transform: translateY(var(--card-hover-lift));
     border-color: var(--color-border-hover);
-    box-shadow: var(--card-shadow-hover);
   }
 
   .project-item-card:focus-within {
-    transform: translateY(var(--card-hover-lift));
     border-color: var(--color-primary-link);
-    box-shadow: var(--focus-shadow), var(--card-shadow-hover);
+    box-shadow: var(--focus-shadow);
   }
 
   .project-item-card__meta {
@@ -92,9 +85,7 @@ const updatedLabel = item.updatedAt
   .project-item-card__title a {
     color: var(--color-heading);
     text-decoration: none;
-    transition:
-      color var(--transition-fast),
-      box-shadow var(--transition-fast);
+    transition: color var(--transition-fast);
   }
 
   .project-item-card__title a:hover {
@@ -143,9 +134,7 @@ const updatedLabel = item.updatedAt
     color: var(--color-primary-link);
     font-weight: 700;
     text-decoration: none;
-    transition:
-      color var(--transition-fast),
-      box-shadow var(--transition-fast);
+    transition: color var(--transition-fast);
   }
 
   .project-item-card__action:hover {

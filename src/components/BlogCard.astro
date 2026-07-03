@@ -48,19 +48,13 @@ const dateFormatter = new Intl.DateTimeFormat("en", {
     border-radius: var(--card-radius);
     background: var(--card-bg);
     border: 1px solid var(--card-border);
-    box-shadow: var(--card-shadow);
     color: var(--color-heading);
     text-decoration: none;
-    transition:
-      transform var(--transition-fast),
-      border-color var(--transition-fast),
-      box-shadow var(--transition-fast);
+    transition: border-color var(--transition-fast);
   }
 
   .blog-card:hover {
-    transform: translateY(var(--card-hover-lift));
     border-color: var(--color-border-hover);
-    box-shadow: var(--card-shadow-hover);
   }
 
   .blog-card:focus-visible {

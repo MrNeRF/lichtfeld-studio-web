@@ -153,12 +153,18 @@ const defaultControlHints = getControlHints(defaultControlScheme);
                   <span data-browse-label>Back to Current Scene</span>
                 </button>
               </div>
-              <div class="showcase-player__browse-grid showcase-gallery__grid" role="list" aria-label="Browse all scenes">
-                {SHOWCASE_SCENES.map((scene) => (
-                  <div class="showcase-gallery__item showcase-player__browse-item" role="listitem">
-                    <SceneCard scene={scene} isSelected={scene.id === DEFAULT_SCENE_ID} basePath={base} />
-                  </div>
-                ))}
+              <div
+                class="showcase-player__browse-grid showcase-gallery__grid"
+                role="list"
+                aria-label="Browse all scenes"
+              >
+                {
+                  SHOWCASE_SCENES.map((scene) => (
+                    <div class="showcase-gallery__item showcase-player__browse-item" role="listitem">
+                      <SceneCard scene={scene} isSelected={scene.id === DEFAULT_SCENE_ID} basePath={base} />
+                    </div>
+                  ))
+                }
               </div>
             </div>
           </div>
@@ -351,9 +357,9 @@ const defaultControlHints = getControlHints(defaultControlScheme);
         <!-- ====================================================================
            Scene Gallery
            ==================================================================== -->
-         {
-           SHOWCASE_SCENES.length > 1 && (
-             <section class="showcase-gallery">
+        {
+          SHOWCASE_SCENES.length > 1 && (
+            <section class="showcase-gallery">
               <div class="section-head showcase-gallery__header">
                 <h2 class="section-title showcase-gallery__title">More Scenes</h2>
                 <button
@@ -375,10 +381,10 @@ const defaultControlHints = getControlHints(defaultControlScheme);
                     stroke-linecap="round"
                     stroke-linejoin="round"
                   >
-                    <rect x="3" y="4" width="7" height="7" rx="1"></rect>
-                    <rect x="14" y="4" width="7" height="7" rx="1"></rect>
-                    <rect x="14" y="13" width="7" height="7" rx="1"></rect>
-                    <rect x="3" y="13" width="7" height="7" rx="1"></rect>
+                    <rect x="3" y="4" width="7" height="7" rx="1" />
+                    <rect x="14" y="4" width="7" height="7" rx="1" />
+                    <rect x="14" y="13" width="7" height="7" rx="1" />
+                    <rect x="3" y="13" width="7" height="7" rx="1" />
                   </svg>
                   <span data-browse-label>Browse More Scenes</span>
                 </button>
@@ -896,7 +902,6 @@ const defaultControlHints = getControlHints(defaultControlScheme);
       margin-bottom: 0;
       padding: 0;
       border-radius: 0;
-      box-shadow: none;
     }
 
     .showcase-gallery__title {
@@ -908,11 +913,6 @@ const defaultControlHints = getControlHints(defaultControlScheme);
 
     .showcase-gallery__grid {
       gap: 0.85rem;
-    }
-
-    .showcase-gallery__item :global(.scene-card) {
-      border-radius: 1rem;
-      box-shadow: 0 8px 20px rgba(var(--ink-rgb), 0.08);
     }
 
     .showcase-gallery__item :global(.scene-card__image-container) {
@@ -1323,19 +1323,18 @@ const defaultControlHints = getControlHints(defaultControlScheme);
     align-items: center;
     gap: 0.375rem;
     padding: 0.45rem 0.65rem;
-    background: var(--glass-bg);
+    background: #fff;
     border: 1px solid rgba(148, 163, 184, 0.22);
     border-radius: 0.75rem;
     color: var(--color-text);
     font-size: 0.75rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: border-color 0.15s ease;
     flex-shrink: 0;
   }
 
   .showcase-description__share:hover {
-    background: rgba(255, 255, 255, 0.8);
     border-color: rgba(37, 99, 235, 0.24);
   }
 
@@ -1360,7 +1359,6 @@ const defaultControlHints = getControlHints(defaultControlScheme);
     padding: 0;
     background: transparent;
     border: 0;
-    box-shadow: none;
   }
 
   /* Shared .section-head/.section-title own structure/color; the sidebar list
@@ -1461,7 +1459,6 @@ const defaultControlHints = getControlHints(defaultControlScheme);
     font-size: 0.875rem;
     font-weight: 500;
     border-radius: 0.5rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     opacity: 0;
     visibility: hidden;
     transition: all 0.2s ease;
@@ -1493,7 +1490,6 @@ const defaultControlHints = getControlHints(defaultControlScheme);
     .showcase-description {
       margin-left: 0;
       margin-right: 0;
-      border-radius: 0 0 1.25rem 1.25rem;
     }
   }
 </style>

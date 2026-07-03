@@ -72,9 +72,17 @@ const sponsorWallGroups: Array<{ label: string; sponsors: SponsorWallEntry[] }> 
       { name: "Yewth", href: "https://www.yewthstudios.com/", ariaLabel: "Visit Yewth website" },
       { name: "Vincent Woo", href: "https://vincentwoo.com/", ariaLabel: "Visit Vincent Woo website" },
       { name: "YUMA株式会社", href: "https://yuma.jp/", lang: "ja", ariaLabel: "YUMA株式会社のWebサイトを開く" },
-      { name: "Arcturus Industries", href: "https://arcturus.industries/", ariaLabel: "Visit Arcturus Industries website" },
+      {
+        name: "Arcturus Industries",
+        href: "https://arcturus.industries/",
+        ariaLabel: "Visit Arcturus Industries website",
+      },
       { name: "steam-studio", href: "https://www.steam-studio.jp/", ariaLabel: "Visit steam-studio website" },
-      { name: "Nakanihon Air Co., Ltd.", href: "https://www.nnk.co.jp/", ariaLabel: "Visit Nakanihon Air Co., Ltd. website" },
+      {
+        name: "Nakanihon Air Co., Ltd.",
+        href: "https://www.nnk.co.jp/",
+        ariaLabel: "Visit Nakanihon Air Co., Ltd. website",
+      },
     ],
   },
 ];
@@ -115,7 +123,10 @@ const seoImageAlt = "LichtFeld Studio — open-source 3D Gaussian Splatting soft
 
 // FAQ content targeting common 3DGS search queries.
 // Rendered as visible page content and emitted as FAQPage JSON-LD below.
-const faqItems = [
+// `answer` is the plain-text form used in the JSON-LD; optional `answerHtml`
+// carries inline links for the visible rendering only.
+type FaqItem = { question: string; answer: string; answerHtml?: string };
+const faqItems: FaqItem[] = [
   {
     question: "What is 3D Gaussian Splatting (3DGS)?",
     answer:
@@ -124,7 +135,8 @@ const faqItems = [
   {
     question: "Is LichtFeld Studio free?",
     answer:
-      "Yes. LichtFeld Studio is free and open source under the GPLv3 license, available for Windows and Linux. You can download the Windows build or compile from source on GitHub.",
+      "LichtFeld Studio is open source under the GPLv3 license, so you can always build it for free from source on GitHub for Windows and Linux. The prebuilt Windows binary is available through the LichtFeld portal for a minimum contribution of $30, which funds ongoing development.",
+    answerHtml: `LichtFeld Studio is open source under the GPLv3 license, so you can always build it for free from source on GitHub for Windows and Linux. The prebuilt Windows binary is available through the <a href="${LICHTFELD_PORTAL_URL}" target="_blank" rel="noopener noreferrer">LichtFeld portal</a> for a minimum contribution of $30, which funds ongoing development.`,
   },
   {
     question: "What hardware do I need to train Gaussian Splats?",
@@ -280,100 +292,97 @@ const faqSchema = {
 
   <section id="workflow" class="story-section hash-section">
     <div class="container content-frame px-6 pt-14 pb-8">
-      <div class="shell shell--spacious story-surface">
-        <div class="story-header-grid">
-          <div class="story-copy">
-            <p class="kicker mb-3">Workflow</p>
-            <div class="section-heading">
-              <h2 id="workflow-heading" class="story-title">From training run to finished scene in one app</h2>
-              <a class="section-anchor" href="#workflow" aria-label="Link to workflow section">
-                <svg class="bi" width="1em" height="1em" aria-hidden="true">
-                  <use href={`${base}static/bootstrap-icons.svg#link-45deg`}></use>
-                </svg>
-              </a>
-            </div>
-            <p class="story-lead">
-              LichtFeld Studio brings training runs, live inspection, scene editing, plugins, and MCP control into one
-              desktop workspace built around 3D Gaussian Splatting.
-            </p>
-            <p class="story-body">
-              The same runtime handles compute, scene state, and tool extensions, so teams can work inside one
-              consistent environment instead of maintaining a disconnected stack.
-            </p>
-          </div>
-
-          <div class="story-media-panel">
-            <div class="story-media">
-              <div class="story-video-wrapper">
-                <SmartVideo
-                  src={`${base}videos/meihogen-homepage`}
-                  poster={`${base}videos/meihogen-homepage-poster.jpg`}
-                  class="rounded-2xl"
-                  sizeStrategy="fill"
-                  fit="contain"
-                />
-              </div>
-            </div>
-            <p class="story-media__caption">
-              The same application handles training output, scene editing, and live inspection.
-            </p>
-          </div>
-        </div>
-
-        <div class="story-steps" aria-label="Core workflow">
-          {
-            workflowSteps.map((step, index) => (
-              <article class="story-step">
-                <span class="story-step__index">0{index + 1}</span>
-                <div>
-                  <h3 class="story-step__title">{step.title}</h3>
-                  <p class="story-step__desc">{step.description}</p>
-                </div>
-              </article>
-            ))
-          }
-        </div>
-
-        <aside class="story-capture-tip" aria-labelledby="capture-tip-heading">
-          <div class="story-capture-tip__copy">
-            <div class="story-capture-tip__header">
-              <img
-                src={gaussianSplatKingLogo.src}
-                alt="Gaussian SplatKing app icon"
-                class="story-capture-tip__logo"
-                width="56"
-                height="56"
-                loading="lazy"
-                decoding="async"
-              />
-              <div class="story-capture-tip__heading">
-                <p class="story-capture-tip__eyebrow">{captureRecommendation.eyebrow}</p>
-                <h3 id="capture-tip-heading" class="story-capture-tip__title">{captureRecommendation.title}</h3>
-              </div>
-            </div>
-            <p class="story-capture-tip__body">{captureRecommendation.description}</p>
-            <p class="story-capture-tip__note">{captureRecommendation.note}</p>
-          </div>
-
-          <div class="story-capture-tip__footer">
-            <div class="story-capture-tip__facts" aria-label="Capture recommendation highlights">
-              {captureRecommendation.highlights.map((item) => <span class="story-capture-tip__fact">{item}</span>)}
-            </div>
-            <a
-              class="section-link story-capture-tip__link"
-              href={captureRecommendation.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="View Gaussian SplatKing on the App Store"
-              data-analytics-event={ANALYTICS_EVENTS.ctaClicked}
-              data-analytics-prop-placement="home_capture_tip"
-              data-analytics-prop-target="gaussian_splatking_app_store"
-            >
-              {captureRecommendation.label}
+      <div class="story-header-grid">
+        <div class="story-copy">
+          <p class="kicker mb-3">Workflow</p>
+          <div class="section-heading">
+            <h2 id="workflow-heading" class="story-title">From training run to finished scene in one app</h2>
+            <a class="section-anchor" href="#workflow" aria-label="Link to workflow section">
+              <svg class="bi" width="1em" height="1em" aria-hidden="true">
+                <use href={`${base}static/bootstrap-icons.svg#link-45deg`}></use>
+              </svg>
             </a>
           </div>
-        </aside>
+          <p class="story-lead">
+            LichtFeld Studio brings training runs, live inspection, scene editing, plugins, and MCP control into one
+            desktop workspace built around 3D Gaussian Splatting.
+          </p>
+          <p class="story-body">
+            The same runtime handles compute, scene state, and tool extensions, so teams can work inside one consistent
+            environment instead of maintaining a disconnected stack.
+          </p>
+        </div>
+
+        <div class="story-media-panel">
+          <div class="story-media">
+            <div class="story-video-wrapper">
+              <SmartVideo
+                src={`${base}videos/meihogen-homepage`}
+                poster={`${base}videos/meihogen-homepage-poster.jpg`}
+                sizeStrategy="fill"
+                fit="contain"
+              />
+            </div>
+          </div>
+          <p class="story-media__caption">
+            The same application handles training output, scene editing, and live inspection.
+          </p>
+        </div>
       </div>
+
+      <div class="story-steps" aria-label="Core workflow">
+        {
+          workflowSteps.map((step, index) => (
+            <article class="story-step">
+              <span class="story-step__index">0{index + 1}</span>
+              <div>
+                <h3 class="story-step__title">{step.title}</h3>
+                <p class="story-step__desc">{step.description}</p>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+
+      <aside class="story-capture-tip" aria-labelledby="capture-tip-heading">
+        <div class="story-capture-tip__copy">
+          <div class="story-capture-tip__header">
+            <img
+              src={gaussianSplatKingLogo.src}
+              alt="Gaussian SplatKing app icon"
+              class="story-capture-tip__logo"
+              width="56"
+              height="56"
+              loading="lazy"
+              decoding="async"
+            />
+            <div class="story-capture-tip__heading">
+              <p class="story-capture-tip__eyebrow">{captureRecommendation.eyebrow}</p>
+              <h3 id="capture-tip-heading" class="story-capture-tip__title">{captureRecommendation.title}</h3>
+            </div>
+          </div>
+          <p class="story-capture-tip__body">{captureRecommendation.description}</p>
+          <p class="story-capture-tip__note">{captureRecommendation.note}</p>
+        </div>
+
+        <div class="story-capture-tip__footer">
+          <div class="story-capture-tip__facts" aria-label="Capture recommendation highlights">
+            {captureRecommendation.highlights.map((item) => <span class="story-capture-tip__fact">{item}</span>)}
+          </div>
+          <a
+            class="section-link story-capture-tip__link"
+            href={captureRecommendation.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="View Gaussian SplatKing on the App Store"
+            data-analytics-event={ANALYTICS_EVENTS.ctaClicked}
+            data-analytics-prop-placement="home_capture_tip"
+            data-analytics-prop-target="gaussian_splatking_app_store"
+          >
+            {captureRecommendation.label}
+          </a>
+        </div>
+      </aside>
     </div>
   </section>
 
@@ -422,40 +431,42 @@ const faqSchema = {
 
   <section id="about-3dgs" class="story-section hash-section" aria-labelledby="about-3dgs-heading">
     <div class="container content-frame px-6 pb-8">
-      <div class="shell shell--spacious story-surface">
-        <div class="story-copy story-copy--wide">
-          <p class="kicker mb-3">3D Gaussian Splatting</p>
-          <div class="section-heading">
-            <h2 id="about-3dgs-heading" class="story-title">What is 3D Gaussian Splatting?</h2>
-            <a class="section-anchor" href="#about-3dgs" aria-label="Link to 3D Gaussian Splatting section">
-              <svg class="bi" width="1em" height="1em" aria-hidden="true">
-                <use href={`${base}static/bootstrap-icons.svg#link-45deg`}></use>
-              </svg>
-            </a>
-          </div>
-          <p class="story-lead">
-            3D Gaussian Splatting (3DGS) turns ordinary photos and video into photorealistic 3D scenes that render in
-            real time. LichtFeld Studio is a free, open-source Gaussian Splatting application that covers the whole
-            workflow — training, editing, rendering, and automation — locally on your own GPU.
-          </p>
-          <p class="story-body">
-            Instead of meshes or NeRF-style neural networks, a Gaussian Splat scene is built from millions of 3D
-            Gaussians that rasterize in real time. That speed makes 3DGS a natural fit for scanning real places and
-            objects, drone and aerial capture, virtual production, and interactive visualization.
-          </p>
+      <div class="story-copy story-copy--wide">
+        <p class="kicker mb-3">3D Gaussian Splatting</p>
+        <div class="section-heading">
+          <h2 id="about-3dgs-heading" class="story-title">What is 3D Gaussian Splatting?</h2>
+          <a class="section-anchor" href="#about-3dgs" aria-label="Link to 3D Gaussian Splatting section">
+            <svg class="bi" width="1em" height="1em" aria-hidden="true">
+              <use href={`${base}static/bootstrap-icons.svg#link-45deg`}></use>
+            </svg>
+          </a>
         </div>
-
-        <dl class="faq-grid">
-          {
-            faqItems.map((item) => (
-              <div class="faq-item">
-                <dt class="faq-item__question">{item.question}</dt>
-                <dd class="faq-item__answer">{item.answer}</dd>
-              </div>
-            ))
-          }
-        </dl>
+        <p class="story-lead">
+          3D Gaussian Splatting (3DGS) turns ordinary photos and video into photorealistic 3D scenes that render in real
+          time. LichtFeld Studio is a free, open-source Gaussian Splatting application that covers the whole workflow —
+          training, editing, rendering, and automation — locally on your own GPU.
+        </p>
+        <p class="story-body">
+          Instead of meshes or NeRF-style neural networks, a Gaussian Splat scene is built from millions of 3D Gaussians
+          that rasterize in real time. That speed makes 3DGS a natural fit for scanning real places and objects, drone
+          and aerial capture, virtual production, and interactive visualization.
+        </p>
       </div>
+
+      <dl class="faq-grid">
+        {
+          faqItems.map((item) => (
+            <div class="faq-item">
+              <dt class="faq-item__question">{item.question}</dt>
+              {item.answerHtml ? (
+                <dd class="faq-item__answer" set:html={item.answerHtml} />
+              ) : (
+                <dd class="faq-item__answer">{item.answer}</dd>
+              )}
+            </div>
+          ))
+        }
+      </dl>
     </div>
   </section>
 
@@ -471,7 +482,7 @@ const faqSchema = {
           <div class="portal-sponsors__tier">
             <p class="portal-sponsors__label">{group.label}</p>
             <div class="portal-sponsors__row">
-              {group.sponsors.map((sponsor) => (
+              {group.sponsors.map((sponsor) =>
                 sponsor.logo ? (
                   <a
                     href={sponsor.href}
@@ -499,8 +510,8 @@ const faqSchema = {
                   >
                     {sponsor.name}
                   </a>
-                )
-              ))}
+                ),
+              )}
             </div>
           </div>
         ))
@@ -628,9 +639,7 @@ const faqSchema = {
         }
       }, 100); // A 100ms delay is usually sufficient.
     }
-
   });
-
 </script>
 
 <style>
@@ -1190,19 +1199,6 @@ const faqSchema = {
     scroll-margin-top: calc(var(--nav-height) + 1rem);
   }
 
-  .hash-section .shell {
-    transition:
-      border-color var(--transition-fast),
-      box-shadow var(--transition-fast);
-  }
-
-  .hash-section:target .shell {
-    border-color: rgba(var(--color-primary-rgb), 0.2);
-    box-shadow:
-      0 0 0 1px rgba(var(--color-primary-rgb), 0.08),
-      var(--surface-shadow);
-  }
-
   .section-heading {
     display: flex;
     align-items: flex-start;
@@ -1228,32 +1224,24 @@ const faqSchema = {
     height: 2.75rem;
     margin-top: 0.15rem;
     border-radius: var(--radius-pill);
-    border: 1px solid rgba(148, 163, 184, 0.18);
-    background: var(--glass-bg);
+    border: 1px solid var(--color-border-subtle);
     color: #64748b;
     text-decoration: none;
-    box-shadow: 0 10px 18px rgba(15, 23, 42, 0.04);
     transition:
-      transform var(--transition-fast),
       color var(--transition-fast),
       background-color var(--transition-fast),
-      border-color var(--transition-fast),
-      box-shadow var(--transition-fast);
+      border-color var(--transition-fast);
   }
 
   .section-anchor:hover {
-    transform: translateY(-1px);
     color: var(--color-primary-link);
-    background: rgba(255, 255, 255, 0.96);
-    border-color: rgba(37, 99, 235, 0.24);
-    box-shadow: 0 14px 24px rgba(15, 23, 42, 0.07);
+    background: rgba(var(--color-primary-rgb), 0.04);
+    border-color: var(--color-border-hover);
   }
 
   .section-anchor:focus-visible {
     outline: none;
-    transform: translateY(-1px);
     color: var(--color-primary-link);
-    background: rgba(255, 255, 255, 0.96);
     border-color: var(--color-primary-link);
     box-shadow: var(--focus-shadow);
   }
@@ -1279,9 +1267,6 @@ const faqSchema = {
     }
     .section-heading {
       gap: 0.55rem;
-    }
-    .story-section {
-      margin-top: 0;
     }
     .story-header-grid {
       grid-template-columns: 1fr;
@@ -1401,26 +1386,20 @@ const faqSchema = {
     .hero__release-kicker {
       letter-spacing: 0.07em;
     }
-
-    .story-media {
-      border-radius: 1.25rem;
-      padding: 1.1rem;
-    }
   }
 
   .story-section {
     position: relative;
-    z-index: 4;
-    margin-top: clamp(-2.75rem, -3.5vw, -1.1rem);
   }
 
   .story-section .container {
-    padding-top: clamp(1rem, 2vw, 1.5rem);
-    padding-bottom: clamp(1.5rem, 2.8vw, 2rem);
+    padding-top: clamp(2.5rem, 5vw, 4rem);
+    padding-bottom: clamp(2rem, 3.5vw, 3rem);
   }
 
-  .story-surface {
-    position: relative;
+  /* Flat section separation: hairline rule instead of card boundaries */
+  #about-3dgs .container {
+    border-top: 1px solid var(--color-border-subtle);
   }
 
   .story-header-grid {
@@ -1553,9 +1532,6 @@ const faqSchema = {
     height: 2.75rem;
     flex: 0 0 auto;
     border-radius: 0.8rem;
-    box-shadow:
-      0 12px 22px rgba(15, 23, 42, 0.16),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.18);
   }
 
   .story-capture-tip__heading {
@@ -1639,11 +1615,9 @@ const faqSchema = {
     width: 100%;
     aspect-ratio: 31 / 20;
     overflow: hidden;
-    border-radius: 1.45rem;
+    border-radius: 0.75rem;
     background: #0f172a;
-    box-shadow:
-      0 22px 44px rgba(15, 23, 42, 0.18),
-      0 8px 16px rgba(15, 23, 42, 0.08);
+    border: 1px solid var(--color-border-subtle);
   }
 
   .story-media__caption {
@@ -1662,10 +1636,6 @@ const faqSchema = {
     .hero__stack {
       padding-block: 0.7rem 1.1rem;
     }
-
-    .story-section .container {
-      padding-top: 0.9rem;
-    }
   }
 
   .sponsor-wall-section {
@@ -1677,6 +1647,7 @@ const faqSchema = {
     gap: 2.25rem;
     max-width: 960px;
     padding-block: 3rem 3.5rem;
+    border-top: 1px solid var(--color-border-subtle);
     text-align: center;
   }
 
@@ -1782,14 +1753,14 @@ const faqSchema = {
   @media (min-width: 576px) and (max-width: 767.98px) {
     .story-section .container {
       padding-top: 2.5rem;
-      padding-bottom: 0.75rem;
+      padding-bottom: 1.75rem;
     }
   }
 
   @media (max-width: 575.98px) {
     .story-section .container {
       padding-top: 2rem;
-      padding-bottom: 0.5rem;
+      padding-bottom: 1.5rem;
     }
 
     .portal-sponsors {
@@ -2072,10 +2043,6 @@ const faqSchema = {
 
     .story-capture-tip__link {
       justify-self: start;
-    }
-
-    .story-video-wrapper {
-      border-radius: 1rem;
     }
 
     .story-media__caption {

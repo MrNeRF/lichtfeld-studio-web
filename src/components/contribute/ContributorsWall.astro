@@ -112,18 +112,12 @@ const contributors: Contributor[] = providedContributors ?? (await getContributo
     box-sizing: border-box;
     border-radius: 50%;
     overflow: hidden;
-    border: 2px solid rgba(255, 255, 255, 0.88);
-    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
-    transition:
-      transform 0.2s ease,
-      box-shadow 0.2s ease;
+    border: 2px solid var(--color-border-subtle);
+    transition: border-color 0.2s ease;
   }
 
   .contributor-avatar:hover {
-    transform: translateY(-3px) scale(1.04);
-    box-shadow: 0 16px 28px rgba(15, 23, 42, 0.12);
-    z-index: 10;
-    position: relative;
+    border-color: var(--color-border-hover);
   }
 
   .contributor-avatar img {

@@ -14,10 +14,7 @@ const bountyPath = `${base}bounty/`;
     bounties.map((bounty) => (
       <a
         href={bountyPath + bounty.slug}
-        class:list={[
-          "bounty-list__item",
-          { "is-active": currentPath.startsWith(bountyPath + bounty.slug) },
-        ]}
+        class:list={["bounty-list__item", { "is-active": currentPath.startsWith(bountyPath + bounty.slug) }]}
       >
         <div class="bounty-list__meta">
           <span>{bounty.data.date.toLocaleDateString()}</span>
@@ -46,32 +43,22 @@ const bountyPath = `${base}bounty/`;
     border: 1px solid var(--card-border);
     color: inherit;
     text-decoration: none;
-    box-shadow: var(--card-shadow);
-    transition:
-      transform var(--transition-fast),
-      border-color var(--transition-fast),
-      box-shadow var(--transition-fast);
+    transition: border-color var(--transition-fast);
   }
 
   .bounty-list__item:hover {
-    transform: translateY(var(--card-hover-lift));
     border-color: var(--color-border-hover);
-    box-shadow: var(--card-shadow-hover);
   }
 
   .bounty-list__item:focus-visible {
     outline: none;
-    transform: translateY(var(--card-hover-lift));
     border-color: var(--color-primary-link);
     box-shadow: var(--focus-shadow);
   }
 
   .bounty-list__item.is-active {
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(239, 245, 255, 0.88)),
-      rgba(255, 255, 255, 0.9);
-    border-color: rgba(var(--color-primary-rgb), 0.18);
-    box-shadow: 0 18px 30px rgba(var(--color-primary-rgb), 0.08);
+    background: var(--card-bg);
+    border-color: rgba(var(--color-primary-rgb), 0.35);
   }
 
   .bounty-list__meta {

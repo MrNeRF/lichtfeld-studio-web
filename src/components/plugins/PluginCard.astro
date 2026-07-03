@@ -68,12 +68,8 @@ const { plugin, compact = false } = Astro.props;
     border-radius: var(--card-radius);
     background: var(--card-bg);
     border: 1px solid var(--card-border);
-    box-shadow: var(--card-shadow);
     overflow: hidden;
-    transition:
-      transform var(--transition-fast),
-      box-shadow var(--transition-fast),
-      border-color var(--transition-fast);
+    transition: border-color var(--transition-fast);
   }
 
   .plugin-card::before {
@@ -90,15 +86,12 @@ const { plugin, compact = false } = Astro.props;
   }
 
   .plugin-card:hover {
-    transform: translateY(var(--card-hover-lift));
     border-color: var(--color-border-hover);
-    box-shadow: var(--card-shadow-hover);
   }
 
   .plugin-card:focus-within {
-    transform: translateY(var(--card-hover-lift));
     border-color: var(--color-primary-link);
-    box-shadow: var(--focus-shadow), var(--card-shadow-hover);
+    box-shadow: var(--focus-shadow);
   }
 
   .plugin-card__meta,

@@ -66,20 +66,14 @@ const seoDescription =
     gap: 0.35rem;
     padding: 1.2rem 1.35rem;
     border-radius: var(--card-radius);
-    background: rgba(255, 255, 255, 0.62);
+    background: var(--card-bg);
     border: 1px solid var(--color-border-subtle);
-    box-shadow: 0 12px 20px rgba(15, 23, 42, 0.03);
     text-decoration: none;
-    transition:
-      transform var(--transition-fast),
-      border-color var(--transition-fast),
-      box-shadow var(--transition-fast);
+    transition: border-color var(--transition-fast);
   }
 
   .docs-card:hover {
-    transform: translateY(-2px);
     border-color: var(--color-border-hover);
-    box-shadow: 0 18px 28px rgba(15, 23, 42, 0.06);
   }
 
   .docs-card::after {

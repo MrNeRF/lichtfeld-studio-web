@@ -165,6 +165,15 @@ const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
     top: calc(var(--nav-height) + 1.25rem);
   }
 
+  /* The sidebar sits to the right of the article on large screens; a hairline
+     border keeps it reading as a distinct column now that the glass shells are flat. */
+  @media (min-width: 992px) {
+    .docs-sidebar {
+      border-left: 1px solid var(--color-border-subtle);
+      padding-left: 1.5rem;
+    }
+  }
+
   .docs-sidebar__nav {
     display: flex;
     flex-direction: column;
@@ -252,6 +261,9 @@ const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
     .docs-sidebar {
       position: static;
       top: auto;
+      /* Stacked above the article on small screens: separate with a hairline. */
+      border-bottom: 1px solid var(--color-border-subtle);
+      padding-bottom: 1.25rem;
     }
 
     .docs-sidebar__toc {

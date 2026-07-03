@@ -53,12 +53,11 @@ const breadcrumbs = [
   <section class="blog-post-page">
     <div class="container blog-post-frame px-4 py-5">
       <article class="shell blog-post">
-        <a href={`${cleanBase}/blog/`} class="blog-post__back">
-          <span aria-hidden="true">←</span>
-          All posts
-        </a>
-
         <header class="blog-post__header">
+          <a href={`${cleanBase}/blog/`} class="blog-post__back">
+            <span aria-hidden="true">←</span>
+            All posts
+          </a>
           <p class="kicker">{post.data.category}</p>
           <h1 class="blog-post__title">{post.data.title}</h1>
           <p class="blog-post__summary">{post.data.summary}</p>
@@ -110,7 +109,9 @@ const breadcrumbs = [
                   More from the blog
                 </h2>
               </div>
-              <a href={`${cleanBase}/blog/`} class="section-link">All posts</a>
+              <a href={`${cleanBase}/blog/`} class="section-link">
+                All posts
+              </a>
             </div>
 
             <div class="blog-post__more-grid mt-4">
@@ -130,19 +131,22 @@ const breadcrumbs = [
     background: var(--page-bg);
   }
 
+  /* Single reading column: header, figure, and prose share one width so the
+     post reads as one coherent article. */
   .blog-post-frame {
-    max-width: 56rem !important;
+    max-width: 46rem !important;
   }
 
   .blog-post {
-    padding: clamp(1.5rem, 4vw, 2.75rem);
+    padding-block: clamp(1.5rem, 4vw, 2.75rem);
   }
 
   .blog-post__back {
-    display: inline-flex;
+    display: flex;
+    width: fit-content;
     align-items: center;
     gap: 0.45rem;
-    margin-bottom: 1.6rem;
+    margin-bottom: 2rem;
     color: var(--color-primary-link);
     font-family: var(--font-display);
     font-size: 0.88rem;
@@ -156,29 +160,36 @@ const breadcrumbs = [
   }
 
   .blog-post__title {
-    margin: 0 0 0.9rem;
+    margin: 0 0 1rem;
     color: var(--color-heading);
-    font-size: clamp(2.1rem, 5vw, 3.3rem);
-    line-height: 1.02;
+    font-size: clamp(2.1rem, 4.5vw, 3rem);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
   }
 
   .blog-post__summary {
     margin: 0;
-    max-width: 42rem;
     color: var(--color-body-strong);
-    font-size: 1.08rem;
-    line-height: 1.76;
+    font-size: 1.14rem;
+    line-height: 1.72;
   }
 
+  /* Hairline-ruled byline strip anchors the header before the figure */
   .blog-post__byline {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
-    gap: 0.55rem;
-    margin: 1.1rem 0 0;
+    gap: 0.6rem;
+    margin: 1.5rem 0 0;
+    padding-block: 0.85rem;
+    border-top: 1px solid var(--color-border-subtle);
+    border-bottom: 1px solid var(--color-border-subtle);
     color: var(--color-muted);
-    font-size: 0.92rem;
-    font-weight: 600;
+    font-family: var(--font-display);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
   }
 
   .blog-post__byline-sep {
@@ -186,12 +197,11 @@ const breadcrumbs = [
   }
 
   .blog-post__figure {
-    margin: 1.7rem 0 0;
+    margin: clamp(1.8rem, 3.5vw, 2.5rem) 0 0;
     overflow: hidden;
-    border-radius: 1.2rem;
+    border-radius: var(--card-radius);
     border: 1px solid var(--card-border);
     background: #101828;
-    box-shadow: var(--card-shadow);
   }
 
   .blog-post__figure img {
@@ -202,7 +212,7 @@ const breadcrumbs = [
   }
 
   .blog-post__content {
-    margin-top: 2.1rem;
+    margin-top: clamp(2rem, 3.5vw, 2.6rem);
   }
 
   .blog-post__footer {

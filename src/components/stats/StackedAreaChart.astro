@@ -276,10 +276,9 @@ const { id = "stacked-area-chart", height = 400, title } = Astro.props;
   .stacked-area-chart__container {
     width: 100%;
     padding: 1rem 0.5rem 0.5rem;
-    background: rgba(255, 255, 255, 0.92);
-    border: 1px solid rgba(148, 163, 184, 0.16);
-    border-radius: 1.25rem;
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--card-radius);
   }
 
   .stacked-area-chart__loading {
@@ -317,7 +316,6 @@ const { id = "stacked-area-chart", height = 400, title } = Astro.props;
   }
 
   .stacked-area-chart :global(.apexcharts-menu) {
-    border: 1px solid rgba(148, 163, 184, 0.16);
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    border: 1px solid var(--card-border);
   }
 </style>

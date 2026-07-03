@@ -97,9 +97,7 @@ const seoDescription =
         <section class="shell shell--compact bounty-sponsors-shell" aria-labelledby="bounty-sponsors-heading">
           <div class="bounty-sponsors-intro">
             <p class="kicker">Sponsor board</p>
-            <h2 id="bounty-sponsors-heading" class="bounty-sponsors-intro__title">
-              Named backers on paid bounties
-            </h2>
+            <h2 id="bounty-sponsors-heading" class="bounty-sponsors-intro__title">Named backers on paid bounties</h2>
             <p class="bounty-sponsors-intro__copy">
               Compiled from the published bounty posts for bounty 001 and the paid base pool of bounty 002.
             </p>
@@ -117,7 +115,9 @@ const seoDescription =
                   aria-label={`Open ${sponsor.name}`}
                 >
                   <span class="bounty-sponsor-row__rank">#{index + 1}</span>
-                  <span class="bounty-sponsor-row__name" title={sponsor.name}>{sponsor.name}</span>
+                  <span class="bounty-sponsor-row__name" title={sponsor.name}>
+                    {sponsor.name}
+                  </span>
                   <span class="bounty-sponsor-row__total">${sponsor.total.toLocaleString()}</span>
                 </a>
               ))
@@ -246,31 +246,22 @@ const seoDescription =
     align-items: center;
     min-height: 4rem;
     padding: 0.85rem 0.95rem;
-    border-radius: 1rem;
-    background: rgba(255, 255, 255, 0.82);
+    border-radius: var(--card-radius);
+    background: var(--card-bg);
     border: 1px solid var(--card-border);
     color: inherit;
     text-decoration: none;
-    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.035);
-    transition:
-      transform var(--transition-fast),
-      border-color var(--transition-fast),
-      box-shadow var(--transition-fast),
-      background-color var(--transition-fast);
+    transition: border-color var(--transition-fast);
   }
 
   .bounty-sponsor-row:hover,
   .bounty-entry:hover {
-    transform: translateY(-2px);
     border-color: var(--color-border-hover);
-    box-shadow: 0 18px 28px rgba(15, 23, 42, 0.06);
-    background: var(--glass-bg-strong);
   }
 
   .bounty-sponsor-row:focus-visible,
   .bounty-entry:focus-visible {
     outline: none;
-    transform: translateY(-2px);
     border-color: var(--color-primary-link);
     box-shadow: var(--focus-shadow);
   }
@@ -329,15 +320,11 @@ const seoDescription =
     min-height: 100%;
     padding: 1.35rem;
     border-radius: var(--card-radius);
-    background: rgba(255, 255, 255, 0.84);
+    background: var(--card-bg);
     border: 1px solid var(--card-border);
     color: inherit;
     text-decoration: none;
-    box-shadow: var(--card-shadow);
-    transition:
-      transform var(--transition-fast),
-      border-color var(--transition-fast),
-      box-shadow var(--transition-fast);
+    transition: border-color var(--transition-fast);
   }
 
   .bounty-entry__top {

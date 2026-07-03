@@ -80,12 +80,8 @@
   --dropdown-background: rgba(255, 255, 255, 0.9);
   --body-background: #fbf8f2;
 
-  /* Surface tokens */
-  --surface-bg:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.72)),
-    linear-gradient(135deg, rgba(20, 87, 255, 0.05), rgba(201, 114, 52, 0.03));
+  /* Surface tokens (flat editorial: hairline rules, no glass) */
   --surface-border: rgba(15, 23, 42, 0.08);
-  --surface-shadow: 0 24px 48px rgba(15, 23, 42, 0.06), 0 4px 12px rgba(15, 23, 42, 0.04);
 
   /* Page background */
   --page-bg:
@@ -93,13 +89,13 @@
     radial-gradient(circle at top right, rgba(201, 114, 52, 0.08), transparent 16%),
     linear-gradient(180deg, rgba(251, 248, 242, 0.95) 0%, rgba(245, 239, 228, 0.98) 55%, rgba(248, 245, 238, 1) 100%);
 
-  /* Card tokens */
-  --card-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.8));
-  --card-border: rgba(15, 23, 42, 0.08);
-  --card-shadow: 0 14px 24px rgba(15, 23, 42, 0.05);
-  --card-shadow-hover: 0 24px 40px rgba(15, 23, 42, 0.08);
-  --card-radius: 1.4rem;
-  --card-hover-lift: -4px;
+  /* Card tokens (flat: solid fill, hairline border, no shadow/lift) */
+  --card-bg: #ffffff;
+  --card-border: rgba(15, 23, 42, 0.1);
+  --card-shadow: none;
+  --card-shadow-hover: none;
+  --card-radius: 0.9rem;
+  --card-hover-lift: 0px;
   --card-padding: 1.8rem;
   --card-padding-compact: 1.55rem;
   --card-gap: 1rem;
@@ -968,20 +964,15 @@ section.py-5 > .container {
   min-height: 2.75rem;
   padding: 0.7rem 1.05rem;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  border: 1px solid var(--color-border-subtle);
   color: var(--color-primary-link);
   font-weight: 700;
   text-decoration: none;
   white-space: nowrap;
-  box-shadow: 0 10px 18px rgba(15, 23, 42, 0.04);
-  backdrop-filter: blur(12px);
   transition:
     color 0.18s ease,
-    transform 0.18s ease,
     background-color 0.18s ease,
-    border-color 0.18s ease,
-    box-shadow 0.18s ease;
+    border-color 0.18s ease;
 }
 
 .section-link::after {
@@ -992,11 +983,9 @@ section.py-5 > .container {
 }
 
 .section-link:hover {
-  transform: translateY(-1px);
-  background: rgba(255, 255, 255, 0.92);
   color: var(--color-primary-link-hover);
-  border-color: rgba(20, 87, 255, 0.16);
-  box-shadow: 0 16px 26px rgba(15, 23, 42, 0.06);
+  border-color: var(--color-border-hover);
+  background: rgba(var(--color-primary-rgb), 0.04);
 }
 
 .section-link:hover::after {
@@ -1005,8 +994,6 @@ section.py-5 > .container {
 
 .section-link:focus-visible {
   outline: none;
-  transform: translateY(-1px);
-  background: rgba(255, 255, 255, 0.96);
   color: var(--color-primary-link-hover);
   border-color: var(--color-primary-link);
   box-shadow: var(--focus-shadow);
@@ -1025,25 +1012,11 @@ section.py-5 > .container {
   }
 }
 
+/* Flat editorial section block: whitespace only, no panel chrome.
+   Sections separate with breathing room and hairline rules, not cards. */
 .shell {
   position: relative;
-  overflow: hidden;
-  border-radius: 2rem;
-  padding: clamp(1.5rem, 3vw, 2.25rem);
-  background: var(--surface-bg);
-  border: 1px solid var(--surface-border);
-  box-shadow: var(--surface-shadow);
-  backdrop-filter: blur(16px);
-  isolation: isolate;
-}
-
-.shell::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto;
-  height: 1px;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0));
-  pointer-events: none;
+  padding-block: clamp(1.5rem, 3vw, 2.25rem);
 }
 
 .content-frame {
@@ -1051,11 +1024,16 @@ section.py-5 > .container {
 }
 
 .shell--spacious {
-  padding: clamp(1.5rem, 3vw, 2.5rem);
+  padding-block: clamp(1.75rem, 3vw, 2.5rem);
 }
 
 .shell--compact {
-  padding: clamp(1rem, 2vw, 1.35rem);
+  padding-block: clamp(1rem, 2vw, 1.35rem);
+}
+
+/* Hairline separator for flat sections; apply to the element that starts a new block */
+.rule-top {
+  border-top: 1px solid var(--color-border-subtle);
 }
 
 @media (max-width: 767.98px) {
@@ -1064,20 +1042,15 @@ section.py-5 > .container {
   }
 
   .shell {
-    border-radius: 1.45rem;
-    padding: 1.15rem;
+    padding-block: 1.15rem;
   }
 
   .shell--spacious {
-    padding: 1.2rem;
+    padding-block: 1.2rem;
   }
 
   .shell--compact {
-    padding: 0.95rem;
-  }
-
-  .stat-block {
-    padding: 0.95rem 1rem;
+    padding-block: 0.95rem;
   }
 }
 
@@ -1087,23 +1060,19 @@ section.py-5 > .container {
   }
 
   .shell {
-    border-radius: 1.2rem;
-    padding: 1rem;
+    padding-block: 1rem;
   }
 
   .shell--spacious,
   .shell--compact {
-    padding: 0.9rem;
+    padding-block: 0.9rem;
   }
 }
 
+/* Flat stat tile: hairline top rule, no box */
 .stat-block {
-  padding: 1.1rem 1.15rem;
-  border-radius: var(--card-radius);
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.03);
-  backdrop-filter: blur(12px);
+  padding: 1rem 0 0;
+  border-top: 1px solid var(--color-border-subtle);
 }
 
 .stat-block strong {
@@ -1185,10 +1154,10 @@ section.py-5 > .container {
   color: var(--color-success);
 }
 
-/* Lowercase glass variant for keyword/tag chips */
+/* Lowercase variant for keyword/tag chips */
 .pill--tag {
   padding: 0.4rem 0.7rem;
-  background: var(--glass-bg);
+  background: rgba(var(--ink-rgb), 0.04);
   border-color: var(--color-border-subtle);
   color: var(--color-body-strong);
   font-size: 0.78rem;

@@ -61,6 +61,14 @@ const seoDescription =
     top: calc(var(--nav-height) + 1.25rem);
   }
 
+  @media (min-width: 992px) {
+    /* Shells are chrome-less now; a hairline keeps the sidebar reading as its own column. */
+    .bounty-detail__sidebar {
+      border-left: 1px solid var(--color-border-subtle);
+      padding-left: 1.5rem;
+    }
+  }
+
   .bounty-detail__article {
     padding-bottom: clamp(1.75rem, 3vw, 2.75rem);
   }

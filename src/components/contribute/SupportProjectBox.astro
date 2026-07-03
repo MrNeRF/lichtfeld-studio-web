@@ -30,9 +30,7 @@ const customAmountId = `${sectionId}-custom-amount`;
           </a>
         </div>
       </div>
-      <p class="support-box__desc">
-        Support ongoing LichtFeld Studio development through the platform you prefer.
-      </p>
+      <p class="support-box__desc">Support ongoing LichtFeld Studio development through the platform you prefer.</p>
     </div>
 
     <div class="support-box__panel">
@@ -246,6 +244,10 @@ const customAmountId = `${sectionId}-custom-amount`;
 <style>
   .support-box {
     margin-inline: 0;
+    padding: clamp(1.5rem, 3vw, 2.25rem);
+    background: #fff;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--card-radius);
   }
 
   .support-box__layout {
@@ -274,9 +276,8 @@ const customAmountId = `${sectionId}-custom-amount`;
     width: 2.5rem;
     height: 2.5rem;
     border-radius: 0.9rem;
-    background: linear-gradient(135deg, #1457ff, #1d4ed8);
+    background: #1457ff;
     color: white;
-    box-shadow: 0 14px 28px rgba(20, 87, 255, 0.18);
   }
 
   .support-box__icon svg {
@@ -305,31 +306,22 @@ const customAmountId = `${sectionId}-custom-amount`;
     margin-top: 0.15rem;
     border-radius: 999px;
     border: 1px solid rgba(148, 163, 184, 0.18);
-    background: rgba(255, 255, 255, 0.72);
+    background: #fff;
     color: #64748b;
     text-decoration: none;
-    box-shadow: 0 10px 18px rgba(15, 23, 42, 0.04);
     transition:
-      transform 0.18s ease,
       color 0.18s ease,
-      background-color 0.18s ease,
-      border-color 0.18s ease,
-      box-shadow 0.18s ease;
+      border-color 0.18s ease;
   }
 
   .section-anchor:hover {
-    transform: translateY(-1px);
     color: var(--color-primary-link);
-    background: rgba(255, 255, 255, 0.96);
     border-color: rgba(37, 99, 235, 0.24);
-    box-shadow: 0 14px 24px rgba(15, 23, 42, 0.07);
   }
 
   .section-anchor:focus-visible {
     outline: none;
-    transform: translateY(-1px);
     color: var(--color-primary-link);
-    background: rgba(255, 255, 255, 0.96);
     border-color: var(--color-primary-link);
     box-shadow: var(--focus-shadow);
   }
@@ -355,11 +347,9 @@ const customAmountId = `${sectionId}-custom-amount`;
 
   .support-box__panel {
     padding: 1.35rem;
-    border-radius: 1.5rem;
-    background: rgba(255, 255, 255, 0.68);
+    border-radius: var(--card-radius);
+    background: #fff;
     border: 1px solid rgba(15, 23, 42, 0.08);
-    box-shadow: 0 18px 28px rgba(15, 23, 42, 0.04);
-    backdrop-filter: blur(12px);
   }
 
   .support-box__label {
@@ -388,34 +378,29 @@ const customAmountId = `${sectionId}-custom-amount`;
     font-size: 1rem;
     font-weight: 700;
     color: #344054;
-    background: rgba(255, 255, 255, 0.8);
+    background: #fff;
     border: 1px solid rgba(15, 23, 42, 0.08);
     border-radius: 999px;
     cursor: pointer;
     transition:
-      transform 0.15s ease,
       border-color 0.15s ease,
-      box-shadow 0.15s ease,
       background-color 0.15s ease;
   }
 
   .donate-amount:hover {
-    transform: translateY(-1px);
     border-color: rgba(20, 87, 255, 0.18);
-    background: rgba(255, 255, 255, 0.95);
   }
 
   .donate-amount[aria-pressed="true"] {
-    background: linear-gradient(135deg, #1457ff, #1d4ed8);
+    background: #1457ff;
     border-color: rgba(20, 87, 255, 0.2);
     color: white;
-    box-shadow: 0 14px 24px rgba(20, 87, 255, 0.2);
   }
 
   .donate-amount-custom {
     display: flex;
     align-items: center;
-    background: rgba(255, 255, 255, 0.8);
+    background: #fff;
     border: 1px solid rgba(15, 23, 42, 0.08);
     border-radius: 999px;
     padding-left: 0.75rem;
@@ -479,10 +464,7 @@ const customAmountId = `${sectionId}-custom-amount`;
     border-radius: 999px;
     border: none;
     cursor: pointer;
-    transition:
-      transform 0.15s ease,
-      box-shadow 0.15s ease,
-      filter 0.15s ease;
+    transition: background-color 0.15s ease;
   }
 
   .donate-provider svg {
@@ -498,8 +480,6 @@ const customAmountId = `${sectionId}-custom-amount`;
   .donate-provider--paypal:hover {
     background: #005ea6;
     color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 14px 24px rgba(0, 112, 186, 0.22);
   }
 
   .donate-provider--donorbox {
@@ -510,8 +490,6 @@ const customAmountId = `${sectionId}-custom-amount`;
   .donate-provider--donorbox:hover {
     background: #218838;
     color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 14px 24px rgba(40, 167, 69, 0.22);
   }
 
   .donate-provider--github {
@@ -522,8 +500,6 @@ const customAmountId = `${sectionId}-custom-amount`;
   .donate-provider--github:hover {
     background: #1b1f23;
     color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 14px 24px rgba(36, 41, 47, 0.22);
   }
 
   .donate-provider--bitcoin {
@@ -534,8 +510,6 @@ const customAmountId = `${sectionId}-custom-amount`;
   .donate-provider--bitcoin:hover {
     background: #e8850f;
     color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 14px 24px rgba(247, 147, 26, 0.22);
   }
 
   .donate-bitcoin-popup {
@@ -543,8 +517,8 @@ const customAmountId = `${sectionId}-custom-amount`;
     margin-top: 1rem;
     margin-inline: auto;
     padding: 1rem;
-    background: rgba(255, 255, 255, 0.82);
-    border-radius: 1rem;
+    background: #fff;
+    border-radius: var(--card-radius);
     border: 1px solid rgba(15, 23, 42, 0.08);
     max-width: 400px;
   }
@@ -557,12 +531,10 @@ const customAmountId = `${sectionId}-custom-amount`;
   @keyframes fade-in {
     from {
       opacity: 0;
-      transform: translateY(-8px);
     }
 
     to {
       opacity: 1;
-      transform: translateY(0);
     }
   }
 
@@ -625,7 +597,6 @@ const customAmountId = `${sectionId}-custom-amount`;
   @media (max-width: 767.98px) {
     .support-box {
       padding: 1.5rem;
-      border-radius: 1.25rem;
     }
 
     .support-box__layout {

@@ -168,6 +168,7 @@ const softwareAppSchema = {
   "@context": "https://schema.org",
   "@type": SOFTWARE_APP.type,
   name: SOFTWARE_APP.name,
+  description: SITE.description,
   applicationCategory: SOFTWARE_APP.applicationCategory,
   operatingSystem: SOFTWARE_APP.operatingSystem.join(", "),
   // Use dynamic version from GitHub release, fallback to static config

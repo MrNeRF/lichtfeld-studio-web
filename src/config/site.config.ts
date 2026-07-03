@@ -39,9 +39,11 @@ export const SITE = {
   /** Primary tagline / slogan */
   tagline: "Open-Source 3D Gaussian Splatting Studio for Training, Editing, Plugins, and MCP",
 
-  /** Default meta description for pages without a custom description */
+  /** Default meta description for pages without a custom description.
+   * Keywords ("3D Gaussian Splatting", "3DGS") lead, and it stays near
+   * Google's ~160-character snippet limit. */
   description:
-    "Train, edit, automate, and render 3D Gaussian Splats in a single desktop app. LichtFeld Studio is an open-source 3DGS platform with Python plugins, MCP integration, a full editing suite, and a workflow that runs locally on your GPU.",
+    "Free, open-source 3D Gaussian Splatting (3DGS) software. Train, edit, and render Gaussian Splats locally on your GPU — Python plugins, MCP, Windows & Linux.",
 
   /** Production site URL (without trailing slash) */
   url: "https://lichtfeld.io",
@@ -75,7 +77,7 @@ export const SOCIAL_IMAGE = {
   path: "/static/social-preview.png",
 
   /** Image alt text for accessibility */
-  alt: "LichtFeld Studio project preview",
+  alt: "LichtFeld Studio — open-source 3D Gaussian Splatting software",
 
   /** Image dimensions (recommended: 1200x630 for OG, 1200x600 for Twitter) */
   width: 1280,

@@ -78,7 +78,7 @@ const sponsorWallGroups: Array<{ label: string; sponsors: SponsorWallEntry[] }> 
     ],
   },
 ];
-const heroProofItems = ["Native training", "Scene editing", "Python + MCP", "Windows & Linux", "GPLv3"];
+const heroProofItems = ["Native 3DGS training", "Splat editing", "Python + MCP", "Windows & Linux", "GPLv3"];
 const workflowSteps = [
   {
     title: "Train on a native core",
@@ -105,11 +105,48 @@ const captureRecommendation = {
   href: GAUSSIAN_SPLATKING_APP_STORE_URL,
   label: "View on the App Store",
 };
-// SEO metadata for the homepage
-const seoTitle = SITE.name;
+// SEO metadata for the homepage.
+// Keywords ("3D Gaussian Splatting", "3DGS") lead the title so the homepage
+// ranks for those queries; the Seo component appends "| LichtFeld Studio".
+const seoTitle = "Open-Source 3D Gaussian Splatting (3DGS) Software";
 const seoDescription = SITE.description;
 const seoImage = `${base}static/social-preview.png`;
-const seoImageAlt = "LichtFeld Studio project preview";
+const seoImageAlt = "LichtFeld Studio — open-source 3D Gaussian Splatting software";
+
+// FAQ content targeting common 3DGS search queries.
+// Rendered as visible page content and emitted as FAQPage JSON-LD below.
+const faqItems = [
+  {
+    question: "What is 3D Gaussian Splatting (3DGS)?",
+    answer:
+      "3D Gaussian Splatting is a technique for reconstructing photorealistic 3D scenes from ordinary photos or video. The scene is represented as millions of 3D Gaussians — splats — that rasterize in real time, making 3DGS a fast alternative to NeRF for radiance field rendering.",
+  },
+  {
+    question: "Is LichtFeld Studio free?",
+    answer:
+      "Yes. LichtFeld Studio is free and open source under the GPLv3 license, available for Windows and Linux. You can download the Windows build or compile from source on GitHub.",
+  },
+  {
+    question: "What hardware do I need to train Gaussian Splats?",
+    answer:
+      "Training runs locally on an NVIDIA GPU with compute capability 7.5 or newer and at least 8 GB of VRAM. The core is written in C++23 and CUDA for fast 3DGS training and real-time rendering.",
+  },
+  {
+    question: "Can I edit and automate Gaussian Splat scenes?",
+    answer:
+      "Yes. LichtFeld Studio includes a full splat editing suite — brush, lasso, and polygon selection, cropping, alignment, and composition — plus Python plugins and MCP endpoints for automating 3DGS workflows.",
+  },
+];
+
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqItems.map((item) => ({
+    "@type": "Question",
+    name: item.question,
+    acceptedAnswer: { "@type": "Answer", text: item.answer },
+  })),
+};
 ---
 
 <Layout title={seoTitle} description={seoDescription} image={seoImage} imageAlt={seoImageAlt}>
@@ -161,7 +198,7 @@ const seoImageAlt = "LichtFeld Studio project preview";
         <div class="hero__stack">
           <!-- inner animated wrapper to avoid multiplying parent/child opacities -->
           <div class="hero__stack-content">
-            <h1 class="hero__eyebrow">Open-source 3D Gaussian Splatting platform</h1>
+            <h1 class="hero__eyebrow">LichtFeld Studio — Open-Source 3D Gaussian Splatting Platform</h1>
             <div class="hero__proof">
               {heroProofItems.map((item) => <span class="hero__proof-item">{item}</span>)}
             </div>
@@ -382,6 +419,48 @@ const seoImageAlt = "LichtFeld Studio project preview";
     </div>
   </section>
   -->
+
+  <section id="about-3dgs" class="story-section hash-section" aria-labelledby="about-3dgs-heading">
+    <div class="container content-frame px-6 pb-8">
+      <div class="shell shell--spacious story-surface">
+        <div class="story-copy story-copy--wide">
+          <p class="kicker mb-3">3D Gaussian Splatting</p>
+          <div class="section-heading">
+            <h2 id="about-3dgs-heading" class="story-title">What is 3D Gaussian Splatting?</h2>
+            <a class="section-anchor" href="#about-3dgs" aria-label="Link to 3D Gaussian Splatting section">
+              <svg class="bi" width="1em" height="1em" aria-hidden="true">
+                <use href={`${base}static/bootstrap-icons.svg#link-45deg`}></use>
+              </svg>
+            </a>
+          </div>
+          <p class="story-lead">
+            3D Gaussian Splatting (3DGS) turns ordinary photos and video into photorealistic 3D scenes that render in
+            real time. LichtFeld Studio is a free, open-source Gaussian Splatting application that covers the whole
+            workflow — training, editing, rendering, and automation — locally on your own GPU.
+          </p>
+          <p class="story-body">
+            Instead of meshes or NeRF-style neural networks, a Gaussian Splat scene is built from millions of 3D
+            Gaussians that rasterize in real time. That speed makes 3DGS a natural fit for scanning real places and
+            objects, drone and aerial capture, virtual production, and interactive visualization.
+          </p>
+        </div>
+
+        <dl class="faq-grid">
+          {
+            faqItems.map((item) => (
+              <div class="faq-item">
+                <dt class="faq-item__question">{item.question}</dt>
+                <dd class="faq-item__answer">{item.answer}</dd>
+              </div>
+            ))
+          }
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQPage structured data mirroring the visible FAQ above -->
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
 
   <section class="sponsor-wall-section" aria-labelledby="portal-sponsors-heading">
     <div class="portal-sponsors container content-frame" id="portal-sponsors">
@@ -713,6 +792,7 @@ const seoImageAlt = "LichtFeld Studio project preview";
   .hero__eyebrow {
     margin: 0;
     display: inline-flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 0.65rem;
     font-size: 0.78rem;
@@ -1571,6 +1651,48 @@ const seoImageAlt = "LichtFeld Studio project preview";
     margin: 0.35rem 0 0;
     color: var(--color-body);
     line-height: 1.65;
+  }
+
+  .story-copy--wide {
+    max-width: 46rem;
+  }
+
+  .faq-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem;
+    margin: 1.6rem 0 0;
+    padding-top: 1.35rem;
+    border-top: 1px solid rgba(15, 23, 42, 0.08);
+  }
+
+  .faq-item {
+    padding: 1.1rem 1.05rem;
+    border-radius: 1.2rem;
+    background: rgba(255, 255, 255, 0.68);
+    border: 1px solid rgba(15, 23, 42, 0.07);
+    box-shadow: 0 14px 22px rgba(15, 23, 42, 0.04);
+  }
+
+  .faq-item__question {
+    margin: 0;
+    color: var(--color-heading);
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+
+  .faq-item__answer {
+    margin: 0.45rem 0 0;
+    color: var(--color-body);
+    line-height: 1.65;
+  }
+
+  @media (max-width: 991.98px) {
+    .faq-grid {
+      grid-template-columns: 1fr;
+    }
   }
 
   .story-capture-tip {

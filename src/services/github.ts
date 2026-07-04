@@ -484,6 +484,38 @@ export async function getContributors(): Promise<Contributor[]> {
   }
 }
 
+/** Headline repository metrics used for traction displays. */
+export interface RepoStats {
+  /** Number of stargazers on the main repository */
+  stars: number;
+
+  /** Number of forks of the main repository */
+  forks: number;
+}
+
+/**
+ * Fetches headline repository metrics (stars, forks) for the main repository.
+ *
+ * @returns A promise that resolves to the repo stats, or null if the API call fails.
+ */
+export async function getRepoStats(): Promise<RepoStats | null> {
+  try {
+    const { data } = await octokit.repos.get({
+      owner: REPO_OWNER,
+      repo: REPO_NAME,
+    });
+
+    return {
+      stars: data.stargazers_count,
+      forks: data.forks_count,
+    };
+  } catch (error) {
+    console.error("Failed to fetch repository stats from GitHub:", error);
+
+    return null;
+  }
+}
+
 /**
  * Fetches the latest tag from the repository as a fallback when no releases exist.
  * This is an internal helper function used by getLatestRelease().

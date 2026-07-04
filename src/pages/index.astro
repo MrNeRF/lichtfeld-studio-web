@@ -7,6 +7,7 @@
  * - Interactive 3D Gaussian Splatting demo in the hero section
  * - Workflow overview section
  */
+import { getCollection } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
 import { SITE } from "@/config/site.config";
 import core11Logo from "@/assets/core11-logo.svg";
@@ -14,13 +15,16 @@ import gaussianSplatKingLogo from "@/assets/gaussian-splatking-logo.jpg";
 
 import { SmartVideo } from "@alos-no/astro-media";
 import Splat from "@/components/Splat.astro";
+import BlogCard from "@/components/BlogCard.astro";
 import { HOMEPAGE_MIN_VIEWPORT_VISIBILITY_FOR_RENDER } from "@/constants/splat-viewer";
 import { ANALYTICS_EVENTS } from "@/utils/analytics";
+import { withBase } from "@/utils/navigation";
+import { getContributors, getLatestRelease, getRepoStats } from "@/services/github";
 
 // Centralized external links (avoid magic strings):
 import {
+  DISCORD_URL,
   GAUSSIAN_SPLATKING_APP_STORE_URL,
-  GITHUB_RELEASES_URL,
   GITHUB_REPO_URL,
   LICHTFELD_PORTAL_URL,
   VOLINGA_URL,
@@ -28,7 +32,46 @@ import {
 
 const base = import.meta.env.BASE_URL;
 const volingaLogo = `${base}static/volinga-logo.png`;
-const stableWindowsVersion = "v.5.x";
+
+/** Base-aware internal routes used by homepage sections. */
+const ROUTES = {
+  blog: withBase(base, "/blog/"),
+  docs: withBase(base, "/docs/"),
+  showcase: withBase(base, "/showcase/"),
+  plugins: withBase(base, "/plugins/"),
+  contribute: withBase(base, "/contribute/"),
+} as const;
+
+// Build-time project data: latest release, traction numbers, and recent posts.
+// Every fetch degrades gracefully (null / 0 / []) so the page still builds
+// without a GitHub token — dependent sections simply hide themselves.
+const [latestRelease, contributors, repoStats] = await Promise.all([
+  getLatestRelease(),
+  getContributors(),
+  getRepoStats(),
+]);
+
+const latestPosts = (await getCollection("blog"))
+  .filter((post) => !post.data.draft)
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .slice(0, 2);
+
+const compactNumber = new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 });
+
+const stableWindowsVersion = latestRelease ? `v${latestRelease.version}` : "Latest build";
+
+type TrustStat = { value: string; label: string; href: string; external?: boolean };
+const trustStats: TrustStat[] = [
+  repoStats && repoStats.stars > 0
+    ? { value: compactNumber.format(repoStats.stars), label: "GitHub stars", href: GITHUB_REPO_URL, external: true }
+    : null,
+  contributors.length > 0
+    ? { value: compactNumber.format(contributors.length), label: "Contributors", href: ROUTES.contribute }
+    : null,
+  latestRelease
+    ? { value: `v${latestRelease.version}`, label: "Latest release", href: latestRelease.htmlUrl, external: true }
+    : null,
+].filter((stat): stat is TrustStat => stat !== null);
 type SponsorWallEntry = {
   name: string;
   href: string;
@@ -92,15 +135,18 @@ const workflowSteps = [
     title: "Train on a native core",
     description:
       "Run 3DGS pipelines on a C++23 and CUDA foundation with save-and-resume built into the same desktop workflow.",
+    link: { href: ROUTES.docs, label: "Read the docs" },
   },
   {
     title: "Edit in context",
     description: "Brush, lasso, polygon, crop, align, and compose splats while working against the live scene.",
+    link: { href: ROUTES.showcase, label: "See scenes in the gallery" },
   },
   {
     title: "Automate the workflow",
     description:
       "Use Python plugins and MCP endpoints to build custom panels, operators, batch tools, and external workflows.",
+    link: { href: ROUTES.plugins, label: "Browse plugins" },
   },
 ];
 const captureRecommendation = {
@@ -210,10 +256,15 @@ const faqSchema = {
         <div class="hero__stack">
           <!-- inner animated wrapper to avoid multiplying parent/child opacities -->
           <div class="hero__stack-content">
-            <h1 class="hero__eyebrow">LichtFeld Studio — Open-Source 3D Gaussian Splatting Platform</h1>
-            <div class="hero__proof">
-              {heroProofItems.map((item) => <span class="hero__proof-item">{item}</span>)}
-            </div>
+            <p class="hero__eyebrow">LichtFeld Studio</p>
+            <h1 class="hero__title">Open-source 3D Gaussian Splatting, end to end</h1>
+            <p class="hero__lead">
+              Train, edit, and render photorealistic 3D scenes from photos or video — locally on your GPU, with Python
+              plugins and MCP automation built in.
+            </p>
+            <p class="hero__facts">
+              {heroProofItems.map((item) => <span class="hero__facts-item">{item}</span>)}
+            </p>
 
             <div class="hero__actions">
               <div class="hero__release-actions">
@@ -290,6 +341,33 @@ const faqSchema = {
     </div>
   </header>
 
+  {
+    trustStats.length > 0 && (
+      <section class="home-stats" aria-label="Project traction">
+        <div class="container content-frame px-6">
+          <ul class="home-stats__grid">
+            {trustStats.map((stat) => (
+              <li>
+                <a
+                  class="stat-block home-stats__item"
+                  href={stat.href}
+                  target={stat.external ? "_blank" : undefined}
+                  rel={stat.external ? "noopener noreferrer" : undefined}
+                  data-analytics-event={ANALYTICS_EVENTS.ctaClicked}
+                  data-analytics-prop-placement="home_stats"
+                  data-analytics-prop-target={stat.label}
+                >
+                  <strong>{stat.value}</strong>
+                  <span>{stat.label}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+
   <section id="workflow" class="story-section hash-section">
     <div class="container content-frame px-6 pt-14 pb-8">
       <div class="story-header-grid">
@@ -338,6 +416,9 @@ const faqSchema = {
               <div>
                 <h3 class="story-step__title">{step.title}</h3>
                 <p class="story-step__desc">{step.description}</p>
+                <a class="inline-link" href={step.link.href}>
+                  {step.link.label}
+                </a>
               </div>
             </article>
           ))
@@ -386,48 +467,36 @@ const faqSchema = {
     </div>
   </section>
 
-  <!-- What's New Section (commented out)
-  <section id="whats-new" class="whats-new-section">
-    <div class="container px-6 pt-22 pb-12">
-      <div class="row items-start g-5">
-        <div class="col-12 col-lg-7">
-          <div class="whats-new-video">
-            <iframe
-              src="https://www.youtube.com/embed/zWIzBHRc-60"
-              title="What's New in LichtFeld Studio"
-              frameborder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              referrerpolicy="strict-origin-when-cross-origin"
-              allowfullscreen
-            >
-            </iframe>
-          </div>
-        </div>
-        <div class="col-12 col-lg-5">
-          <h2 class="text-3xl font-bold text-gray-900 mb-4">What's New?</h2>
-          <p class="text-lg text-gray-600 mb-12">
-            LichtFeld Studio is evolving rapidly. Join our Discord server to stay up to date with the latest features,
-            improvements, and community contributions.
-          </p>
-          <div class="whats-new-actions">
-            <a href={GITHUB_RELEASES_URL} class="btn btn-primary btn-lg" target="_blank" rel="noopener noreferrer">
-              <svg class="bi" width="1.25em" height="1.25em" aria-hidden="true">
-                <use href={`${base}static/bootstrap-icons.svg#download`}></use>
-              </svg>
-              Download
-            </a>
-            <a href={DISCORD_URL} class="btn btn-outline-secondary btn-lg" target="_blank" rel="noopener noreferrer">
-              <svg class="bi" width="1.25em" height="1.25em" aria-hidden="true">
-                <use href={`${base}static/bootstrap-icons.svg#discord`}></use>
-              </svg>
-              Join the Community
+  {
+    latestPosts.length > 0 && (
+      <section id="whats-new" class="story-section hash-section" aria-labelledby="whats-new-heading">
+        <div class="container content-frame px-6">
+          <div class="section-head">
+            <div>
+              <p class="kicker mb-3">From the blog</p>
+              <div class="section-heading">
+                <h2 id="whats-new-heading" class="section-title">Latest from the project</h2>
+                <a class="section-anchor" href="#whats-new" aria-label="Link to latest posts section">
+                  <svg class="bi" width="1em" height="1em" aria-hidden="true">
+                    <use href={`${base}static/bootstrap-icons.svg#link-45deg`} />
+                  </svg>
+                </a>
+              </div>
+            </div>
+            <a class="section-link" href={ROUTES.blog}>
+              Read the blog
             </a>
           </div>
+
+          <div class="whats-new-grid">
+            {latestPosts.map((post) => (
+              <BlogCard post={post} />
+            ))}
+          </div>
         </div>
-      </div>
-    </div>
-  </section>
-  -->
+      </section>
+    )
+  }
 
   <section id="about-3dgs" class="story-section hash-section" aria-labelledby="about-3dgs-heading">
     <div class="container content-frame px-6 pb-8">
@@ -473,6 +542,39 @@ const faqSchema = {
   <!-- FAQPage structured data mirroring the visible FAQ above -->
   <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
 
+  <section id="community" class="story-section hash-section home-community" aria-labelledby="community-heading">
+    <div class="container content-frame px-6">
+      <p class="kicker mb-3">Community</p>
+      <div class="section-heading">
+        <h2 id="community-heading" class="section-title">Built in the open</h2>
+        <a class="section-anchor" href="#community" aria-label="Link to community section">
+          <svg class="bi" width="1em" height="1em" aria-hidden="true">
+            <use href={`${base}static/bootstrap-icons.svg#link-45deg`}></use>
+          </svg>
+        </a>
+      </div>
+      <p class="section-copy home-community__copy">
+        LichtFeld Studio is developed in public
+        {contributors.length > 0 ? ` by ${contributors.length} contributors` : ""} under GPLv3. Development discussion,
+        support, and scene sharing happen on Discord, and the contribution backlog is open to everyone.
+      </p>
+      <div class="home-community__actions">
+        <a
+          class="section-link"
+          href={DISCORD_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-analytics-event={ANALYTICS_EVENTS.ctaClicked}
+          data-analytics-prop-placement="home_community"
+          data-analytics-prop-target="discord"
+        >
+          Join the Discord
+        </a>
+        <a class="section-link" href={ROUTES.contribute}>Start contributing</a>
+      </div>
+    </div>
+  </section>
+
   <section class="sponsor-wall-section" aria-labelledby="portal-sponsors-heading">
     <div class="portal-sponsors container content-frame" id="portal-sponsors">
       <h2 id="portal-sponsors-heading" class="portal-sponsors__title">Sponsors</h2>
@@ -516,6 +618,34 @@ const faqSchema = {
           </div>
         ))
       }
+    </div>
+  </section>
+
+  <section class="home-cta" aria-labelledby="home-cta-heading">
+    <div class="container content-frame px-6">
+      <div class="home-cta__inner">
+        <div>
+          <h2 id="home-cta-heading" class="home-cta__title">Get LichtFeld Studio</h2>
+          <p class="home-cta__copy">
+            Download the Windows build, or compile from source for Windows and Linux. The docs cover hardware
+            requirements and your first training run.
+          </p>
+        </div>
+        <div class="home-cta__actions">
+          <a
+            class="home-cta__primary"
+            href={LICHTFELD_PORTAL_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-analytics-event={ANALYTICS_EVENTS.ctaClicked}
+            data-analytics-prop-placement="home_footer_cta"
+            data-analytics-prop-target="lichtfeld_portal"
+          >
+            Download {stableWindowsVersion}
+          </a>
+          <a class="section-link" href={ROUTES.docs}>Read the docs</a>
+        </div>
+      </div>
     </div>
   </section>
 </Layout>
@@ -796,27 +926,43 @@ const faqSchema = {
     background: rgba(245, 158, 11, 0.5);
   }
 
-  .hero__proof {
+  .hero__title {
+    margin: 0.55rem 0 0;
+    color: #ffffff;
+    font-size: clamp(1.55rem, 3vw, 2.15rem);
+    line-height: 1.06;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  .hero__lead {
+    margin: 0.65rem 0 0;
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 0.97rem;
+    line-height: 1.6;
+    max-width: 34rem;
+  }
+
+  /* Quiet dot-separated fact line instead of a pill pile */
+  .hero__facts {
     display: flex;
     flex-wrap: wrap;
-    justify-content: flex-start;
-    gap: 0.75rem;
-    margin-top: 1rem;
+    margin: 0.9rem 0 0;
+    color: rgba(255, 255, 255, 0.68);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
     position: relative;
   }
 
-  .hero__proof-item {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.5rem 0.9rem;
-    border-radius: var(--radius-pill);
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    color: rgba(255, 255, 255, 0.82);
-    font-size: 0.82rem;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    backdrop-filter: blur(10px);
+  .hero__facts-item {
+    white-space: nowrap;
+  }
+
+  .hero__facts-item:not(:last-child)::after {
+    content: "·";
+    margin: 0 0.55rem;
+    opacity: 0.55;
   }
 
   .hero__actions {
@@ -1335,14 +1481,9 @@ const faqSchema = {
       inset: -100vh -1rem;
     }
 
-    .hero__proof {
-      gap: 0.42rem;
+    .hero__facts {
       margin-top: 0.72rem;
-    }
-
-    .hero__proof-item {
-      padding: 0.34rem 0.62rem;
-      font-size: 0.74rem;
+      font-size: 0.78rem;
     }
 
     .hero__actions {
@@ -1365,12 +1506,8 @@ const faqSchema = {
       padding-inline: 0.75rem;
     }
 
-    .hero__proof {
-      gap: 0.5rem;
-    }
-
-    .hero__proof-item {
-      font-size: 0.8rem;
+    .hero__facts {
+      font-size: 0.76rem;
     }
 
     .hero__actions .btn {
@@ -1505,6 +1642,209 @@ const faqSchema = {
     .faq-grid {
       grid-template-columns: 1fr;
     }
+  }
+
+  /* ===========================
+   * Traction strip (below hero)
+   * =========================== */
+
+  .home-stats .container {
+    padding-top: clamp(1.8rem, 3.2vw, 2.6rem);
+  }
+
+  .home-stats__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.8rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .home-stats__item {
+    display: block;
+    text-decoration: none;
+    transition: border-color var(--transition-fast);
+  }
+
+  .home-stats__item:hover {
+    border-top-color: var(--color-border-hover);
+  }
+
+  .home-stats__item:hover strong {
+    color: var(--color-primary-link);
+  }
+
+  .home-stats__item:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-shadow);
+  }
+
+  @media (max-width: 991.98px) {
+    .home-stats__grid {
+      gap: 1.2rem;
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .home-stats__grid {
+      gap: 0.9rem;
+    }
+
+    .home-stats__grid .stat-block strong {
+      font-size: 1.2rem;
+    }
+  }
+
+  /* Flat inline arrow link (text-only counterpart of .section-link) */
+  .inline-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.7rem;
+    color: var(--color-primary-link);
+    font-size: 0.92rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
+
+  .inline-link::after {
+    content: "→";
+    font-size: 1rem;
+    line-height: 1;
+    transition: transform var(--transition-fast);
+  }
+
+  .inline-link:hover {
+    color: var(--color-primary-link-hover);
+  }
+
+  .inline-link:hover::after {
+    transform: translateX(2px);
+  }
+
+  .inline-link:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-shadow);
+    border-radius: 4px;
+  }
+
+  /* ===========================
+   * What's new
+   * =========================== */
+
+  #whats-new .container {
+    border-top: 1px solid var(--color-border-subtle);
+  }
+
+  .whats-new-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+    margin-top: 2.2rem;
+  }
+
+  @media (max-width: 767.98px) {
+    .whats-new-grid {
+      grid-template-columns: 1fr;
+      margin-top: 1.5rem;
+      gap: 1.2rem;
+    }
+  }
+
+  /* ===========================
+   * Community
+   * =========================== */
+
+  .home-community .container {
+    border-top: 1px solid var(--color-border-subtle);
+  }
+
+  .home-community__copy {
+    margin-top: 1rem;
+    max-width: 46rem;
+  }
+
+  .home-community__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    margin-top: 1.6rem;
+  }
+
+  /* ===========================
+   * Closing CTA
+   * =========================== */
+
+  .home-cta .container {
+    border-top: 1px solid var(--color-border-subtle);
+    padding-block: clamp(2.75rem, 5vw, 4rem);
+  }
+
+  /* Editorial two-column closer: copy left, actions right */
+  .home-cta__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) auto;
+    gap: 1.2rem 2.5rem;
+    align-items: center;
+  }
+
+  .home-cta__title {
+    margin: 0;
+    color: var(--color-heading);
+    font-size: clamp(1.7rem, 3vw, 2.35rem);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+  }
+
+  .home-cta__copy {
+    margin: 0.75rem 0 0;
+    max-width: 36rem;
+    color: var(--color-body);
+    line-height: 1.7;
+  }
+
+  .home-cta__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+  }
+
+  @media (max-width: 767.98px) {
+    .home-cta__inner {
+      grid-template-columns: 1fr;
+      gap: 1.2rem;
+    }
+  }
+
+  .home-cta__primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-height: 2.75rem;
+    padding: 0.7rem 1.35rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--color-primary);
+    background: var(--color-primary);
+    color: #ffffff;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    transition:
+      background-color var(--transition-fast),
+      border-color var(--transition-fast);
+  }
+
+  .home-cta__primary:hover {
+    background: var(--color-primary-link-hover);
+    border-color: var(--color-primary-link-hover);
+    color: #ffffff;
+  }
+
+  .home-cta__primary:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-shadow);
   }
 
   .story-capture-tip {
@@ -1843,16 +2183,19 @@ const faqSchema = {
       width: 1rem;
     }
 
-    .hero__proof {
-      display: none;
-      gap: 0.4rem;
-      margin-top: 0.75rem;
+    .hero__title {
+      margin-top: 0.3rem;
+      font-size: 1.3rem;
     }
 
-    .hero__proof-item {
-      padding: 0.42rem 0.68rem;
-      font-size: 0.74rem;
-      line-height: 1.2;
+    .hero__lead {
+      margin-top: 0.4rem;
+      font-size: 0.86rem;
+      line-height: 1.5;
+    }
+
+    .hero__facts {
+      display: none;
     }
 
     .hero__actions {
@@ -2072,14 +2415,6 @@ const faqSchema = {
     .hero__stack::before {
       inset: 0;
       border-radius: 1.2rem;
-    }
-
-    .hero__proof {
-      gap: 0.4rem;
-    }
-
-    .hero__proof-item {
-      font-size: 0.72rem;
     }
 
     .hero__scene-cue {

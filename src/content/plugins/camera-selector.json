@@ -1,0 +1,26 @@
+{
+  "id": "community:camera-selector",
+  "namespace": "community",
+  "name": "camera-selector",
+  "displayName": "Camera Selector",
+  "summary": "Select and enable camera subsets for training.",
+  "description": "Provides camera selection tools for LichtFeld Studio, including random percentage selection, every-N selection, distinct camera filtering, crop-box visibility filtering, and controls for enabling, disabling, inverting, or hiding disabled cameras.",
+  "author": "kmeirlaen",
+  "latestVersion": "0.1.0",
+  "lichtfeldVersion": ">=0.4.2",
+  "pluginApi": ">=1,<2",
+  "requiredFeatures": [],
+  "downloads": 0,
+  "keywords": ["camera", "selection", "training", "cropbox", "workflow"],
+  "repository": "https://github.com/kmeirlaen/lfs-plugin-camera-selector",
+  "versions": [
+    {
+      "version": "0.1.0",
+      "pluginApi": ">=1,<2",
+      "lichtfeldVersion": ">=0.4.2",
+      "requiredFeatures": [],
+      "dependencies": [],
+      "gitRef": "main"
+    }
+  ]
+}

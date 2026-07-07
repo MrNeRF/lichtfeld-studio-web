@@ -128,7 +128,36 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
       <span class="sr-only">GitHub</span>
     </a>
   </li>
+
+  <!-- Theme toggle (light / dark) -->
+  <li class="nav-menu__item nav-menu__item--theme">
+    <button type="button" class="nav-menu__link nav-menu__link--icon-only theme-toggle" aria-label="Toggle dark mode">
+      <i class="bi bi-moon-stars-fill theme-toggle__moon" aria-hidden="true"></i>
+      <i class="bi bi-sun-fill theme-toggle__sun" aria-hidden="true"></i>
+    </button>
+  </li>
 </ul>
+
+<script is:inline>
+  // Theme toggle: flips data-theme and persists the choice. Delegated so it
+  // works regardless of when the header hydrates.
+  (function () {
+    function setTheme(theme) {
+      document.documentElement.dataset.theme = theme;
+      try {
+        localStorage.setItem("theme", theme);
+      } catch (e) {
+        /* storage unavailable — session-only */
+      }
+    }
+    document.addEventListener("click", function (event) {
+      var toggle = event.target.closest && event.target.closest(".theme-toggle");
+      if (!toggle) return;
+      var current = document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+      setTheme(current === "dark" ? "light" : "dark");
+    });
+  })();
+</script>
 
 <script type="module">
   /**
@@ -272,7 +301,7 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
 
   .nav-menu__link:hover {
     color: var(--color-text-hover);
-    background: rgba(255, 255, 255, 0.56);
+    background: var(--nav-hover-bg);
   }
 
   /* Icon-only links (Discord, GitHub) */
@@ -289,9 +318,9 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
     color: #5865f2;
   }
 
-  /* GitHub brand color */
+  /* GitHub brand color (theme-aware: dark on light, light on dark) */
   .nav-menu__link--icon-only .bi-github {
-    color: #24292f;
+    color: var(--color-icon-github);
   }
 
   /* Hover effect for social icons */
@@ -300,7 +329,33 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
   }
 
   .nav-menu__link--icon-only:hover .bi-github {
-    color: #000;
+    color: var(--color-heading);
+  }
+
+  /* Theme toggle button: reset native button chrome, reuse icon-only sizing. */
+  .theme-toggle {
+    background: none;
+    border: 0;
+    cursor: pointer;
+    color: var(--color-body);
+  }
+
+  .theme-toggle:hover {
+    color: var(--color-text-hover);
+    background: var(--nav-hover-bg);
+  }
+
+  /* Show the icon for the theme you'd switch TO. */
+  .theme-toggle__sun {
+    display: none;
+  }
+
+  :root[data-theme="dark"] .theme-toggle__moon {
+    display: none;
+  }
+
+  :root[data-theme="dark"] .theme-toggle__sun {
+    display: inline-flex;
   }
 
   /* Add spacing before the first social icon */

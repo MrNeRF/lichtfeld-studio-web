@@ -128,6 +128,73 @@
 
   /* Section backgrounds */
   --section-bg-alt: #efe7d8;
+
+  /* Theme-aware surface tokens (light defaults; overridden in [data-theme="dark"]) */
+  color-scheme: light;
+  --header-bg: rgba(251, 248, 242, 0.72);
+  --nav-hover-bg: rgba(255, 255, 255, 0.56);
+  --color-kicker: #9a5d26;
+  --color-kicker-line: rgba(154, 93, 38, 0.42);
+  --code-inline-bg: rgba(15, 23, 42, 0.06);
+  --color-icon-github: #24292f;
+}
+
+/* ===========================
+ * Dark theme
+ * The no-flash script in Layout.astro always sets an explicit
+ * data-theme (resolving "auto" to the OS preference), so overriding
+ * [data-theme="dark"] is sufficient; a prefers-color-scheme fallback
+ * covers the rare no-JS case.
+ * =========================== */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-primary: #2f6bff;
+  --color-primary-rgb: 47, 107, 255;
+  --ink-rgb: 226, 232, 240; /* light "ink" for subtle overlays on dark */
+  --color-accent: #4d7dff;
+  --color-accent-warm: #e0a061;
+  --color-body-strong: #d7dbe2;
+  --color-success: #34d399;
+  --color-code-bg: #0d1017;
+  --color-code-fg: #e6edf3;
+  --color-primary-link: #7aa2ff;
+  --color-primary-link-hover: #a5c0ff;
+  --color-heading: #f3f5f8;
+  --color-body: #b9c0cb;
+  --color-muted: #8a92a0;
+  --color-border-subtle: rgba(255, 255, 255, 0.1);
+  --color-border-hover: rgba(122, 162, 255, 0.42);
+  --focus-ring: rgba(122, 162, 255, 0.35);
+  --color-text: #e6e9ee;
+  --color-text-hover: #ffffff;
+  --color-background: rgba(20, 22, 27, 0.82);
+  --background-hover: rgba(255, 255, 255, 0.05);
+  --dropdown-background: rgba(22, 24, 30, 0.94);
+  --body-background: #101216;
+  --surface-border: rgba(255, 255, 255, 0.09);
+
+  --page-bg:
+    radial-gradient(circle at top left, rgba(47, 107, 255, 0.13), transparent 24%),
+    radial-gradient(circle at top right, rgba(201, 114, 52, 0.08), transparent 18%),
+    linear-gradient(180deg, #101216 0%, #0c0d11 60%, #0a0b0e 100%);
+
+  --card-bg: #16181e;
+  --card-border: rgba(255, 255, 255, 0.1);
+
+  --border-color: rgba(255, 255, 255, 0.1);
+  --border-color-light: rgba(255, 255, 255, 0.14);
+  --glass-bg: rgba(22, 24, 30, 0.72);
+  --glass-bg-strong: rgba(22, 24, 30, 0.92);
+  --dropdown-shadow: 0 20px 38px rgba(0, 0, 0, 0.55);
+  --section-bg-alt: #16181e;
+
+  --header-bg: rgba(16, 18, 22, 0.72);
+  --nav-hover-bg: rgba(255, 255, 255, 0.07);
+  --color-kicker: #e0a061;
+  --color-kicker-line: rgba(224, 160, 97, 0.45);
+  --code-inline-bg: rgba(255, 255, 255, 0.09);
+  --color-icon-github: #e6e9ee;
 }
 
 /* ===========================
@@ -927,7 +994,7 @@ section.py-5 > .container {
   align-items: center;
   gap: 0.6rem;
   margin: 0 0 0.75rem;
-  color: #9a5d26;
+  color: var(--color-kicker);
   font-family: var(--font-display);
   font-size: 0.74rem;
   font-weight: 700;
@@ -939,7 +1006,7 @@ section.py-5 > .container {
   content: "";
   width: 1.35rem;
   height: 1px;
-  background: rgba(154, 93, 38, 0.42);
+  background: var(--color-kicker-line);
 }
 
 .section-title {
@@ -1164,4 +1231,91 @@ section.py-5 > .container {
   font-weight: 700;
   letter-spacing: 0;
   text-transform: none;
+}
+
+/* ===========================
+ * Button system
+ * Consistent CTAs: primary (filled), secondary (outline), ghost (tinted).
+ * Use for standalone actions (hero, 404, download bars).
+ * =========================== */
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0.72rem 1.3rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-size: 0.98rem;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    color var(--transition-fast),
+    background-color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.action-btn--primary {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.action-btn--primary:hover {
+  background: var(--color-primary-link-hover);
+  color: #fff;
+}
+
+.action-btn--secondary {
+  background: transparent;
+  color: var(--color-heading);
+  border-color: var(--color-border-subtle);
+}
+
+.action-btn--secondary:hover {
+  border-color: var(--color-border-hover);
+  background: rgba(var(--color-primary-rgb), 0.05);
+}
+
+.action-btn--ghost {
+  background: rgba(var(--color-primary-rgb), 0.09);
+  color: var(--color-primary-link);
+  box-shadow: inset 0 0 0 1px rgba(var(--color-primary-rgb), 0.2);
+}
+
+.action-btn--ghost:hover {
+  background: rgba(var(--color-primary-rgb), 0.15);
+  color: var(--color-primary-link-hover);
+}
+
+.action-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-shadow);
+}
+
+/* ===========================
+ * Global interaction polish
+ * =========================== */
+
+/* Uniform keyboard-focus ring for interactive elements that don't set their own. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: none;
+  box-shadow: var(--focus-shadow);
+  border-radius: var(--rounded-md);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

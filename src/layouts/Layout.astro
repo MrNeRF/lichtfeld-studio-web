@@ -75,6 +75,25 @@ const {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+    <!-- Theme: set data-theme before first paint to avoid a flash.
+         Uses a stored preference, falling back to the OS color scheme. -->
+    <script is:inline>
+      (function () {
+        try {
+          var stored = localStorage.getItem("theme");
+          var theme =
+            stored === "light" || stored === "dark"
+              ? stored
+              : window.matchMedia("(prefers-color-scheme: dark)").matches
+                ? "dark"
+                : "light";
+          document.documentElement.dataset.theme = theme;
+        } catch (e) {
+          document.documentElement.dataset.theme = "light";
+        }
+      })();
+    </script>
+
     <!-- ========================================================================
          Google Fonts: Manrope + Space Grotesk
 
@@ -84,10 +103,25 @@ const {
          ======================================================================== -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Load the font stylesheet without blocking render: preload, then flip
+         media to "all" on load. <noscript> keeps it working without JS. -->
     <link
+      rel="preload"
+      as="style"
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
-      rel="stylesheet"
     />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      />
+    </noscript>
 
     <!-- Performance: Early connection hints for external resources -->
     <Preconnect />
@@ -141,10 +175,8 @@ const {
 
       body {
         min-height: 100vh;
-        background:
-          radial-gradient(circle at top left, rgba(20, 87, 255, 0.08), transparent 22%),
-          radial-gradient(circle at top right, rgba(201, 114, 52, 0.08), transparent 18%),
-          linear-gradient(180deg, rgba(251, 248, 242, 0.96), rgba(245, 239, 228, 0.98));
+        background: var(--page-bg);
+        background-attachment: fixed;
         color: var(--color-body);
         font-family: var(--font-body);
         text-rendering: optimizeLegibility;

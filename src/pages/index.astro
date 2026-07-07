@@ -291,25 +291,6 @@ const faqSchema = {
                   <span class="hero__release-pill hero__release-pill--new">New</span>
                 </a>
                 <a
-                  class="btn btn-lg hero__release-card hero__release-card--donate"
-                  href={`${base}contribute/#support-the-project`}
-                  aria-label="Support the project with a donation"
-                  data-analytics-event={ANALYTICS_EVENTS.ctaClicked}
-                  data-analytics-prop-placement="home_hero"
-                  data-analytics-prop-target="donate"
-                >
-                  <span class="hero__release-card-main">
-                    <span class="hero__release-icon hero__release-icon--donate" aria-hidden="true">
-                      <i class="bi bi-heart"></i>
-                    </span>
-                    <span class="hero__release-copy">
-                      <span class="hero__release-kicker">Support The Project</span>
-                      <span class="hero__release-title">Donate</span>
-                      <span class="hero__release-meta">Help fund development</span>
-                    </span>
-                  </span>
-                </a>
-                <a
                   class="btn btn-lg hero__release-card hero__release-card--source"
                   href={GITHUB_REPO_URL}
                   target="_blank"
@@ -334,6 +315,16 @@ const faqSchema = {
                   </span>
                 </a>
               </div>
+              <a
+                class="hero__donate-link"
+                href={`${base}contribute/#support-the-project`}
+                data-analytics-event={ANALYTICS_EVENTS.ctaClicked}
+                data-analytics-prop-placement="home_hero"
+                data-analytics-prop-target="donate"
+              >
+                <i class="bi bi-heart" aria-hidden="true"></i>
+                <span>Support the project</span>
+              </a>
             </div>
           </div>
         </div>
@@ -1040,23 +1031,30 @@ const faqSchema = {
       radial-gradient(circle at top left, rgba(59, 130, 246, 0.24), transparent 58%);
   }
 
-  .hero__release-card--donate {
-    color: rgba(255, 255, 255, 0.96);
-    background:
-      linear-gradient(180deg, rgba(34, 22, 20, 0.72), rgba(20, 15, 20, 0.52)),
-      radial-gradient(circle at top left, rgba(236, 72, 153, 0.16), transparent 48%);
-    border-color: rgba(255, 255, 255, 0.18);
-    box-shadow:
-      0 18px 36px rgba(0, 0, 0, 0.22),
-      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  /* Donate is intentionally quieter than the two primary actions — a text link,
+     not a third equal-weight card. */
+  .hero__donate-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    align-self: start;
+    margin-top: 0.25rem;
+    padding: 0.4rem 0.2rem;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: none;
+    transition: color 180ms ease;
   }
 
-  .hero__release-card--donate:hover {
+  .hero__donate-link:hover {
     color: #ffffff;
-    background:
-      linear-gradient(180deg, rgba(46, 24, 24, 0.84), rgba(28, 17, 22, 0.66)),
-      radial-gradient(circle at top left, rgba(244, 114, 182, 0.22), transparent 52%);
-    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  .hero__donate-link .bi-heart {
+    color: #f472b6;
+    font-size: 0.95rem;
   }
 
   .hero__release-card--source {
@@ -1099,12 +1097,6 @@ const faqSchema = {
     box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.16);
     font-size: 0.95rem;
     flex: 0 0 auto;
-  }
-
-  .hero__release-icon--donate {
-    background: rgba(255, 255, 255, 0.08);
-    color: #fda4af;
-    box-shadow: inset 0 0 0 1px rgba(251, 113, 133, 0.24);
   }
 
   .hero__release-icon--source {

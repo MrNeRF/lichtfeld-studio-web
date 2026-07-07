@@ -1,0 +1,102 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { withBase } from "@/utils/navigation";
+import { GITHUB_REPO_URL } from "@/constants/project";
+
+const base = import.meta.env.BASE_URL;
+
+const links = [
+  { label: "Docs", href: withBase(base, "/docs") },
+  { label: "Plugins", href: withBase(base, "/plugins") },
+  { label: "Blog", href: withBase(base, "/blog") },
+  { label: "Gallery", href: withBase(base, "/showcase") },
+];
+---
+
+<Layout title="Page not found" description="The page you were looking for could not be found." noindex={true}>
+  <section class="notfound">
+    <div class="container content-frame px-4">
+      <div class="shell shell--spacious notfound__inner">
+        <p class="kicker">Error 404</p>
+        <p class="notfound__code">404</p>
+        <h1 class="page-hero__title notfound__title">This page went off-frame</h1>
+        <p class="page-hero__lead notfound__lead">
+          The page you were looking for doesn't exist or may have moved. Let's get you back to a scene that renders.
+        </p>
+
+        <div class="notfound__actions">
+          <a class="action-btn action-btn--primary" href={base}>Back to home</a>
+          <a class="action-btn action-btn--secondary" href={GITHUB_REPO_URL} target="_blank" rel="noopener noreferrer">
+            View on GitHub
+          </a>
+        </div>
+
+        <nav class="notfound__links" aria-label="Popular pages">
+          {links.map((link) => <a href={link.href}>{link.label} →</a>)}
+        </nav>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .notfound {
+    background: var(--page-bg);
+    min-height: calc(100svh - var(--nav-height));
+    display: flex;
+    align-items: center;
+  }
+
+  .notfound__inner {
+    max-width: 46rem;
+  }
+
+  .notfound__code {
+    margin: 0.4rem 0 0.6rem;
+    font-family: var(--font-display);
+    font-size: clamp(4.5rem, 14vw, 8rem);
+    font-weight: 700;
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+    color: var(--color-heading);
+    background: linear-gradient(135deg, var(--color-primary-link), var(--color-accent-warm));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .notfound__title {
+    margin: 0 0 0.9rem;
+    max-width: 18ch;
+  }
+
+  .notfound__lead {
+    margin: 0 0 2rem;
+  }
+
+  .notfound__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin-bottom: 2.25rem;
+  }
+
+  .notfound__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1.75rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-border-subtle);
+  }
+
+  .notfound__links a {
+    color: var(--color-primary-link);
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-decoration: none;
+  }
+
+  .notfound__links a:hover {
+    color: var(--color-primary-link-hover);
+  }
+</style>

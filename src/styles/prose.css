@@ -70,12 +70,18 @@
 .prose a {
   color: var(--color-primary-link);
   font-weight: 700;
-  text-decoration: none;
+  text-decoration: underline;
+  text-decoration-color: rgba(var(--color-primary-rgb), 0.32);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.16em;
+  transition:
+    color var(--transition-fast),
+    text-decoration-color var(--transition-fast);
 }
 
 .prose a:hover {
   color: var(--color-primary-link-hover);
-  text-decoration: underline;
+  text-decoration-color: currentColor;
 }
 
 /* --- Code --- */
@@ -87,7 +93,7 @@
 .prose :not(pre) > code {
   padding: 0.14em 0.4em;
   border-radius: var(--rounded-md);
-  background: rgba(var(--ink-rgb), 0.06);
+  background: var(--code-inline-bg);
   color: var(--color-heading);
 }
 
@@ -258,4 +264,12 @@
   .prose td {
     padding: 0.55rem 0.65rem;
   }
+}
+
+/* --- Dark theme adjustments ---
+   The rules above mix in --ink-rgb / bright fills tuned for a light page.
+   --ink-rgb already flips to a light triplet in dark, so borders/striping
+   invert correctly; the figure image backer needs an explicit dark surface. */
+:root[data-theme="dark"] .prose .article-figure img {
+  background: var(--card-bg);
 }

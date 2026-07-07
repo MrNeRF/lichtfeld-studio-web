@@ -7,6 +7,25 @@ interface Props {
 }
 
 const { plugin, compact = false } = Astro.props;
+
+/**
+ * Pick a category glyph from the plugin's namespace/id/keywords so the catalog
+ * reads as a set of typed tools rather than a wall of text. Falls back to a
+ * generic plugin icon.
+ */
+const CATEGORY_ICONS: Array<[RegExp, string]> = [
+  [/camera|capture|record|360|photo|video/, "bi-camera-video"],
+  [/colmap|dataset|reconstruct|sfm|point/, "bi-box"],
+  [/export|import|sync|convert|pack/, "bi-arrow-left-right"],
+  [/mesh|blender|model|geometry|tri/, "bi-boxes"],
+  [/segment|sam|mask|matte/, "bi-scissors"],
+  [/vr|viewer|render|view/, "bi-badge-vr"],
+  [/measure|ruler|scale|metric/, "bi-rulers"],
+  [/depth|normal|map/, "bi-layers"],
+  [/nav|orbit|fly|compass|geo|register/, "bi-compass"],
+];
+const haystack = [plugin.namespace, plugin.id, ...(plugin.keywords ?? [])].join(" ").toLowerCase();
+const categoryIcon = (CATEGORY_ICONS.find(([pattern]) => pattern.test(haystack)) ?? [null, "bi-puzzle"])[1];
 ---
 
 <article class:list={["plugin-card", { "plugin-card--compact": compact }]}>
@@ -27,7 +46,12 @@ const { plugin, compact = false } = Astro.props;
     <span class="pill pill--neutral">v{plugin.latestVersion}</span>
   </div>
 
-  <h3 class="plugin-card__title">{plugin.displayName}</h3>
+  <div class="plugin-card__headline">
+    <span class="plugin-card__icon" aria-hidden="true">
+      <i class={`bi ${categoryIcon}`}></i>
+    </span>
+    <h3 class="plugin-card__title">{plugin.displayName}</h3>
+  </div>
   <p class="plugin-card__summary">{plugin.summary}</p>
 
   {!compact && <p class="plugin-card__description">{plugin.description}</p>}
@@ -117,8 +141,29 @@ const { plugin, compact = false } = Astro.props;
     flex-shrink: 0;
   }
 
-  .plugin-card__title {
+  .plugin-card__headline {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
     margin: 1rem 0 0.7rem;
+  }
+
+  .plugin-card__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 2.15rem;
+    height: 2.15rem;
+    border-radius: 0.65rem;
+    background: rgba(var(--color-primary-rgb), 0.09);
+    color: var(--color-primary-link);
+    font-size: 1.05rem;
+    box-shadow: inset 0 0 0 1px rgba(var(--color-primary-rgb), 0.16);
+  }
+
+  .plugin-card__title {
+    margin: 0;
     color: var(--color-heading);
     font-size: 1.3rem;
     line-height: 1.18;

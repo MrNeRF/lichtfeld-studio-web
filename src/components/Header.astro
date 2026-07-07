@@ -1,5 +1,6 @@
 ---
 import lichtFeldLogo from "@/assets/lichtfeld-logo.svg";
+import lichtFeldLogoWhite from "@/assets/lichtfeld-logo-white.svg";
 import { getCollection } from "astro:content";
 import NavMenu from "@/components/NavMenu.astro";
 
@@ -45,7 +46,8 @@ const latestBountyPath = `${base}bounty/`;
 <header class="site-header">
   <div class="site-header__container">
     <a href={base} class="site-header__brand" aria-label="LichtFeld Studio Home">
-      <img src={lichtFeldLogo.src} alt="LichtFeld Studio" />
+      <img class="theme-logo theme-logo--light" src={lichtFeldLogo.src} alt="LichtFeld Studio" />
+      <img class="theme-logo theme-logo--dark" src={lichtFeldLogoWhite.src} alt="LichtFeld Studio" />
     </a>
     <button
       class="site-header__toggle"
@@ -96,6 +98,20 @@ const latestBountyPath = `${base}bounty/`;
   .site-header__brand img {
     height: 22px;
     display: block; /* Removes bottom space under the image */
+  }
+
+  /* Theme-aware logo: show the white variant in dark mode. Driven by the
+     manual data-theme toggle, so a <picture> + prefers-color-scheme won't do. */
+  .site-header__brand .theme-logo--dark {
+    display: none;
+  }
+
+  :root[data-theme="dark"] .site-header__brand .theme-logo--light {
+    display: none;
+  }
+
+  :root[data-theme="dark"] .site-header__brand .theme-logo--dark {
+    display: block;
   }
 
   /**

@@ -6,6 +6,7 @@
  * bar. Internal links are base-aware (withBase); external links open safely.
  */
 import lichtFeldLogo from "../assets/lichtfeld-logo.svg";
+import lichtFeldLogoWhite from "../assets/lichtfeld-logo-white.svg";
 import { withBase } from "@/utils/navigation";
 import { GITHUB_REPO_URL, DISCORD_URL, LICHTFELD_PORTAL_URL } from "@/constants/project";
 
@@ -49,7 +50,8 @@ const columns = [
     <div class="site-footer__top">
       <div class="site-footer__brand">
         <a href={base} aria-label="LichtFeld Studio Home">
-          <img src={lichtFeldLogo.src} alt="LichtFeld Studio" class="site-footer__logo" />
+          <img src={lichtFeldLogo.src} alt="LichtFeld Studio" class="site-footer__logo theme-logo theme-logo--light" />
+          <img src={lichtFeldLogoWhite.src} alt="LichtFeld Studio" class="site-footer__logo theme-logo theme-logo--dark" />
         </a>
         <p class="site-footer__tagline">
           Open-source 3D Gaussian Splatting — train, edit, and render photorealistic scenes on your own GPU.
@@ -115,6 +117,19 @@ const columns = [
 
   .site-footer__brand a:hover .site-footer__logo {
     opacity: 1;
+  }
+
+  /* Theme-aware logo swap (white variant in dark mode). */
+  .site-footer__brand .theme-logo--dark {
+    display: none;
+  }
+
+  :root[data-theme="dark"] .site-footer__brand .theme-logo--light {
+    display: none;
+  }
+
+  :root[data-theme="dark"] .site-footer__brand .theme-logo--dark {
+    display: inline-block;
   }
 
   .site-footer__tagline {

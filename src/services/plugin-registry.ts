@@ -39,18 +39,30 @@ async function fetchGitHubStars(repositoryUrl: string): Promise<number> {
   const parsed = parseGitHubRepo(repositoryUrl);
   if (!parsed) return 0;
 
-  try {
-    const response = await fetch(`https://api.github.com/repos/${parsed.owner}/${parsed.repo}`, {
-      headers: {
-        Accept: "application/vnd.github+json",
-        "User-Agent": "lichtfeld-studio-web-plugin-registry",
-      },
-    });
+  // Authenticate with the same token the rest of the build uses. Without it,
+  // the unauthenticated GitHub API limit (60/hr) is exhausted during the build
+  // and every repo falls back to 0 stars.
+  const token = import.meta.env.GITHUB_TOKEN;
+  const headers: Record<string, string> = {
+    Accept: "application/vnd.github+json",
+    "User-Agent": "lichtfeld-studio-web-plugin-registry",
+  };
+  if (token) headers.Authorization = `Bearer ${token}`;
 
-    if (!response.ok) return 0;
+  try {
+    const response = await fetch(`https://api.github.com/repos/${parsed.owner}/${parsed.repo}`, { headers });
+
+    if (!response.ok) {
+      console.warn(
+        `[plugin-registry] Failed to fetch stars for ${parsed.owner}/${parsed.repo}: ${response.status} ${response.statusText}` +
+          (response.status === 403 && !token ? " (set GITHUB_TOKEN to avoid rate limiting)" : ""),
+      );
+      return 0;
+    }
     const data = (await response.json()) as { stargazers_count?: number };
     return typeof data.stargazers_count === "number" ? data.stargazers_count : 0;
-  } catch {
+  } catch (error) {
+    console.warn(`[plugin-registry] Error fetching stars for ${parsed.owner}/${parsed.repo}:`, error);
     return 0;
   }
 }

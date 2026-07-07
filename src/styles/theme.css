@@ -67,7 +67,7 @@
   --color-primary-link-hover: #0f46d3;
   --color-heading: #101828;
   --color-body: #475467;
-  --color-muted: #667085;
+  --color-muted: #5b6474; /* darkened from #667085 for AA contrast on cream */
   --color-border-subtle: rgba(15, 23, 42, 0.09);
   --color-border-hover: rgba(20, 87, 255, 0.24);
   --focus-ring: rgba(20, 87, 255, 0.18);

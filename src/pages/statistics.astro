@@ -62,15 +62,15 @@ const seoDescription =
         <h2 class="stats-section__title">Download Trends</h2>
         <div class="stats-controls">
           <div class="chart-type-toggle" role="group" aria-label="Chart type">
+            <button type="button" class="chart-type-toggle__button" data-chart-type="bar" title="Bar chart">
+              <i class="bi bi-bar-chart-fill"></i>
+            </button>
             <button
               type="button"
               class="chart-type-toggle__button chart-type-toggle__button--active"
-              data-chart-type="bar"
-              title="Bar chart"
+              data-chart-type="area"
+              title="Area chart"
             >
-              <i class="bi bi-bar-chart-fill"></i>
-            </button>
-            <button type="button" class="chart-type-toggle__button" data-chart-type="area" title="Area chart">
               <i class="bi bi-graph-up"></i>
             </button>
           </div>
@@ -80,19 +80,19 @@ const seoDescription =
 
       <div class="stats-grid">
         <div class="stats-grid__item">
-          <div data-chart-slot="cumulative-bar">
+          <div data-chart-slot="cumulative-bar" style="display: none;">
             <StackedBarChart id="cumulative-bar" height={380} title="Cumulative Downloads" />
           </div>
-          <div data-chart-slot="cumulative-area" style="display: none;">
+          <div data-chart-slot="cumulative-area">
             <StackedAreaChart id="cumulative-area" height={380} title="Cumulative Downloads" />
           </div>
         </div>
 
         <div class="stats-grid__item">
-          <div data-chart-slot="downloads-bar">
+          <div data-chart-slot="downloads-bar" style="display: none;">
             <StackedBarChart id="downloads-bar" height={380} title="Downloads by Day" />
           </div>
-          <div data-chart-slot="downloads-area" style="display: none;">
+          <div data-chart-slot="downloads-area">
             <StackedAreaChart id="downloads-area" height={380} title="Downloads by Day" />
           </div>
         </div>
@@ -187,7 +187,7 @@ const seoDescription =
   type ChartType = "bar" | "area";
 
   let currentRange: TimeRange = "daily";
-  let currentChartType: ChartType = "bar";
+  let currentChartType: ChartType = "area";
   let statsData: StatsResponse | null = null;
 
   /**

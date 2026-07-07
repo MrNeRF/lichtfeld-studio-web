@@ -59,17 +59,17 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
     </a>
   </li>
 
-  <!-- Portal -->
-  <li class="nav-menu__item">
+  <!-- Get the app (download portal) -->
+  <li class="nav-menu__item nav-menu__item--cta">
     <a
       href={LICHTFELD_PORTAL_URL}
       target="_blank"
       rel="noopener noreferrer"
-      class="nav-menu__link"
+      class="nav-menu__link nav-menu__link--cta"
       data-analytics-outbound="lichtfeld_portal"
       data-analytics-placement="nav"
     >
-      Portal
+      Get the app
     </a>
   </li>
 
@@ -330,6 +330,31 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
     color: var(--color-heading);
     background: rgba(var(--color-primary-rgb), 0.08);
     box-shadow: inset 0 0 0 1px rgba(var(--color-primary-rgb), 0.14);
+  }
+
+  /* Primary call-to-action: the main download action. Soft primary tint with a
+     hairline ring — highlighted but restrained, in step with the flat system. */
+  .nav-menu__link--cta {
+    color: var(--color-primary-link);
+    background: rgba(var(--color-primary-rgb), 0.09);
+    box-shadow: inset 0 0 0 1px rgba(var(--color-primary-rgb), 0.2);
+  }
+
+  .nav-menu__link--cta:hover {
+    color: var(--color-primary-link-hover);
+    background: rgba(var(--color-primary-rgb), 0.15);
+  }
+
+  .nav-menu__link--cta:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-shadow);
+  }
+
+  /* Nudge the CTA away from the plain text links on desktop. */
+  @media (min-width: 992px) {
+    .nav-menu__item--cta {
+      margin-left: 0.35rem;
+    }
   }
 
   /* Container for the split-button dropdown parts */

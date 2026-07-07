@@ -2,56 +2,195 @@
 /**
  * Footer.astro
  *
- * Site-wide footer component with theme-aware styling.
- * Displays the copyright notice and logo.
+ * Site-wide footer: brand block, grouped navigation columns, and a copyright
+ * bar. Internal links are base-aware (withBase); external links open safely.
  */
-import lichtFeldLogo from '../assets/lichtfeld-logo.svg';
+import lichtFeldLogo from "../assets/lichtfeld-logo.svg";
+import { withBase } from "@/utils/navigation";
+import { GITHUB_REPO_URL, DISCORD_URL, LICHTFELD_PORTAL_URL } from "@/constants/project";
 
 const base = import.meta.env.BASE_URL;
 const launchYear = 2025;
 const currentYear = new Date().getFullYear();
 const copyrightLabel =
   currentYear > launchYear ? `© ${launchYear}-${currentYear} LichtFeld` : `© ${launchYear} LichtFeld`;
+
+/** Grouped footer navigation. Internal links use base-aware paths. */
+const columns = [
+  {
+    heading: "Product",
+    links: [
+      { label: "Get the app", href: LICHTFELD_PORTAL_URL, external: true },
+      { label: "Gallery", href: withBase(base, "/showcase") },
+    ],
+  },
+  {
+    heading: "Resources",
+    links: [
+      { label: "Docs", href: withBase(base, "/docs") },
+      { label: "Plugins", href: withBase(base, "/plugins") },
+      { label: "Blog", href: withBase(base, "/blog") },
+    ],
+  },
+  {
+    heading: "Community",
+    links: [
+      { label: "Contribute", href: withBase(base, "/contribute") },
+      { label: "Bounties", href: withBase(base, "/bounty") },
+      { label: "GitHub", href: GITHUB_REPO_URL, external: true },
+      { label: "Discord", href: DISCORD_URL, external: true },
+    ],
+  },
+] as const;
 ---
 
 <div class="container content-frame px-4">
-  <footer class="site-footer py-3 my-4">
-    <!-- Footer content -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center">
-      <p class="col-md-4 mb-0 site-footer__copyright">{copyrightLabel}</p>
-      <a
-        href={base}
-        class="col-md-4 d-flex align-items-center justify-content-center mb-3 mb-md-0 me-md-auto text-decoration-none"
-        aria-label="LichtFeld Studio Home"
-      >
-        <img src={lichtFeldLogo.src} alt="LichtFeld Studio" class="site-footer__logo" />
-      </a>
+  <footer class="site-footer">
+    <div class="site-footer__top">
+      <div class="site-footer__brand">
+        <a href={base} aria-label="LichtFeld Studio Home">
+          <img src={lichtFeldLogo.src} alt="LichtFeld Studio" class="site-footer__logo" />
+        </a>
+        <p class="site-footer__tagline">
+          Open-source 3D Gaussian Splatting — train, edit, and render photorealistic scenes on your own GPU.
+        </p>
+      </div>
+
+      <nav class="site-footer__nav" aria-label="Footer">
+        {
+          columns.map((column) => (
+            <div class="site-footer__col">
+              <p class="site-footer__heading">{column.heading}</p>
+              <ul>
+                {column.links.map((link) => (
+                  <li>
+                    <a
+                      href={link.href}
+                      {...("external" in link && link.external
+                        ? { target: "_blank", rel: "noopener noreferrer" }
+                        : {})}
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+      </nav>
+    </div>
+
+    <div class="site-footer__bar">
+      <p class="site-footer__copyright">{copyrightLabel}</p>
+      <p class="site-footer__license">Released under the GPLv3 license.</p>
     </div>
   </footer>
 </div>
 
 <style>
-  /**
-   * Footer styling with theme-aware colors.
-   */
   .site-footer {
-    padding-top: 2rem !important;
-    border-top: 1px solid rgba(15, 23, 42, 0.08) !important;
-    border-color: transparent !important;
+    margin-top: 2rem;
+    padding: 2.75rem 0 2.25rem;
+    border-top: 1px solid var(--color-border-subtle);
   }
 
-  .site-footer__copyright {
-    color: var(--color-muted);
-    font-weight: 600;
+  .site-footer__top {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 2fr);
+    gap: 2.5rem;
+  }
+
+  .site-footer__brand {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
   }
 
   .site-footer__logo {
-    height: 20px;
-    opacity: 0.78;
-    transition: opacity var(--transition-fast, 150ms) ease-out;
+    height: 22px;
+    opacity: 0.85;
+    transition: opacity var(--transition-fast) ease-out;
   }
 
-  .site-footer__logo:hover {
+  .site-footer__brand a:hover .site-footer__logo {
     opacity: 1;
+  }
+
+  .site-footer__tagline {
+    margin: 0;
+    max-width: 32ch;
+    color: var(--color-muted);
+    font-size: 0.92rem;
+    line-height: 1.6;
+  }
+
+  .site-footer__nav {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+
+  .site-footer__heading {
+    margin: 0 0 0.85rem;
+    color: var(--color-heading);
+    font-family: var(--font-display);
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .site-footer__col ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .site-footer__col a {
+    color: var(--color-body);
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color var(--transition-fast) ease;
+  }
+
+  .site-footer__col a:hover {
+    color: var(--color-primary-link);
+  }
+
+  .site-footer__bar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.4rem 1rem;
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-border-subtle);
+  }
+
+  .site-footer__copyright,
+  .site-footer__license {
+    margin: 0;
+    color: var(--color-muted);
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  @media (max-width: 767.98px) {
+    .site-footer__top {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .site-footer__nav {
+      grid-template-columns: 1fr 1fr;
+      gap: 1.75rem 1.5rem;
+    }
   }
 </style>

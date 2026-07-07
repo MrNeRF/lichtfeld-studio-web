@@ -1,12 +1,28 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import { getCollection } from "astro:content";
+import { withBase } from "@/utils/navigation";
+import { GITHUB_REPO_URL, DISCORD_URL } from "@/constants/project";
 
 const base = import.meta.env.BASE_URL;
 const normalize = (p: string) => (p.endsWith("/") ? p.slice(0, -1) : p);
 const cleanBase = normalize(base);
 
 const allDocs = (await getCollection("docs")).sort((a, b) => a.data.order - b.data.order);
+
+/**
+ * Surface each guide's top-level (`##`) section headings as a mini table of
+ * contents so the landing page previews what's inside instead of just linking out.
+ */
+const docCards = allDocs.map((entry) => {
+  const headings = (entry.body.match(/^##\s+(.+)$/gm) ?? [])
+    .map((line) => line.replace(/^##\s+/, "").replace(/[#*`]/g, "").trim())
+    .filter(Boolean)
+    .slice(0, 5);
+  return { entry, headings };
+});
+
+const pluginsHref = withBase(base, "/plugins");
 
 const seoTitle = "Plugin Development Docs";
 const seoDescription =
@@ -26,13 +42,30 @@ const seoDescription =
 
         <div class="docs-cards">
           {
-            allDocs.map((entry) => (
+            docCards.map(({ entry, headings }) => (
               <a href={`${cleanBase}/docs/${entry.slug}`} class="docs-card">
-                <strong>{entry.data.title}</strong>
-                <span>{entry.data.description}</span>
+                <span class="docs-card__title">{entry.data.title}</span>
+                <span class="docs-card__desc">{entry.data.description}</span>
+                {headings.length > 0 && (
+                  <ul class="docs-card__topics">
+                    {headings.map((heading) => (
+                      <li>{heading}</li>
+                    ))}
+                  </ul>
+                )}
+                <span class="docs-card__cta">Open guide →</span>
               </a>
             ))
           }
+        </div>
+
+        <div class="docs-help">
+          <p class="docs-help__label">Looking for something else?</p>
+          <div class="docs-help__links">
+            <a href={pluginsHref}>Browse the plugin registry →</a>
+            <a href={GITHUB_REPO_URL} target="_blank" rel="noopener noreferrer">Source &amp; examples on GitHub →</a>
+            <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer">Ask in the Discord →</a>
+          </div>
         </div>
       </div>
     </div>
@@ -63,8 +96,8 @@ const seoDescription =
   .docs-card {
     display: flex;
     flex-direction: column;
-    gap: 0.35rem;
-    padding: 1.2rem 1.35rem;
+    gap: 0.4rem;
+    padding: 1.4rem 1.5rem 1.5rem;
     border-radius: var(--card-radius);
     background: var(--card-bg);
     border: 1px solid var(--color-border-subtle);
@@ -76,27 +109,90 @@ const seoDescription =
     border-color: var(--color-border-hover);
   }
 
-  .docs-card::after {
-    content: "→";
-    font-size: 1.1rem;
+  .docs-card__title {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    color: var(--color-heading);
+    letter-spacing: -0.01em;
+  }
+
+  .docs-card__desc {
+    color: var(--color-muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  /* Mini table of contents pulled from the guide's ## headings. */
+  .docs-card__topics {
+    list-style: none;
+    margin: 0.65rem 0 0;
+    padding: 0.9rem 0 0;
+    border-top: 1px solid var(--color-border-subtle);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .docs-card__topics li {
+    position: relative;
+    padding-left: 1.1rem;
+    color: var(--color-body);
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+
+  .docs-card__topics li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 0.35rem;
+    height: 0.35rem;
+    border-radius: 999px;
+    background: rgba(var(--color-primary-rgb), 0.55);
+  }
+
+  .docs-card__cta {
+    margin-top: 1rem;
     color: var(--color-primary-link);
-    margin-top: 0.35rem;
+    font-weight: 700;
+    font-size: 0.92rem;
     transition: transform var(--transition-fast);
   }
 
-  .docs-card:hover::after {
-    transform: translateX(4px);
+  .docs-card:hover .docs-card__cta {
+    color: var(--color-primary-link-hover);
   }
 
-  .docs-card strong {
-    font-family: var(--font-display);
-    font-size: 1.15rem;
-    color: var(--color-heading);
+  /* Secondary resources row */
+  .docs-help {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-border-subtle);
   }
 
-  .docs-card span {
+  .docs-help__label {
+    margin: 0 0 0.75rem;
     color: var(--color-muted);
-    font-size: 0.88rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+
+  .docs-help__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1.75rem;
+  }
+
+  .docs-help__links a {
+    color: var(--color-primary-link);
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-decoration: none;
+  }
+
+  .docs-help__links a:hover {
+    color: var(--color-primary-link-hover);
   }
 
   @media (max-width: 991.98px) {
@@ -108,6 +204,11 @@ const seoDescription =
   @media (max-width: 575.98px) {
     .docs-hero__title {
       max-width: 12ch;
+    }
+
+    .docs-help__links {
+      flex-direction: column;
+      gap: 0.7rem;
     }
   }
 </style>

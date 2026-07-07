@@ -78,18 +78,17 @@ function formatNumber(num: number): string {
     border-color: var(--color-border-hover);
   }
 
-  /* Icon styling */
+  /* Icon styling — flat editorial: a plain accent glyph, no filled tile */
   .stat-card__icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 3.5rem;
-    height: 3.5rem;
-    background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
-    border-radius: 1rem;
-    color: #fff;
-    font-size: 1.5rem;
-    margin-bottom: 0.25rem;
+    width: auto;
+    height: auto;
+    color: var(--color-primary);
+    font-size: 1.4rem;
+    line-height: 1;
+    margin-bottom: 0.35rem;
   }
 
   /* Value styling - the hero number */
@@ -140,8 +139,6 @@ function formatNumber(num: number): string {
     }
 
     .stat-card__icon {
-      width: 3rem;
-      height: 3rem;
       font-size: 1.25rem;
     }
 

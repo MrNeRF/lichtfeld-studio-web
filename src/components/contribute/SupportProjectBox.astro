@@ -245,7 +245,7 @@ const customAmountId = `${sectionId}-custom-amount`;
   .support-box {
     margin-inline: 0;
     padding: clamp(1.5rem, 3vw, 2.25rem);
-    background: #fff;
+    background: var(--card-bg);
     border: 1px solid var(--color-border-subtle);
     border-radius: var(--card-radius);
   }
@@ -305,9 +305,9 @@ const customAmountId = `${sectionId}-custom-amount`;
     height: 2rem;
     margin-top: 0.15rem;
     border-radius: 999px;
-    border: 1px solid rgba(148, 163, 184, 0.18);
-    background: #fff;
-    color: #64748b;
+    border: 1px solid var(--color-border-subtle);
+    background: var(--card-bg);
+    color: var(--color-muted);
     text-decoration: none;
     transition:
       color 0.18s ease,
@@ -316,7 +316,7 @@ const customAmountId = `${sectionId}-custom-amount`;
 
   .section-anchor:hover {
     color: var(--color-primary-link);
-    border-color: rgba(37, 99, 235, 0.24);
+    border-color: var(--color-border-hover);
   }
 
   .section-anchor:focus-visible {
@@ -332,12 +332,12 @@ const customAmountId = `${sectionId}-custom-amount`;
 
   .support-box__title {
     font-size: clamp(1.9rem, 3.2vw, 2.5rem);
-    color: #101828;
+    color: var(--color-heading);
     margin: 0;
   }
 
   .support-box__desc {
-    color: #475569;
+    color: var(--color-body);
     font-size: 1rem;
     margin: 0;
     max-width: 34rem;
@@ -348,13 +348,13 @@ const customAmountId = `${sectionId}-custom-amount`;
   .support-box__panel {
     padding: 1.35rem;
     border-radius: var(--card-radius);
-    background: #fff;
-    border: 1px solid rgba(15, 23, 42, 0.08);
+    background: var(--card-bg);
+    border: 1px solid var(--color-border-subtle);
   }
 
   .support-box__label {
     margin: 0 0 1rem;
-    color: #344054;
+    color: var(--color-body-strong);
     font-size: 0.82rem;
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -377,9 +377,9 @@ const customAmountId = `${sectionId}-custom-amount`;
     padding: 0.75rem 1.25rem;
     font-size: 1rem;
     font-weight: 700;
-    color: #344054;
-    background: #fff;
-    border: 1px solid rgba(15, 23, 42, 0.08);
+    color: var(--color-body-strong);
+    background: var(--card-bg);
+    border: 1px solid var(--color-border-subtle);
     border-radius: 999px;
     cursor: pointer;
     transition:
@@ -388,20 +388,20 @@ const customAmountId = `${sectionId}-custom-amount`;
   }
 
   .donate-amount:hover {
-    border-color: rgba(20, 87, 255, 0.18);
+    border-color: var(--color-border-hover);
   }
 
   .donate-amount[aria-pressed="true"] {
-    background: #1457ff;
-    border-color: rgba(20, 87, 255, 0.2);
+    background: var(--color-primary);
+    border-color: var(--color-primary);
     color: white;
   }
 
   .donate-amount-custom {
     display: flex;
     align-items: center;
-    background: #fff;
-    border: 1px solid rgba(15, 23, 42, 0.08);
+    background: var(--card-bg);
+    border: 1px solid var(--color-border-subtle);
     border-radius: 999px;
     padding-left: 0.75rem;
     transition:
@@ -410,13 +410,13 @@ const customAmountId = `${sectionId}-custom-amount`;
   }
 
   .donate-amount-custom:focus-within {
-    border-color: #1457ff;
+    border-color: var(--color-primary);
     box-shadow: var(--focus-shadow);
   }
 
   .donate-amount-custom__prefix {
     font-weight: 600;
-    color: #64748b;
+    color: var(--color-muted);
   }
 
   .donate-amount-custom__input {
@@ -424,14 +424,14 @@ const customAmountId = `${sectionId}-custom-amount`;
     padding: 0.75rem 0.5rem;
     font-size: 1rem;
     font-weight: 600;
-    color: #1e293b;
+    color: var(--color-heading);
     background: transparent;
     border: none;
     outline: none;
   }
 
   .donate-amount-custom__input::placeholder {
-    color: #94a3b8;
+    color: var(--color-muted);
     font-weight: 500;
   }
 
@@ -517,9 +517,9 @@ const customAmountId = `${sectionId}-custom-amount`;
     margin-top: 1rem;
     margin-inline: auto;
     padding: 1rem;
-    background: #fff;
+    background: var(--card-bg);
     border-radius: var(--card-radius);
-    border: 1px solid rgba(15, 23, 42, 0.08);
+    border: 1px solid var(--color-border-subtle);
     max-width: 400px;
   }
 
@@ -541,7 +541,7 @@ const customAmountId = `${sectionId}-custom-amount`;
   .donate-bitcoin-popup__label {
     font-size: 0.875rem;
     font-weight: 600;
-    color: #64748b;
+    color: var(--color-muted);
     margin-bottom: 0.5rem;
   }
 
@@ -549,8 +549,8 @@ const customAmountId = `${sectionId}-custom-amount`;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
+    background: var(--code-inline-bg);
+    border: 1px solid var(--color-border-subtle);
     border-radius: 0.5rem;
     padding: 0.75rem;
   }
@@ -558,7 +558,7 @@ const customAmountId = `${sectionId}-custom-amount`;
   .donate-bitcoin-popup__address code {
     flex: 1;
     font-size: 0.8125rem;
-    color: #1e293b;
+    color: var(--color-body-strong);
     word-break: break-all;
     font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
   }
@@ -568,29 +568,29 @@ const customAmountId = `${sectionId}-custom-amount`;
     align-items: center;
     justify-content: center;
     padding: 0.5rem;
-    background: white;
-    border: 1px solid #e2e8f0;
+    background: var(--card-bg);
+    border: 1px solid var(--color-border-subtle);
     border-radius: 0.375rem;
     cursor: pointer;
     transition: all 0.15s ease;
-    color: #64748b;
+    color: var(--color-muted);
   }
 
   .donate-bitcoin-popup__copy:hover {
-    background: #f1f5f9;
-    border-color: #cbd5e1;
-    color: #475569;
+    background: var(--background-hover);
+    border-color: var(--color-border-hover);
+    color: var(--color-body);
   }
 
   .donate-bitcoin-popup__hint {
     font-size: 0.75rem;
-    color: #94a3b8;
+    color: var(--color-muted);
     margin-top: 0.5rem;
     text-align: center;
   }
 
   .donate-bitcoin-popup__hint.copied {
-    color: #059669;
+    color: var(--color-success);
     font-weight: 500;
   }
 

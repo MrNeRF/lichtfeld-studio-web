@@ -315,8 +315,8 @@ const seoDescription =
     height: 2.75rem;
     margin-top: 0.15rem;
     border-radius: var(--radius-pill);
-    border: 1px solid rgba(148, 163, 184, 0.18);
-    background: #fff;
+    border: 1px solid var(--color-border-subtle);
+    background: var(--card-bg);
     color: var(--color-muted);
     font-size: 1.2rem;
     text-decoration: none;
@@ -367,8 +367,8 @@ const seoDescription =
     gap: 0.65rem;
     padding: 1.45rem;
     border-radius: var(--card-radius);
-    background: #fff;
-    border: 1px solid rgba(194, 89, 37, 0.12);
+    background: var(--card-bg);
+    border: 1px solid rgba(194, 89, 37, 0.22);
   }
 
   .foundational-sponsoring-card__label {
@@ -514,6 +514,19 @@ const seoDescription =
 
   .sponsoring-tier-card--bronze {
     --tier-rgb: 192, 132, 87;
+  }
+
+  /* The platinum/silver slate palette is tuned for light surfaces; lift it on
+     dark so borders, bullets, and the tier chip stay legible on dark cards. */
+  :root[data-theme="dark"] .sponsoring-tier-card--platinum {
+    --tier-rgb: 148, 163, 184;
+    --tier-chip-bg: rgba(148, 163, 184, 0.18);
+    --tier-chip-color: #cbd5e1;
+  }
+
+  :root[data-theme="dark"] .sponsoring-tier-card--silver {
+    --tier-chip-bg: rgba(148, 163, 184, 0.2);
+    --tier-chip-color: #cbd5e1;
   }
 
   .contribute-contributors {

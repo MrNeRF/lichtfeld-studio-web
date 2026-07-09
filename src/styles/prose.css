@@ -9,6 +9,8 @@
 
 .prose {
   color: var(--color-body);
+  min-width: 0;
+  max-width: 100%;
 }
 
 /* --- Headings --- */
@@ -98,6 +100,7 @@
 }
 
 .prose pre {
+  max-width: 100%;
   overflow-x: auto;
   margin: 0 0 1.2rem;
   padding: 1.1rem 1.25rem;
@@ -121,10 +124,14 @@
 /* Optional copy-to-clipboard affordance (used by docs; harmless elsewhere) */
 .prose .code-block {
   position: relative;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
   margin: 1.25rem 0;
 }
 
 .prose .code-block pre {
+  min-width: max-content;
   margin: 0;
 }
 
@@ -184,6 +191,7 @@
 /* --- Tables --- */
 .prose table {
   display: block;
+  max-width: 100%;
   width: 100%;
   overflow-x: auto;
   border-collapse: collapse;
@@ -193,6 +201,7 @@
 }
 
 .prose .table-wrapper {
+  max-width: 100%;
   overflow-x: auto;
 }
 

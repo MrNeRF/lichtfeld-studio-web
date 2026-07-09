@@ -1171,6 +1171,7 @@ section.py-5 > .container {
   font-size: clamp(2.6rem, 5vw, 4.2rem);
   line-height: 1.02;
   letter-spacing: -0.04em;
+  text-wrap: balance;
 }
 
 .page-hero__lead {

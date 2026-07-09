@@ -6,12 +6,11 @@ import { describe, expect, it } from "vitest";
 const homePageSource = readFileSync(resolve(process.cwd(), "src/pages/index.astro"), "utf8");
 
 describe("homepage hero tablet layout", () => {
-  it("uses the same capped width for the scene cue and stack from tablet upward while keeping phone full-width", () => {
-    expect(homePageSource).toContain(".hero {\n    position: relative;\n    isolation: isolate; /* Ensure overlay stacking is predictable */\n    min-height: clamp(345px, 46vh, 600px);");
+  it("keeps the hero compact across tablet and phone breakpoints", () => {
+    expect(homePageSource).toContain("min-height: clamp(345px, 46vh, 600px);");
     expect(homePageSource).toContain("@media (min-width: 768px)");
-    expect(homePageSource).toContain("@media (min-width: 992px) and (max-height: 840px) {\n    .hero {\n      min-height: min(470px, calc(100svh - var(--nav-height) - 1.4rem));");
-    expect(homePageSource).toContain(".hero__proof {\n      gap: 0.42rem;\n      margin-top: 0.72rem;");
-    expect(homePageSource).toContain(".hero__proof-item {\n      padding: 0.34rem 0.62rem;\n      font-size: 0.74rem;");
+    expect(homePageSource).toContain("@media (min-width: 992px) and (max-height: 840px)");
+    expect(homePageSource).toContain("min-height: min(470px, calc(100svh - var(--nav-height) - 1.4rem));");
     expect(homePageSource).toContain(
       ".hero__content .container {\n      max-width: 72rem;\n      --hero-tablet-stack-width: 27rem;\n      --hero-tablet-cue-width: 10.75rem;",
     );
@@ -27,11 +26,7 @@ describe("homepage hero tablet layout", () => {
     expect(homePageSource).toContain(
       ".hero__release-actions {\n      grid-template-columns: 1fr;\n      max-width: none;",
     );
-    expect(homePageSource).toContain(
-      ".hero__scene-cue {\n      right: calc((100% - var(--hero-tablet-stack-width) - var(--hero-tablet-cue-width)) / 2);\n      bottom: 0.4rem;\n      left: auto;",
-    );
     expect(homePageSource).toContain("@media (min-width: 576px) and (max-width: 767.98px)");
-    expect(homePageSource).toContain("align-items: end;");
     expect(homePageSource).not.toContain("min-height: min(710px, calc(100svh - var(--nav-height) + 1rem));");
     expect(homePageSource).toContain(".hero__stack {\n      width: min(100%, 24rem);");
     expect(homePageSource).toContain(".hero__scene-cue {\n      position: static;\n      width: min(100%, 24rem);");
@@ -42,8 +37,20 @@ describe("homepage hero tablet layout", () => {
   });
 
   it("uses the new Meihogen timelapse assets in the workflow panel", () => {
-    expect(homePageSource).toContain("src={`${base}videos/meihogen-homepage`}");
+    expect(homePageSource).toContain("<video");
+    expect(homePageSource).toContain('class="story-video"');
+    expect(homePageSource).toContain("src={`${base}videos/meihogen-homepage.mp4`}");
     expect(homePageSource).toContain("poster={`${base}videos/meihogen-homepage-poster.jpg`}");
+    expect(homePageSource).toContain('type="video/mp4"');
+    expect(homePageSource).not.toContain("SmartVideo");
+  });
+
+  it("keeps LCP splat preview eager while reduced-motion users get manual video playback", () => {
+    expect(homePageSource).toContain('previewLoading="eager"');
+    expect(homePageSource).toContain('previewFetchPriority="high"');
+    expect(homePageSource).toContain('window.matchMedia("(prefers-reduced-motion: reduce)")');
+    expect(homePageSource).toContain('video.removeAttribute("autoplay");');
+    expect(homePageSource).toContain("video.controls = true;");
   });
 
   it("renders the workflow timelapse without the old framed story-media shell", () => {

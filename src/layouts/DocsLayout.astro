@@ -40,9 +40,9 @@ const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
             {
               tocHeadings.length > 0 && (
                 <>
-                  <div class="docs-sidebar__sep" />
-                  <p class="docs-sidebar__toc-label">On this page</p>
-                  <nav class="docs-sidebar__toc">
+                  <div class="docs-sidebar__sep docs-sidebar__sep--desktop" />
+                  <p class="docs-sidebar__toc-label docs-sidebar__toc-label--desktop">On this page</p>
+                  <nav class="docs-sidebar__toc docs-sidebar__toc--desktop">
                     {tocHeadings.map((h) => (
                       <a
                         href={`#${h.slug}`}
@@ -53,6 +53,20 @@ const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
                       </a>
                     ))}
                   </nav>
+                  <details class="docs-toc-disclosure">
+                    <summary>On this page</summary>
+                    <nav class="docs-sidebar__toc docs-sidebar__toc--mobile" aria-label="On this page">
+                      {tocHeadings.map((h) => (
+                        <a
+                          href={`#${h.slug}`}
+                          class:list={["docs-sidebar__toc-link", { "docs-sidebar__toc-link--h3": h.depth === 3 }]}
+                          data-heading-slug={h.slug}
+                        >
+                          {h.text}
+                        </a>
+                      ))}
+                    </nav>
+                  </details>
                 </>
               )
             }
@@ -76,13 +90,17 @@ const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
     const tocLinks = document.querySelectorAll<HTMLAnchorElement>(".docs-sidebar__toc-link");
     if (!tocLinks.length) return;
 
-    const slugToLink = new Map<string, HTMLAnchorElement>();
+    const slugToLinks = new Map<string, HTMLAnchorElement[]>();
     tocLinks.forEach((link) => {
       const slug = link.dataset.headingSlug;
-      if (slug) slugToLink.set(slug, link);
+      if (!slug) return;
+
+      const links = slugToLinks.get(slug) ?? [];
+      links.push(link);
+      slugToLinks.set(slug, links);
     });
 
-    const headingEls = Array.from(slugToLink.keys())
+    const headingEls = Array.from(slugToLinks.keys())
       .map((slug) => document.getElementById(slug))
       .filter(Boolean) as HTMLElement[];
 
@@ -90,8 +108,8 @@ const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
 
     const setActive = (slug: string) => {
       tocLinks.forEach((l) => l.classList.remove("is-active"));
-      const active = slugToLink.get(slug);
-      if (active) active.classList.add("is-active");
+      const activeLinks = slugToLinks.get(slug) ?? [];
+      activeLinks.forEach((link) => link.classList.add("is-active"));
     };
 
     const navHeight = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--nav-height")) || 60;
@@ -160,6 +178,19 @@ const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
     background: var(--page-bg);
   }
 
+  .docs-page .row,
+  .docs-page [class*="col-"],
+  .docs-sidebar,
+  .docs-article,
+  .docs-article__content {
+    min-width: 0;
+  }
+
+  .docs-article__content {
+    max-width: 100%;
+    overflow-wrap: break-word;
+  }
+
   .docs-sidebar {
     position: sticky;
     top: calc(var(--nav-height) + 1.25rem);
@@ -226,6 +257,10 @@ const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
     overflow-y: auto;
   }
 
+  .docs-toc-disclosure {
+    display: none;
+  }
+
   .docs-sidebar__toc-link {
     display: block;
     padding: 0.3rem 0.85rem;
@@ -263,11 +298,74 @@ const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
       top: auto;
       /* Stacked above the article on small screens: separate with a hairline. */
       border-bottom: 1px solid var(--color-border-subtle);
-      padding-bottom: 1.25rem;
+      padding-bottom: 0.9rem;
+    }
+
+    .docs-sidebar__nav {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.45rem;
+    }
+
+    .docs-sidebar__link {
+      min-height: 2.75rem;
+      padding: 0.62rem 0.75rem;
+      font-size: 0.86rem;
+      border-radius: var(--rounded-lg);
+    }
+
+    .docs-sidebar__sep--desktop,
+    .docs-sidebar__toc-label--desktop,
+    .docs-sidebar__toc--desktop {
+      display: none;
+    }
+
+    .docs-toc-disclosure {
+      display: block;
+      margin-top: 0.75rem;
+      border-top: 1px solid var(--color-border-subtle);
+      padding-top: 0.75rem;
+    }
+
+    .docs-toc-disclosure summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 2.75rem;
+      padding: 0.62rem 0.75rem;
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--rounded-lg);
+      color: var(--color-heading);
+      cursor: pointer;
+      font-weight: 800;
+      list-style: none;
+    }
+
+    .docs-toc-disclosure summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .docs-toc-disclosure summary::after {
+      content: "＋";
+      color: var(--color-muted);
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+    .docs-toc-disclosure[open] summary::after {
+      content: "−";
     }
 
     .docs-sidebar__toc {
       max-height: none;
+      margin-top: 0.55rem;
+      padding-block: 0.2rem;
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .docs-sidebar__nav {
+      grid-template-columns: 1fr;
     }
   }
 </style>

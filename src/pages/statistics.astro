@@ -14,7 +14,6 @@
  * - Contributors wall
  */
 import Layout from "@/layouts/Layout.astro";
-import { SITE } from "@/config/site.config";
 
 // Stats components
 import StatCard from "@/components/stats/StatCard.astro";
@@ -28,7 +27,7 @@ import ReleaseTable from "@/components/stats/ReleaseTable.astro";
 import ContributorsWall from "@/components/contribute/ContributorsWall.astro";
 
 // SEO metadata
-const seoTitle = `Download Statistics | ${SITE.name}`;
+const seoTitle = "Download Statistics";
 const seoDescription =
   "Daily download statistics and growth metrics for LichtFeld Studio. Track releases, monitor adoption, and review the current release breakdown.";
 ---
@@ -62,7 +61,13 @@ const seoDescription =
         <h2 class="stats-section__title">Download Trends</h2>
         <div class="stats-controls">
           <div class="chart-type-toggle" role="group" aria-label="Chart type">
-            <button type="button" class="chart-type-toggle__button" data-chart-type="bar" title="Bar chart">
+            <button
+              type="button"
+              class="chart-type-toggle__button"
+              data-chart-type="bar"
+              title="Bar chart"
+              aria-label="Show bar chart"
+            >
               <i class="bi bi-bar-chart-fill"></i>
             </button>
             <button
@@ -70,6 +75,7 @@ const seoDescription =
               class="chart-type-toggle__button chart-type-toggle__button--active"
               data-chart-type="area"
               title="Area chart"
+              aria-label="Show area chart"
             >
               <i class="bi bi-graph-up"></i>
             </button>

@@ -117,7 +117,7 @@ const attributionHtml = renderSceneAttributionHtml(scene.credits);
   /* Selected state */
   .scene-card--selected {
     border-color: var(--color-primary-link);
-    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.22);
+    box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.22);
   }
 
   .scene-card--selected:hover {
@@ -130,7 +130,7 @@ const attributionHtml = renderSceneAttributionHtml(scene.credits);
     width: 100%;
     aspect-ratio: 16 / 9;
     overflow: hidden;
-    background-color: #f1f5f9;
+    background-color: var(--section-bg-alt);
   }
 
   .scene-card__image {
@@ -149,9 +149,9 @@ const attributionHtml = renderSceneAttributionHtml(scene.credits);
     justify-content: center;
     width: 2rem;
     height: 2rem;
-    background: linear-gradient(135deg, #2563eb, #0ea5e9);
+    background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
     border-radius: 50%;
-    color: white;
+    color: var(--color-text-light);
     opacity: 0;
     transform: scale(0.8);
     transition:
@@ -193,13 +193,13 @@ const attributionHtml = renderSceneAttributionHtml(scene.credits);
     font-size: 0.9rem;
     line-height: 1.35;
     letter-spacing: 0.02em;
-    color: rgba(156, 163, 175, 0.82);
+    color: var(--color-muted);
   }
 
   .scene-card__attribution :global(a) {
     color: inherit;
     text-decoration-thickness: 0.04em;
-    text-decoration-color: rgba(156, 163, 175, 0.22);
+    text-decoration-color: rgba(var(--ink-rgb), 0.22);
     text-underline-offset: 0.1em;
     transition:
       color 0.15s ease,
@@ -207,7 +207,7 @@ const attributionHtml = renderSceneAttributionHtml(scene.credits);
   }
 
   .scene-card__attribution :global(a:hover) {
-    color: rgba(107, 114, 128, 0.88);
-    text-decoration-color: rgba(107, 114, 128, 0.35);
+    color: var(--color-body);
+    text-decoration-color: rgba(var(--ink-rgb), 0.35);
   }
 </style>

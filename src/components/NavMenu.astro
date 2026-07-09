@@ -99,41 +99,46 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
     <a href={bountiesHref} class:list={["nav-menu__link", { "is-active": isBountiesActive }]}>Bounties</a>
   </li>
 
-  <!-- External links (icon-only with screen-reader text for accessibility) -->
-  <li class="nav-menu__item">
+  <!-- External links and theme control. Desktop remains icon-only; mobile uses labeled rows. -->
+  <li class="nav-menu__item nav-menu__item--menu-footer nav-menu__item--menu-footer-start">
     <a
       href={DISCORD_URL}
       target="_blank"
       rel="noopener noreferrer"
-      class="nav-menu__link nav-menu__link--icon-only"
+      class="nav-menu__link nav-menu__link--icon-only nav-menu__footer-link"
       aria-label="Discord"
       data-analytics-outbound="discord"
       data-analytics-placement="nav"
     >
       <i class="bi bi-discord" aria-hidden="true"></i>
-      <span class="sr-only">Discord</span>
+      <span class="nav-menu__footer-label">Discord</span>
     </a>
   </li>
-  <li class="nav-menu__item">
+  <li class="nav-menu__item nav-menu__item--menu-footer">
     <a
       href={GITHUB_REPO_URL}
       target="_blank"
       rel="noopener noreferrer"
-      class="nav-menu__link nav-menu__link--icon-only"
+      class="nav-menu__link nav-menu__link--icon-only nav-menu__footer-link"
       aria-label="GitHub"
       data-analytics-outbound="github_repo"
       data-analytics-placement="nav"
     >
       <i class="bi bi-github" aria-hidden="true"></i>
-      <span class="sr-only">GitHub</span>
+      <span class="nav-menu__footer-label">GitHub</span>
     </a>
   </li>
 
   <!-- Theme toggle (light / dark) -->
-  <li class="nav-menu__item nav-menu__item--theme">
-    <button type="button" class="nav-menu__link nav-menu__link--icon-only theme-toggle" aria-label="Toggle dark mode">
+  <li class="nav-menu__item nav-menu__item--theme nav-menu__item--menu-footer">
+    <button
+      type="button"
+      class="nav-menu__link nav-menu__link--icon-only nav-menu__footer-link theme-toggle"
+      aria-label="Toggle dark mode"
+    >
       <i class="bi bi-moon-stars-fill theme-toggle__moon" aria-hidden="true"></i>
       <i class="bi bi-sun-fill theme-toggle__sun" aria-hidden="true"></i>
+      <span class="nav-menu__footer-label">Theme</span>
     </button>
   </li>
 </ul>
@@ -313,9 +318,13 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
     font-size: 1.15rem;
   }
 
-  /* Discord brand color */
+  .nav-menu__footer-label {
+    display: none;
+  }
+
+  /* Token-driven social icon colors */
   .nav-menu__link--icon-only .bi-discord {
-    color: #5865f2;
+    color: var(--color-primary-link);
   }
 
   /* GitHub brand color (theme-aware: dark on light, light on dark) */
@@ -325,7 +334,7 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
 
   /* Hover effect for social icons */
   .nav-menu__link--icon-only:hover .bi-discord {
-    color: #4752c4;
+    color: var(--color-primary-link-hover);
   }
 
   .nav-menu__link--icon-only:hover .bi-github {
@@ -571,6 +580,46 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
       min-width: auto;
       width: 100%;
     }
+
+    .nav-menu__item--menu-footer-start {
+      margin-top: 0.55rem;
+      padding-top: 0.65rem;
+      border-top: 1px solid var(--color-border-subtle);
+    }
+
+    .nav-menu__item--menu-footer,
+    .nav-menu__item:has(.nav-menu__link--icon-only),
+    .nav-menu__item:has(.nav-menu__link--icon-only) + .nav-menu__item:has(.nav-menu__link--icon-only) {
+      margin-left: 0;
+    }
+
+    .nav-menu__footer-link.nav-menu__link--icon-only {
+      justify-content: flex-start;
+      gap: 0.7rem;
+      width: 100%;
+      min-height: 2.75rem;
+      padding: 0.8rem 1rem;
+      color: var(--color-body);
+      font-size: 0.92rem;
+    }
+
+    .nav-menu__footer-link.nav-menu__link--icon-only i {
+      width: 1.25rem;
+      color: var(--color-primary-link);
+      text-align: center;
+    }
+
+    .nav-menu__footer-label {
+      display: inline;
+      color: var(--color-body);
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+
+    .nav-menu__footer-link:hover .nav-menu__footer-label,
+    .nav-menu__footer-link:hover i {
+      color: var(--color-text-hover);
+    }
   }
 
   @media (max-width: 575.98px) {
@@ -589,6 +638,10 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
       min-width: 2.75rem;
       min-height: 2.75rem;
       padding: 0.35rem;
+    }
+
+    .nav-menu__footer-link.nav-menu__link--icon-only {
+      padding: 0.72rem 0.85rem;
     }
 
     .nav-menu__dropdown-container {

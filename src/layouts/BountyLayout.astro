@@ -12,6 +12,7 @@ import BountyList from "@/components/BountyList.astro";
 interface Props {
   data: {
     title: string;
+    summary?: string;
     description?: string;
     reward?: string;
     status?: string;
@@ -24,6 +25,7 @@ const { data } = Astro.props;
 const seoTitle = data.title;
 const seoDescription =
   data.description ||
+  data.summary ||
   `${data.title} bounty for LichtFeld Studio. ${data.reward ? `Reward: ${data.reward}.` : ""} Contribute to the 3D Gaussian Splatting engine.`;
 ---
 

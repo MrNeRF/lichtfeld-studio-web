@@ -13,7 +13,6 @@ import { SITE } from "@/config/site.config";
 import core11Logo from "@/assets/core11-logo.svg";
 import gaussianSplatKingLogo from "@/assets/gaussian-splatking-logo.jpg";
 
-import { SmartVideo } from "@alos-no/astro-media";
 import Splat from "@/components/Splat.astro";
 import BlogCard from "@/components/BlogCard.astro";
 import { HOMEPAGE_MIN_VIEWPORT_VISIBILITY_FOR_RENDER } from "@/constants/splat-viewer";
@@ -222,6 +221,8 @@ const faqSchema = {
           minViewportVisibilityForRender={HOMEPAGE_MIN_VIEWPORT_VISIBILITY_FOR_RENDER}
           disableDriftOnMobile={true}
           trackFirstFrameAnalytics={false}
+          previewLoading="eager"
+          previewFetchPriority="high"
         />
       </div>
     </div>
@@ -385,12 +386,17 @@ const faqSchema = {
         <div class="story-media-panel">
           <div class="story-media">
             <div class="story-video-wrapper">
-              <SmartVideo
-                src={`${base}videos/meihogen-homepage`}
+              <video
+                class="story-video"
                 poster={`${base}videos/meihogen-homepage-poster.jpg`}
-                sizeStrategy="fill"
-                fit="contain"
-              />
+                autoplay
+                muted
+                loop
+                playsinline
+                preload="metadata"
+              >
+                <source src={`${base}videos/meihogen-homepage.mp4`} type="video/mp4" />
+              </video>
             </div>
           </div>
           <p class="story-media__caption">
@@ -650,6 +656,16 @@ const faqSchema = {
    * - Resets the fade-in timer if the user becomes active again.
    */
   document.addEventListener("DOMContentLoaded", () => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      document.querySelectorAll<HTMLVideoElement>(".story-video").forEach((video) => {
+        video.removeAttribute("autoplay");
+        video.controls = true;
+        video.pause();
+        // Catch an autoplay already in flight, but let deliberate plays through.
+        video.addEventListener("playing", () => video.pause(), { once: true });
+      });
+    }
+
     // Find the hero content element to apply the fade effect.
     const heroContent = document.querySelector(".hero__content");
     if (!heroContent) {
@@ -1948,9 +1964,16 @@ const faqSchema = {
     width: 100%;
     aspect-ratio: 31 / 20;
     overflow: hidden;
-    border-radius: 0.75rem;
-    background: #0f172a;
+    border-radius: var(--rounded-xl);
+    background: var(--color-code-bg);
     border: 1px solid var(--color-border-subtle);
+  }
+
+  .story-video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
   }
 
   .story-media__caption {

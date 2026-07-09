@@ -48,7 +48,7 @@ describe("live showcase page", () => {
   });
 
   it("adds a sidebar browse button and hides the more-scenes section on mobile and tablet", () => {
-    expect(showcasePageSource).toContain('class="showcase-gallery__header"');
+    expect(showcasePageSource).toContain('class="section-head showcase-gallery__header"');
     expect(showcasePageSource).toContain('class="showcase-player__btn showcase-player__btn--browse showcase-player__btn--browse-secondary"');
     expect(showcasePageSource).toMatch(/@media \(max-width: 1199\.98px\) \{\s+\.showcase-gallery \{\s+display: none;/);
   });

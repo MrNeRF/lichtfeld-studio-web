@@ -1363,7 +1363,7 @@ const faqSchema = {
     margin-top: 0.15rem;
     border-radius: var(--radius-pill);
     border: 1px solid var(--color-border-subtle);
-    color: #64748b;
+    color: var(--color-muted);
     text-decoration: none;
     transition:
       color var(--transition-fast),
@@ -1552,7 +1552,7 @@ const faqSchema = {
 
   .story-lead {
     margin: 1rem 0 0;
-    color: #1f2937;
+    color: var(--color-body-strong);
     font-size: 1.08rem;
     line-height: 1.72;
   }
@@ -2014,7 +2014,7 @@ const faqSchema = {
     flex: 1;
     max-width: 14rem;
     height: 1px;
-    background: rgba(15, 23, 42, 0.16);
+    background: rgba(var(--ink-rgb), 0.16);
   }
 
   .portal-sponsors__row {
@@ -2059,6 +2059,12 @@ const faqSchema = {
     width: min(100%, 75px);
     height: auto;
     max-width: none;
+  }
+
+  /* Sponsor logos ship as dark ink artwork; normalize them to a clean
+     uniform white so they stay legible on the dark background. */
+  :root[data-theme="dark"] .portal-sponsors__logo img {
+    filter: brightness(0) invert(1);
   }
 
   .portal-sponsors__name {

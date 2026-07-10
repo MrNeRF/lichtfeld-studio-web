@@ -76,17 +76,57 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <!-- Theme: set data-theme before first paint to avoid a flash.
-         Uses a stored preference, falling back to the OS color scheme. -->
+         Uses the shared cookie first, then local storage, then the OS color scheme. -->
     <script is:inline>
       (function () {
+        var themeCookie = {
+          read: function () {
+            try {
+              var cookies = document.cookie ? document.cookie.split(";") : [];
+              for (var i = 0; i < cookies.length; i += 1) {
+                var cookie = cookies[i].trim();
+                if (cookie.indexOf("lf_theme=") !== 0) continue;
+                var value = cookie.slice("lf_theme=".length);
+                if (value === "dark" || value === "light") return value;
+              }
+            } catch (e) {
+              /* cookie unavailable */
+            }
+            return null;
+          },
+          write: function (theme) {
+            if (theme !== "dark" && theme !== "light") return;
+            try {
+              var hostname = window.location.hostname;
+              var isLichtfeld = hostname === "lichtfeld.io" || hostname.endsWith(".lichtfeld.io");
+              document.cookie =
+                "lf_theme=" +
+                theme +
+                "; Path=/; Max-Age=31536000; SameSite=Lax" +
+                (isLichtfeld ? "; Domain=.lichtfeld.io; Secure" : "");
+            } catch (e) {
+              /* cookie unavailable */
+            }
+          },
+        };
+        window.lfThemeCookie = themeCookie;
+
         try {
-          var stored = localStorage.getItem("theme");
+          var cookieTheme = themeCookie.read();
+          var stored = null;
+          try {
+            stored = localStorage.getItem("theme");
+          } catch (e) {
+            /* storage unavailable */
+          }
+          var storedTheme = stored === "light" || stored === "dark" ? stored : null;
+          if (!cookieTheme && storedTheme) themeCookie.write(storedTheme);
           var theme =
-            stored === "light" || stored === "dark"
-              ? stored
-              : window.matchMedia("(prefers-color-scheme: dark)").matches
+            cookieTheme ||
+            storedTheme ||
+            (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
                 ? "dark"
-                : "light";
+                : "light");
           document.documentElement.dataset.theme = theme;
         } catch (e) {
           document.documentElement.dataset.theme = "light";

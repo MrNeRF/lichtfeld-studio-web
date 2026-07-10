@@ -152,7 +152,12 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
       try {
         localStorage.setItem("theme", theme);
       } catch (e) {
-        /* storage unavailable — session-only */
+        /* storage unavailable */
+      }
+      try {
+        if (window.lfThemeCookie) window.lfThemeCookie.write(theme);
+      } catch (e) {
+        /* cookie unavailable */
       }
     }
     document.addEventListener("click", function (event) {

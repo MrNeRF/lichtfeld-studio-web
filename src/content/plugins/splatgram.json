@@ -1,0 +1,27 @@
+{
+  "id": "community:splatgram",
+  "namespace": "community",
+  "name": "splatgram",
+  "displayName": "SplatGram",
+  "summary": "Monitor Lichtfeld Studio training privately from Telegram.",
+  "description": "Provides a private, read-only Telegram bot for checking training status, requesting camera renders and ground-truth comparisons, viewing charts and system health, and receiving error alerts without exposing an inbound port or enabling training controls.",
+  "author": "Shady Gmira",
+  "latestVersion": "0.1.0",
+  "lichtfeldVersion": ">=0.5.0",
+  "pluginApi": ">=1,<2",
+  "requiredFeatures": [],
+  "downloads": 0,
+  "keywords": ["telegram", "monitoring", "training", "rendering", "notifications"],
+  "repository": "https://github.com/shadygm/splatgram",
+  "featured": false,
+  "versions": [
+    {
+      "version": "0.1.0",
+      "pluginApi": ">=1,<2",
+      "lichtfeldVersion": ">=0.5.0",
+      "requiredFeatures": [],
+      "dependencies": ["numpy>=1.26", "Pillow>=10"],
+      "gitRef": "master"
+    }
+  ]
+}

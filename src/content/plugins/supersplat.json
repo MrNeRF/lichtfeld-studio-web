@@ -1,0 +1,27 @@
+{
+  "id": "community:supersplat",
+  "namespace": "community",
+  "name": "supersplat",
+  "displayName": "SuperSplat",
+  "summary": "Upload Gaussian splat scenes directly from LichtFeld Studio to SuperSplat.",
+  "description": "Exports all or visible splats as PLY or SOG and uploads them to SuperSplat with progress reporting, resumable multipart transfers, and direct links to continue in the editor or viewer.",
+  "author": "PlayCanvas Ltd.",
+  "latestVersion": "0.1.1",
+  "lichtfeldVersion": ">=0.5.3",
+  "pluginApi": ">=1,<2",
+  "requiredFeatures": ["panels.v1", "settings.v1", "signals.v1"],
+  "downloads": 0,
+  "keywords": ["supersplat", "playcanvas", "upload", "export", "ply", "sog", "gaussian-splat"],
+  "repository": "https://github.com/playcanvas/supersplat-lichtfeld-plugin",
+  "featured": true,
+  "versions": [
+    {
+      "version": "0.1.1",
+      "pluginApi": ">=1,<2",
+      "lichtfeldVersion": ">=0.5.3",
+      "requiredFeatures": ["panels.v1", "settings.v1", "signals.v1"],
+      "dependencies": [],
+      "gitRef": "main"
+    }
+  ]
+}

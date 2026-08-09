@@ -1,0 +1,45 @@
+{
+  "id": "community:querysplat",
+  "namespace": "community",
+  "name": "querysplat",
+  "displayName": "QuerySplat",
+  "summary": "Generate a 3D Gaussian splat from one or more images using QuerySplat and VGGT-Omega.",
+  "description": "Runs feed-forward multi-view QuerySplat reconstruction from selected images, image folders, or clipboard images and inserts the resulting Gaussian splat directly into the LichtFeld scene. Local CUDA inference with background model preloading and VRAM release controls; approximately 9.1 GB of checkpoints download automatically on first use. VGGT-Omega requires approved Hugging Face access, acceptance of its FAIR terms, and local hf auth login; its weights are restricted to non-commercial research use.",
+  "author": "Yehe Liu",
+  "latestVersion": "0.1.0",
+  "lichtfeldVersion": ">=0.5.0",
+  "pluginApi": ">=1,<2",
+  "requiredFeatures": [],
+  "downloads": 0,
+  "keywords": [
+    "querysplat",
+    "vggt-omega",
+    "multi-view",
+    "image-to-3d",
+    "feed-forward",
+    "gaussian-splatting",
+    "hugging-face",
+    "non-commercial"
+  ],
+  "repository": "https://github.com/lyehe/lichtfeld-querysplat-plugin",
+  "versions": [
+    {
+      "version": "0.1.0",
+      "pluginApi": ">=1,<2",
+      "lichtfeldVersion": ">=0.5.0",
+      "requiredFeatures": [],
+      "dependencies": [
+        "torch==2.11.0",
+        "torchvision==0.26.0",
+        "numpy",
+        "pillow",
+        "safetensors",
+        "einops",
+        "pyyaml",
+        "plyfile",
+        "huggingface-hub"
+      ],
+      "gitRef": "main"
+    }
+  ]
+}

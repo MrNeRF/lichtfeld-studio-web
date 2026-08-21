@@ -83,11 +83,9 @@
   /* Surface tokens (flat editorial: hairline rules, no glass) */
   --surface-border: rgba(15, 23, 42, 0.08);
 
-  /* Page background */
-  --page-bg:
-    radial-gradient(circle at top left, rgba(20, 87, 255, 0.08), transparent 22%),
-    radial-gradient(circle at top right, rgba(201, 114, 52, 0.08), transparent 16%),
-    linear-gradient(180deg, rgba(251, 248, 242, 0.95) 0%, rgba(245, 239, 228, 0.98) 55%, rgba(248, 245, 238, 1) 100%);
+  /* Page background — flat. The ground carries no decoration of its own;
+     depth comes from hairline rules and card edges. */
+  --page-bg: var(--body-background);
 
   /* Card tokens (flat: solid fill, hairline border, no shadow/lift) */
   --card-bg: #ffffff;
@@ -174,10 +172,7 @@
   --body-background: #101216;
   --surface-border: rgba(255, 255, 255, 0.09);
 
-  --page-bg:
-    radial-gradient(circle at top left, rgba(47, 107, 255, 0.13), transparent 24%),
-    radial-gradient(circle at top right, rgba(201, 114, 52, 0.08), transparent 18%),
-    linear-gradient(180deg, #101216 0%, #0c0d11 60%, #0a0b0e 100%);
+  --page-bg: var(--body-background);
 
   --card-bg: #16181e;
   --card-border: rgba(255, 255, 255, 0.1);

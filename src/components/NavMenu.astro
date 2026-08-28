@@ -9,7 +9,7 @@
  *  - Highlights active items with a custom 'is-active' class.
  */
 import { withBase } from "@/utils/navigation";
-import { GITHUB_REPO_URL, DISCORD_URL, LICHTFELD_PORTAL_URL } from "@/constants/project";
+import { GITHUB_REPO_URL, DISCORD_URL, LICHTFELD_PORTAL_URL, YOUTUBE_CHANNEL_URL } from "@/constants/project";
 
 const { bountiesHref } = Astro.props as { bountiesHref: string };
 
@@ -101,6 +101,20 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
 
   <!-- External links and theme control. Desktop remains icon-only; mobile uses labeled rows. -->
   <li class="nav-menu__item nav-menu__item--menu-footer nav-menu__item--menu-footer-start">
+    <a
+      href={YOUTUBE_CHANNEL_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="nav-menu__link nav-menu__link--icon-only nav-menu__footer-link"
+      aria-label="YouTube"
+      data-analytics-outbound="youtube_channel"
+      data-analytics-placement="nav"
+    >
+      <i class="bi bi-youtube" aria-hidden="true"></i>
+      <span class="nav-menu__footer-label">YouTube</span>
+    </a>
+  </li>
+  <li class="nav-menu__item nav-menu__item--menu-footer">
     <a
       href={DISCORD_URL}
       target="_blank"
@@ -328,6 +342,10 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
   }
 
   /* Token-driven social icon colors */
+  .nav-menu__link--icon-only .bi-youtube {
+    color: var(--color-muted);
+  }
+
   .nav-menu__link--icon-only .bi-discord {
     color: var(--color-primary-link);
   }
@@ -338,6 +356,10 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
   }
 
   /* Hover effect for social icons */
+  .nav-menu__link--icon-only:hover .bi-youtube {
+    color: var(--color-heading);
+  }
+
   .nav-menu__link--icon-only:hover .bi-discord {
     color: var(--color-primary-link-hover);
   }

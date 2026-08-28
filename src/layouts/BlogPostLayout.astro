@@ -2,10 +2,10 @@
 /**
  * BlogPostLayout.astro
  *
- * Editorial article layout matching the blog index: standard page hero
- * (kicker/title/lead), then a hairline-ruled body grid with an uppercase
- * meta rail on the left and the reading column on the right. Related
- * posts reuse the same BlogRow rows as the index.
+ * Classic centered article layout: one reading column (~44rem) shared by
+ * the header, media, and body so the whole post sits on a single axis.
+ * Kinship with the blog index comes from the shared kicker/hairline/meta
+ * typography and the BlogRow rows in "More from the blog".
  */
 import type { CollectionEntry } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
@@ -60,57 +60,49 @@ const breadcrumbs = [
             All posts
           </a>
           <p class="kicker">{post.data.category}</p>
-          <h1 class="page-hero__title blog-post__title">{post.data.title}</h1>
-          <p class="page-hero__lead blog-post__summary">{post.data.summary}</p>
-        </header>
-
-        <div class="blog-post__body">
-          <aside class="blog-post__meta" aria-label="Post details">
-            <div class="blog-post__meta-group">
-              <span class="blog-post__meta-label">Published</span>
-              <time datetime={post.data.date.toISOString()}>{dateFormatter.format(post.data.date)}</time>
-            </div>
+          <h1 class="blog-post__title">{post.data.title}</h1>
+          <p class="blog-post__summary">{post.data.summary}</p>
+          <p class="blog-post__meta">
+            <time datetime={post.data.date.toISOString()}>{dateFormatter.format(post.data.date)}</time>
+            <span class="blog-post__meta-sep" aria-hidden="true">·</span>
+            <span>{post.data.author}</span>
             {
               post.data.updatedDate && (
-                <div class="blog-post__meta-group">
-                  <span class="blog-post__meta-label">Updated</span>
-                  <time datetime={post.data.updatedDate.toISOString()}>
-                    {dateFormatter.format(post.data.updatedDate)}
-                  </time>
-                </div>
+                <>
+                  <span class="blog-post__meta-sep" aria-hidden="true">
+                    ·
+                  </span>
+                  <span>Updated {dateFormatter.format(post.data.updatedDate)}</span>
+                </>
               )
             }
-            <div class="blog-post__meta-group">
-              <span class="blog-post__meta-label">By</span>
-              <span class="blog-post__meta-author">{post.data.author}</span>
-            </div>
-          </aside>
+          </p>
+        </header>
 
-          <div class="blog-post__article">
-            {
-              post.data.showHeroImage && (
-                <figure class="blog-post__figure">
-                  <img src={postImage} alt={imageAlt} loading="eager" />
-                </figure>
-              )
-            }
+        <div class="blog-post__column">
+          {
+            post.data.showHeroImage && (
+              <figure class="blog-post__figure">
+                <img src={postImage} alt={imageAlt} loading="eager" />
+              </figure>
+            )
+          }
 
-            <div class="blog-post__content prose">
-              <slot />
-            </div>
-
-            {
-              post.data.tags.length > 0 && (
-                <footer class="blog-post__footer">
-                  <ul class="blog-post__tags" aria-label="Post tags">
-                    {post.data.tags.map((tag) => (
-                      <li class="pill pill--tag">{formatBlogTag(tag)}</li>
-                    ))}
-                  </ul>
-                </footer>
-              )
-            }
+          <div class="blog-post__content prose">
+            <slot />
           </div>
+
+          {
+            post.data.tags.length > 0 && (
+              <footer class="blog-post__footer">
+                <ul class="blog-post__tags" aria-label="Post tags">
+                  {post.data.tags.map((tag) => (
+                    <li class="pill pill--tag">{formatBlogTag(tag)}</li>
+                  ))}
+                </ul>
+              </footer>
+            )
+          }
         </div>
       </article>
 
@@ -146,10 +138,16 @@ const breadcrumbs = [
     background: var(--page-bg);
   }
 
-  /* --- Header: standard page-hero recipe --- */
+  /* One centered axis: header and body share the same 44rem column so the
+     title, meta, media, and text all sit on a single left edge. */
+  .blog-post__hero,
+  .blog-post__column {
+    max-width: 44rem;
+    margin-inline: auto;
+  }
 
   .blog-post__hero {
-    padding-bottom: clamp(1.4rem, 2.5vw, 2rem);
+    padding-bottom: 0;
   }
 
   .blog-post__back {
@@ -171,38 +169,31 @@ const breadcrumbs = [
   }
 
   .blog-post__title {
-    margin: 0 0 1.1rem;
-    max-width: 24ch;
+    margin: 0 0 1rem;
+    color: var(--color-heading);
+    font-size: clamp(2.2rem, 3.6vw, 3rem);
+    line-height: 1.06;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
   }
 
   .blog-post__summary {
-    max-width: 42rem;
+    margin: 0;
+    color: var(--color-body-strong);
+    font-size: 1.13rem;
+    line-height: 1.7;
   }
 
-  /* --- Body: hairline rule, meta rail | reading column (same grid family
-     as the index rows: 11rem rail + fluid copy) --- */
-
-  .blog-post__body {
-    display: grid;
-    grid-template-columns: 11rem minmax(0, 1fr);
-    gap: clamp(1.2rem, 2.6vw, 2.5rem);
-    align-items: start;
-    padding-block: clamp(1.6rem, 3vw, 2.4rem);
-    border-top: 1px solid var(--color-border-subtle);
-  }
-
+  /* Single hairline closes the header; the same uppercase meta voice as the
+     index rows, without boxing it in rules. */
   .blog-post__meta {
-    position: sticky;
-    top: calc(var(--nav-height) + 1.5rem);
     display: flex;
-    flex-direction: column;
-    gap: 1.1rem;
-  }
-
-  .blog-post__meta-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.6rem;
+    margin: 1.6rem 0 0;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-border-subtle);
     color: var(--color-muted);
     font-family: var(--font-display);
     font-size: 0.76rem;
@@ -212,15 +203,12 @@ const breadcrumbs = [
     line-height: 1.4;
   }
 
-  .blog-post__meta-label {
-    color: var(--color-accent-warm);
+  .blog-post__meta-sep {
+    color: var(--color-border-hover);
   }
 
-  /* --- Reading column --- */
-
-  .blog-post__article {
-    max-width: 42rem;
-    min-width: 0;
+  .blog-post__column {
+    margin-top: clamp(0.6rem, 1.5vw, 1.2rem);
   }
 
   .blog-post__figure {
@@ -257,10 +245,10 @@ const breadcrumbs = [
     list-style: none;
   }
 
-  /* --- Related posts --- */
+  /* --- Related posts (index-style rows at frame width) --- */
 
   .blog-post__more {
-    margin-top: clamp(2rem, 4vw, 3rem);
+    margin-top: clamp(2.4rem, 5vw, 4rem);
     padding-top: clamp(1.6rem, 3vw, 2.4rem);
     border-top: 1px solid var(--color-border-subtle);
   }
@@ -268,31 +256,5 @@ const breadcrumbs = [
   .blog-post__more-list {
     display: grid;
     margin-top: clamp(1rem, 2vw, 1.5rem);
-  }
-
-  /* --- Responsive --- */
-
-  @media (max-width: 991.98px) {
-    .blog-post__body {
-      grid-template-columns: minmax(0, 1fr);
-      row-gap: 1.2rem;
-    }
-
-    .blog-post__meta {
-      position: static;
-      flex-direction: row;
-      flex-wrap: wrap;
-      gap: 0.8rem 2rem;
-    }
-
-    .blog-post__article {
-      max-width: 46rem;
-    }
-  }
-
-  @media (max-width: 767.98px) {
-    .blog-post__title {
-      max-width: none;
-    }
   }
 </style>

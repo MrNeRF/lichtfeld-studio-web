@@ -366,8 +366,8 @@ const faqSchema = {
 
   <section id="tour" class="story-section hash-section" aria-labelledby="tour-heading">
     <div class="container content-frame px-6">
-      <div class="home-tour">
-        <div class="home-tour__copy">
+      <div class="story-header-grid">
+        <div class="story-copy">
           <p class="kicker mb-3">Product tour</p>
           <div class="section-heading">
             <h2 id="tour-heading" class="story-title">A LichtFeld whirlwind tour</h2>
@@ -377,7 +377,7 @@ const faqSchema = {
               </svg>
             </a>
           </div>
-          <p class="story-lead home-tour__lead">
+          <p class="story-lead">
             One pass through the current build: bring in a scan, train it, inspect and edit the result, then export it
             &mdash; all in the native workspace.
           </p>
@@ -413,60 +413,64 @@ const faqSchema = {
           </div>
         </div>
 
-        <div class="video-facade">
-          <a
-            class="video-facade__trigger"
-            href={TOUR_VIDEO_WATCH_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            data-video-id={TOUR_VIDEO_ID}
-            data-video-title={TOUR_VIDEO_TITLE}
-            data-analytics-event={ANALYTICS_EVENTS.ctaClicked}
-            data-analytics-prop-placement="home_tour"
-            data-analytics-prop-target="youtube_tour_video"
-          >
-            <img
-              class="video-facade__poster"
-              src={`${base}static/studio-tour-poster.jpg`}
-              alt=""
-              width="1280"
-              height="720"
-              loading="lazy"
-              decoding="async"
-            />
-            <span class="video-facade__chip" aria-hidden="true">
-              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M9 6.3v11.4l9.4-5.7z"></path></svg>
-              Product tour
-            </span>
-            <span class="video-facade__play" aria-hidden="true">
-              <svg class="video-facade__play-arrow" viewBox="0 0 30 24" focusable="false" aria-hidden="true">
-                <path
-                  d="M7.4 7.6 11.2 12l-3.8 4.4"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  opacity="0.42"
-                >
-                </path>
-                <path
-                  d="M2.4 8.9 5.2 12l-2.8 3.1"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  opacity="0.22"
-                >
-                </path>
-                <path d="M15.4 5.3c0-1.2 1.3-1.9 2.3-1.3l10.1 6c1 .6 1 2 0 2.6l-10.1 6c-1 .6-2.3-.1-2.3-1.3V5.3Z">
-                </path>
-              </svg>
-              <span class="video-facade__play-label">Play the tour</span>
-            </span>
-            <span class="visually-hidden">Play the video: {TOUR_VIDEO_TITLE}</span>
-          </a>
+        <div class="story-media-panel">
+          <div class="video-facade">
+            <a
+              class="video-facade__trigger"
+              href={TOUR_VIDEO_WATCH_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-video-id={TOUR_VIDEO_ID}
+              data-video-title={TOUR_VIDEO_TITLE}
+              data-analytics-event={ANALYTICS_EVENTS.ctaClicked}
+              data-analytics-prop-placement="home_tour"
+              data-analytics-prop-target="youtube_tour_video"
+            >
+              <img
+                class="video-facade__poster"
+                src={`${base}static/studio-tour-poster.jpg`}
+                alt=""
+                width="1280"
+                height="720"
+                loading="lazy"
+                decoding="async"
+              />
+              <span class="video-facade__chip" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                  <path d="M9 6.3v11.4l9.4-5.7z"></path>
+                </svg>
+                Product tour
+              </span>
+              <span class="video-facade__play" aria-hidden="true">
+                <svg class="video-facade__play-arrow" viewBox="0 0 30 24" focusable="false" aria-hidden="true">
+                  <path
+                    d="M7.4 7.6 11.2 12l-3.8 4.4"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    opacity="0.42"
+                  >
+                  </path>
+                  <path
+                    d="M2.4 8.9 5.2 12l-2.8 3.1"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    opacity="0.22"
+                  >
+                  </path>
+                  <path d="M15.4 5.3c0-1.2 1.3-1.9 2.3-1.3l10.1 6c1 .6 1 2 0 2.6l-10.1 6c-1 .6-2.3-.1-2.3-1.3V5.3Z">
+                  </path>
+                </svg>
+                <span class="video-facade__play-label">Play the tour</span>
+              </span>
+              <span class="visually-hidden">Play the video: {TOUR_VIDEO_TITLE}</span>
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -2618,17 +2622,6 @@ const faqSchema = {
     * Product Tour
     * =========================== */
 
-  .home-tour {
-    display: grid;
-    grid-template-columns: minmax(0, 0.72fr) minmax(0, 1fr);
-    align-items: center;
-    gap: clamp(1.5rem, 3.4vw, 3rem);
-  }
-
-  .home-tour__lead {
-    max-width: 42ch;
-  }
-
   .home-tour__actions {
     display: flex;
     align-items: center;
@@ -2659,47 +2652,16 @@ const faqSchema = {
     fill: currentColor;
   }
 
-  /* The still carries the video's own title card, so the frame stays quiet: a
-     primary-tinted hairline, an ambient glow seating it in the page, and the
-     arrow capsule as the only invitation. */
+  /* The still carries the video's own title card, so the frame stays quiet and
+     matches .story-video-wrapper: hairline border, shared radius, no chrome.
+     The arrow capsule is the only invitation. */
   .video-facade {
-    --facade-shadow: rgba(15, 23, 42, 0.16);
-    --facade-glow: rgba(var(--color-primary-rgb), 0.14);
     position: relative;
     aspect-ratio: 16 / 9;
     overflow: hidden;
-    border: 1px solid transparent;
-    border-radius: var(--card-radius);
-    background:
-      linear-gradient(#0b0c10, #0b0c10) padding-box,
-      linear-gradient(
-          135deg,
-          rgba(var(--color-primary-rgb), 0.55),
-          rgba(var(--ink-rgb), 0.22) 34%,
-          rgba(var(--ink-rgb), 0.16) 62%,
-          rgba(var(--color-primary-rgb), 0.4)
-        )
-        border-box;
-    box-shadow:
-      0 18px 44px var(--facade-shadow),
-      0 0 80px var(--facade-glow);
-    transition:
-      transform var(--transition-fast),
-      box-shadow var(--transition-fast);
-  }
-
-  :root[data-theme="dark"] .video-facade {
-    --facade-shadow: rgba(0, 0, 0, 0.42);
-    --facade-glow: rgba(var(--color-primary-rgb), 0.2);
-  }
-
-  /* The trigger spans the frame, so the frame itself may react to it. */
-  .video-facade:hover,
-  .video-facade:focus-within {
-    transform: translateY(-2px);
-    box-shadow:
-      0 24px 56px var(--facade-shadow),
-      0 0 90px var(--facade-glow);
+    border-radius: var(--rounded-xl);
+    background: var(--color-code-bg);
+    border: 1px solid var(--color-border-subtle);
   }
 
   .video-facade__trigger {
@@ -2828,17 +2790,6 @@ const faqSchema = {
     border: 0;
   }
 
-  @media (max-width: 991.98px) {
-    .home-tour {
-      grid-template-columns: minmax(0, 1fr);
-      gap: 1.3rem;
-    }
-
-    .home-tour__lead {
-      max-width: none;
-    }
-  }
-
   @media (max-width: 767.98px) {
     .video-facade__play {
       gap: 0.55rem;
@@ -2861,15 +2812,12 @@ const faqSchema = {
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .video-facade,
     .video-facade__poster,
     .video-facade__play,
     .video-facade__play-arrow {
       transition: none;
     }
 
-    .video-facade:hover,
-    .video-facade:focus-within,
     .video-facade__trigger:hover .video-facade__poster,
     .video-facade__trigger:focus-visible .video-facade__poster,
     .video-facade__trigger:hover .video-facade__play,

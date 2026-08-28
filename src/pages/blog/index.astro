@@ -9,20 +9,11 @@
  */
 import { getCollection } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
-import { resolveBlogImage } from "@/utils/blog";
-
-const base = import.meta.env.BASE_URL;
-const cleanBase = base.endsWith("/") ? base.slice(0, -1) : base;
+import BlogRow from "@/components/BlogRow.astro";
 
 const posts = (await getCollection("blog"))
   .filter((post) => !post.data.draft)
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
-
-const dateFormatter = new Intl.DateTimeFormat("en", {
-  month: "long",
-  day: "numeric",
-  year: "numeric",
-});
 
 const seoTitle = "LichtFeld Studio Blog";
 const seoDescription =
@@ -41,30 +32,7 @@ const seoDescription =
       </header>
 
       <div class="blog-list">
-        {
-          posts.map((post, index) => (
-            <a href={`${cleanBase}/blog/${post.slug}/`} class="blog-row">
-              <div class="blog-row__meta">
-                <time datetime={post.data.date.toISOString()}>{dateFormatter.format(post.data.date)}</time>
-                <span class="blog-row__category">{post.data.category}</span>
-                {index === 0 && <span class="pill pill--primary blog-row__flag">Latest</span>}
-              </div>
-              <div class="blog-row__copy">
-                <h2 class="blog-row__title">{post.data.title}</h2>
-                <p class="blog-row__summary">{post.data.summary}</p>
-                <span class="blog-row__more" aria-hidden="true">
-                  Read post <span class="blog-row__arrow">→</span>
-                </span>
-              </div>
-              <img
-                class="blog-row__thumb"
-                src={resolveBlogImage(base, post.data.image)}
-                alt={post.data.imageAlt ?? `${post.data.title} preview`}
-                loading={index === 0 ? "eager" : "lazy"}
-              />
-            </a>
-          ))
-        }
+        {posts.map((post, index) => <BlogRow post={post} latest={index === 0} eager={index === 0} />)}
       </div>
     </div>
   </section>
@@ -83,166 +51,7 @@ const seoDescription =
     margin: 0 0 0.9rem;
   }
 
-  /* ===========================
-   * Editorial post list
-   * =========================== */
-
   .blog-list {
     display: grid;
-  }
-
-  .blog-row {
-    display: grid;
-    grid-template-columns: 11rem minmax(0, 1fr) 17rem;
-    gap: clamp(1.2rem, 2.6vw, 2.5rem);
-    align-items: start;
-    padding-block: clamp(1.6rem, 3vw, 2.4rem);
-    border-top: 1px solid var(--color-border-subtle);
-    color: var(--color-heading);
-    text-decoration: none;
-  }
-
-  .blog-row:focus-visible {
-    outline: none;
-    box-shadow: var(--focus-shadow);
-    border-radius: 0.5rem;
-  }
-
-  .blog-row__meta {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.45rem;
-    color: var(--color-muted);
-    font-family: var(--font-display);
-    font-size: 0.76rem;
-    font-weight: 700;
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
-    line-height: 1.4;
-  }
-
-  .blog-row__category {
-    color: var(--color-accent-warm);
-  }
-
-  .blog-row__flag {
-    margin-top: 0.15rem;
-  }
-
-  .blog-row__copy {
-    min-width: 0;
-    max-width: 40rem;
-  }
-
-  .blog-row__title {
-    margin: 0;
-    color: var(--color-heading);
-    font-size: clamp(1.35rem, 2.4vw, 1.8rem);
-    line-height: 1.15;
-    letter-spacing: -0.02em;
-    transition: color var(--transition-fast);
-  }
-
-  .blog-row:hover .blog-row__title {
-    color: var(--color-primary-link);
-  }
-
-  .blog-row__summary {
-    margin: 0.6rem 0 0;
-    color: var(--color-body);
-    font-size: 0.98rem;
-    line-height: 1.68;
-  }
-
-  .blog-row__more {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    margin-top: 0.9rem;
-    color: var(--color-primary-link);
-    font-size: 0.9rem;
-    font-weight: 700;
-  }
-
-  .blog-row__arrow {
-    transition: transform var(--transition-fast);
-  }
-
-  .blog-row:hover .blog-row__arrow {
-    transform: translateX(3px);
-  }
-
-  .blog-row__thumb {
-    display: block;
-    width: 100%;
-    aspect-ratio: 16 / 10;
-    object-fit: cover;
-    border-radius: 0.75rem;
-    border: 1px solid var(--color-border-subtle);
-    background: #101828;
-    transition: border-color var(--transition-fast);
-  }
-
-  .blog-row:hover .blog-row__thumb {
-    border-color: var(--color-border-hover);
-  }
-
-  /* ===========================
-   * Responsive
-   * =========================== */
-
-  @media (max-width: 991.98px) {
-    .blog-row {
-      grid-template-columns: minmax(0, 1fr) 14rem;
-      grid-template-areas:
-        "meta meta"
-        "copy thumb";
-      row-gap: 0.9rem;
-    }
-
-    .blog-row__meta {
-      grid-area: meta;
-      flex-direction: row;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 0.35rem 1rem;
-    }
-
-    .blog-row__copy {
-      grid-area: copy;
-    }
-
-    .blog-row__thumb {
-      grid-area: thumb;
-    }
-  }
-
-  @media (max-width: 767.98px) {
-    .blog-row {
-      grid-template-columns: 1fr;
-      grid-template-areas:
-        "thumb"
-        "meta"
-        "copy";
-      row-gap: 0.85rem;
-    }
-
-    .blog-row__thumb {
-      aspect-ratio: 2 / 1;
-    }
-
-    .blog-row__title {
-      font-size: 1.3rem;
-    }
-
-    .blog-row__summary {
-      font-size: 0.94rem;
-      line-height: 1.6;
-    }
-
-    .blog-row__more {
-      margin-top: 0.7rem;
-    }
   }
 </style>

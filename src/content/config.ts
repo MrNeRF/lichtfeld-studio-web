@@ -68,6 +68,10 @@ const blogCollection = defineCollection({
     tags: z.array(z.string()).default([]),
     image: z.string().optional(),
     imageAlt: z.string().optional(),
+    /** Set false when the post body opens with its own media (e.g. a video
+     *  embed) so the header image is not shown twice. The image is still
+     *  used for list thumbnails and social previews. */
+    showHeroImage: z.boolean().default(true),
     featured: z.boolean().default(false),
     draft: z.boolean().default(false),
   }),

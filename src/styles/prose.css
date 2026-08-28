@@ -13,6 +13,11 @@
   max-width: 100%;
 }
 
+/* The first block aligns flush with the top of the reading column. */
+.prose > :first-child {
+  margin-top: 0;
+}
+
 /* --- Headings --- */
 .prose h2,
 .prose h3,
@@ -43,11 +48,13 @@
   margin-bottom: 0.5rem;
 }
 
-/* --- Body copy --- */
+/* --- Body copy ---
+   Layouts may tune the reading size via --prose-body-size (e.g. blog posts
+   bump it slightly for a long-form measure); the default stays 1rem. */
 .prose p,
 .prose li {
   color: var(--color-body);
-  font-size: 1rem;
+  font-size: var(--prose-body-size, 1rem);
   line-height: 1.75;
 }
 
@@ -233,6 +240,18 @@
 .prose img {
   max-width: 100%;
   height: auto;
+}
+
+/* Video/embed iframes get the same framed treatment as article figures,
+   so Markdown embeds need no inline styles. */
+.prose iframe {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  margin: 1.6rem 0 2rem;
+  border: 1px solid var(--card-border);
+  border-radius: 0.8rem;
+  background: var(--color-code-bg);
 }
 
 .prose .article-figure {

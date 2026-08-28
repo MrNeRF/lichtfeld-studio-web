@@ -14,19 +14,19 @@ tags:
   - community
 image: /static/blog/lichtfeld-studio-session-1.jpg
 imageAlt: Janusch and Kristof in the first LichtFeld Studio Session
+showHeroImage: false
 featured: true
 ---
-
-We just published something new: the first **LichtFeld Studio Session**. It is a video series where Janusch and Kristof sit down and talk about what is happening in the project — what got built, what the community is working on, and what comes next.
 
 <iframe
   src="https://www.youtube-nocookie.com/embed/uoSI_4RlvaY"
   title="LichtFeld Studio Session 1"
-  style="width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: 12px;"
   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
   referrerpolicy="strict-origin-when-cross-origin"
   allowfullscreen
 ></iframe>
+
+We just published something new: the first **LichtFeld Studio Session**. It is a video series where Janusch and Kristof sit down and talk about what is happening in the project — what got built, what the community is working on, and what comes next.
 
 This first one is pre-recorded (and yes, we were a bit nervous — you can hear it in the first minute). From the next session on, we want to stream live so you can ask questions while we talk. Here is what we covered.
 

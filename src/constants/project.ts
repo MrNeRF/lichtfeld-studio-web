@@ -59,6 +59,16 @@ export const GITHUB_RAW_BASE = `https://raw.githubusercontent.com/${REPO_OWNER}/
 /** Discord server invite link */
 export const DISCORD_URL = "https://discord.gg/NqwTqVYVmj";
 
+/** Official YouTube channel */
+export const YOUTUBE_CHANNEL_URL = "https://www.youtube.com/@lichtfeldstudio";
+
+/** Featured product-tour video. The still frame is served from public/static/,
+ * so nothing reaches YouTube until a visitor clicks play. A newer tour needs
+ * the id, the title, and that still replaced together. */
+export const TOUR_VIDEO_ID = "i-04z4_eqiU";
+export const TOUR_VIDEO_TITLE = "LichtFeld Studio - Everything it can do today";
+export const TOUR_VIDEO_WATCH_URL = `https://www.youtube.com/watch?v=${TOUR_VIDEO_ID}`;
+
 /** Optional iPhone capture app recommendation */
 export const GAUSSIAN_SPLATKING_APP_STORE_URL = "https://apps.apple.com/de/app/gaussian-splatking/id6759175085";
 

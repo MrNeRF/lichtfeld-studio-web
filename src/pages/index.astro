@@ -26,7 +26,11 @@ import {
   GAUSSIAN_SPLATKING_APP_STORE_URL,
   GITHUB_REPO_URL,
   LICHTFELD_PORTAL_URL,
+  TOUR_VIDEO_ID,
+  TOUR_VIDEO_TITLE,
+  TOUR_VIDEO_WATCH_URL,
   VOLINGA_URL,
+  YOUTUBE_CHANNEL_URL,
 } from "@/constants/project";
 
 const base = import.meta.env.BASE_URL;
@@ -464,6 +468,114 @@ const faqSchema = {
     </div>
   </section>
 
+  <section id="tour" class="story-section hash-section" aria-labelledby="tour-heading">
+    <div class="container content-frame px-6">
+      <div class="home-tour">
+        <div class="home-tour__copy">
+          <p class="kicker mb-3">Product tour</p>
+          <div class="section-heading">
+            <h2 id="tour-heading" class="story-title">See it running, end to end</h2>
+            <a class="section-anchor" href="#tour" aria-label="Link to product tour section">
+              <svg class="bi" width="1em" height="1em" aria-hidden="true">
+                <use href={`${base}static/bootstrap-icons.svg#link-45deg`}></use>
+              </svg>
+            </a>
+          </div>
+          <p class="story-lead home-tour__lead">
+            One pass through the current build: bring in a scan, train it, inspect and edit the result, then export it
+            &mdash; all in the native workspace.
+          </p>
+          <div class="home-tour__actions">
+            <a
+              class="section-link"
+              href={TOUR_VIDEO_WATCH_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-analytics-event={ANALYTICS_EVENTS.ctaClicked}
+              data-analytics-prop-placement="home_tour"
+              data-analytics-prop-target="youtube_tour_video"
+            >
+              Watch on YouTube
+            </a>
+            <a
+              class="home-tour__channel"
+              href={YOUTUBE_CHANNEL_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-analytics-event={ANALYTICS_EVENTS.ctaClicked}
+              data-analytics-prop-placement="home_tour"
+              data-analytics-prop-target="youtube_channel"
+            >
+              <svg class="home-tour__channel-mark" viewBox="0 0 24 17" focusable="false" aria-hidden="true">
+                <path
+                  d="M23.5 2.7A3 3 0 0 0 21.4.6C19.5.1 12 .1 12 .1S4.5.1 2.6.6A3 3 0 0 0 .5 2.7C.2 4.6 0 6.5 0 8.5s.2 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1c.3-1.9.5-3.8.5-5.8s-.2-3.9-.5-5.8ZM9.6 12.3V4.7l6.3 3.8-6.3 3.8Z"
+                >
+                </path>
+              </svg>
+              @lichtfeldstudio
+            </a>
+          </div>
+        </div>
+
+        <div class="video-facade">
+          <a
+            class="video-facade__trigger"
+            href={TOUR_VIDEO_WATCH_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-video-id={TOUR_VIDEO_ID}
+            data-video-title={TOUR_VIDEO_TITLE}
+            data-analytics-event={ANALYTICS_EVENTS.ctaClicked}
+            data-analytics-prop-placement="home_tour"
+            data-analytics-prop-target="youtube_tour_video"
+          >
+            <img
+              class="video-facade__poster"
+              src={`${base}static/studio-tour-poster.jpg`}
+              alt=""
+              width="1280"
+              height="720"
+              loading="lazy"
+              decoding="async"
+            />
+            <span class="video-facade__chip" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M9 6.3v11.4l9.4-5.7z"></path></svg>
+              Product tour
+            </span>
+            <span class="video-facade__play" aria-hidden="true">
+              <svg class="video-facade__play-arrow" viewBox="0 0 30 24" focusable="false" aria-hidden="true">
+                <path
+                  d="M7.4 7.6 11.2 12l-3.8 4.4"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  opacity="0.42"
+                >
+                </path>
+                <path
+                  d="M2.4 8.9 5.2 12l-2.8 3.1"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  opacity="0.22"
+                >
+                </path>
+                <path d="M15.4 5.3c0-1.2 1.3-1.9 2.3-1.3l10.1 6c1 .6 1 2 0 2.6l-10.1 6c-1 .6-2.3-.1-2.3-1.3V5.3Z">
+                </path>
+              </svg>
+              <span class="video-facade__play-label">Play the tour</span>
+            </span>
+            <span class="visually-hidden">Play the video: {TOUR_VIDEO_TITLE}</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
   {
     latestPosts.length > 0 && (
       <section id="whats-new" class="story-section hash-section" aria-labelledby="whats-new-heading">
@@ -472,7 +584,9 @@ const faqSchema = {
             <div>
               <p class="kicker mb-3">From the blog</p>
               <div class="section-heading">
-                <h2 id="whats-new-heading" class="section-title">Latest from the project</h2>
+                <h2 id="whats-new-heading" class="section-title">
+                  Latest from the project
+                </h2>
                 <a class="section-anchor" href="#whats-new" aria-label="Link to latest posts section">
                   <svg class="bi" width="1em" height="1em" aria-hidden="true">
                     <use href={`${base}static/bootstrap-icons.svg#link-45deg`} />
@@ -552,8 +666,8 @@ const faqSchema = {
       </div>
       <p class="section-copy home-community__copy">
         LichtFeld Studio is developed in public
-        {contributors.length > 0 ? ` by ${contributors.length} contributors` : ""} under GPLv3. Development discussion,
-        support, and scene sharing happen on Discord, and the contribution backlog is open to everyone.
+        {contributors.length > 0 ? ` by ${contributors.length} contributors` : ""} under GPLv3. Development discussion, support,
+        and scene sharing happen on Discord, and the contribution backlog is open to everyone.
       </p>
       <div class="home-community__actions">
         <a
@@ -777,6 +891,43 @@ const faqSchema = {
       }, 100); // A 100ms delay is usually sufficient.
     }
   });
+
+  /**
+   * Product tour: swaps the poster facade for the YouTube embed on click, so a
+   * visitor who never presses play never reaches YouTube. With JavaScript off
+   * the link opens the video on YouTube, and a modified click keeps its usual
+   * meaning.
+   */
+  function initTourFacade(): void {
+    const triggers = document.querySelectorAll<HTMLAnchorElement>(".video-facade__trigger[data-video-id]");
+
+    triggers.forEach((trigger) => {
+      trigger.addEventListener("click", (event) => {
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+          return;
+        }
+
+        event.preventDefault();
+
+        const frame = document.createElement("iframe");
+        frame.className = "video-facade__frame";
+        frame.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(trigger.dataset.videoId ?? "")}?autoplay=1&rel=0`;
+        frame.title = trigger.dataset.videoTitle || "YouTube video";
+        frame.allow =
+          "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+        frame.referrerPolicy = "strict-origin-when-cross-origin";
+        frame.allowFullscreen = true;
+        trigger.replaceWith(frame);
+        frame.focus();
+      });
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initTourFacade, { once: true });
+  } else {
+    initTourFacade();
+  }
 </script>
 
 <style>
@@ -2460,6 +2611,272 @@ const faqSchema = {
     .hero__scene-cue-icon {
       width: 1.9rem;
       height: 1.9rem;
+    }
+  }
+
+  /* ===========================
+    * Product Tour
+    * =========================== */
+
+  .home-tour {
+    display: grid;
+    grid-template-columns: minmax(0, 0.72fr) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(1.5rem, 3.4vw, 3rem);
+  }
+
+  .home-tour__lead {
+    max-width: 42ch;
+  }
+
+  .home-tour__actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.7rem 1.4rem;
+    margin-top: 1.35rem;
+  }
+
+  .home-tour__channel {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-muted);
+    font-size: 0.92rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
+
+  .home-tour__channel:hover,
+  .home-tour__channel:focus-visible {
+    color: var(--color-heading);
+  }
+
+  .home-tour__channel-mark {
+    width: 1.05rem;
+    height: auto;
+    fill: currentColor;
+  }
+
+  /* The still carries the video's own title card, so the frame stays quiet: a
+     primary-tinted hairline, an ambient glow seating it in the page, and the
+     arrow capsule as the only invitation. */
+  .video-facade {
+    --facade-shadow: rgba(15, 23, 42, 0.16);
+    --facade-glow: rgba(var(--color-primary-rgb), 0.14);
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border: 1px solid transparent;
+    border-radius: var(--card-radius);
+    background:
+      linear-gradient(#0b0c10, #0b0c10) padding-box,
+      linear-gradient(
+          135deg,
+          rgba(var(--color-primary-rgb), 0.55),
+          rgba(var(--ink-rgb), 0.22) 34%,
+          rgba(var(--ink-rgb), 0.16) 62%,
+          rgba(var(--color-primary-rgb), 0.4)
+        )
+        border-box;
+    box-shadow:
+      0 18px 44px var(--facade-shadow),
+      0 0 80px var(--facade-glow);
+    transition:
+      transform var(--transition-fast),
+      box-shadow var(--transition-fast);
+  }
+
+  :root[data-theme="dark"] .video-facade {
+    --facade-shadow: rgba(0, 0, 0, 0.42);
+    --facade-glow: rgba(var(--color-primary-rgb), 0.2);
+  }
+
+  /* The trigger spans the frame, so the frame itself may react to it. */
+  .video-facade:hover,
+  .video-facade:focus-within {
+    transform: translateY(-2px);
+    box-shadow:
+      0 24px 56px var(--facade-shadow),
+      0 0 90px var(--facade-glow);
+  }
+
+  .video-facade__trigger {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    text-decoration: none;
+  }
+
+  .video-facade__poster {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-fast);
+  }
+
+  /* Pools shade under the play capsule only, so the still stays readable. */
+  .video-facade__trigger::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(46% 42% at center, rgba(6, 10, 18, 0.55), rgba(6, 10, 18, 0.2) 56%, transparent 80%);
+  }
+
+  /* Names the clip from a corner without competing with the title card. */
+  .video-facade__chip {
+    position: absolute;
+    top: 0.85rem;
+    left: 0.85rem;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.32rem 0.7rem;
+    border-radius: var(--radius-pill);
+    background: rgba(8, 12, 20, 0.55);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.16);
+    color: rgba(255, 255, 255, 0.88);
+    font-family: var(--font-display);
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .video-facade__chip svg {
+    width: 0.62rem;
+    height: auto;
+    fill: var(--color-primary);
+  }
+
+  .video-facade__play {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.78rem 1.45rem 0.78rem 1.2rem;
+    border-radius: var(--radius-pill);
+    color: #ffffff;
+    background: rgba(8, 12, 20, 0.56);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.24),
+      0 18px 40px rgba(0, 0, 0, 0.5);
+    transition:
+      transform var(--transition-fast),
+      box-shadow var(--transition-fast),
+      background var(--transition-fast);
+  }
+
+  .video-facade__play-arrow {
+    width: 1.5rem;
+    height: auto;
+    fill: currentColor;
+    transition: transform var(--transition-fast);
+  }
+
+  .video-facade__play-label {
+    font-family: var(--font-display);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .video-facade__trigger:hover .video-facade__poster,
+  .video-facade__trigger:focus-visible .video-facade__poster {
+    transform: scale(1.02);
+  }
+
+  .video-facade__trigger:hover .video-facade__play,
+  .video-facade__trigger:focus-visible .video-facade__play {
+    transform: scale(1.04);
+    background: rgba(10, 16, 26, 0.68);
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.34),
+      0 0 0 7px rgba(var(--color-primary-rgb), 0.22),
+      0 20px 44px rgba(0, 0, 0, 0.55);
+  }
+
+  .video-facade__trigger:hover .video-facade__play-arrow,
+  .video-facade__trigger:focus-visible .video-facade__play-arrow {
+    transform: translateX(3px);
+  }
+
+  .video-facade__trigger:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+  }
+
+  /* The embed iframe is created at runtime, outside Astro's style scoping. */
+  .video-facade :global(.video-facade__frame) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  @media (max-width: 991.98px) {
+    .home-tour {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1.3rem;
+    }
+
+    .home-tour__lead {
+      max-width: none;
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    .video-facade__play {
+      gap: 0.55rem;
+      padding: 0.6rem 1.05rem 0.6rem 0.9rem;
+    }
+
+    .video-facade__play-label {
+      font-size: 0.66rem;
+    }
+
+    .video-facade__play-arrow {
+      width: 1.2rem;
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .video-facade__chip {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .video-facade,
+    .video-facade__poster,
+    .video-facade__play,
+    .video-facade__play-arrow {
+      transition: none;
+    }
+
+    .video-facade:hover,
+    .video-facade:focus-within,
+    .video-facade__trigger:hover .video-facade__poster,
+    .video-facade__trigger:focus-visible .video-facade__poster,
+    .video-facade__trigger:hover .video-facade__play,
+    .video-facade__trigger:focus-visible .video-facade__play,
+    .video-facade__trigger:hover .video-facade__play-arrow,
+    .video-facade__trigger:focus-visible .video-facade__play-arrow {
+      transform: none;
     }
   }
 </style>

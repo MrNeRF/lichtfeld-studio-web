@@ -38,3 +38,7 @@ cloudflare.png
 stats.png
 lichtfeld-studio
 lichtfeld-portal
+
+# raw source footage — stale LFS pointers left untracked; keep out of git (store in R2 instead)
+public/videos/original/CREATURE259_original.mp4
+public/videos/original/Bildschirmaufnahme 2026-01-13 142717_original.mp4

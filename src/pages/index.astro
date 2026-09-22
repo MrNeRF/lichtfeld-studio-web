@@ -2263,8 +2263,13 @@ const faqSchema = {
     max-width: none;
   }
 
+  /* Tersus supplies the official logo on a square canvas with the artwork
+     in a centered band; negative margins trim the empty canvas so the
+     wordmark lands at the same optical size as the neighbouring logos. */
   .portal-sponsors__logo--tersus img {
-    height: 3.75rem;
+    height: 8.5rem;
+    max-width: none;
+    margin: -2.37rem -0.79rem;
   }
 
   /* Sponsor logos ship as dark ink artwork; normalize them to a clean
@@ -2337,7 +2342,8 @@ const faqSchema = {
     }
 
     .portal-sponsors__logo--tersus img {
-      height: 3rem;
+      height: 6.75rem;
+      margin: -1.88rem -0.63rem;
     }
 
     .portal-sponsors__label::before,

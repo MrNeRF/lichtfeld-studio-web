@@ -75,6 +75,9 @@ export const GAUSSIAN_SPLATKING_APP_STORE_URL = "https://apps.apple.com/de/app/g
 /** Gold sponsor website */
 export const VOLINGA_URL = "https://web.volinga.ai/";
 
+/** Hardware sponsor website */
+export const TERSUS_URL = "https://www.tersus-gnss.com/";
+
 // =============================================================================
 // Donations
 // =============================================================================

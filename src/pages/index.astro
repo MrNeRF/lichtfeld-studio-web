@@ -11,6 +11,8 @@ import { getCollection } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
 import { SITE } from "@/config/site.config";
 import core11Logo from "@/assets/core11-logo.svg";
+import tersusLogo from "@/assets/tersus-logo.svg";
+import tersusLogoDark from "@/assets/tersus-logo-dark.svg";
 import gaussianSplatKingLogo from "@/assets/gaussian-splatking-logo.jpg";
 
 import Splat from "@/components/Splat.astro";
@@ -29,6 +31,7 @@ import {
   TOUR_VIDEO_ID,
   TOUR_VIDEO_TITLE,
   TOUR_VIDEO_WATCH_URL,
+  TERSUS_URL,
   VOLINGA_URL,
   YOUTUBE_CHANNEL_URL,
 } from "@/constants/project";
@@ -80,6 +83,7 @@ type SponsorWallEntry = {
   href: string;
   ariaLabel: string;
   logo?: string;
+  logoDark?: string;
   logoClass?: string;
   lang?: string;
 };
@@ -105,6 +109,19 @@ const sponsorWallGroups: Array<{ label: string; sponsors: SponsorWallEntry[] }> 
         logo: volingaLogo,
         logoClass: "portal-sponsors__logo--volinga",
         ariaLabel: "Visit Volinga website",
+      },
+    ],
+  },
+  {
+    label: "Hardware Sponsor",
+    sponsors: [
+      {
+        name: "Tersus GNSS",
+        href: TERSUS_URL,
+        logo: tersusLogo.src,
+        logoDark: tersusLogoDark.src,
+        logoClass: "portal-sponsors__logo--tersus",
+        ariaLabel: "Visit Tersus GNSS website",
       },
     ],
   },
@@ -711,7 +728,14 @@ const faqSchema = {
                     data-analytics-placement="home_sponsors"
                     data-analytics-prop-sponsor={sponsor.name}
                   >
-                    <img src={sponsor.logo} alt={sponsor.name} />
+                    <img
+                      src={sponsor.logo}
+                      alt={sponsor.name}
+                      class={sponsor.logoDark ? "theme-logo theme-logo--light" : undefined}
+                    />
+                    {sponsor.logoDark && (
+                      <img src={sponsor.logoDark} alt={sponsor.name} class="theme-logo theme-logo--dark" />
+                    )}
                   </a>
                 ) : (
                   <a
@@ -2239,10 +2263,29 @@ const faqSchema = {
     max-width: none;
   }
 
+  .portal-sponsors__logo--tersus img {
+    height: 3.75rem;
+  }
+
   /* Sponsor logos ship as dark ink artwork; normalize them to a clean
      uniform white so they stay legible on the dark background. */
   :root[data-theme="dark"] .portal-sponsors__logo img {
     filter: brightness(0) invert(1);
+  }
+
+  /* Sponsors that ship a dedicated dark variant swap it in instead of
+     being inverted, so brand colors survive the theme change. */
+  .portal-sponsors__logo .theme-logo--dark {
+    display: none;
+  }
+
+  :root[data-theme="dark"] .portal-sponsors__logo .theme-logo--light {
+    display: none;
+  }
+
+  :root[data-theme="dark"] .portal-sponsors__logo .theme-logo--dark {
+    display: block;
+    filter: none;
   }
 
   .portal-sponsors__name {
@@ -2291,6 +2334,10 @@ const faqSchema = {
 
     .portal-sponsors__logo img {
       height: 2rem;
+    }
+
+    .portal-sponsors__logo--tersus img {
+      height: 3rem;
     }
 
     .portal-sponsors__label::before,

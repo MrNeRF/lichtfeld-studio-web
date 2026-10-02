@@ -13,6 +13,8 @@ import { SITE } from "@/config/site.config";
 import core11Logo from "@/assets/core11-logo.svg";
 import tersusLogo from "@/assets/tersus-logo.svg";
 import tersusLogoDark from "@/assets/tersus-logo-dark.svg";
+import volingaLogo from "@/assets/volinga-logo.svg";
+import volingaLogoDark from "@/assets/volinga-logo-dark.svg";
 import gaussianSplatKingLogo from "@/assets/gaussian-splatking-logo.jpg";
 
 import Splat from "@/components/Splat.astro";
@@ -37,7 +39,6 @@ import {
 } from "@/constants/project";
 
 const base = import.meta.env.BASE_URL;
-const volingaLogo = `${base}static/volinga-logo.png`;
 
 /** Base-aware internal routes used by homepage sections. */
 const ROUTES = {
@@ -106,7 +107,8 @@ const sponsorWallGroups: Array<{ label: string; sponsors: SponsorWallEntry[] }> 
       {
         name: "Volinga",
         href: VOLINGA_URL,
-        logo: volingaLogo,
+        logo: volingaLogo.src,
+        logoDark: volingaLogoDark.src,
         logoClass: "portal-sponsors__logo--volinga",
         ariaLabel: "Visit Volinga website",
       },
@@ -2258,9 +2260,7 @@ const faqSchema = {
   }
 
   .portal-sponsors__logo--volinga img {
-    width: min(100%, 75px);
-    height: auto;
-    max-width: none;
+    height: 1.875rem;
   }
 
   /* Tersus supplies the official logo on a square canvas with the artwork
@@ -2339,6 +2339,10 @@ const faqSchema = {
 
     .portal-sponsors__logo img {
       height: 2rem;
+    }
+
+    .portal-sponsors__logo--volinga img {
+      height: 1.7rem;
     }
 
     .portal-sponsors__logo--tersus img {

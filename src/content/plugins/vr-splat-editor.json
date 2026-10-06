@@ -1,0 +1,37 @@
+{
+  "id": "community:lichtfeld_vr_editor",
+  "namespace": "community",
+  "name": "lichtfeld_vr_editor",
+  "displayName": "VR Splat Editor",
+  "summary": "View and edit Gaussian splat scenes in VR using Quest controllers through SteamVR.",
+  "description": "Edit live Lichtfeld scenes in VR with sphere and oriented box selection, Center/Edge selection modes, deletion, and shared undo/redo. Navigate with joysticks and use grip gestures to pan, rotate, and scale the VR view.",
+  "author": "MisterE123",
+  "latestVersion": "0.1.2",
+  "lichtfeldVersion": ">=0.4.2",
+  "pluginApi": ">=1,<2",
+  "requiredFeatures": [],
+  "downloads": 0,
+  "keywords": [
+    "vr",
+    "webxr",
+    "quest",
+    "steamvr",
+    "gaussian-splatting",
+    "3dgs",
+    "selection",
+    "editing"
+  ],
+  "repository": "https://github.com/MisterE123/Lichtfeld-VR-Splat-Editor",
+  "versions": [
+    {
+      "version": "0.1.2",
+      "pluginApi": ">=1,<2",
+      "lichtfeldVersion": ">=0.4.2",
+      "requiredFeatures": [],
+      "dependencies": [
+        "numpy>=1.26,<3"
+      ],
+      "gitRef": "main"
+    }
+  ]
+}

@@ -107,7 +107,7 @@ export const SOFTWARE_APP = {
    * at build time via `getLatestVersion()` in the Seo.astro component.
    * This value is used as a fallback if the API call fails.
    */
-  softwareVersion: "1.0.0",
+  softwareVersion: "0.5.4",
 
   /**
    * Pricing. Source is free under GPLv3; the prebuilt Windows binary is sold

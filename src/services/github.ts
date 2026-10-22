@@ -1,13 +1,6 @@
 import { Octokit } from "@octokit/rest";
-import { marked } from "marked";
 
-import {
-  REPO_OWNER,
-  REPO_NAME,
-  CONTRIBUTION_PROJECT_NUMBER,
-  CONTRIBUTION_PROJECT_VIEW_NUMBER,
-  CONTRIBUTION_PROJECT_VIEW_URL,
-} from "@/constants/project";
+import { REPO_OWNER, REPO_NAME } from "@/constants/project";
 
 // =================================================================================================
 // TYPE DEFINITIONS
@@ -18,28 +11,6 @@ export interface Contributor {
   login: string;
   avatar_url: string;
   html_url: string;
-}
-
-/** Defines the structure for a parsed contribution idea card. */
-export interface ContributionIdea {
-  title: string;
-  link: string;
-  image?: string;
-  order: number;
-  bodyHtml: string; // Pre-parsed HTML from the issue's markdown body
-  issueUrl: string; // Direct link to the GitHub issue for discussion
-}
-
-/** A card-ready project item from the public GitHub backlog view. */
-export interface ContributionProjectItem {
-  id: string;
-  title: string;
-  link: string;
-  bodyHtml: string;
-  status?: string;
-  itemType: string;
-  repoLabel?: string;
-  updatedAt?: string;
 }
 
 /**
@@ -70,26 +41,6 @@ export interface ReleaseInfo {
 
   /** Release notes/body as markdown */
   body: string;
-}
-
-/**
- * Minimal metadata for a downloadable release asset.
- */
-export interface ReleaseAssetInfo {
-  /** Release tag that owns the asset */
-  tagName: string;
-
-  /** Human-readable release title */
-  releaseName: string;
-
-  /** Asset filename as uploaded to GitHub */
-  assetName: string;
-
-  /** Direct browser download URL for the asset */
-  downloadUrl: string;
-
-  /** ISO 8601 date string when the release was published */
-  publishedAt: string;
 }
 
 /**
@@ -139,14 +90,6 @@ const DEFAULT_VERSION = "0.0.0";
 let _cachedRelease: ReleaseInfo | null = null;
 let _releasePromise: Promise<ReleaseInfo | null> | null = null;
 
-type GitHubReleaseAssetLike = {
-  name?: string | null;
-  browser_download_url?: string | null;
-  created_at?: string | null;
-  updated_at?: string | null;
-  state?: string | null;
-};
-
 // =================================================================================================
 // GITHUB API CLIENT
 // =================================================================================================
@@ -156,294 +99,9 @@ const octokit = new Octokit({
   auth: import.meta.env.GITHUB_TOKEN,
 });
 
-/**
- * Dedicated client for GitHub Projects endpoints.
- * User project view endpoints require a classic PAT rather than the default GitHub Actions token.
- */
-const octokitProjects = new Octokit({
-  auth: import.meta.env.GITHUB_PROJECTS_TOKEN ?? import.meta.env.GITHUB_TOKEN,
-});
-
-// =================================================================================================
-// HELPER FUNCTIONS
-// =================================================================================================
-
-/**
- * Parses the body of a GitHub issue to extract frontmatter-like metadata and markdown content.
- * The metadata is expected to be in a YAML-like block delimited by '---'.
- * @param body The raw markdown body of the GitHub issue.
- * @returns An object containing the parsed metadata and content, or null if the format is invalid.
- */
-function parseIssueBody(
-  body: string,
-): { title: string; link: string; image?: string; order: number; body: string } | null {
-  // A robust regex to match a YAML frontmatter block and the subsequent content.
-  // It looks for '---' at the start of a line, captures the content until the next '---',
-  // and treats the rest as the body. It gracefully handles different line endings.
-  const frontmatterRegex = /^---\s*\r?\n([\s\S]+?)\r?\n---\s*(\r?\n|$)/;
-  const match = body.match(frontmatterRegex);
-
-  if (!match) {
-    // No valid frontmatter block was found at the beginning of the issue body.
-    return null;
-  }
-
-  // The first capture group contains the raw metadata lines.
-  const metadataContent = match[1];
-  // The rest of the issue body is everything that comes after the full frontmatter block match.
-  const bodyContent = body.substring(match[0].length).trim();
-
-  const metadata: { [key: string]: any } = {};
-  const metadataLines = metadataContent.trim().split(/\r?\n/);
-
-  // Process each line of the metadata block.
-  metadataLines.forEach((line) => {
-    const [key, ...valueParts] = line.split(":");
-    if (key && valueParts.length > 0) {
-      const trimmedKey = key.trim();
-      const trimmedValue = valueParts.join(":").trim();
-      // Ensure we don't add empty keys or values, which can happen with malformed lines.
-      if (trimmedKey && trimmedValue) {
-        metadata[trimmedKey] = trimmedValue;
-      }
-    }
-  });
-
-  // Validate that essential fields were parsed correctly.
-  if (!metadata.title || !metadata.link || metadata.order === undefined) {
-    console.warn("Skipping issue due to missing required metadata (title, link, order). Parsed metadata:", metadata);
-    return null;
-  }
-
-  return {
-    title: String(metadata.title),
-    link: String(metadata.link),
-    image: metadata.image ? String(metadata.image) : undefined,
-    order: Number(metadata.order), // Ensure order is a number for sorting.
-    body: bodyContent,
-  };
-}
-
-function stripIssueFrontmatter(body: string): string {
-  return body.replace(/^---\s*\r?\n[\s\S]+?\r?\n---\s*(\r?\n|$)/, "").trim();
-}
-
-function buildIssueExcerpt(body: string): string {
-  const plain = stripIssueFrontmatter(body)
-    .replace(/```[\s\S]*?```/g, " ")
-    .replace(/!\[[^\]]*]\([^)]*\)/g, " ")
-    .replace(/\[([^\]]+)]\([^)]*\)/g, "$1")
-    .replace(/[`>#*_~-]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-
-  if (!plain) return "Open the issue on GitHub for details and discussion.";
-
-  const excerpt = plain.length > 220 ? `${plain.slice(0, 217).trimEnd()}...` : plain;
-  return excerpt;
-}
-
-function selectLatestWindowsAsset(assets: GitHubReleaseAssetLike[]): ReleaseAssetInfo["assetName"] | null {
-  const latestAsset = [...assets]
-    .filter((asset) => {
-      const fileName = asset.name?.toLowerCase() ?? "";
-
-      return (
-        (asset.state === undefined || asset.state === "uploaded") &&
-        Boolean(asset.browser_download_url) &&
-        fileName.includes("windows") &&
-        fileName.endsWith(".zip")
-      );
-    })
-    .sort((a, b) => {
-      const timeA = new Date(a.updated_at ?? a.created_at ?? 0).getTime();
-      const timeB = new Date(b.updated_at ?? b.created_at ?? 0).getTime();
-
-      return timeB - timeA;
-    })[0];
-
-  return latestAsset?.name ?? null;
-}
-
-function buildReleaseAssetInfo(
-  release: {
-    tag_name: string;
-    name: string | null;
-    published_at: string | null;
-    created_at: string;
-    assets: GitHubReleaseAssetLike[];
-  },
-  assetName: string,
-): ReleaseAssetInfo | null {
-  const asset = release.assets.find((entry) => entry.name === assetName);
-
-  if (!asset?.browser_download_url) {
-    return null;
-  }
-
-  return {
-    tagName: release.tag_name,
-    releaseName: release.name || release.tag_name,
-    assetName,
-    downloadUrl: asset.browser_download_url,
-    publishedAt: release.published_at || release.created_at,
-  };
-}
-
-function normalizeProjectItemType(content: Record<string, any> | null | undefined): string {
-  const rawType = content?.node_id ? String(content.node_id) : "";
-  if (rawType.startsWith("PR_")) return "Pull request";
-  if (rawType.startsWith("I_")) return "Issue";
-
-  const graphqlType = content?.__typename ? String(content.__typename) : "";
-  if (graphqlType === "PullRequest") return "Pull request";
-  if (graphqlType === "Issue") return "Issue";
-  if (graphqlType === "DraftIssue") return "Draft";
-
-  return "Project item";
-}
-
-function extractProjectItemStatus(fieldValues: unknown): string | undefined {
-  if (!Array.isArray(fieldValues)) return undefined;
-
-  for (const fieldValue of fieldValues) {
-    const value = fieldValue as Record<string, any>;
-    const fieldName = value?.field?.name ? String(value.field.name) : "";
-    if (fieldName.toLowerCase() !== "status") continue;
-
-    if (value?.option?.name) return String(value.option.name);
-    if (value?.name) return String(value.name);
-  }
-
-  return undefined;
-}
-
 // =================================================================================================
 // PUBLIC API
 // =================================================================================================
-
-/**
- * Fetches contribution ideas from open issues in the main GitHub issue tracker.
- * @returns A promise that resolves to a sorted array of contribution ideas.
- */
-export async function getContributionIdeas(): Promise<ContributionIdea[]> {
-  try {
-    const { data: issues } = await octokit.issues.listForRepo({
-      owner: REPO_OWNER,
-      repo: REPO_NAME,
-      state: "open",
-      sort: "updated",
-      direction: "desc",
-      per_page: 24,
-    });
-
-    if (issues.length === 0) {
-      console.log("No open issues found in the main issue tracker.");
-    }
-
-    const ideas = await Promise.all(
-      issues
-        .filter((issue) => !issue.pull_request)
-        .slice(0, 6)
-        .map(async (issue, index) => {
-          const parsed = issue.body ? parseIssueBody(issue.body) : null;
-          const bodyHtml = await marked.parse(parsed ? parsed.body : buildIssueExcerpt(issue.body ?? ""));
-
-          return {
-            title: parsed?.title ?? issue.title,
-            link: parsed?.link ?? issue.html_url,
-            image: parsed?.image,
-            order: parsed?.order ?? index,
-            bodyHtml,
-            issueUrl: issue.html_url,
-          } satisfies ContributionIdea;
-        }),
-    );
-
-    if (ideas.length === 0) {
-      console.log("No issue cards were produced from the main issue tracker.");
-    }
-
-    return ideas.sort((a, b) => a.order - b.order);
-  } catch (error) {
-    console.error("Failed to fetch contribution issues from GitHub:", error);
-    return [];
-  }
-}
-
-/**
- * Fetches the saved GitHub Projects view used for the contribute page and maps it to card-ready items.
- */
-export async function getContributionProjectItems(): Promise<ContributionProjectItem[]> {
-  if (!import.meta.env.GITHUB_PROJECTS_TOKEN && !import.meta.env.GITHUB_TOKEN) {
-    console.error("ERROR: No GitHub token available. Cannot fetch contribution project items.");
-    return [];
-  }
-
-  try {
-    const items: Record<string, any>[] = [];
-    let page = 1;
-
-    while (true) {
-      const response = await octokitProjects.request(
-        "GET /users/{username}/projectsV2/{project_number}/views/{view_number}/items",
-        {
-          username: REPO_OWNER,
-          project_number: CONTRIBUTION_PROJECT_NUMBER,
-          view_number: CONTRIBUTION_PROJECT_VIEW_NUMBER,
-          per_page: 100,
-          page,
-          headers: {
-            "X-GitHub-Api-Version": "2022-11-28",
-          },
-        },
-      );
-
-      const pageItems = Array.isArray(response.data)
-        ? response.data
-        : Array.isArray((response.data as any)?.items)
-          ? (response.data as any).items
-          : Array.isArray((response.data as any)?.value)
-            ? (response.data as any).value
-            : [];
-
-      if (pageItems.length === 0) break;
-
-      items.push(...pageItems);
-
-      if (pageItems.length < 100) break;
-      page += 1;
-    }
-
-    const normalizedItems = await Promise.all(
-      items.map(async (item) => {
-        const content = (item.content ?? null) as Record<string, any> | null;
-        const title = content?.title ? String(content.title) : item.title ? String(item.title) : "Untitled item";
-        const body = content?.body ? String(content.body) : item.body ? String(item.body) : "";
-        const bodyHtml = await marked.parse(body || "No description yet.");
-        const link = content?.html_url ? String(content.html_url) : CONTRIBUTION_PROJECT_VIEW_URL;
-        const repoLabel = content?.repository?.full_name ? String(content.repository.full_name) : undefined;
-        const updatedAt = content?.updated_at ? String(content.updated_at) : undefined;
-
-        return {
-          id: item.id ? String(item.id) : title,
-          title,
-          link,
-          bodyHtml,
-          status: extractProjectItemStatus(item.field_values),
-          itemType: normalizeProjectItemType(content),
-          repoLabel,
-          updatedAt,
-        } satisfies ContributionProjectItem;
-      }),
-    );
-
-    return normalizedItems.filter((item) => item.title.trim().length > 0);
-  } catch (error) {
-    console.error("Failed to fetch contribution project items from GitHub Projects:", error);
-    return [];
-  }
-}
 
 /**
  * Fetches the list of contributors for the repository, excluding known bot accounts.
@@ -651,36 +309,6 @@ export async function getLatestRelease(): Promise<ReleaseInfo | null> {
 }
 
 /**
- * Fetches the most recent Windows asset attached to the rolling nightly release.
- *
- * The nightly release keeps multiple assets, so this selects the newest uploaded
- * Windows ZIP and returns its direct browser download URL.
- */
-export async function getNightlyWindowsDownload(): Promise<ReleaseAssetInfo | null> {
-  try {
-    const { data: release } = await octokit.repos.getReleaseByTag({
-      owner: REPO_OWNER,
-      repo: REPO_NAME,
-      tag: "nightly",
-    });
-
-    const assetName = selectLatestWindowsAsset(release.assets);
-
-    if (!assetName) {
-      console.warn("Nightly release found, but no Windows ZIP asset is available.");
-
-      return null;
-    }
-
-    return buildReleaseAssetInfo(release, assetName);
-  } catch (error) {
-    console.error("Failed to fetch nightly Windows download from GitHub:", error);
-
-    return null;
-  }
-}
-
-/**
  * Gets the current software version string.
  *
  * This is a convenience function that returns the version from the latest release,
@@ -754,36 +382,4 @@ export async function getReleaseDownloadStats(): Promise<DownloadStatsTotal> {
 
     return { totalDownloads: 0, releases: [] };
   }
-}
-
-// =================================================================================================
-// STATS API CLIENT
-// =================================================================================================
-
-// Re-export the StatsResponse type from the shared types module
-export type { StatsResponse } from "@/types/stats";
-
-import type { StatsResponse } from "@/types/stats";
-
-/**
- * Fetches download statistics from the /api/stats endpoint.
- *
- * For client-side use. Returns historical and time-series data from D1.
- * For build-time use with fresh GitHub data, use `getReleaseDownloadStats()` instead.
- *
- * @param days - Number of days of history (default: 90, max: 365)
- * @returns Stats response from the API
- */
-export async function fetchStats(days = 90): Promise<StatsResponse> {
-  const url = new URL("/api/stats", window.location.origin);
-
-  url.searchParams.set("days", String(Math.min(days, 365)));
-
-  const response = await fetch(url.toString());
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch stats: ${response.status}`);
-  }
-
-  return response.json();
 }

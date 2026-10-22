@@ -25,18 +25,3 @@ export interface IUpdatable {
    */
   update(dt: number): void;
 }
-
-/**
- * Type guard to check if an object implements IUpdatable.
- *
- * @param obj Object to check
- * @returns True if obj has an update method
- */
-export function isUpdatable(obj: unknown): obj is IUpdatable {
-  return (
-    typeof obj === 'object' &&
-    obj !== null &&
-    'update' in obj &&
-    typeof (obj as IUpdatable).update === 'function'
-  );
-}

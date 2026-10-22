@@ -43,45 +43,6 @@ const mocks = vi.hoisted(() => {
   ];
 
   // -----------------------------------------------------------------------
-  // Mock Data: Issues (Contribution Ideas)
-  // -----------------------------------------------------------------------
-
-  const mockIssuesList = [
-    {
-      number: 1,
-      title: "Test Idea 1",
-      html_url: "https://github.com/test/repo/issues/1",
-      body: `---
-title: First Contribution Idea
-link: /ideas/first
-image: /images/idea1.png
-order: 2
----
-
-This is the body of the first idea.
-It has multiple lines.`,
-    },
-    {
-      number: 2,
-      title: "Test Idea 2",
-      html_url: "https://github.com/test/repo/issues/2",
-      body: `---
-title: Second Contribution Idea
-link: /ideas/second
-order: 1
----
-
-This is the second idea without an image.`,
-    },
-    {
-      number: 3,
-      title: "Invalid Issue",
-      html_url: "https://github.com/test/repo/issues/3",
-      body: "This issue has no frontmatter and should render as a generic issue card.",
-    },
-  ];
-
-  // -----------------------------------------------------------------------
   // Mock Data: Releases
   // -----------------------------------------------------------------------
 
@@ -143,7 +104,6 @@ This is the second idea without an image.`,
 
   const mockPaginate = vi.fn();
   const mockListContributors = vi.fn();
-  const mockListForRepo = vi.fn();
   const mockGetLatestRelease = vi.fn();
   const mockListTags = vi.fn();
   const mockListReleases = vi.fn();
@@ -160,19 +120,14 @@ This is the second idea without an image.`,
       getLatestRelease: mockGetLatestRelease,
       listTags: mockListTags,
     };
-    this.issues = {
-      listForRepo: mockListForRepo,
-    };
   });
 
   return {
     mockContributorsList,
-    mockIssuesList,
     mockRelease,
     mockReleasesWithAssets,
     mockPaginate,
     mockListContributors,
-    mockListForRepo,
     mockListReleases,
     mockGetLatestRelease,
     mockListTags,
@@ -190,16 +145,6 @@ This is the second idea without an image.`,
  */
 vi.mock("@octokit/rest", () => ({
   Octokit: mocks.MockOctokit,
-}));
-
-/**
- * Mock the marked library to return predictable HTML output.
- * This avoids the complexity of parsing actual markdown in tests.
- */
-vi.mock("marked", () => ({
-  marked: {
-    parse: vi.fn((text: string) => Promise.resolve(`<p>${text}</p>`)),
-  },
 }));
 
 // =================================================================================================
@@ -275,82 +220,6 @@ describe("GitHub Service", () => {
 
       // Assert: Should only include valid contributors (2, bot and incomplete filtered)
       expect(contributors).toHaveLength(2);
-    });
-  });
-
-  // -----------------------------------------------------------------------
-  // getContributionIdeas Tests
-  // -----------------------------------------------------------------------
-
-  describe("getContributionIdeas", () => {
-    it("should fetch and parse contribution ideas from issues", async () => {
-      // Arrange: Set up the mock to return our test issues
-      mocks.mockListForRepo.mockResolvedValue({ data: mocks.mockIssuesList });
-
-      // Act
-      const { getContributionIdeas } = await import("@/services/github");
-      const ideas = await getContributionIdeas();
-
-      // Assert: frontmatter-backed issues are parsed and plain issues fall back to generic cards
-      expect(ideas).toHaveLength(3);
-
-      // Should be sorted by order (idea 2 has order: 1, idea 1 has order: 2)
-      expect(ideas[0].title).toBe("Second Contribution Idea");
-      expect(ideas[0].order).toBe(1);
-      expect(ideas[1].title).toBe("First Contribution Idea");
-      expect(ideas[1].order).toBe(2);
-      expect(ideas[2].title).toBe("Invalid Issue");
-      expect(ideas[2].link).toBe("https://github.com/test/repo/issues/3");
-      expect(ideas[2].issueUrl).toBe("https://github.com/test/repo/issues/3");
-    });
-
-    it("should include the issue URL in each idea", async () => {
-      // Arrange
-      mocks.mockListForRepo.mockResolvedValue({ data: mocks.mockIssuesList });
-
-      // Act
-      const { getContributionIdeas } = await import("@/services/github");
-      const ideas = await getContributionIdeas();
-
-      // Assert: Each idea should have the original issue URL
-      expect(ideas[0].issueUrl).toBe("https://github.com/test/repo/issues/2");
-      expect(ideas[1].issueUrl).toBe("https://github.com/test/repo/issues/1");
-    });
-
-    it("should parse the body content as HTML", async () => {
-      // Arrange
-      mocks.mockListForRepo.mockResolvedValue({ data: mocks.mockIssuesList });
-
-      // Act
-      const { getContributionIdeas } = await import("@/services/github");
-      const ideas = await getContributionIdeas();
-
-      // Assert: Body should be parsed as HTML
-      expect(ideas[0].bodyHtml).toContain("<p>");
-    });
-
-    it("should return an empty array when no issues exist", async () => {
-      // Arrange
-      mocks.mockListForRepo.mockResolvedValue({ data: [] });
-
-      // Act
-      const { getContributionIdeas } = await import("@/services/github");
-      const ideas = await getContributionIdeas();
-
-      // Assert
-      expect(ideas).toEqual([]);
-    });
-
-    it("should return an empty array when the API call fails", async () => {
-      // Arrange
-      mocks.mockListForRepo.mockRejectedValue(new Error("API Error"));
-
-      // Act
-      const { getContributionIdeas } = await import("@/services/github");
-      const ideas = await getContributionIdeas();
-
-      // Assert
-      expect(ideas).toEqual([]);
     });
   });
 
@@ -521,14 +390,6 @@ describe("GitHub Service", () => {
 
       // Assert
       expect(REPO_OWNER).toBe("MrNeRF");
-    });
-
-    it("should export the public GitHub Projects view URL from project constants", async () => {
-      // Act
-      const { CONTRIBUTION_PROJECT_VIEW_URL } = await import("@/constants/project");
-
-      // Assert
-      expect(CONTRIBUTION_PROJECT_VIEW_URL).toBe("https://github.com/users/MrNeRF/projects/1/views/6");
     });
   });
 

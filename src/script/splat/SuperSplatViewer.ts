@@ -1477,30 +1477,3 @@ export class SuperSplatViewer implements IDisposable {
     camera.nearClip = nearClip;
   }
 }
-
-// ============================================================================
-// Factory function
-// ============================================================================
-
-/**
- * Create a SuperSplatViewer.
- *
- * @param canvas Canvas element
- * @param scene Scene name
- * @param sizeElement Size reference element
- * @param base Base URL
- * @returns New viewer instance
- */
-export function createSuperSplatViewer(
-  canvas: HTMLCanvasElement,
-  scene: string,
-  sizeElement: HTMLElement,
-  base: string
-): SuperSplatViewer {
-  return new SuperSplatViewer({
-    canvas,
-    scene,
-    sizeElement,
-    base,
-  });
-}

@@ -229,27 +229,6 @@ export const NAVIGATION = {
 // PWA Manifest Configuration
 // ============================================================================
 
-/**
- * Progressive Web App manifest configuration.
- * Used to generate site.webmanifest.
- */
-export const PWA_MANIFEST = {
-  name: SITE.name,
-  short_name: SITE.shortName,
-  description: SITE.description,
-  start_url: "/",
-  display: "standalone" as const,
-  background_color: SITE.backgroundColor,
-  theme_color: SITE.themeColor,
-  icons: [
-    {
-      src: "/static/favicon.svg",
-      sizes: "any",
-      type: "image/svg+xml",
-    },
-  ],
-} as const;
-
 // ============================================================================
 // Type Exports
 // ============================================================================

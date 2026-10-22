@@ -55,21 +55,3 @@ export interface ISuspendable {
    */
   resume(): void;
 }
-
-/**
- * Type guard to check if an object implements ISuspendable.
- *
- * @param obj Object to check
- * @returns True if obj implements ISuspendable
- */
-export function isSuspendable(obj: unknown): obj is ISuspendable {
-  return (
-    typeof obj === 'object' &&
-    obj !== null &&
-    'isSuspended' in obj &&
-    'suspend' in obj &&
-    'resume' in obj &&
-    typeof (obj as ISuspendable).suspend === 'function' &&
-    typeof (obj as ISuspendable).resume === 'function'
-  );
-}

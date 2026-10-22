@@ -78,22 +78,3 @@ export async function getPluginRegistry(): Promise<PluginRegistryEntry[]> {
 
   return plugins;
 }
-
-export async function getFeaturedPlugins(limit = 3): Promise<PluginRegistryEntry[]> {
-  const plugins = await getPluginRegistry();
-  return plugins.filter((plugin) => plugin.featured).slice(0, limit);
-}
-
-export async function getPluginRegistryStats() {
-  const plugins = await getPluginRegistry();
-  const authors = new Set(plugins.map((plugin) => plugin.author));
-  const keywords = new Set(plugins.flatMap((plugin) => plugin.keywords));
-
-  return {
-    totalPlugins: plugins.length,
-    totalAuthors: authors.size,
-    totalKeywords: keywords.size,
-    totalDownloads: plugins.reduce((sum, plugin) => sum + plugin.downloads, 0),
-    totalStars: plugins.reduce((sum, plugin) => sum + plugin.stars, 0),
-  };
-}

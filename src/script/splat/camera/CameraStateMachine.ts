@@ -399,19 +399,3 @@ export class CameraStateMachine implements IDisposable {
     this.events.dispose();
   }
 }
-
-// ============================================================================
-// Factory function
-// ============================================================================
-
-/**
- * Create a camera state machine.
- *
- * @param initialState Initial state (default: 'idle')
- * @returns New CameraStateMachine instance
- */
-export function createCameraStateMachine(
-  initialState: CameraMode = 'idle'
-): CameraStateMachine {
-  return new CameraStateMachine(initialState);
-}

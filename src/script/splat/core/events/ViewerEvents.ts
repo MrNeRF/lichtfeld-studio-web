@@ -355,27 +355,3 @@ export type ViewerEventListener<K extends keyof ViewerEventMap> = (
  * All available viewer event names.
  */
 export type ViewerEventName = keyof ViewerEventMap;
-
-/**
- * Event names grouped by category.
- */
-export const EVENT_CATEGORIES = {
-  loading: ['load:start', 'load:progress', 'load:complete', 'load:error'] as const,
-  camera: ['camera:mode', 'camera:input', 'camera:pose', 'camera:focus'] as const,
-  idle: ['idle:state', 'idle:autostop'] as const,
-  render: ['render:suspend', 'render:resume'] as const,
-  lifecycle: ['viewer:ready', 'viewer:dispose', 'viewer:frame', 'viewer:resize'] as const,
-  errors: ['viewer:error', 'viewer:warning'] as const,
-} as const;
-
-/**
- * Check if a string is a valid viewer event name.
- *
- * @param name String to check
- * @returns True if it's a valid event name
- */
-export function isViewerEventName(name: string): name is ViewerEventName {
-  const allEvents = Object.values(EVENT_CATEGORIES).flat() as string[];
-
-  return allEvents.includes(name);
-}

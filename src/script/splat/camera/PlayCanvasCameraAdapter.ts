@@ -420,30 +420,3 @@ export class PlayCanvasCameraAdapter implements IUpdatable, IDisposable {
     }
   }
 }
-
-// ============================================================================
-// Factory function
-// ============================================================================
-
-/**
- * Create a PlayCanvas camera adapter.
- *
- * @param app PlayCanvas application
- * @param cameraEntity Camera entity
- * @param cameraState Camera state
- * @param onInputActivity Input activity callback
- * @returns New adapter instance
- */
-export function createCameraAdapter(
-  app: Application,
-  cameraEntity: Entity,
-  cameraState: CameraState,
-  onInputActivity?: (type: 'mouse' | 'touch' | 'keyboard' | 'gamepad') => void
-): PlayCanvasCameraAdapter {
-  return new PlayCanvasCameraAdapter({
-    app,
-    cameraEntity,
-    cameraState,
-    onInputActivity,
-  });
-}

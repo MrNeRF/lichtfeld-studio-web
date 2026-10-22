@@ -35,32 +35,6 @@ export function lerpVec3(from: Vec3, to: Vec3, t: number): Vec3 {
 }
 
 /**
- * Interpolate between two Vec3 values into an output vector (no allocation).
- *
- * Use this in update loops to avoid garbage collection.
- *
- * @param from Starting vector
- * @param to Target vector
- * @param t Interpolation factor [0..1]
- * @param out Pre-allocated output vector
- * @returns The same vector passed as out
- *
- * @example
- * // Pre-allocate once
- * private _tempPos: Vec3 = new Vec3();
- *
- * // Use in update loop
- * lerpVec3Into(from, to, t, this._tempPos);
- */
-export function lerpVec3Into(from: Vec3, to: Vec3, t: number, out: Vec3): Vec3 {
-  out.x = from.x + (to.x - from.x) * t;
-  out.y = from.y + (to.y - from.y) * t;
-  out.z = from.z + (to.z - from.z) * t;
-
-  return out;
-}
-
-/**
  * Interpolate between two Vec3 values representing Euler angles.
  *
  * Uses shortest-path interpolation for each component to handle

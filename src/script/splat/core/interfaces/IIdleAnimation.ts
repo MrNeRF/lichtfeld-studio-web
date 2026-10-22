@@ -230,29 +230,3 @@ export interface IIdleAnimation extends IUpdatable, IDisposable {
    */
   setLookTarget?(target: [number, number, number] | null): void;
 }
-
-/**
- * Type guard to check if an object implements IIdleAnimation.
- *
- * @param obj Object to check
- * @returns True if obj implements IIdleAnimation
- */
-export function isIdleAnimation(obj: unknown): obj is IIdleAnimation {
-  return (
-    typeof obj === 'object' &&
-    obj !== null &&
-    'type' in obj &&
-    'displayName' in obj &&
-    'isActive' in obj &&
-    'isStaticPose' in obj &&
-    'blend' in obj &&
-    'attach' in obj &&
-    'detach' in obj &&
-    'enter' in obj &&
-    'exit' in obj &&
-    'computePose' in obj &&
-    'reset' in obj &&
-    'update' in obj &&
-    'dispose' in obj
-  );
-}

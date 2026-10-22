@@ -219,28 +219,3 @@ export const DEFAULT_SCENE_ID = "artist-studio";
 export function getSceneById(id: string): SceneConfig | undefined {
   return SHOWCASE_SCENES.find((scene) => scene.id === id);
 }
-
-/**
- * Get the default scene configuration.
- *
- * @returns Default scene configuration
- */
-export function getDefaultScene(): SceneConfig {
-  const scene = getSceneById(DEFAULT_SCENE_ID);
-
-  if (!scene) {
-    throw new Error(`Default scene '${DEFAULT_SCENE_ID}' not found in registry`);
-  }
-
-  return scene;
-}
-
-/**
- * Check if a scene ID exists in the registry.
- *
- * @param id - Scene identifier to check
- * @returns True if the scene exists
- */
-export function isValidSceneId(id: string): boolean {
-  return SHOWCASE_SCENES.some((scene) => scene.id === id);
-}

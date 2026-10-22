@@ -32,18 +32,3 @@ export interface IDisposable {
    */
   dispose(): void;
 }
-
-/**
- * Type guard to check if an object implements IDisposable.
- *
- * @param obj Object to check
- * @returns True if obj has a dispose method
- */
-export function isDisposable(obj: unknown): obj is IDisposable {
-  return (
-    typeof obj === 'object' &&
-    obj !== null &&
-    'dispose' in obj &&
-    typeof (obj as IDisposable).dispose === 'function'
-  );
-}

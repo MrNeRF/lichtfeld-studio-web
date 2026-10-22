@@ -564,30 +564,3 @@ export class SuspensionManager implements ISuspendable, IUpdatable, IDisposable 
     });
   }
 }
-
-// ============================================================================
-// Factory function
-// ============================================================================
-
-/**
- * Create a suspension manager.
- *
- * @param element Element to observe
- * @param config Suspension configuration
- * @param onSuspend Suspend callback
- * @param onResume Resume callback
- * @returns New SuspensionManager instance
- */
-export function createSuspensionManager(
-  element: HTMLElement,
-  config?: Partial<SuspensionConfig>,
-  onSuspend?: () => void,
-  onResume?: () => void
-): SuspensionManager {
-  return new SuspensionManager({
-    element,
-    config,
-    onSuspend,
-    onResume,
-  });
-}

@@ -1,0 +1,34 @@
+{
+  "id": "community:looking_glass",
+  "namespace": "community",
+  "name": "looking_glass",
+  "displayName": "Looking Glass Viewer",
+  "summary": "View Gaussian splats on Looking Glass Go with live holographic output and quilt exports.",
+  "description": "Windows-only Looking Glass Go viewer with calibrated native display output, Move/Rotate/Scale camera controls, FOV, depthiness, focus, near/far clipping, view filtering and Gaussian sigma. Render on demand or use realtime refresh, then export PNG/JPEG quilts, stationary HEVC MP4 quilts or individual views for Looking Glass Studio 2.0. Requires Looking Glass Bridge, full 64-bit CPython 3.12 and LichtFeld's render_lightfield_view_u8 API, merged in upstream PR #3735. Tested with unpatched upstream master 5397f9047; older hosts without that API need the documented renderer patch.",
+  "author": "tomhalpin8",
+  "latestVersion": "0.2.2",
+  "lichtfeldVersion": ">=0.5.0",
+  "pluginApi": ">=1,<2",
+  "requiredFeatures": [],
+  "downloads": 0,
+  "keywords": ["looking-glass", "holographic", "viewer", "quilt", "export", "3dgs", "windows"],
+  "repository": "https://github.com/tomhalpin8/LichtFeld-LookingGlass-Plugin",
+  "versions": [
+    {
+      "version": "0.2.2",
+      "pluginApi": ">=1,<2",
+      "lichtfeldVersion": ">=0.5.0",
+      "requiredFeatures": [],
+      "dependencies": [
+        "numpy>=1.26,<3",
+        "Pillow>=10,<13",
+        "imageio-ffmpeg>=0.6,<0.7",
+        "pynng>=0.8,<1",
+        "cbor2>=5.6,<7",
+        "glfw>=2.9,<3",
+        "PyOpenGL>=3.1.9,<4"
+      ],
+      "gitRef": "433ee02b31e68185bf16c970da9e1f41144bdf9d"
+    }
+  ]
+}

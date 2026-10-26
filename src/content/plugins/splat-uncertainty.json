@@ -20,7 +20,7 @@
       "lichtfeldVersion": ">=0.5.0",
       "requiredFeatures": [],
       "dependencies": ["numpy", "cupy-cuda12x[ctk]>=13.3"],
-      "gitRef": "c931fb56036aad5a0a7e0624e660a37ae706dccf"
+      "gitRef": "main"
     }
   ]
 }

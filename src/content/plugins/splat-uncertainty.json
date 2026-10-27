@@ -4,7 +4,7 @@
   "name": "splat_uncertainty",
   "displayName": "Splat Uncertainty",
   "summary": "Per-splat uncertainty from the training views: heatmaps and removal of uncertain splats.",
-  "description": "Estimates how well the training photos constrain each splat with a block-diagonal Laplace approximation (Gauss-Newton Fisher information, as in PUP 3D-GS) over position, scale, rotation and opacity. Custom CUDA kernels render the training views and accumulate exact per-pixel Fisher blocks in seconds. Shows ten heatmap strategies, each labelled as paper-backed, derived or heuristic, and hides splats by uncertainty live with an undoable in-place removal. Requires an NVIDIA GPU with CUDA 12 (no CUDA toolkit needed) and a trained model with its dataset cameras; works while training is paused or finished. Pinhole cameras only for now. Tested on Windows.",
+  "description": "Estimates how well the training photos constrain each splat with a block-diagonal Laplace approximation (Gauss-Newton Fisher information, as in PUP 3D-GS) over position, scale, rotation and opacity. Custom CUDA kernels render the training views and accumulate exact per-pixel Fisher blocks in seconds. Shows ten heatmap strategies, each labelled as paper-backed, derived or heuristic, and hides splats by uncertainty live with an undoable in-place removal. Requires an NVIDIA GPU with CUDA 12 (no CUDA toolkit needed) and a trained model with its dataset cameras; works while training is paused or finished.",
   "author": "dozeri",
   "latestVersion": "0.1.0",
   "lichtfeldVersion": ">=0.5.0",

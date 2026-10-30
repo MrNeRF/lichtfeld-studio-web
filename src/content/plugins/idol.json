@@ -1,0 +1,39 @@
+{
+  "id": "community:idol",
+  "namespace": "community",
+  "name": "idol",
+  "displayName": "Idol",
+  "summary": "Generate a 3D Gaussian splat from a single image using Speridlabs Idol, inserted directly into the scene.",
+  "description": "Takes a single image, removes the background, and runs Speridlabs Idol (single-image flow matching, 32k to 1M Gaussians) to produce a 3D Gaussian splat that is inserted directly into the LichtFeld scene. Guided three-step workflow (choose or paste an image, generate, place) with interactive gizmo placement that follows scene selection, synthetic/real image modes, adjustable detail / seed / guidance, re-decode at a new detail level without re-sampling, and .ply export. Local GPU inference (Ampere or newer); model weights (~6.8 GB) download on first use from Hugging Face. Requires approved Hugging Face access to the gated DINOv3 and FLUX.2-dev encoders; the FLUX.2 [dev] weights are non-commercial.",
+  "author": "Yehe Liu",
+  "latestVersion": "0.1.0",
+  "lichtfeldVersion": ">=0.5.0",
+  "pluginApi": ">=1,<2",
+  "requiredFeatures": [],
+  "downloads": 0,
+  "keywords": ["idol", "image-to-3d", "single-image", "gaussian-splatting", "speridlabs", "hugging-face"],
+  "repository": "https://github.com/lyehe/lichtfeld-idol-plugin",
+  "versions": [
+    {
+      "version": "0.1.0",
+      "pluginApi": ">=1,<2",
+      "lichtfeldVersion": ">=0.5.0",
+      "requiredFeatures": [],
+      "dependencies": [
+        "torch==2.11.0",
+        "torchvision==0.26.0",
+        "transformers>=4.56",
+        "diffusers>=0.36",
+        "huggingface-hub>=0.34",
+        "safetensors>=0.4",
+        "tensordict>=0.8",
+        "numpy>=1.26",
+        "pillow>=10.0",
+        "plyfile>=1.0",
+        "tqdm>=4.66",
+        "triton-windows>=3.5 ; platform_system == 'Windows'"
+      ],
+      "gitRef": "main"
+    }
+  ]
+}

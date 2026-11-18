@@ -1,0 +1,326 @@
+---
+/**
+ * VideoFacade.astro
+ *
+ * A self-hosted poster that swaps itself for the YouTube embed on click, so a
+ * visitor who never presses play never reaches YouTube. With JavaScript off
+ * the link opens the video on YouTube, and a modified click keeps its usual
+ * meaning.
+ */
+import { ANALYTICS_EVENTS } from "@/utils/analytics";
+
+interface Props {
+  videoId: string;
+  /** Full video title: iframe title and screen-reader label. */
+  title: string;
+  poster: string;
+  posterSrcset?: string;
+  posterSizes?: string;
+  posterWidth: number;
+  posterHeight: number;
+  /** Corner label naming the clip. */
+  chip?: string;
+  /** Text inside the play capsule. Without it the capsule shows the arrow only. */
+  playLabel?: string;
+  analyticsPlacement: string;
+  analyticsTarget: string;
+}
+
+const {
+  videoId,
+  title,
+  poster,
+  posterSrcset,
+  posterSizes,
+  posterWidth,
+  posterHeight,
+  chip,
+  playLabel,
+  analyticsPlacement,
+  analyticsTarget,
+} = Astro.props;
+
+const watchUrl = `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}`;
+---
+
+<div class="video-facade">
+  <a
+    class="video-facade__trigger"
+    href={watchUrl}
+    target="_blank"
+    rel="noopener noreferrer"
+    data-video-id={videoId}
+    data-video-title={title}
+    data-analytics-event={ANALYTICS_EVENTS.ctaClicked}
+    data-analytics-prop-placement={analyticsPlacement}
+    data-analytics-prop-target={analyticsTarget}
+  >
+    <img
+      class="video-facade__poster"
+      src={poster}
+      srcset={posterSrcset}
+      sizes={posterSizes}
+      alt=""
+      width={posterWidth}
+      height={posterHeight}
+      loading="lazy"
+      decoding="async"
+    />
+    {
+      chip && (
+        <span class="video-facade__chip" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+            <path d="M9 6.3v11.4l9.4-5.7z" />
+          </svg>
+          {chip}
+        </span>
+      )
+    }
+    <span class:list={["video-facade__play", { "video-facade__play--icon": !playLabel }]} aria-hidden="true">
+      <svg class="video-facade__play-arrow" viewBox="0 0 30 24" focusable="false" aria-hidden="true">
+        <path
+          d="M7.4 7.6 11.2 12l-3.8 4.4"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          opacity="0.42"
+        >
+        </path>
+        <path
+          d="M2.4 8.9 5.2 12l-2.8 3.1"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          opacity="0.22"
+        >
+        </path>
+        <path d="M15.4 5.3c0-1.2 1.3-1.9 2.3-1.3l10.1 6c1 .6 1 2 0 2.6l-10.1 6c-1 .6-2.3-.1-2.3-1.3V5.3Z"></path>
+      </svg>
+      {playLabel && <span class="video-facade__play-label">{playLabel}</span>}
+    </span>
+    <span class="visually-hidden">Play the video: {title}</span>
+  </a>
+</div>
+
+<script>
+  function initVideoFacades(): void {
+    const triggers = document.querySelectorAll<HTMLAnchorElement>(".video-facade__trigger[data-video-id]");
+
+    triggers.forEach((trigger) => {
+      trigger.addEventListener("click", (event) => {
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+          return;
+        }
+
+        event.preventDefault();
+
+        const frame = document.createElement("iframe");
+        frame.className = "video-facade__frame";
+        frame.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(trigger.dataset.videoId ?? "")}?autoplay=1&rel=0`;
+        frame.title = trigger.dataset.videoTitle || "YouTube video";
+        frame.allow =
+          "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+        frame.referrerPolicy = "strict-origin-when-cross-origin";
+        frame.allowFullscreen = true;
+        trigger.replaceWith(frame);
+        frame.focus();
+      });
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initVideoFacades, { once: true });
+  } else {
+    initVideoFacades();
+  }
+</script>
+
+<style>
+  /* The still carries the video's own title card, so the frame stays quiet:
+     hairline border, shared radius, no chrome. The arrow capsule is the only
+     invitation. */
+  .video-facade {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: var(--rounded-xl);
+    background: var(--color-code-bg);
+    border: 1px solid var(--color-border-subtle);
+  }
+
+  .video-facade__trigger {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    text-decoration: none;
+  }
+
+  .video-facade__poster {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-fast);
+  }
+
+  /* Pools shade under the play capsule only, so the still stays readable. */
+  .video-facade__trigger::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(46% 42% at center, rgba(6, 10, 18, 0.55), rgba(6, 10, 18, 0.2) 56%, transparent 80%);
+  }
+
+  /* Names the clip from a corner without competing with the title card. */
+  .video-facade__chip {
+    position: absolute;
+    top: 0.85rem;
+    left: 0.85rem;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.32rem 0.7rem;
+    border-radius: var(--radius-pill);
+    background: rgba(8, 12, 20, 0.55);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.16);
+    color: rgba(255, 255, 255, 0.88);
+    font-family: var(--font-display);
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .video-facade__chip svg {
+    width: 0.62rem;
+    height: auto;
+    fill: var(--color-primary);
+  }
+
+  .video-facade__play {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.78rem 1.45rem 0.78rem 1.2rem;
+    border-radius: var(--radius-pill);
+    color: #ffffff;
+    background: rgba(8, 12, 20, 0.56);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.24),
+      0 18px 40px rgba(0, 0, 0, 0.5);
+    transition:
+      transform var(--transition-fast),
+      box-shadow var(--transition-fast),
+      background var(--transition-fast);
+  }
+
+  .video-facade__play--icon {
+    padding: 0.62rem 0.95rem;
+  }
+
+  .video-facade__play-arrow {
+    width: 1.5rem;
+    height: auto;
+    fill: currentColor;
+    transition: transform var(--transition-fast);
+  }
+
+  .video-facade__play-label {
+    font-family: var(--font-display);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .video-facade__trigger:hover .video-facade__poster,
+  .video-facade__trigger:focus-visible .video-facade__poster {
+    transform: scale(1.02);
+  }
+
+  .video-facade__trigger:hover .video-facade__play,
+  .video-facade__trigger:focus-visible .video-facade__play {
+    transform: scale(1.04);
+    background: rgba(10, 16, 26, 0.68);
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.34),
+      0 0 0 7px rgba(var(--color-primary-rgb), 0.22),
+      0 20px 44px rgba(0, 0, 0, 0.55);
+  }
+
+  .video-facade__trigger:hover .video-facade__play-arrow,
+  .video-facade__trigger:focus-visible .video-facade__play-arrow {
+    transform: translateX(3px);
+  }
+
+  .video-facade__trigger:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+  }
+
+  /* The embed iframe is created at runtime, outside Astro's style scoping. */
+  .video-facade :global(.video-facade__frame) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  @media (max-width: 767.98px) {
+    .video-facade__play {
+      gap: 0.55rem;
+      padding: 0.6rem 1.05rem 0.6rem 0.9rem;
+    }
+
+    .video-facade__play--icon {
+      padding: 0.5rem 0.8rem;
+    }
+
+    .video-facade__play-label {
+      font-size: 0.66rem;
+    }
+
+    .video-facade__play-arrow {
+      width: 1.2rem;
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .video-facade__chip {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .video-facade__poster,
+    .video-facade__play,
+    .video-facade__play-arrow {
+      transition: none;
+    }
+
+    .video-facade__trigger:hover .video-facade__poster,
+    .video-facade__trigger:focus-visible .video-facade__poster,
+    .video-facade__trigger:hover .video-facade__play,
+    .video-facade__trigger:focus-visible .video-facade__play,
+    .video-facade__trigger:hover .video-facade__play-arrow,
+    .video-facade__trigger:focus-visible .video-facade__play-arrow {
+      transform: none;
+    }
+  }
+</style>

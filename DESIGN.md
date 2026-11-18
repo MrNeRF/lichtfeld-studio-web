@@ -73,6 +73,18 @@ The page-specific class may only add `max-width` (in `ch`) and margins.
 - `.pill--success` — positive states
 - `.pill--tag` — lowercase keyword/tag chips (glass)
 
+### FAQ
+
+`.faq-grid` > `.faq-item` > `.faq-item__question` (`dt`) + `.faq-item__answer` (`dd`): two flat
+columns with hairline rules, one column below desktop. Emit the same questions and answers as
+`FAQPage` JSON-LD on the page; the visible text and the structured data must match.
+
+### Video facade
+
+`src/components/VideoFacade.astro`: a self-hosted poster that becomes the YouTube embed on click,
+so nothing reaches YouTube before a visitor presses play. Pass `playLabel` for a labeled capsule;
+without it the capsule shows the arrow only (for grids of small posters).
+
 ### Article typography
 
 Add `class="prose"` to any container of rendered Markdown/long-form HTML.

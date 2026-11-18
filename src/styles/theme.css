@@ -1230,6 +1230,45 @@ section.py-5 > .container {
 }
 
 /* ===========================
+ * FAQ pattern
+ * Visible question list in two flat columns. Pages emit the same text as
+ * FAQPage JSON-LD.
+ * =========================== */
+
+.faq-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.8rem 2.5rem;
+  margin: 2.2rem 0 0;
+}
+
+.faq-item {
+  border-top: 1px solid var(--color-border-subtle);
+  padding-top: 1.1rem;
+}
+
+.faq-item__question {
+  margin: 0;
+  color: var(--color-heading);
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.faq-item__answer {
+  margin: 0.45rem 0 0;
+  color: var(--color-body);
+  line-height: 1.65;
+}
+
+@media (max-width: 991.98px) {
+  .faq-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===========================
  * Button system
  * Consistent CTAs: primary (filled), secondary (outline), ghost (tinted).
  * Use for standalone actions (hero, 404, download bars).

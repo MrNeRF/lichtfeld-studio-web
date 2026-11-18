@@ -1,0 +1,24 @@
+# LichtFeld Studio
+
+> LichtFeld Studio is a free, open-source (GPLv3) desktop application for 3D Gaussian Splatting on Windows and Linux. It trains Gaussian Splats from photos or video on an NVIDIA GPU, and it is a full Gaussian Splat editor: open existing splats, select and delete splats, remove floaters, crop, align, compose and export.
+
+Editing works on splats from any source, not only on scenes trained in LichtFeld Studio. It opens PLY, SOG, SSOG, SPZ, GLB, RAD and USD (USDA, USDC, USDZ) files and exports PLY, SOG, SSOG, SPZ, GLB, RAD, OpenUSD, NuRec USDZ, COLMAP sparse and a standalone HTML viewer. Selection tools: brush, rectangle, polygon, lasso, ring, color, box and sphere, plus histogram selection (opacity, scale) and a depth box that limits any tool to a depth range. Requirements: an NVIDIA GPU with compute capability 7.5 or newer. The source is free on GitHub; the prebuilt Windows binary is available through the LichtFeld portal for a minimum contribution of $30.
+
+## Editing
+
+- [Gaussian Splat Editor](https://lichtfeld.io/gaussian-splat-editor/): how to delete splats, remove floaters, crop, align and export, with screenshots
+- [Editing tutorial series](https://www.youtube.com/playlist?list=PLHGFphDuz1bk): seven short videos, from navigation to publishing
+
+## Product
+
+- [Home](https://lichtfeld.io/): overview, workflow and FAQ
+- [Download](https://portal.lichtfeld.io/): prebuilt Windows builds and the online gallery
+- [Source code](https://github.com/MrNeRF/LichtFeld-Studio): C++23 and CUDA, GPLv3
+- [Gallery](https://lichtfeld.io/showcase/): scenes made with LichtFeld Studio
+
+## Docs
+
+- [Plugin developer guide](https://lichtfeld.io/docs/guide/): build panels, operators and tools in Python
+- [Plugin API reference](https://lichtfeld.io/docs/api-reference/): the Python plugin API
+- [Plugins](https://lichtfeld.io/plugins/): plugin registry
+- [Blog](https://lichtfeld.io/blog/): release notes and previews

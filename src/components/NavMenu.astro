@@ -23,6 +23,7 @@ const ROUTES = {
   plugins: withBase(base, "/plugins"),
   docs: withBase(base, "/docs"),
   showcase: withBase(base, "/showcase"),
+  editor: withBase(base, "/gaussian-splat-editor"),
   contribute: withBase(base, "/contribute"),
 } as const;
 
@@ -34,6 +35,7 @@ const isHomeActive = normalize(currentPath) === normalize(base);
 const isBlogActive = currentPath.startsWith(ROUTES.blog);
 const isBountiesActive = currentPath.startsWith(`${normalize(base)}/bounty/`);
 const isShowcaseActive = normalize(currentPath) === normalize(ROUTES.showcase);
+const isEditorActive = currentPath.startsWith(ROUTES.editor);
 const isPluginsActive = currentPath.startsWith(ROUTES.plugins);
 const isDocsActive = currentPath.startsWith(ROUTES.docs);
 
@@ -54,9 +56,12 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
 
   <!-- Gallery -->
   <li class="nav-menu__item">
-    <a href={ROUTES.showcase} class:list={["nav-menu__link", { "is-active": isShowcaseActive }]}>
-      Gallery
-    </a>
+    <a href={ROUTES.showcase} class:list={["nav-menu__link", { "is-active": isShowcaseActive }]}>Gallery</a>
+  </li>
+
+  <!-- Gaussian Splat editor guide -->
+  <li class="nav-menu__item">
+    <a href={ROUTES.editor} class:list={["nav-menu__link", { "is-active": isEditorActive }]}>Editor</a>
   </li>
 
   <!-- Get the app (download portal) -->
@@ -189,7 +194,7 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
    * On mobile, the entire dropdown container acts as a single toggle button.
    */
   const HOVER_DELAY_MS = 150; // A small delay to prevent accidental closing.
-  const DESKTOP_MEDIA_QUERY = "(min-width: 992px)";
+  const DESKTOP_MEDIA_QUERY = "(min-width: 1200px)";
 
   /**
    * Attaches interactive dropdown behavior to a single dropdown container.
@@ -298,7 +303,7 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
     margin: 0;
     padding: 0;
     align-items: center;
-    gap: 0.2rem;
+    gap: 0.1rem;
   }
 
   .nav-menu__item {
@@ -309,7 +314,7 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
     display: flex;
     align-items: center;
     gap: 0.35rem;
-    padding: 0.55rem 0.9rem;
+    padding: 0.55rem 0.7rem;
     color: var(--color-body);
     font-size: 0.95rem;
     font-weight: 700;
@@ -442,7 +447,7 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
   }
 
   /* Nudge the CTA away from the plain text links on desktop. */
-  @media (min-width: 992px) {
+  @media (min-width: 1200px) {
     .nav-menu__item--cta {
       margin-left: 0.35rem;
     }
@@ -477,7 +482,9 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
     cursor: pointer;
     padding: 0.5rem 0.5rem 0.5rem 0;
     color: var(--color-body);
-    transition: color 0.15s ease-in-out, transform 0.15s ease-in-out;
+    transition:
+      color 0.15s ease-in-out,
+      transform 0.15s ease-in-out;
   }
 
   /* The caret icon, created with CSS borders */
@@ -538,8 +545,8 @@ const isContributeActive = currentPath.startsWith(ROUTES.contribute);
     background-color: rgba(var(--color-primary-rgb), 0.06);
   }
 
-  /* Responsive adjustments for mobile view */
-  @media (max-width: 991.98px) {
+  /* Collapsed menu: the full row of links needs the extra-large breakpoint. */
+  @media (max-width: 1199.98px) {
     .nav-menu {
       flex-direction: column;
       align-items: stretch;

@@ -102,9 +102,10 @@ series colors in a chart component.
 
 Desktop-first, Bootstrap-aligned. Use exactly:
 
-- `@media (max-width: 991.98px)` — below desktop (nav collapses here)
-- `@media (max-width: 767.98px)` — below tablet
-- `@media (max-width: 575.98px)` — phones
+- `@media (max-width: 1199.98px)`: header only, the nav collapses to the menu button
+- `@media (max-width: 991.98px)`: below desktop
+- `@media (max-width: 767.98px)`: below tablet
+- `@media (max-width: 575.98px)`: phones
 
 (`min-width` counterparts: 576 / 768 / 992 / 1200.) No integer max-width values
 (`991px`), no one-off breakpoints (`560px`, `1024px`).

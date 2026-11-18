@@ -19,6 +19,7 @@ import gaussianSplatKingLogo from "@/assets/gaussian-splatking-logo.jpg";
 
 import Splat from "@/components/Splat.astro";
 import VideoFacade from "@/components/VideoFacade.astro";
+import Screenshot from "@/components/Screenshot.astro";
 import BlogCard from "@/components/BlogCard.astro";
 import { HOMEPAGE_MIN_VIEWPORT_VISIBILITY_FOR_RENDER } from "@/constants/splat-viewer";
 import { ANALYTICS_EVENTS } from "@/utils/analytics";
@@ -28,6 +29,7 @@ import { getContributors, getLatestRelease, getRepoStats } from "@/services/gith
 // Centralized external links (avoid magic strings):
 import {
   DISCORD_URL,
+  EDITING_PLAYLIST_URL,
   GAUSSIAN_SPLATKING_APP_STORE_URL,
   GITHUB_REPO_URL,
   LICHTFELD_PORTAL_URL,
@@ -353,16 +355,28 @@ const faqSchema = {
                   </span>
                 </a>
               </div>
-              <a
-                class="hero__donate-link"
-                href={`${base}contribute/#support-the-project`}
-                data-analytics-event={ANALYTICS_EVENTS.ctaClicked}
-                data-analytics-prop-placement="home_hero"
-                data-analytics-prop-target="donate"
-              >
-                <i class="bi bi-heart" aria-hidden="true"></i>
-                <span>Support the project</span>
-              </a>
+              <div class="hero__text-links">
+                <a
+                  class="hero__text-link"
+                  href={ROUTES.editor}
+                  data-analytics-event={ANALYTICS_EVENTS.ctaClicked}
+                  data-analytics-prop-placement="home_hero"
+                  data-analytics-prop-target="splat_editor"
+                >
+                  <i class="bi bi-brush" aria-hidden="true"></i>
+                  <span>Edit an existing splat</span>
+                </a>
+                <a
+                  class="hero__text-link"
+                  href={`${base}contribute/#support-the-project`}
+                  data-analytics-event={ANALYTICS_EVENTS.ctaClicked}
+                  data-analytics-prop-placement="home_hero"
+                  data-analytics-prop-target="donate"
+                >
+                  <i class="bi bi-heart" aria-hidden="true"></i>
+                  <span>Support the project</span>
+                </a>
+              </div>
             </div>
           </div>
         </div>
@@ -414,7 +428,7 @@ const faqSchema = {
             One pass through the current build: bring in a scan, train it, inspect and edit the result, then export it
             &mdash; all in the native workspace.
           </p>
-          <div class="home-tour__actions">
+          <div class="story-actions">
             <a
               class="section-link"
               href={TOUR_VIDEO_WATCH_URL}
@@ -427,7 +441,7 @@ const faqSchema = {
               Watch on YouTube
             </a>
             <a
-              class="home-tour__channel"
+              class="story-channel-link"
               href={YOUTUBE_CHANNEL_URL}
               target="_blank"
               rel="noopener noreferrer"
@@ -435,7 +449,7 @@ const faqSchema = {
               data-analytics-prop-placement="home_tour"
               data-analytics-prop-target="youtube_channel"
             >
-              <svg class="home-tour__channel-mark" viewBox="0 0 24 17" focusable="false" aria-hidden="true">
+              <svg class="story-channel-link__mark" viewBox="0 0 24 17" focusable="false" aria-hidden="true">
                 <path
                   d="M23.5 2.7A3 3 0 0 0 21.4.6C19.5.1 12 .1 12 .1S4.5.1 2.6.6A3 3 0 0 0 .5 2.7C.2 4.6 0 6.5 0 8.5s.2 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1c.3-1.9.5-3.8.5-5.8s-.2-3.9-.5-5.8ZM9.6 12.3V4.7l6.3 3.8-6.3 3.8Z"
                 >
@@ -458,6 +472,101 @@ const faqSchema = {
             analyticsPlacement="home_tour"
             analyticsTarget="youtube_tour_video"
           />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="editor" class="story-section hash-section" aria-labelledby="editor-heading">
+    <div class="container content-frame px-6">
+      <div class="story-header-grid">
+        <a
+          class="story-media-panel home-editor__media"
+          href={`${ROUTES.editor}#delete-splats`}
+          data-analytics-event={ANALYTICS_EVENTS.ctaClicked}
+          data-analytics-prop-placement="home_editor"
+          data-analytics-prop-target="splat_editor_steps"
+        >
+          <Screenshot
+            class="home-editor__shot"
+            src="static/editor/step-select"
+            widths={[800, 1440]}
+            width={1440}
+            height={900}
+            alt="A boulder in a Gaussian Splat painted red with the brush selection"
+            sizes="(max-width: 991.98px) calc(100vw - 2rem), 38rem"
+          />
+          <span class="home-editor__chip">1 Select</span>
+          <span class="home-editor__inset">
+            <Screenshot
+              class="home-editor__shot"
+              src="static/editor/step-delete"
+              widths={[800, 1440]}
+              width={1440}
+              height={900}
+              alt="The same scene after pressing Delete, with the boulder removed"
+              sizes="(max-width: 991.98px) 45vw, 17rem"
+            />
+            <span class="home-editor__chip">2 Delete</span>
+          </span>
+        </a>
+
+        <div class="story-copy">
+          <p class="kicker mb-3">Splat editor</p>
+          <div class="section-heading">
+            <h2 id="editor-heading" class="story-title">Clean up any Gaussian Splat</h2>
+            <a class="section-anchor" href="#editor" aria-label="Link to splat editor section">
+              <svg class="bi" width="1em" height="1em" aria-hidden="true">
+                <use href={`${base}static/bootstrap-icons.svg#link-45deg`}></use>
+              </svg>
+            </a>
+          </div>
+          <p class="story-lead">
+            Open a PLY, SOG or SPZ from any app, paint over the splats you don't want and press Delete. Floaters, crops
+            and alignment take a few clicks too.
+          </p>
+          <ul class="home-editor__points">
+            <li>
+              <i class="bi bi-brush" aria-hidden="true"></i>
+              <span>Eight selection tools, from brush and lasso to color</span>
+            </li>
+            <li>
+              <i class="bi bi-bar-chart" aria-hidden="true"></i>
+              <span>Floaters found by opacity, scale and depth</span>
+            </li>
+            <li>
+              <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>
+              <span>Export to PLY, SOG, SPZ, GLB, USD or a web viewer</span>
+            </li>
+          </ul>
+          <div class="story-actions">
+            <a
+              class="section-link"
+              href={ROUTES.editor}
+              data-analytics-event={ANALYTICS_EVENTS.ctaClicked}
+              data-analytics-prop-placement="home_editor"
+              data-analytics-prop-target="splat_editor"
+            >
+              Open the editor guide
+            </a>
+            <a
+              class="story-channel-link"
+              href={EDITING_PLAYLIST_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-analytics-event={ANALYTICS_EVENTS.ctaClicked}
+              data-analytics-prop-placement="home_editor"
+              data-analytics-prop-target="youtube_editing_playlist"
+            >
+              <svg class="story-channel-link__mark" viewBox="0 0 24 17" focusable="false" aria-hidden="true">
+                <path
+                  d="M23.5 2.7A3 3 0 0 0 21.4.6C19.5.1 12 .1 12 .1S4.5.1 2.6.6A3 3 0 0 0 .5 2.7C.2 4.6 0 6.5 0 8.5s.2 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1c.3-1.9.5-3.8.5-5.8s-.2-3.9-.5-5.8ZM9.6 12.3V4.7l6.3 3.8-6.3 3.8Z"
+                >
+                </path>
+              </svg>
+              Editing series, 7 videos
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -1159,14 +1268,20 @@ const faqSchema = {
       radial-gradient(circle at top left, rgba(59, 130, 246, 0.24), transparent 58%);
   }
 
-  /* Donate is intentionally quieter than the two primary actions — a text link,
-     not a third equal-weight card. */
-  .hero__donate-link {
+  /* Editor and donate links stay quieter than the two primary actions: text
+     links, not more equal-weight cards. */
+  .hero__text-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.1rem 1.4rem;
+    margin-top: 0.25rem;
+  }
+
+  .hero__text-link {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    align-self: start;
-    margin-top: 0.25rem;
+    min-height: 2.75rem;
     padding: 0.4rem 0.2rem;
     color: rgba(255, 255, 255, 0.72);
     font-size: 0.9rem;
@@ -1176,13 +1291,20 @@ const faqSchema = {
     transition: color 180ms ease;
   }
 
-  .hero__donate-link:hover {
+  .hero__text-link:hover {
     color: #ffffff;
   }
 
-  .hero__donate-link .bi-heart {
-    color: #f472b6;
+  .hero__text-link .bi {
     font-size: 0.95rem;
+  }
+
+  .hero__text-link .bi-heart {
+    color: #f472b6;
+  }
+
+  .hero__text-link .bi-brush {
+    color: #93c5fd;
   }
 
   .hero__release-card--source {
@@ -2574,10 +2696,10 @@ const faqSchema = {
   }
 
   /* ===========================
-    * Product Tour
+    * Product Tour and Splat Editor
     * =========================== */
 
-  .home-tour__actions {
+  .story-actions {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
@@ -2585,7 +2707,7 @@ const faqSchema = {
     margin-top: 1.35rem;
   }
 
-  .home-tour__channel {
+  .story-channel-link {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
@@ -2596,14 +2718,119 @@ const faqSchema = {
     transition: color var(--transition-fast);
   }
 
-  .home-tour__channel:hover,
-  .home-tour__channel:focus-visible {
+  .story-channel-link:hover,
+  .story-channel-link:focus-visible {
     color: var(--color-heading);
   }
 
-  .home-tour__channel-mark {
+  .story-channel-link__mark {
     width: 1.05rem;
     height: auto;
     fill: currentColor;
+  }
+
+  .home-editor__media {
+    display: block;
+    overflow: hidden;
+    border-radius: var(--rounded-xl);
+  }
+
+  .home-editor__media:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-shadow);
+  }
+
+  .home-editor__media :global(.home-editor__shot) {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: var(--rounded-xl);
+    border: 1px solid var(--color-border-subtle);
+    background: var(--color-code-bg);
+  }
+
+  .home-editor__inset {
+    position: absolute;
+    right: 0.9rem;
+    bottom: 0.9rem;
+    width: 44%;
+    border-radius: var(--rounded-lg);
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.22),
+      0 18px 40px rgba(0, 0, 0, 0.45);
+    transition: transform var(--transition-fast);
+  }
+
+  .home-editor__inset :global(.home-editor__shot) {
+    border: 0;
+    border-radius: var(--rounded-lg);
+  }
+
+  .home-editor__media:hover .home-editor__inset {
+    transform: translateY(-3px);
+  }
+
+  .home-editor__chip {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    padding: 0.3rem 0.65rem;
+    border-radius: var(--radius-pill);
+    background: rgba(8, 12, 20, 0.6);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.16);
+    color: rgba(255, 255, 255, 0.9);
+    font-family: var(--font-display);
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .home-editor__inset .home-editor__chip {
+    top: 0.5rem;
+    left: 0.5rem;
+  }
+
+  .home-editor__points {
+    display: grid;
+    gap: 0.7rem;
+    margin: 1.3rem 0 0;
+    padding: 0;
+    list-style: none;
+    color: var(--color-body);
+    line-height: 1.5;
+  }
+
+  .home-editor__points li {
+    display: flex;
+    align-items: baseline;
+    gap: 0.7rem;
+  }
+
+  .home-editor__points .bi {
+    flex: none;
+    color: var(--color-primary-link);
+  }
+
+  @media (max-width: 575.98px) {
+    .home-editor__inset {
+      right: 0.55rem;
+      bottom: 0.55rem;
+    }
+
+    .home-editor__chip {
+      top: 0.55rem;
+      left: 0.55rem;
+      padding: 0.24rem 0.55rem;
+      font-size: 0.58rem;
+    }
+
+    .home-editor__inset .home-editor__chip {
+      top: 0.35rem;
+      left: 0.35rem;
+    }
   }
 </style>

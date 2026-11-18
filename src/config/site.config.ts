@@ -220,6 +220,7 @@ export const NAVIGATION = {
   "/": "Home",
   "/blog/": "Blog",
   "/showcase/": "Gallery",
+  "/gaussian-splat-editor/": "Gaussian Splat Editor",
   "/plugins/": "Plugins",
   "/contribute/": "Contribute",
   "/bounty/": "Bounties",

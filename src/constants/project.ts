@@ -48,6 +48,9 @@ export const TOUR_VIDEO_ID = "i-04z4_eqiU";
 export const TOUR_VIDEO_TITLE = "LichtFeld Studio - Everything it can do today";
 export const TOUR_VIDEO_WATCH_URL = `https://www.youtube.com/watch?v=${TOUR_VIDEO_ID}`;
 
+/** The editing tutorial series, in order. */
+export const EDITING_PLAYLIST_URL = "https://www.youtube.com/playlist?list=PLHGFphDuz1bk";
+
 /** Optional iPhone capture app recommendation */
 export const GAUSSIAN_SPLATKING_APP_STORE_URL = "https://apps.apple.com/de/app/gaussian-splatking/id6759175085";
 

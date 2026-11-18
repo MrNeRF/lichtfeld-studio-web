@@ -1,0 +1,1100 @@
+---
+/**
+ * gaussian-splat-editor.astro
+ *
+ * Landing page for editing existing Gaussian Splats: selecting and deleting
+ * splats, floater cleanup, cropping, alignment, file formats, and the editing
+ * tutorial series. Screenshots are stills from that series.
+ */
+import Layout from "@/layouts/Layout.astro";
+import Screenshot from "@/components/Screenshot.astro";
+import VideoFacade from "@/components/VideoFacade.astro";
+import { ANALYTICS_EVENTS } from "@/utils/analytics";
+import { EDITING_PLAYLIST_URL, GITHUB_REPO_URL, LICHTFELD_PORTAL_URL } from "@/constants/project";
+
+const base = import.meta.env.BASE_URL;
+const siteUrl = new URL(base, Astro.site).href;
+const shot = (name: string) => `static/editor/${name}`;
+
+const seoTitle = "Free Gaussian Splat Editor: Delete, Crop and Clean Up Splats";
+const seoDescription =
+  "Edit Gaussian Splats in LichtFeld Studio: open PLY, SOG or SPZ files, select and delete splats, remove floaters, crop, align and export. Free and open source.";
+
+const heroFacts = [
+  { value: "8 selection tools", label: "Brush, rectangle, polygon, lasso, ring, color, box and sphere" },
+  { value: "Floater cleanup", label: "Histogram and depth selection for large, transparent Gaussians" },
+  { value: "Opens 7 formats", label: "PLY, SOG, SSOG, SPZ, GLB, RAD and USD" },
+  { value: "Free and open source", label: "GPLv3, for Windows and Linux with an NVIDIA GPU" },
+];
+
+const quickSteps = [
+  {
+    title: "Open and select",
+    image: { name: "step-select", widths: [800, 1440], width: 1440, height: 900 },
+    alt: "A boulder in a Gaussian Splat painted red with the brush selection",
+    html: "Drop a PLY, SOG or SPZ file onto the window, or use <strong>File &gt; Import</strong>. Pick the brush in the selection toolbar and paint over the splats you want gone. They turn red.",
+  },
+  {
+    title: "Delete",
+    image: { name: "step-delete", widths: [800, 1440], width: 1440, height: 900 },
+    alt: "The same scene after deleting the selection, with the boulder removed",
+    html: "Press <kbd>Delete</kbd>. The selected splats leave the model. <kbd>Ctrl</kbd>+<kbd>Z</kbd> brings them back and <kbd>Ctrl</kbd>+<kbd>Y</kbd> redoes the step.",
+  },
+  {
+    title: "Export",
+    image: { name: "step-export", widths: [800, 960], width: 960, height: 600 },
+    alt: "The export dialog listing PLY, SOG, SSOG, SPZ, GLB, RAD, USD, USDZ, HTML viewer and COLMAP formats",
+    html: "Choose <strong>File &gt; Export</strong>, pick a format and the models to include. To keep working later, <strong>File &gt; Save Project</strong> stores everything in one .licht file.",
+  },
+];
+
+const modifierKeys = [
+  { keys: ["Drag"], label: "New selection" },
+  { keys: ["Shift"], label: "Add to the selection" },
+  { keys: ["Ctrl"], label: "Remove from the selection" },
+  { keys: ["Alt"], label: "Intersect with the selection" },
+  { keys: ["Ctrl", "I"], label: "Invert" },
+  { keys: ["Ctrl", "A"], label: "Select all" },
+  { keys: ["Ctrl", "D"], label: "Deselect all" },
+  { keys: ["Ctrl", "Scroll"], label: "Brush size" },
+];
+
+const selectionTools = [
+  {
+    title: "Brush",
+    name: "tool-brush",
+    widths: [800, 1440],
+    width: 1440,
+    height: 900,
+    alt: "A red brush stroke and a green brush preview on the ground of a splat",
+    text: "Paint the selection with the mouse.",
+  },
+  {
+    title: "Rectangle",
+    name: "tool-rect",
+    widths: [800, 1440],
+    width: 1440,
+    height: 900,
+    alt: "A rectangle selection being dragged over the ground of a splat",
+    text: "Drag a rectangle on screen.",
+  },
+  {
+    title: "Polygon",
+    name: "tool-polygon",
+    widths: [800, 1440],
+    width: 1440,
+    height: 900,
+    alt: "A polygon outline with editable corner points around a boulder",
+    text: "Click points, adjust them after the loop closes, press Enter.",
+  },
+  {
+    title: "Lasso",
+    name: "tool-lasso",
+    widths: [800, 1440],
+    width: 1440,
+    height: 900,
+    alt: "A freehand lasso outline around part of a boulder",
+    text: "Draw a free outline around the area.",
+  },
+  {
+    title: "Ring",
+    name: "tool-ring",
+    widths: [800, 1440],
+    width: 1440,
+    height: 900,
+    alt: "Green rings marking large Gaussians above a boulder",
+    text: "Selects by each Gaussian's outer ring. Made for large, transparent floaters.",
+  },
+  {
+    title: "Color",
+    name: "tool-color",
+    widths: [800, 1600],
+    width: 1600,
+    height: 1000,
+    alt: "Ground splats of a similar color selected with the eyedropper",
+    text: "Pick a color with the eyedropper; similar colors are selected too.",
+  },
+  {
+    title: "Box",
+    name: "tool-box",
+    widths: [800, 1120],
+    width: 1120,
+    height: 700,
+    alt: "A 3D selection box with handles placed over part of a boulder",
+    text: "A 3D box to move, rotate and scale. It selects instead of cropping.",
+  },
+  {
+    title: "Sphere",
+    name: "tool-sphere",
+    widths: [800, 1120],
+    width: 1120,
+    height: 700,
+    alt: "A 3D selection sphere around part of a boulder",
+    text: "The same as a sphere, for rounded regions.",
+  },
+];
+
+const composeTools = [
+  {
+    title: "Crop box",
+    name: "scene-crop-box",
+    alt: "A yellow crop box around a boulder, with the area outside shown in gray",
+    text: "Fit the box to the scene, or use Fit to scene trimmed to leave distant outliers out. Move, rotate and scale it, then press Enter. With Desaturate cropping on, the outside stays visible in gray while you work.",
+  },
+  {
+    title: "Crop sphere",
+    name: "scene-crop-sphere",
+    alt: "A yellow crop sphere stretched around a boulder",
+    text: "The same with a sphere you can scale on each axis. Duplicate the model first to compare two crops side by side.",
+  },
+  {
+    title: "Three-point align",
+    name: "scene-align",
+    alt: "Three points marked on the ground around a boulder with the computed up axis",
+    text: "Click three points on the floor. LichtFeld Studio levels the up axis to that plane and can align the X axis with the line between the first two points.",
+  },
+  {
+    title: "Mirror, transform and groups",
+    name: "scene-transform",
+    alt: "Two splat models in one scene, one with a scale gizmo",
+    text: "Mirror across X, Y or Z, then move, rotate and scale with a gizmo. Group models in the scene panel to transform them together or merge them into one.",
+  },
+];
+
+const openFormats = ["PLY", "SOG", "SSOG", "SPZ", "GLB", "RAD", "USD", "USDA", "USDC", "USDZ"];
+const exportFormats = [
+  "PLY",
+  "SOG",
+  "SSOG",
+  "SPZ",
+  "GLB",
+  "RAD",
+  "OpenUSD",
+  "NuRec USDZ",
+  "HTML viewer",
+  "COLMAP sparse",
+];
+
+const tutorials = [
+  {
+    id: "IoRvYpMJt6E",
+    title: "Navigation",
+    duration: "2:31",
+    seconds: 151,
+    uploaded: "2026-10-14",
+    text: "Orbit, pan, fly with W, A, S, D, and the render views that help while editing.",
+  },
+  {
+    id: "IqPTm01PH-4",
+    title: "Three Point Align",
+    duration: "1:24",
+    seconds: 84,
+    uploaded: "2026-10-14",
+    text: "Level a finished training with three points on the floor.",
+  },
+  {
+    id: "-HHbckhaAEs",
+    title: "Crop Boxes",
+    duration: "2:58",
+    seconds: 178,
+    uploaded: "2026-10-15",
+    text: "Isolate a subject with box and sphere crops.",
+  },
+  {
+    id: "AOGYAAzOqSM",
+    title: "Mirror, Transform and Groups",
+    duration: "3:01",
+    seconds: 181,
+    uploaded: "2026-10-16",
+    text: "Flip, move, rotate and scale models, alone or in groups.",
+  },
+  {
+    id: "Xg1lPo24NkM",
+    title: "Selection Tools",
+    duration: "3:11",
+    seconds: 191,
+    uploaded: "2026-10-20",
+    text: "Every selection tool and the keys that combine them.",
+  },
+  {
+    id: "Zhp2OWK9L2Q",
+    title: "Histogram and Depth Selection",
+    duration: "3:21",
+    seconds: 201,
+    uploaded: "2026-10-21",
+    text: "Select by opacity and scale, and limit any tool to a depth range.",
+  },
+  {
+    id: "0deVhRq0IwM",
+    title: "Saving, Exporting and Publishing",
+    duration: "3:45",
+    seconds: 225,
+    uploaded: "2026-10-23",
+    text: "Projects, export formats, the HTML viewer and the online gallery.",
+  },
+];
+
+const tutorialMinutes = Math.round(tutorials.reduce((sum, video) => sum + video.seconds, 0) / 60);
+const tutorialVideoTitle = (index: number, title: string) =>
+  `LichtFeld Studio Tutorials - Editing - Part ${index + 1} - ${title}`;
+const isoDuration = (seconds: number) => `PT${Math.floor(seconds / 60)}M${seconds % 60}S`;
+
+type FaqItem = { question: string; answer: string; answerHtml?: string };
+const faqItems: FaqItem[] = [
+  {
+    question: "How do I delete splats from a Gaussian Splat?",
+    answer:
+      "Open the file with File > Import or drop it onto the window, choose a selection tool such as the brush, paint over the splats you want to remove and press Delete. Ctrl+Z undoes the deletion. When you are done, File > Export writes the cleaned scene as PLY, SOG, SPZ or another format.",
+  },
+  {
+    question: "How do I remove floaters?",
+    answer:
+      "Floaters are usually large and nearly transparent. The ring selection shows each Gaussian as its outer ring so they become visible, and the histogram selects Gaussians by scale and opacity. The depth box limits any selection tool to a depth range, so you can clear the space in front of the camera without touching the surfaces behind it.",
+  },
+  {
+    question: "Which file formats can LichtFeld Studio open and export?",
+    answer:
+      "It opens PLY, SOG, SSOG, SPZ, GLB, RAD and USD files (USDA, USDC and USDZ). It exports PLY, SOG, SSOG, SPZ, GLB, RAD, OpenUSD, NuRec USDZ, COLMAP sparse and a standalone HTML viewer.",
+  },
+  {
+    question: "Can I edit a splat that was made in another app?",
+    answer:
+      "Yes. Any splat saved in one of the supported formats opens directly, including the standard 3DGS PLY that most training tools export, such as Postshot. You do not need the original photos to edit a splat.",
+  },
+  {
+    question: "Is LichtFeld Studio an alternative to SuperSplat or Postshot?",
+    answer:
+      "Yes. SuperSplat runs in the browser and Postshot is a desktop app for training and editing. LichtFeld Studio is a native, open-source desktop app (GPLv3) that trains, edits and exports splats in one place, with Python plugins and MCP for automation. You can build it from source for free; the prebuilt Windows binary is available through the LichtFeld portal for a minimum contribution of $30.",
+    answerHtml: `Yes. SuperSplat runs in the browser and Postshot is a desktop app for training and editing. LichtFeld Studio is a native, open-source desktop app (GPLv3) that trains, edits and exports splats in one place, with Python plugins and MCP for automation. You can <a href="${GITHUB_REPO_URL}" target="_blank" rel="noopener noreferrer">build it from source</a> for free; the prebuilt Windows binary is available through the <a href="${LICHTFELD_PORTAL_URL}" target="_blank" rel="noopener noreferrer">LichtFeld portal</a> for a minimum contribution of $30.`,
+  },
+  {
+    question: "What do I need to run the editor?",
+    answer:
+      "Windows or Linux and an NVIDIA GPU with compute capability 7.5 or newer (GTX 16 and RTX 20 series and later). Editing uses the same CUDA renderer as training.",
+  },
+  {
+    question: "How do I share an edited splat on the web?",
+    answer:
+      "Export it as an HTML viewer to get a page that opens in any browser, or use File > Publish to Gallery to put the scene in your online LichtFeld gallery and share a link to it. Later edits can be published to the same gallery scene again.",
+  },
+  {
+    question: "Can I undo an edit?",
+    answer:
+      "Yes. Ctrl+Z undoes the last step, including deletions and crops, and Ctrl+Y redoes it. The file you imported is never overwritten: Export and Save Project write new files.",
+  },
+];
+
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqItems.map((item) => ({
+    "@type": "Question",
+    name: item.question,
+    acceptedAnswer: { "@type": "Answer", text: item.answer },
+  })),
+};
+
+const tutorialSchema = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  name: "LichtFeld Studio editing tutorials",
+  url: EDITING_PLAYLIST_URL,
+  itemListElement: tutorials.map((video, index) => ({
+    "@type": "ListItem",
+    position: index + 1,
+    item: {
+      "@type": "VideoObject",
+      name: tutorialVideoTitle(index, video.title),
+      description: video.text,
+      thumbnailUrl: new URL(`static/editor/tutorial-part-${index + 1}-1280.webp`, siteUrl).href,
+      uploadDate: video.uploaded,
+      duration: isoDuration(video.seconds),
+      embedUrl: `https://www.youtube.com/embed/${video.id}`,
+      url: `https://www.youtube.com/watch?v=${video.id}`,
+    },
+  })),
+};
+---
+
+<Layout
+  title={seoTitle}
+  description={seoDescription}
+  image={`${base}static/editor/social-card.jpg`}
+  imageAlt="LichtFeld Studio cropping a Gaussian Splat of a boulder"
+>
+  <article class="editor-page">
+    <div class="container content-frame px-6">
+      <header class="shell shell--spacious editor-hero">
+        <div class="editor-hero__copy">
+          <p class="kicker">Gaussian Splat Editor</p>
+          <h1 class="page-hero__title editor-hero__title">Edit Gaussian Splats on your own GPU</h1>
+          <p class="page-hero__lead">
+            Open a PLY, SOG or SPZ file, select the splats you don't want, delete them and export a clean scene.
+            LichtFeld Studio is a free, open-source Gaussian Splat editor for Windows and Linux, with the trainer built
+            in.
+          </p>
+          <div class="editor-hero__actions">
+            <a
+              class="action-btn action-btn--primary"
+              href={LICHTFELD_PORTAL_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-analytics-outbound="lichtfeld_portal"
+              data-analytics-placement="editor_hero"
+            >
+              Get the app
+            </a>
+            <a
+              class="action-btn action-btn--secondary"
+              href={EDITING_PLAYLIST_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-analytics-event={ANALYTICS_EVENTS.ctaClicked}
+              data-analytics-prop-placement="editor_hero"
+              data-analytics-prop-target="youtube_editing_playlist"
+            >
+              Watch the editing series
+            </a>
+          </div>
+        </div>
+
+        <ul class="editor-hero__facts" aria-label="Editor at a glance">
+          {
+            heroFacts.map((fact) => (
+              <li class="stat-block">
+                <strong>{fact.value}</strong>
+                <span>{fact.label}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </header>
+
+      <figure class="editor-figure editor-figure--hero">
+        <Screenshot
+          class="editor-figure__image"
+          src={shot("hero")}
+          widths={[1280, 2400]}
+          width={2400}
+          height={1172}
+          sizes="(max-width: 1240px) 100vw, 1180px"
+          alt="LichtFeld Studio with a crop box around a boulder; the area outside the box is shown in gray"
+          eager
+        />
+        <figcaption class="editor-figure__caption">
+          A crop box isolating a boulder. Everything outside it is dimmed until you apply the crop.
+        </figcaption>
+      </figure>
+
+      <section id="delete-splats" class="shell editor-section" aria-labelledby="delete-splats-heading">
+        <div class="section-head">
+          <div>
+            <p class="kicker">Quick start</p>
+            <h2 id="delete-splats-heading" class="section-title">Delete splats in three steps</h2>
+            <p class="section-copy mt-3">
+              The most common edit: remove what does not belong in the scene. Every step can be undone.
+            </p>
+          </div>
+        </div>
+
+        <ol class="editor-steps">
+          {
+            quickSteps.map((step, index) => (
+              <li class="editor-step">
+                <Screenshot
+                  class="editor-shot"
+                  src={shot(step.image.name)}
+                  widths={step.image.widths as [number, number]}
+                  width={step.image.width}
+                  height={step.image.height}
+                  sizes="(max-width: 767.98px) 100vw, 380px"
+                  alt={step.alt}
+                />
+                <span class="editor-step__index">{`0${index + 1}`}</span>
+                <h3 class="editor-step__title">{step.title}</h3>
+                <p class="editor-step__desc" set:html={step.html} />
+              </li>
+            ))
+          }
+        </ol>
+      </section>
+
+      <section id="selection" class="shell editor-section rule-top" aria-labelledby="selection-heading">
+        <div class="section-head">
+          <div>
+            <p class="kicker">Selection</p>
+            <h2 id="selection-heading" class="section-title">Eight selection tools, one set of keys</h2>
+            <p class="section-copy mt-3">
+              Every tool follows the same modifier keys, so you can build one selection from several strokes and tools
+              before acting on it. Delete is the common case; you can also copy, cut and paste a selection into a new
+              model.
+            </p>
+          </div>
+        </div>
+
+        <dl class="editor-keys" aria-label="Selection keys">
+          {
+            modifierKeys.map((entry) => (
+              <div class="editor-keys__item">
+                <dt>
+                  {entry.keys.map((key, index) => (
+                    <>
+                      {index > 0 && <span class="editor-keys__plus">+</span>}
+                      <kbd>{key}</kbd>
+                    </>
+                  ))}
+                </dt>
+                <dd>{entry.label}</dd>
+              </div>
+            ))
+          }
+        </dl>
+
+        <ul class="editor-tools">
+          {
+            selectionTools.map((tool) => (
+              <li class="editor-tool">
+                <Screenshot
+                  class="editor-shot"
+                  src={shot(tool.name)}
+                  widths={tool.widths as [number, number]}
+                  width={tool.width}
+                  height={tool.height}
+                  sizes="(max-width: 575.98px) 100vw, (max-width: 991.98px) 50vw, 280px"
+                  alt={tool.alt}
+                />
+                <h3 class="editor-tool__title">{tool.title}</h3>
+                <p class="editor-tool__desc">{tool.text}</p>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      <section id="floaters" class="shell editor-section rule-top" aria-labelledby="floaters-heading">
+        <div class="section-head">
+          <div>
+            <p class="kicker">Clean up</p>
+            <h2 id="floaters-heading" class="section-title">Find floaters by what they are</h2>
+            <p class="section-copy mt-3">
+              Floaters are usually large and nearly transparent. LichtFeld Studio selects them by those numbers, and it
+              can limit any tool to a slice of depth so the surface behind stays untouched.
+            </p>
+          </div>
+        </div>
+
+        <div class="editor-split">
+          <Screenshot
+            class="editor-shot"
+            src={shot("data-histogram")}
+            widths={[800, 1600]}
+            width={1600}
+            height={1000}
+            sizes="(max-width: 991.98px) 100vw, 660px"
+            alt="The opacity histogram with the lowest bars selected and the matching splats highlighted in the scene"
+          />
+          <div class="editor-split__copy">
+            <h3 class="editor-split__title">Histogram selection</h3>
+            <p>
+              The histogram plots opacity, scale and distance across every Gaussian in the model. Drag across the bars
+              to select: the low end of opacity for splats you can barely see, the high end of maximum scale for
+              oversized ones.
+            </p>
+            <p>
+              Compare two metrics, such as maximum scale against opacity, to select exactly the large, transparent
+              Gaussians.
+            </p>
+          </div>
+        </div>
+
+        <div class="editor-split editor-split--reverse">
+          <Screenshot
+            class="editor-shot"
+            src={shot("data-depth")}
+            widths={[800, 1600]}
+            width={1600}
+            height={1000}
+            sizes="(max-width: 991.98px) 100vw, 660px"
+            alt="A depth box in a courtyard scene; the splats inside it are shown as blue center markers"
+          />
+          <div class="editor-split__copy">
+            <h3 class="editor-split__title">Depth selection</h3>
+            <p>
+              The depth box restricts every selection tool to a near and far range in front of the camera. Set it with
+              the sliders, or hold <kbd>Alt</kbd> and scroll to move the far edge. With center markers on, splats inside the
+              box show as blue dots, so you see what a stroke will catch.
+            </p>
+            <p>
+              To clear a view: stand where it should be clean, turn on the ring view and the depth box, scroll the far
+              edge until the floaters show, and brush them away.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="compose" class="shell editor-section rule-top" aria-labelledby="compose-heading">
+        <div class="section-head">
+          <div>
+            <p class="kicker">Compose</p>
+            <h2 id="compose-heading" class="section-title">Crop, straighten and arrange</h2>
+            <p class="section-copy mt-3">Isolate a subject, level the ground, and place several models in one scene.</p>
+          </div>
+        </div>
+
+        <ul class="editor-compose">
+          {
+            composeTools.map((tool) => (
+              <li class="editor-tool">
+                <Screenshot
+                  class="editor-shot"
+                  src={shot(tool.name)}
+                  widths={[800, 1600]}
+                  width={1600}
+                  height={1000}
+                  sizes="(max-width: 767.98px) 100vw, 580px"
+                  alt={tool.alt}
+                />
+                <h3 class="editor-tool__title">{tool.title}</h3>
+                <p class="editor-tool__desc">{tool.text}</p>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      <section id="formats" class="shell editor-section rule-top" aria-labelledby="formats-heading">
+        <div class="section-head">
+          <div>
+            <p class="kicker">Files</p>
+            <h2 id="formats-heading" class="section-title">Open what you have, export what you need</h2>
+          </div>
+        </div>
+
+        <div class="editor-formats">
+          <div class="editor-formats__group">
+            <h3 class="editor-formats__title">Opens</h3>
+            <ul class="editor-formats__list">
+              {openFormats.map((format) => <li class="pill pill--tag">{format}</li>)}
+            </ul>
+            <p>
+              Splats from other tools open directly, including the standard 3DGS PLY that most training apps write. You
+              do not need the original photos to edit.
+            </p>
+          </div>
+          <div class="editor-formats__group">
+            <h3 class="editor-formats__title">Exports</h3>
+            <ul class="editor-formats__list">
+              {exportFormats.map((format) => <li class="pill pill--tag">{format}</li>)}
+            </ul>
+            <p>
+              The HTML viewer export writes a page with the scene that opens in any browser. Several models can be
+              exported together or merged into one file.
+            </p>
+          </div>
+          <div class="editor-formats__group">
+            <h3 class="editor-formats__title">Saves and publishes</h3>
+            <ul class="editor-formats__list">
+              <li class="pill pill--tag">.licht project</li>
+              <li class="pill pill--tag">Online gallery</li>
+            </ul>
+            <p>
+              A project keeps models, groups, the view and the window layout together. Publish to Gallery in the File
+              menu puts the scene online with a share link that can expire.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="tutorials" class="shell editor-section rule-top" aria-labelledby="tutorials-heading">
+        <div class="section-head">
+          <div>
+            <p class="kicker">Video tutorials</p>
+            <h2 id="tutorials-heading" class="section-title">The editing series</h2>
+            <p class="section-copy mt-3">
+              Seven short videos, about {tutorialMinutes} minutes in total, from navigating a scene to publishing it.
+            </p>
+          </div>
+          <a
+            class="section-link"
+            href={EDITING_PLAYLIST_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-analytics-event={ANALYTICS_EVENTS.ctaClicked}
+            data-analytics-prop-placement="editor_tutorials"
+            data-analytics-prop-target="youtube_editing_playlist"
+          >
+            Open the playlist
+          </a>
+        </div>
+
+        <ol class="editor-videos">
+          {
+            tutorials.map((video, index) => (
+              <li class="editor-video">
+                <VideoFacade
+                  videoId={video.id}
+                  title={tutorialVideoTitle(index, video.title)}
+                  poster={`${base}static/editor/tutorial-part-${index + 1}-1280.webp`}
+                  posterSrcset={`${base}static/editor/tutorial-part-${index + 1}-640.webp 640w, ${base}static/editor/tutorial-part-${index + 1}-1280.webp 1280w`}
+                  posterSizes="(max-width: 575.98px) 100vw, (max-width: 991.98px) 50vw, 280px"
+                  posterWidth={1280}
+                  posterHeight={720}
+                  analyticsPlacement="editor_tutorials"
+                  analyticsTarget={`youtube_editing_part_${index + 1}`}
+                />
+                <p class="editor-video__meta">
+                  Part {index + 1} <span aria-hidden="true">·</span> {video.duration}
+                </p>
+                <h3 class="editor-video__title">{video.title}</h3>
+                <p class="editor-video__desc">{video.text}</p>
+              </li>
+            ))
+          }
+          <li class="editor-video editor-video--more">
+            <a
+              class="editor-video__playlist"
+              href={EDITING_PLAYLIST_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-analytics-event={ANALYTICS_EVENTS.ctaClicked}
+              data-analytics-prop-placement="editor_tutorials_grid"
+              data-analytics-prop-target="youtube_editing_playlist"
+            >
+              <span class="editor-video__playlist-count">{tutorials.length} videos</span>
+              <span class="editor-video__playlist-label">Watch the whole series on YouTube</span>
+            </a>
+          </li>
+        </ol>
+      </section>
+
+      <section id="faq" class="shell editor-section rule-top" aria-labelledby="faq-heading">
+        <p class="kicker">FAQ</p>
+        <h2 id="faq-heading" class="section-title">Questions about editing splats</h2>
+        <dl class="faq-grid">
+          {
+            faqItems.map((item) => (
+              <div class="faq-item">
+                <dt class="faq-item__question">{item.question}</dt>
+                {item.answerHtml ? (
+                  <dd class="faq-item__answer" set:html={item.answerHtml} />
+                ) : (
+                  <dd class="faq-item__answer">{item.answer}</dd>
+                )}
+              </div>
+            ))
+          }
+        </dl>
+      </section>
+
+      <section class="shell shell--spacious editor-section editor-cta rule-top" aria-labelledby="cta-heading">
+        <div>
+          <h2 id="cta-heading" class="section-title">Clean up your next splat</h2>
+          <p class="section-copy mt-3">
+            Get the Windows build from the LichtFeld portal, or build LichtFeld Studio from source on Windows and Linux.
+          </p>
+        </div>
+        <div class="editor-cta__actions">
+          <a
+            class="action-btn action-btn--primary"
+            href={LICHTFELD_PORTAL_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-analytics-outbound="lichtfeld_portal"
+            data-analytics-placement="editor_footer_cta"
+          >
+            Get the app
+          </a>
+          <a
+            class="action-btn action-btn--secondary"
+            href={GITHUB_REPO_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-analytics-outbound="github_repo"
+            data-analytics-placement="editor_footer_cta"
+          >
+            Source on GitHub
+          </a>
+        </div>
+      </section>
+    </div>
+  </article>
+
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+  <script type="application/ld+json" set:html={JSON.stringify(tutorialSchema)} />
+</Layout>
+
+<style>
+  .editor-page {
+    background: var(--page-bg);
+    padding-bottom: clamp(2rem, 5vw, 4rem);
+  }
+
+  .editor-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+    gap: clamp(1.8rem, 4vw, 3rem);
+    align-items: end;
+    padding-top: clamp(2.5rem, 6vw, 4.5rem);
+  }
+
+  .editor-hero__title {
+    margin: 0 0 1rem;
+    max-width: 14ch;
+  }
+
+  .editor-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.6rem;
+  }
+
+  .editor-hero__facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.4rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .editor-hero__facts .stat-block strong {
+    font-size: 1.15rem;
+  }
+
+  .editor-figure {
+    margin: 0.5rem 0 0;
+  }
+
+  /* The images render inside <Screenshot>, outside this page's style scope. */
+  .editor-page :global(.editor-figure__image),
+  .editor-page :global(.editor-shot) {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: var(--rounded-xl);
+    border: 1px solid var(--color-border-subtle);
+    background: var(--color-code-bg);
+  }
+
+  .editor-figure__caption {
+    margin-top: 0.8rem;
+    color: var(--color-muted);
+    font-size: 0.92rem;
+    line-height: 1.6;
+  }
+
+  .editor-section {
+    padding-block: clamp(2.5rem, 5vw, 4rem);
+  }
+
+  .editor-section :global(kbd) {
+    display: inline-block;
+    min-width: 1.6em;
+    padding: 0.08em 0.42em;
+    border-radius: 0.35rem;
+    border: 1px solid var(--color-border-subtle);
+    border-bottom-width: 2px;
+    background: rgba(var(--ink-rgb), 0.04);
+    color: var(--color-heading);
+    font-family: var(--font-mono);
+    font-size: 0.82em;
+    font-weight: 600;
+    line-height: 1.5;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .editor-steps,
+  .editor-tools,
+  .editor-compose,
+  .editor-videos {
+    margin: 2.2rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .editor-steps {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.8rem;
+  }
+
+  .editor-step__index {
+    display: block;
+    margin-top: 1.1rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--color-primary);
+  }
+
+  .editor-step__title {
+    margin: 0.45rem 0 0;
+    color: var(--color-heading);
+    font-size: 1.15rem;
+    line-height: 1.35;
+  }
+
+  .editor-step__desc {
+    margin: 0.45rem 0 0;
+    color: var(--color-body);
+    line-height: 1.7;
+  }
+
+  .editor-keys {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
+    margin: 2rem 0 0;
+    border-top: 1px solid var(--color-border-subtle);
+  }
+
+  .editor-keys__item {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+
+  .editor-keys__item dt {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex: none;
+  }
+
+  .editor-keys__item dd {
+    margin: 0;
+    color: var(--color-body);
+    font-size: 0.94rem;
+  }
+
+  .editor-keys__plus {
+    color: var(--color-muted);
+    font-size: 0.8rem;
+  }
+
+  .editor-tools {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 2rem 1.4rem;
+  }
+
+  .editor-compose {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2.4rem 1.8rem;
+  }
+
+  .editor-tool__title {
+    margin: 0.95rem 0 0;
+    color: var(--color-heading);
+    font-size: 1.05rem;
+    line-height: 1.35;
+  }
+
+  .editor-tool__desc {
+    margin: 0.35rem 0 0;
+    color: var(--color-body);
+    font-size: 0.95rem;
+    line-height: 1.65;
+  }
+
+  .editor-split {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    gap: clamp(1.6rem, 4vw, 3rem);
+    align-items: center;
+    margin-top: 2.4rem;
+  }
+
+  .editor-split--reverse > :first-child {
+    order: 2;
+  }
+
+  .editor-split__title {
+    margin: 0 0 0.6rem;
+    color: var(--color-heading);
+    font-size: clamp(1.3rem, 2vw, 1.6rem);
+    line-height: 1.2;
+  }
+
+  .editor-split__copy p {
+    margin: 0.7rem 0 0;
+    color: var(--color-body);
+    line-height: 1.75;
+  }
+
+  .editor-formats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.8rem 2.5rem;
+    margin-top: 2.2rem;
+  }
+
+  .editor-formats__group {
+    border-top: 1px solid var(--color-border-subtle);
+    padding-top: 1.1rem;
+  }
+
+  .editor-formats__group p {
+    margin: 1rem 0 0;
+    color: var(--color-body);
+    line-height: 1.7;
+  }
+
+  .editor-formats__title {
+    margin: 0;
+    color: var(--color-heading);
+    font-size: 1.05rem;
+  }
+
+  .editor-formats__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin: 0.85rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .editor-videos {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 2rem 1.4rem;
+  }
+
+  .editor-video__meta {
+    margin: 0.85rem 0 0;
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+  }
+
+  .editor-video__title {
+    margin: 0.3rem 0 0;
+    color: var(--color-heading);
+    font-size: 1.02rem;
+    line-height: 1.35;
+  }
+
+  .editor-video__desc {
+    margin: 0.3rem 0 0;
+    color: var(--color-body);
+    font-size: 0.94rem;
+    line-height: 1.6;
+  }
+
+  .editor-video__playlist {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 0.4rem;
+    aspect-ratio: 16 / 9;
+    padding: 1.1rem 1.2rem;
+    border-radius: var(--rounded-xl);
+    border: 1px solid var(--color-border-subtle);
+    background: rgba(var(--color-primary-rgb), 0.06);
+    color: var(--color-heading);
+    text-decoration: none;
+    transition:
+      border-color var(--transition-fast),
+      background-color var(--transition-fast);
+  }
+
+  .editor-video__playlist:hover,
+  .editor-video__playlist:focus-visible {
+    border-color: var(--color-border-hover);
+    background: rgba(var(--color-primary-rgb), 0.1);
+  }
+
+  .editor-video__playlist-count {
+    color: var(--color-primary-link);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+  }
+
+  .editor-video__playlist-label {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  .editor-video__playlist-label::after {
+    content: " →";
+    color: var(--color-primary-link);
+  }
+
+  .editor-cta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem 2.5rem;
+    flex-wrap: wrap;
+  }
+
+  .editor-cta__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  @media (max-width: 991.98px) {
+    .editor-hero {
+      grid-template-columns: 1fr;
+      align-items: start;
+    }
+
+    .editor-tools,
+    .editor-videos {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .editor-keys {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: 1.5rem;
+    }
+
+    .editor-split {
+      grid-template-columns: 1fr;
+    }
+
+    .editor-split--reverse > :first-child {
+      order: 0;
+    }
+
+    .editor-formats {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    .editor-steps,
+    .editor-compose {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .editor-hero__facts,
+    .editor-tools,
+    .editor-videos,
+    .editor-keys {
+      grid-template-columns: 1fr;
+    }
+
+    .editor-hero__actions .action-btn {
+      flex: 1 1 100%;
+    }
+
+    .editor-video--more {
+      display: none;
+    }
+  }
+</style>
